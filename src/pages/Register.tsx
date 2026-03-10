@@ -6,9 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Logo } from "@/components/Logo";
+import { AuthPhotoCarousel } from "@/components/AuthPhotoCarousel";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import authImg from "@/assets/auth-illustration.png";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -56,8 +56,11 @@ export default function Register() {
   return (
     <div className="min-h-screen flex">
       <div className="flex-1 flex flex-col justify-center px-8 md:px-16 lg:px-24 max-w-xl">
-        <div className="mb-10">
-          <Link to="/"><Logo size="md" /></Link>
+        <div className="mb-8">
+          <Link to="/"><Logo size="lg" /></Link>
+          <p className="text-sm text-muted-foreground mt-2 font-medium tracking-wide uppercase">
+            AI-Powered Project Discovery
+          </p>
         </div>
         <div className="space-y-2 mb-8">
           <h1 className="font-display text-3xl font-bold">Créer un compte 🚀</h1>
@@ -66,7 +69,6 @@ export default function Register() {
           </p>
         </div>
 
-        {/* Google OAuth (step 1 only) */}
         {step === 1 && (
           <>
             <Button
@@ -96,7 +98,6 @@ export default function Register() {
           </>
         )}
 
-        {/* Progress */}
         <div className="flex gap-2 mb-6">
           <div className={`h-1.5 flex-1 rounded-full ${step >= 1 ? "gradient-primary" : "bg-muted"}`} />
           <div className={`h-1.5 flex-1 rounded-full ${step >= 2 ? "gradient-primary" : "bg-muted"}`} />
@@ -159,14 +160,9 @@ export default function Register() {
         </p>
       </div>
 
-      {/* Right */}
-      <div className="hidden lg:flex flex-1 gradient-primary items-center justify-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_70%,rgba(255,255,255,0.15),transparent)]" />
-        <div className="relative text-primary-foreground text-center max-w-md p-12">
-          <img src={authImg} alt="" className="w-48 mx-auto mb-8 opacity-90" />
-          <h2 className="font-display text-3xl font-bold mb-4">Rejoignez IMOTION</h2>
-          <p className="text-primary-foreground/80">Plus de 150 entreprises transforment déjà leurs idées en projets concrets.</p>
-        </div>
+      {/* Right - Photo carousel */}
+      <div className="hidden lg:block flex-1 relative">
+        <AuthPhotoCarousel />
       </div>
     </div>
   );
