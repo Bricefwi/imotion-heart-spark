@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import logoImg from "@/assets/logo-imotion.png";
 
 interface LogoProps {
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   showText?: boolean;
   className?: string;
 }
@@ -11,7 +11,8 @@ export function Logo({ size = "md", showText = false, className }: LogoProps) {
   const imgSizes = {
     sm: "h-12",
     md: "h-16",
-    lg: "h-20",
+    lg: "h-24",
+    xl: "h-32",
   };
 
   return (
