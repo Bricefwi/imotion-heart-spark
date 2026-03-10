@@ -612,6 +612,11 @@ export default function ConsultantProjectDetail() {
                                     <PenLine className="h-3.5 w-3.5 mr-1" /> Demander signature
                                   </Button>
                                 )}
+                                <Button variant="outline" size="sm" className="text-xs" asChild>
+                                  <Link to={`/consultant/documents/${doc.id}/edit`}>
+                                    <Pencil className="h-3.5 w-3.5 mr-1" /> Modifier
+                                  </Link>
+                                </Button>
                                 {doc.storage_url && (
                                   <Button variant="ghost" size="icon" asChild>
                                     <a href={doc.storage_url} target="_blank" rel="noopener noreferrer">
