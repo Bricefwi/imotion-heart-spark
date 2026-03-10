@@ -38,6 +38,7 @@ import ConsultantAnalytics from "@/pages/consultant/Analytics";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminUsers from "@/pages/admin/Users";
 import AdminSettings from "@/pages/admin/Settings";
+import AdminTemplates from "@/pages/admin/Templates";
 
 const queryClient = new QueryClient();
 

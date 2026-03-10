@@ -571,6 +571,28 @@ export default function ConsultantProjectDetail() {
                       ))}
                     </div>
                   )}
+
+                  {/* Streaming preview */}
+                  {streamingContent && (
+                    <Card className="mt-4 border border-primary/20">
+                      <CardHeader className="pb-2">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="font-display text-sm flex items-center gap-2">
+                            {isGenerating && <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />}
+                            {isGenerating ? "Génération en cours..." : "Document généré"}
+                          </CardTitle>
+                          {!isGenerating && (
+                            <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => setStreamingContent("")}>
+                              Fermer
+                            </Button>
+                          )}
+                        </div>
+                      </CardHeader>
+                      <CardContent className="prose prose-sm max-w-none max-h-[500px] overflow-y-auto">
+                        <ReactMarkdown>{streamingContent}</ReactMarkdown>
+                      </CardContent>
+                    </Card>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
