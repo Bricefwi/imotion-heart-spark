@@ -50,7 +50,76 @@ serve(async (req) => {
       });
     }
 
-    // Get ALL conversation messages for context
+    // ─── Section Regeneration Mode ─────────────────────────
+    if (regenerateSection && sectionContext !== undefined) {
+      const client = project.client;
+      const discoveryData = project.discovery_data || {};
+      const { data: allMsgs } = await supabase
+        .from("messages")
+        .select("role, content, phase, created_at")
+        .eq("project_id", projectId)
+        .order("created_at", { ascending: true })
+        .limit(200);
+
+      const conversationCtx = formatConversationForPrompt(allMsgs || []);
+      const docType = type || "cdc";
+
+      const sectionPrompt = `Tu dois UNIQUEMENT régénérer la section suivante d'un document de type "${docType}".
+
+## Section à régénérer : "${regenerateSection}"
+
+## Contenu actuel de cette section (à améliorer) :
+${sectionContext}
+
+## Contexte du projet :
+- Nom : ${project.name} (Réf. ${project.code})
+- Client : ${client?.full_name || "N/A"} — ${client?.company_name || "N/A"}
+- Secteur : ${client?.industry || "Non spécifié"}
+- Budget : ${project.estimated_budget_min || "?"} - ${project.estimated_budget_max || "?"}€
+
+## Données de découverte :
+${JSON.stringify(discoveryData, null, 2)}
+
+## Échanges client (résumé) :
+${conversationCtx.substring(0, 3000)}
+
+INSTRUCTIONS :
+- Régénère UNIQUEMENT le contenu de cette section, PAS le titre (pas de # en début)
+- Améliore la qualité, la précision et le niveau de détail
+- Utilise les données réelles du client
+- Format Markdown (sous-titres ##/###, listes, tableaux si pertinent)
+- Ton professionnel, pas de remplissage`;
+
+      const sectionAiBody = {
+        model: "google/gemini-2.5-flash",
+        messages: [
+          { role: "system", content: getSystemPrompt(docType) },
+          { role: "user", content: sectionPrompt },
+        ],
+        stream: false,
+      };
+
+      const sectionResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify(sectionAiBody),
+      });
+
+      if (!sectionResponse.ok) {
+        const t = await sectionResponse.text();
+        console.error("AI section regen error:", sectionResponse.status, t);
+        throw new Error("Erreur lors de la régénération de la section");
+      }
+
+      const sectionAiResult = await sectionResponse.json();
+      const newContent = sectionAiResult.choices?.[0]?.message?.content || "";
+
+      return new Response(JSON.stringify({ success: true, content: newContent }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // ─── Full Document Generation ─────────────────────────
     const { data: allMessages } = await supabase
       .from("messages")
       .select("role, content, phase, created_at")
