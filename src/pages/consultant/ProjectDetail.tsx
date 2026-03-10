@@ -540,35 +540,80 @@ export default function ConsultantProjectDetail() {
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      {documents.map((doc) => (
-                        <div key={doc.id} className="flex items-center justify-between p-3 rounded-lg border">
-                          <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                              <FileText className="h-5 w-5 text-primary" />
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium">{doc.name}</p>
-                              <div className="flex items-center gap-2 mt-0.5">
-                                <Badge variant="outline" className="text-[10px]">{doc.type}</Badge>
-                                <Badge variant="secondary" className="text-[10px]">{doc.status}</Badge>
-                                <span className="text-[10px] text-muted-foreground">v{doc.version}</span>
+                      {documents.map((doc) => {
+                        const isSigned = doc.status === "signed";
+                        const needsSignature = doc.requires_signature && !isSigned;
+                        const canRequestSignature = (doc.type === "contract" || doc.type === "proposal") && !doc.requires_signature && doc.status !== "signed";
+
+                        return (
+                          <div key={doc.id} className="rounded-lg border overflow-hidden">
+                            <div className="flex items-center justify-between p-3">
+                              <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                                  <FileText className="h-5 w-5 text-primary" />
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium">{doc.name}</p>
+                                  <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                                    <Badge variant="outline" className="text-[10px]">{doc.type}</Badge>
+                                    <Badge variant="secondary" className="text-[10px]">{doc.status}</Badge>
+                                    <span className="text-[10px] text-muted-foreground">v{doc.version}</span>
+                                    {needsSignature && (
+                                      <Badge variant="destructive" className="text-[10px]">
+                                        <Clock className="h-2.5 w-2.5 mr-0.5" /> En attente de signature
+                                      </Badge>
+                                    )}
+                                    {isSigned && (
+                                      <Badge className="text-[10px] bg-green-600">
+                                        <ShieldCheck className="h-2.5 w-2.5 mr-0.5" /> Signé
+                                      </Badge>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex gap-1">
+                                {canRequestSignature && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="text-xs"
+                                    onClick={async () => {
+                                      const { error } = await supabase
+                                        .from("documents")
+                                        .update({ requires_signature: true, status: "sent" })
+                                        .eq("id", doc.id);
+                                      if (error) {
+                                        toast.error("Erreur");
+                                      } else {
+                                        toast.success("Signature demandée au client");
+                                        queryClient.invalidateQueries({ queryKey: ["project-documents", id] });
+                                      }
+                                    }}
+                                  >
+                                    <PenLine className="h-3.5 w-3.5 mr-1" /> Demander signature
+                                  </Button>
+                                )}
+                                {doc.storage_url && (
+                                  <Button variant="ghost" size="icon" asChild>
+                                    <a href={doc.storage_url} target="_blank" rel="noopener noreferrer">
+                                      <Eye className="h-4 w-4" />
+                                    </a>
+                                  </Button>
+                                )}
+                                <Button variant="ghost" size="icon">
+                                  <Download className="h-4 w-4" />
+                                </Button>
                               </div>
                             </div>
-                          </div>
-                          <div className="flex gap-1">
-                            {doc.storage_url && (
-                              <Button variant="ghost" size="icon" asChild>
-                                <a href={doc.storage_url} target="_blank" rel="noopener noreferrer">
-                                  <Eye className="h-4 w-4" />
-                                </a>
-                              </Button>
+                            {isSigned && doc.signed_at && (
+                              <div className="bg-green-50 px-3 py-2 text-xs text-green-700 flex items-center gap-2 border-t">
+                                <CheckCircle className="h-3.5 w-3.5" />
+                                Signé le {new Date(doc.signed_at).toLocaleDateString("fr-FR")}
+                              </div>
                             )}
-                            <Button variant="ghost" size="icon">
-                              <Download className="h-4 w-4" />
-                            </Button>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
 
