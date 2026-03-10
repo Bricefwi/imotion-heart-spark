@@ -175,21 +175,72 @@ export default function ConsultantProjectDetail() {
     onError: (error: any) => toast.error(error.message),
   });
 
-  // Generate CDC
-  const generateCDC = useMutation({
-    mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke("generate-document", {
-        body: { projectId: id, type: "cdc" },
+  // Streaming document generation
+  const [streamingContent, setStreamingContent] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatingType, setGeneratingType] = useState<string | null>(null);
+
+  const generateDocument = useCallback(async (docType: string = "cdc") => {
+    setIsGenerating(true);
+    setGeneratingType(docType);
+    setStreamingContent("");
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Not authenticated");
+
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const response = await fetch(`${supabaseUrl}/functions/v1/generate-document`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session.access_token}`,
+          "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify({ projectId: id, type: docType, stream: true }),
       });
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Erreur lors de la génération");
+      }
+
+      const reader = response.body!.getReader();
+      const decoder = new TextDecoder();
+      let accumulated = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split("\n");
+
+        for (const line of lines) {
+          if (line.startsWith("data: ") && line !== "data: [DONE]") {
+            try {
+              const parsed = JSON.parse(line.slice(6));
+              // First event contains document_id
+              if (parsed.document_id) continue;
+              const delta = parsed.choices?.[0]?.delta?.content || "";
+              if (delta) {
+                accumulated += delta;
+                setStreamingContent(accumulated);
+              }
+            } catch { /* skip */ }
+          }
+        }
+      }
+
       queryClient.invalidateQueries({ queryKey: ["project-documents", id] });
-      toast.success("CDC généré avec succès !");
-    },
-    onError: (error: any) => toast.error(error.message || "Erreur lors de la génération"),
-  });
+      toast.success(`${docType === "cdc" ? "CDC" : docType === "proposal" ? "Proposition" : "Contrat"} généré !`);
+    } catch (err: any) {
+      toast.error(err.message || "Erreur lors de la génération");
+    } finally {
+      setIsGenerating(false);
+      setGeneratingType(null);
+    }
+  }, [id, queryClient]);
 
   if (projectLoading) {
     return (
