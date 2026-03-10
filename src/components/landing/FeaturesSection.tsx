@@ -8,9 +8,9 @@ const features = [
   {
     image: featureConversation,
     badge: "Étape 1",
-    title: "Conversation guidée par l'IA",
+    title: "Un accompagnement sur-mesure pour cerner vos ambitions",
     description:
-      "Notre consultant IA vous pose les bonnes questions en 7 phases structurées pour explorer votre vision, vos contraintes et vos objectifs. Pas de jargon technique — juste une discussion naturelle.",
+      "Nos consultants vous guident a travers un echange approfondi en 7 phases structurees pour reveler votre vision, identifier vos enjeux et transformer vos idees en un plan d'action concret. Pas de jargon technique — juste une conversation qui fait avancer votre projet.",
     highlights: ["7 phases de découverte", "Questions adaptatives", "Analyse en temps réel"],
   },
   {
