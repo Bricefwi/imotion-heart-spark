@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 const adminNav = [
   { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard },
   { title: "Utilisateurs", url: "/admin/users", icon: Users },
+  { title: "Blog", url: "/admin/blog", icon: BookOpen },
   { title: "Templates", url: "/admin/templates", icon: FileText },
   { title: "Paramètres", url: "/admin/settings", icon: Settings },
   { title: "Intégrations", url: "/admin/integrations", icon: Plug },
