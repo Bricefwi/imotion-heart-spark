@@ -26,6 +26,7 @@ import ClientProjects from "@/pages/client/Projects";
 import ProjectConversation from "@/pages/client/ProjectConversation";
 import ClientDocuments from "@/pages/client/Documents";
 import NewProject from "@/pages/client/NewProject";
+import ClientProfile from "@/pages/client/Profile";
 
 // Consultant pages
 import ConsultantDashboard from "@/pages/consultant/Dashboard";
@@ -65,7 +66,7 @@ const App = () => (
               <Route path="/client/projects/new" element={<NewProject />} />
               <Route path="/client/projects/:id/conversation" element={<ProjectConversation />} />
               <Route path="/client/documents" element={<ClientDocuments />} />
-              <Route path="/client/profile" element={<ClientDashboard />} />
+              <Route path="/client/profile" element={<ClientProfile />} />
             </Route>
 
             {/* Consultant */}
