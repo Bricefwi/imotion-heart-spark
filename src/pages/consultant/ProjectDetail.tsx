@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   ArrowLeft, FileText, Download, MessageSquare, Send, Star, Phone, Mail,
-  Loader2, Clock, AlertTriangle, CheckCircle, RefreshCw, Eye, PenLine, ShieldCheck
+  Loader2, Clock, AlertTriangle, CheckCircle, RefreshCw, Eye, PenLine, ShieldCheck, Pencil
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
