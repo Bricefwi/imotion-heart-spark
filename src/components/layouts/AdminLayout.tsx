@@ -7,12 +7,13 @@ import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, useSidebar,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, Users, Settings, Plug, ScrollText, LogOut, Shield, FileText } from "lucide-react";
+import { LayoutDashboard, Users, Settings, Plug, ScrollText, LogOut, Shield, FileText, BookOpen } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const adminNav = [
   { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard },
   { title: "Utilisateurs", url: "/admin/users", icon: Users },
+  { title: "Blog", url: "/admin/blog", icon: BookOpen },
   { title: "Templates", url: "/admin/templates", icon: FileText },
   { title: "Paramètres", url: "/admin/settings", icon: Settings },
   { title: "Intégrations", url: "/admin/integrations", icon: Plug },
