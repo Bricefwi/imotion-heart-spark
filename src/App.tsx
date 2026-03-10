@@ -34,6 +34,7 @@ import ConsultantDashboard from "@/pages/consultant/Dashboard";
 import ConsultantProjects from "@/pages/consultant/Projects";
 import ConsultantProjectDetail from "@/pages/consultant/ProjectDetail";
 import ConsultantAnalytics from "@/pages/consultant/Analytics";
+import ConsultantDocumentEditor from "@/pages/consultant/DocumentEditor";
 
 // Admin pages
 import AdminDashboard from "@/pages/admin/Dashboard";
