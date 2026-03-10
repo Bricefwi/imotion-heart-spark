@@ -26,6 +26,7 @@ import ClientProjects from "@/pages/client/Projects";
 import ProjectConversation from "@/pages/client/ProjectConversation";
 import ClientDocuments from "@/pages/client/Documents";
 import NewProject from "@/pages/client/NewProject";
+import ClientProfile from "@/pages/client/Profile";
 
 // Consultant pages
 import ConsultantDashboard from "@/pages/consultant/Dashboard";
