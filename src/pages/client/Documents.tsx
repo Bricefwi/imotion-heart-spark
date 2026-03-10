@@ -1,12 +1,15 @@
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FileText, Download, Eye, PenLine, Loader2 } from "lucide-react";
+import { FileText, Download, Eye, PenLine, Loader2, CheckCircle, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery } from "@tanstack/react-query";
-import { formatDistanceToNow } from "date-fns";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { formatDistanceToNow, format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { toast } from "sonner";
+import { SignaturePad } from "@/components/SignaturePad";
 
 const typeLabels: Record<string, string> = {
   cdc: "CDC",
@@ -30,11 +33,12 @@ const statusLabels: Record<string, { label: string; variant: "default" | "second
 
 export default function ClientDocuments() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const [signingDoc, setSigningDoc] = useState<any>(null);
 
   const { data: documents = [], isLoading } = useQuery({
     queryKey: ["client-documents", user?.id],
     queryFn: async () => {
-      // Get user's projects first, then get documents for those projects
       const { data: projects } = await supabase
         .from("projects")
         .select("id")
@@ -53,6 +57,34 @@ export default function ClientDocuments() {
     },
     enabled: !!user,
   });
+
+  const handleSign = async (signatureDataUrl: string) => {
+    if (!signingDoc || !user) return;
+
+    const { error } = await supabase
+      .from("documents")
+      .update({
+        status: "signed",
+        signed_at: new Date().toISOString(),
+        signed_by: user.id,
+        signature_data: {
+          image: signatureDataUrl,
+          signed_at: new Date().toISOString(),
+          signer_id: user.id,
+          signer_ip: "client-side",
+          user_agent: navigator.userAgent,
+        },
+      })
+      .eq("id", signingDoc.id);
+
+    if (error) {
+      toast.error("Erreur lors de la signature.");
+      throw error;
+    }
+
+    toast.success("Document signé avec succès !");
+    queryClient.invalidateQueries({ queryKey: ["client-documents", user.id] });
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -79,47 +111,86 @@ export default function ClientDocuments() {
         <div className="grid gap-4">
           {documents.map((doc) => {
             const status = statusLabels[doc.status || "draft"] || statusLabels.draft;
+            const isSigned = doc.status === "signed";
+            const needsSignature = doc.requires_signature && !isSigned;
+
             return (
               <Card key={doc.id} className="border-0 shadow-sm">
-                <CardContent className="p-5 flex items-center justify-between">
-                  <div className="flex items-center gap-4 min-w-0">
-                    <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                      <FileText className="h-5 w-5 text-primary" />
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className="font-medium text-sm truncate">{doc.name}</h3>
-                      <div className="flex items-center gap-2 mt-1 flex-wrap">
-                        <Badge variant="outline" className="text-[10px]">{typeLabels[doc.type] || doc.type}</Badge>
-                        <Badge variant={status.variant} className="text-[10px]">{status.label}</Badge>
-                        <span className="text-xs text-muted-foreground">
-                          v{doc.version} · {doc.updated_at && formatDistanceToNow(new Date(doc.updated_at), { addSuffix: true, locale: fr })}
-                        </span>
+                <CardContent className="p-5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4 min-w-0">
+                      <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                        <FileText className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="font-medium text-sm truncate">{doc.name}</h3>
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          <Badge variant="outline" className="text-[10px]">{typeLabels[doc.type] || doc.type}</Badge>
+                          <Badge variant={status.variant} className="text-[10px]">{status.label}</Badge>
+                          {needsSignature && (
+                            <Badge variant="destructive" className="text-[10px] animate-pulse">
+                              <PenLine className="h-2.5 w-2.5 mr-0.5" /> Signature requise
+                            </Badge>
+                          )}
+                          <span className="text-xs text-muted-foreground">
+                            v{doc.version} · {doc.updated_at && formatDistanceToNow(new Date(doc.updated_at), { addSuffix: true, locale: fr })}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex gap-2 shrink-0">
-                    {doc.storage_url && (
-                      <Button variant="ghost" size="icon" asChild>
-                        <a href={doc.storage_url} target="_blank" rel="noopener noreferrer">
-                          <Eye className="h-4 w-4" />
-                        </a>
+                    <div className="flex gap-2 shrink-0">
+                      {doc.storage_url && (
+                        <Button variant="ghost" size="icon" asChild>
+                          <a href={doc.storage_url} target="_blank" rel="noopener noreferrer">
+                            <Eye className="h-4 w-4" />
+                          </a>
+                        </Button>
+                      )}
+                      <Button variant="ghost" size="icon">
+                        <Download className="h-4 w-4" />
                       </Button>
-                    )}
-                    <Button variant="ghost" size="icon">
-                      <Download className="h-4 w-4" />
-                    </Button>
-                    {doc.requires_signature && doc.status !== "signed" && (
-                      <Button size="sm" className="gradient-primary border-0">
-                        <PenLine className="h-3.5 w-3.5 mr-1" /> Signer
-                      </Button>
-                    )}
+                      {needsSignature && (
+                        <Button
+                          size="sm"
+                          className="gradient-primary border-0"
+                          onClick={() => setSigningDoc(doc)}
+                        >
+                          <PenLine className="h-3.5 w-3.5 mr-1" /> Signer
+                        </Button>
+                      )}
+                    </div>
                   </div>
+
+                  {/* Signature info */}
+                  {isSigned && doc.signed_at && (
+                    <div className="mt-3 pt-3 border-t flex items-center gap-2 text-xs text-green-700 bg-green-50 -mx-5 -mb-5 px-5 py-3 rounded-b-xl">
+                      <CheckCircle className="h-3.5 w-3.5" />
+                      <span>
+                        Signé le {format(new Date(doc.signed_at), "dd MMM yyyy 'à' HH:mm", { locale: fr })}
+                      </span>
+                    </div>
+                  )}
+
+                  {needsSignature && (
+                    <div className="mt-3 pt-3 border-t flex items-center gap-2 text-xs text-muted-foreground">
+                      <Clock className="h-3.5 w-3.5" />
+                      <span>En attente de votre signature</span>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             );
           })}
         </div>
       )}
+
+      {/* Signature dialog */}
+      <SignaturePad
+        open={!!signingDoc}
+        onOpenChange={(open) => !open && setSigningDoc(null)}
+        documentName={signingDoc?.name || ""}
+        onSign={handleSign}
+      />
     </div>
   );
 }
