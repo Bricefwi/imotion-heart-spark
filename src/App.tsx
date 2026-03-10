@@ -34,6 +34,7 @@ import ConsultantDashboard from "@/pages/consultant/Dashboard";
 import ConsultantProjects from "@/pages/consultant/Projects";
 import ConsultantProjectDetail from "@/pages/consultant/ProjectDetail";
 import ConsultantAnalytics from "@/pages/consultant/Analytics";
+import ConsultantDocumentEditor from "@/pages/consultant/DocumentEditor";
 
 // Admin pages
 import AdminDashboard from "@/pages/admin/Dashboard";
@@ -78,6 +79,7 @@ const App = () => (
               <Route path="/consultant/dashboard" element={<ConsultantDashboard />} />
               <Route path="/consultant/projects" element={<ConsultantProjects />} />
               <Route path="/consultant/projects/:id" element={<ConsultantProjectDetail />} />
+              <Route path="/consultant/documents/:id/edit" element={<ConsultantDocumentEditor />} />
               <Route path="/consultant/clients" element={<ConsultantDashboard />} />
               <Route path="/consultant/analytics" element={<ConsultantAnalytics />} />
               <Route path="/consultant/templates" element={<ConsultantDashboard />} />
