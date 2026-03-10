@@ -28,6 +28,7 @@ import Register from "@/pages/Register";
 import ForgotPassword from "@/pages/ForgotPassword";
 import ResetPassword from "@/pages/ResetPassword";
 import NotFound from "@/pages/NotFound";
+import Onboarding from "@/pages/client/Onboarding";
 
 // Client pages
 import ClientDashboard from "@/pages/client/Dashboard";
@@ -79,6 +80,9 @@ const App = () => (
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+
+            {/* Client - Onboarding (standalone, no sidebar) */}
+            <Route path="/client/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
 
             {/* Client */}
             <Route element={<ProtectedRoute><ClientLayout /></ProtectedRoute>}>

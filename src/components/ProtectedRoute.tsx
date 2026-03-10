@@ -1,4 +1,4 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
 
@@ -8,7 +8,8 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
-  const { user, roles, loading } = useAuth();
+  const { user, profile, roles, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -24,6 +25,16 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
 
   if (requiredRole && !roles.includes(requiredRole)) {
     return <Navigate to="/client/dashboard" replace />;
+  }
+
+  // Redirect to onboarding if not completed (only for client routes)
+  if (
+    profile &&
+    !profile.onboarding_completed &&
+    !requiredRole &&
+    location.pathname !== "/client/onboarding"
+  ) {
+    return <Navigate to="/client/onboarding" replace />;
   }
 
   return <>{children}</>;
