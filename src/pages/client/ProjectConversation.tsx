@@ -81,7 +81,7 @@ export default function ProjectConversation() {
             id: "welcome",
             role: "assistant",
             content:
-              "Bonjour ! 👋 Je suis l'assistant IMOTION Discovery. Je vais vous aider à définir votre projet digital étape par étape.\n\nPour commencer, pouvez-vous me parler de votre projet ? Qu'est-ce qui vous amène aujourd'hui ?",
+              "Bonjour, je suis l'assistant IMOTION Discovery. Je vais vous accompagner pour définir votre projet digital étape par étape.\n\nPour commencer, pouvez-vous me parler de votre projet ? Qu'est-ce qui vous amène aujourd'hui ?",
             createdAt: new Date(),
             suggestions: [
               "Je veux refondre mon site web",
