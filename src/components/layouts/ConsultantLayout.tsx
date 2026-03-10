@@ -91,10 +91,7 @@ export function ConsultantLayout() {
                 <Input placeholder="Rechercher un projet, client..." className="pl-9 w-72 h-9" />
               </div>
             </div>
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5" />
-              <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full gradient-primary flex items-center justify-center text-[10px] text-white font-bold">5</span>
-            </Button>
+            <NotificationCenter />
           </header>
           <main className="flex-1 p-6 bg-muted/30">
             <Outlet />
