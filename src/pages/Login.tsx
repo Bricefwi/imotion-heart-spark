@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/Logo";
+import { AuthPhotoCarousel } from "@/components/AuthPhotoCarousel";
 import { toast } from "sonner";
 import { Loader2, Mail, Wand2 } from "lucide-react";
-import authImg from "@/assets/auth-illustration.png";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -60,8 +60,11 @@ export default function Login() {
     <div className="min-h-screen flex">
       {/* Left - Form */}
       <div className="flex-1 flex flex-col justify-center px-8 md:px-16 lg:px-24 max-w-xl">
-        <div className="mb-10">
-          <Link to="/"><Logo size="md" /></Link>
+        <div className="mb-8">
+          <Link to="/"><Logo size="lg" /></Link>
+          <p className="text-sm text-muted-foreground mt-2 font-medium tracking-wide uppercase">
+            AI-Powered Project Discovery
+          </p>
         </div>
         <div className="space-y-2 mb-8">
           <h1 className="font-display text-3xl font-bold">
@@ -92,7 +95,6 @@ export default function Login() {
           Continuer avec Google
         </Button>
 
-        {/* Divider */}
         <div className="relative my-4">
           <div className="absolute inset-0 flex items-center"><div className="w-full border-t" /></div>
           <div className="relative flex justify-center text-xs uppercase">
@@ -131,7 +133,6 @@ export default function Login() {
           </form>
         )}
 
-        {/* Toggle mode */}
         <button
           onClick={() => setMode(mode === "password" ? "magic" : "password")}
           className="mt-4 text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5 mx-auto"
@@ -146,25 +147,9 @@ export default function Login() {
         </p>
       </div>
 
-      {/* Right - Illustration */}
-      <div className="hidden lg:flex flex-1 gradient-primary items-center justify-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(255,255,255,0.15),transparent)]" />
-        <div className="relative text-primary-foreground max-w-md p-12">
-          <img src={authImg} alt="" className="w-64 mx-auto mb-8 opacity-90" />
-          <h2 className="font-display text-3xl font-bold mb-4 text-center">Donnez vie à vos idées</h2>
-          <p className="text-primary-foreground/80 text-center mb-8">
-            IMOTION Discovery vous accompagne de l'idée au cahier des charges.
-          </p>
-          <div className="bg-primary-foreground/10 backdrop-blur-sm rounded-2xl p-6 text-left">
-            <p className="text-primary-foreground/90 text-sm italic leading-relaxed mb-4">
-              "IMOTION a parfaitement compris notre besoin et nous a livré une solution sur-mesure en un temps record."
-            </p>
-            <div>
-              <p className="font-semibold text-sm">Marie Dupont</p>
-              <p className="text-xs text-primary-foreground/60">Directrice Marketing</p>
-            </div>
-          </div>
-        </div>
+      {/* Right - Photo carousel */}
+      <div className="hidden lg:block flex-1 relative">
+        <AuthPhotoCarousel />
       </div>
     </div>
   );
