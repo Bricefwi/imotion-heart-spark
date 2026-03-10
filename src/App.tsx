@@ -81,10 +81,8 @@ const App = () => (
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
 
-            {/* Client - Onboarding (no sidebar layout) */}
-            <Route element={<ProtectedRoute><></></ProtectedRoute>}>
-              <Route path="/client/onboarding" element={<Onboarding />} />
-            </Route>
+            {/* Client - Onboarding (standalone, no sidebar) */}
+            <Route path="/client/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
 
             {/* Client */}
             <Route element={<ProtectedRoute><ClientLayout /></ProtectedRoute>}>
