@@ -52,6 +52,8 @@ import AdminUsers from "@/pages/admin/Users";
 import AdminSettings from "@/pages/admin/Settings";
 import AdminTemplates from "@/pages/admin/Templates";
 import AdminBlog from "@/pages/admin/Blog";
+import AdminCRM from "@/pages/admin/CRM";
+import AdminAnalytics from "@/pages/admin/Analytics";
 
 const queryClient = new QueryClient();
 
