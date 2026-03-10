@@ -116,7 +116,8 @@ export default function ClientDocuments() {
             const needsSignature = doc.requires_signature && !isSigned;
 
             return (
-              <Card key={doc.id} className="border-0 shadow-sm">
+              <Card key={doc.id} className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                <Link to={`/client/documents/${doc.id}`}>
                 <CardContent className="p-5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4 min-w-0">
