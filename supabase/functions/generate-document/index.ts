@@ -206,7 +206,12 @@ serve(async (req) => {
 
 function getDocName(type: string, projectName: string): string {
   const names: Record<string, string> = {
-    cdc: "Cahier des Charges", proposal: "Proposition Commerciale", contract: "Contrat de Prestation",
+    cdc: "Cahier des Charges",
+    proposal: "Proposition Commerciale",
+    contract: "Contrat de Prestation",
+    tech_recommendation: "Recommandation Technique & Prompt",
+    pricing: "Proposition Tarifaire Détaillée",
+    contract_fr: "Contrat de Prestation (Droit Français)",
   };
   return `${names[type] || type} - ${projectName}`;
 }
