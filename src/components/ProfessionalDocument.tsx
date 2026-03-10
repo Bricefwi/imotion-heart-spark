@@ -62,7 +62,7 @@ export function ProfessionalDocument({
       const element = documentRef.current;
 
       const opt = {
-        margin: [28, 12, 22, 12], // top, right, bottom, left — extra top/bottom for header/footer
+        margin: [28, 12, 22, 12] as [number, number, number, number],
         filename: `${documentName.replace(/\s+/g, "_")}.pdf`,
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: {
@@ -79,7 +79,7 @@ export function ProfessionalDocument({
         pagebreak: { mode: ["avoid-all", "css", "legacy"] },
       };
 
-      const worker = html2pdf().set(opt).from(element);
+      const worker = (html2pdf() as any).set(opt).from(element);
 
       // Generate PDF then add headers/footers on each page
       await worker.toPdf().get("pdf").then((pdf: any) => {
