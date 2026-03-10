@@ -288,10 +288,10 @@ export default function ConsultantProjectDetail() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => generateCDC.mutate()}
-            disabled={generateCDC.isPending}
+            onClick={() => generateDocument("cdc")}
+            disabled={isGenerating}
           >
-            {generateCDC.isPending ? (
+            {isGenerating && generatingType === "cdc" ? (
               <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
             ) : (
               <FileText className="h-3.5 w-3.5 mr-1" />
