@@ -179,6 +179,7 @@ export default function ClientDocuments() {
                       <span>En attente de votre signature</span>
                     </div>
                   )}
+                </Link>
                 </CardContent>
               </Card>
             );
