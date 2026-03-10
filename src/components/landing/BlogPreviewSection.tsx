@@ -57,14 +57,25 @@ export function BlogPreviewSection() {
             >
               <Link to={`/blog/${post.slug}`}>
                 <Card className="h-full group hover:shadow-lg transition-all overflow-hidden border-border/50">
-                  <div className="aspect-video bg-gradient-to-br from-primary/5 to-secondary/5 flex items-center justify-center">
-                    <span className="text-4xl">
-                      {post.category === "expression-besoin" ? "💬" :
-                       post.category === "image-identite" ? "🎨" :
-                       post.category === "strategie" ? "🎯" :
-                       post.category === "cas-clients" ? "📖" : "🛠️"}
-                    </span>
-                  </div>
+                  {post.cover_image ? (
+                    <div className="aspect-video bg-muted overflow-hidden">
+                      <img
+                        src={post.cover_image}
+                        alt={post.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
+                      />
+                    </div>
+                  ) : (
+                    <div className="aspect-video bg-gradient-to-br from-primary/5 to-secondary/5 flex items-center justify-center">
+                      <span className="text-4xl">
+                        {post.category === "expression-besoin" ? "💬" :
+                         post.category === "image-identite" ? "🎨" :
+                         post.category === "strategie" ? "🎯" :
+                         post.category === "cas-clients" ? "📖" : "🛠️"}
+                      </span>
+                    </div>
+                  )}
                   <CardContent className="p-5 space-y-3">
                     <Badge variant="outline" className="text-xs">
                       {categoryLabels[post.category] || post.category}

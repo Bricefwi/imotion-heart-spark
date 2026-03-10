@@ -169,6 +169,20 @@ export default function BlogArticle() {
                   </>
                 )}
               </div>
+              {post.cover_image && (
+                <motion.div
+                  className="mt-8 rounded-2xl overflow-hidden shadow-lg"
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <img
+                    src={post.cover_image}
+                    alt={post.title}
+                    className="w-full h-auto max-h-[400px] object-cover"
+                  />
+                </motion.div>
+              )}
             </motion.div>
           </div>
         </section>
