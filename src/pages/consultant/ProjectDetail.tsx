@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -175,21 +175,72 @@ export default function ConsultantProjectDetail() {
     onError: (error: any) => toast.error(error.message),
   });
 
-  // Generate CDC
-  const generateCDC = useMutation({
-    mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke("generate-document", {
-        body: { projectId: id, type: "cdc" },
+  // Streaming document generation
+  const [streamingContent, setStreamingContent] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatingType, setGeneratingType] = useState<string | null>(null);
+
+  const generateDocument = useCallback(async (docType: string = "cdc") => {
+    setIsGenerating(true);
+    setGeneratingType(docType);
+    setStreamingContent("");
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Not authenticated");
+
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const response = await fetch(`${supabaseUrl}/functions/v1/generate-document`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session.access_token}`,
+          "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify({ projectId: id, type: docType, stream: true }),
       });
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Erreur lors de la génération");
+      }
+
+      const reader = response.body!.getReader();
+      const decoder = new TextDecoder();
+      let accumulated = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split("\n");
+
+        for (const line of lines) {
+          if (line.startsWith("data: ") && line !== "data: [DONE]") {
+            try {
+              const parsed = JSON.parse(line.slice(6));
+              // First event contains document_id
+              if (parsed.document_id) continue;
+              const delta = parsed.choices?.[0]?.delta?.content || "";
+              if (delta) {
+                accumulated += delta;
+                setStreamingContent(accumulated);
+              }
+            } catch { /* skip */ }
+          }
+        }
+      }
+
       queryClient.invalidateQueries({ queryKey: ["project-documents", id] });
-      toast.success("CDC généré avec succès !");
-    },
-    onError: (error: any) => toast.error(error.message || "Erreur lors de la génération"),
-  });
+      toast.success(`${docType === "cdc" ? "CDC" : docType === "proposal" ? "Proposition" : "Contrat"} généré !`);
+    } catch (err: any) {
+      toast.error(err.message || "Erreur lors de la génération");
+    } finally {
+      setIsGenerating(false);
+      setGeneratingType(null);
+    }
+  }, [id, queryClient]);
 
   if (projectLoading) {
     return (
@@ -237,10 +288,10 @@ export default function ConsultantProjectDetail() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => generateCDC.mutate()}
-            disabled={generateCDC.isPending}
+            onClick={() => generateDocument("cdc")}
+            disabled={isGenerating}
           >
-            {generateCDC.isPending ? (
+            {isGenerating && generatingType === "cdc" ? (
               <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
             ) : (
               <FileText className="h-3.5 w-3.5 mr-1" />
@@ -472,18 +523,20 @@ export default function ConsultantProjectDetail() {
             <TabsContent value="documents">
               <Card className="border-0 shadow-sm">
                 <CardContent className="p-4">
-                  {documents.length === 0 ? (
+                  {documents.length === 0 && !streamingContent ? (
                     <div className="text-center py-8">
                       <FileText className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
                       <p className="text-sm text-muted-foreground mb-4">Aucun document généré.</p>
-                      <Button
-                        variant="outline"
-                        onClick={() => generateCDC.mutate()}
-                        disabled={generateCDC.isPending}
-                      >
-                        <FileText className="h-4 w-4 mr-2" />
-                        Générer le CDC
-                      </Button>
+                      <div className="flex gap-2 justify-center">
+                        <Button variant="outline" onClick={() => generateDocument("cdc")} disabled={isGenerating}>
+                          {isGenerating && generatingType === "cdc" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <FileText className="h-4 w-4 mr-2" />}
+                          Générer CDC
+                        </Button>
+                        <Button variant="outline" onClick={() => generateDocument("proposal")} disabled={isGenerating}>
+                          {isGenerating && generatingType === "proposal" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <FileText className="h-4 w-4 mr-2" />}
+                          Proposition
+                        </Button>
+                      </div>
                     </div>
                   ) : (
                     <div className="space-y-3">
@@ -517,6 +570,28 @@ export default function ConsultantProjectDetail() {
                         </div>
                       ))}
                     </div>
+                  )}
+
+                  {/* Streaming preview */}
+                  {streamingContent && (
+                    <Card className="mt-4 border border-primary/20">
+                      <CardHeader className="pb-2">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="font-display text-sm flex items-center gap-2">
+                            {isGenerating && <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />}
+                            {isGenerating ? "Génération en cours..." : "Document généré"}
+                          </CardTitle>
+                          {!isGenerating && (
+                            <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => setStreamingContent("")}>
+                              Fermer
+                            </Button>
+                          )}
+                        </div>
+                      </CardHeader>
+                      <CardContent className="prose prose-sm max-w-none max-h-[500px] overflow-y-auto">
+                        <ReactMarkdown>{streamingContent}</ReactMarkdown>
+                      </CardContent>
+                    </Card>
                   )}
                 </CardContent>
               </Card>
@@ -676,10 +751,28 @@ export default function ConsultantProjectDetail() {
                 variant="outline"
                 size="sm"
                 className="w-full justify-start text-xs"
-                onClick={() => generateCDC.mutate()}
-                disabled={generateCDC.isPending}
+                onClick={() => generateDocument("cdc")}
+                disabled={isGenerating}
               >
                 <FileText className="h-3.5 w-3.5 mr-2" />Générer CDC
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-start text-xs"
+                onClick={() => generateDocument("proposal")}
+                disabled={isGenerating}
+              >
+                <FileText className="h-3.5 w-3.5 mr-2" />Proposition
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-start text-xs"
+                onClick={() => generateDocument("contract")}
+                disabled={isGenerating}
+              >
+                <FileText className="h-3.5 w-3.5 mr-2" />Contrat
               </Button>
               <Button
                 variant="outline"
