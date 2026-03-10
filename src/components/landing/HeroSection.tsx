@@ -33,9 +33,14 @@ export function HeroSection() {
                 Propulsé par l'IA
               </Badge>
             </motion.div>
+            <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={0.5}>
+              <span className="font-display text-sm md:text-base font-bold tracking-widest uppercase gradient-text">
+                IMOTION Creator Studio
+              </span>
+            </motion.div>
             <motion.h1
               initial="hidden" animate="visible" variants={fadeUp} custom={1}
-              className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6"
+              className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 mt-3"
             >
               Transformez vos idées en{" "}
               <span className="gradient-text">projets digitaux concrets</span>
