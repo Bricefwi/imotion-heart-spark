@@ -28,6 +28,7 @@ import Register from "@/pages/Register";
 import ForgotPassword from "@/pages/ForgotPassword";
 import ResetPassword from "@/pages/ResetPassword";
 import NotFound from "@/pages/NotFound";
+import Onboarding from "@/pages/client/Onboarding";
 
 // Client pages
 import ClientDashboard from "@/pages/client/Dashboard";
