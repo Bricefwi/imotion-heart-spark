@@ -523,18 +523,20 @@ export default function ConsultantProjectDetail() {
             <TabsContent value="documents">
               <Card className="border-0 shadow-sm">
                 <CardContent className="p-4">
-                  {documents.length === 0 ? (
+                  {documents.length === 0 && !streamingContent ? (
                     <div className="text-center py-8">
                       <FileText className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
                       <p className="text-sm text-muted-foreground mb-4">Aucun document généré.</p>
-                      <Button
-                        variant="outline"
-                        onClick={() => generateCDC.mutate()}
-                        disabled={generateCDC.isPending}
-                      >
-                        <FileText className="h-4 w-4 mr-2" />
-                        Générer le CDC
-                      </Button>
+                      <div className="flex gap-2 justify-center">
+                        <Button variant="outline" onClick={() => generateDocument("cdc")} disabled={isGenerating}>
+                          {isGenerating && generatingType === "cdc" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <FileText className="h-4 w-4 mr-2" />}
+                          Générer CDC
+                        </Button>
+                        <Button variant="outline" onClick={() => generateDocument("proposal")} disabled={isGenerating}>
+                          {isGenerating && generatingType === "proposal" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <FileText className="h-4 w-4 mr-2" />}
+                          Proposition
+                        </Button>
+                      </div>
                     </div>
                   ) : (
                     <div className="space-y-3">
