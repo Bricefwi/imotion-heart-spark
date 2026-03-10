@@ -56,35 +56,36 @@ export function BlogPreviewSection() {
               transition={{ delay: i * 0.1 }}
             >
               <Link to={`/blog/${post.slug}`}>
-                <Card className="h-full group hover:shadow-lg transition-all overflow-hidden border-border/50">
-                  {post.cover_image ? (
-                    <div className="aspect-video bg-muted overflow-hidden">
+                <Card className="h-full group hover:shadow-xl transition-all duration-500 overflow-hidden border-border/50 hover:-translate-y-1">
+                  <div className="relative aspect-video bg-muted overflow-hidden">
+                    {post.cover_image ? (
                       <img
                         src={post.cover_image}
                         alt={post.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                         loading="lazy"
                       />
-                    </div>
-                  ) : (
-                    <div className="aspect-video bg-gradient-to-br from-primary/5 to-secondary/5 flex items-center justify-center">
-                      <span className="text-4xl">
-                        {post.category === "expression-besoin" ? "💬" :
-                         post.category === "image-identite" ? "🎨" :
-                         post.category === "strategie" ? "🎯" :
-                         post.category === "cas-clients" ? "📖" : "🛠️"}
-                      </span>
-                    </div>
-                  )}
-                  <CardContent className="p-5 space-y-3">
-                    <Badge variant="outline" className="text-xs">
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-primary/5 to-secondary/5 flex items-center justify-center">
+                        <span className="text-4xl">
+                          {post.category === "expression-besoin" ? "💬" :
+                           post.category === "image-identite" ? "🎨" :
+                           post.category === "strategie" ? "🎯" :
+                           post.category === "cas-clients" ? "📖" : "🛠️"}
+                        </span>
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <Badge variant="outline" className="absolute top-3 left-3 text-xs backdrop-blur-md bg-background/70">
                       {categoryLabels[post.category] || post.category}
                     </Badge>
+                  </div>
+                  <CardContent className="p-5 space-y-3">
                     <h3 className="font-display font-bold text-lg leading-tight line-clamp-2 group-hover:text-primary transition-colors">
                       {post.title}
                     </h3>
                     <p className="text-sm text-muted-foreground line-clamp-2">{post.excerpt}</p>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground pt-2">
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground pt-2 border-t border-border/50">
                       <span className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
                         {post.published_at ? format(new Date(post.published_at), "d MMM yyyy", { locale: fr }) : ""}
