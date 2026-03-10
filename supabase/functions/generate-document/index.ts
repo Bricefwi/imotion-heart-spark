@@ -174,7 +174,7 @@ serve(async (req) => {
       description: `Généré automatiquement le ${new Date().toLocaleDateString("fr-FR")}`,
       storage_path: `${projectId}/${docType}_${Date.now()}.md`,
       status: "draft", created_by: userData.user.id,
-      requires_signature: docType === "contract" || docType === "proposal",
+      requires_signature: docType === "contract" || docType === "contract_fr" || docType === "proposal" || docType === "pricing",
     }).select("id").single();
 
     if (docErr) throw docErr;
