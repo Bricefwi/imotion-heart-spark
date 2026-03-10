@@ -10,6 +10,7 @@ const navLinks = [
   { label: "Tarifs", to: "/tarifs" },
   { label: "Blog", to: "/blog" },
   { label: "À propos", to: "/a-propos" },
+  { label: "Contact", to: "/contact" },
 ];
 
 export function PublicLayout() {
