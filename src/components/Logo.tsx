@@ -9,10 +9,10 @@ interface LogoProps {
 
 export function Logo({ size = "md", showText = false, className }: LogoProps) {
   const imgSizes = {
-    sm: "h-12",
-    md: "h-16",
-    lg: "h-24",
-    xl: "h-32",
+    sm: "h-16",
+    md: "h-20",
+    lg: "h-28",
+    xl: "h-36",
   };
 
   return (
