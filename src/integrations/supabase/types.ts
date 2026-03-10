@@ -62,6 +62,113 @@ export type Database = {
           },
         ]
       }
+      blog_editorial_calendar: {
+        Row: {
+          angle: string
+          category: string
+          created_at: string | null
+          generated_post_id: string | null
+          id: string
+          keywords: string[] | null
+          planned_date: string
+          status: string | null
+          title: string
+          week_number: number
+        }
+        Insert: {
+          angle: string
+          category: string
+          created_at?: string | null
+          generated_post_id?: string | null
+          id?: string
+          keywords?: string[] | null
+          planned_date: string
+          status?: string | null
+          title: string
+          week_number: number
+        }
+        Update: {
+          angle?: string
+          category?: string
+          created_at?: string | null
+          generated_post_id?: string | null
+          id?: string
+          keywords?: string[] | null
+          planned_date?: string
+          status?: string | null
+          title?: string
+          week_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_editorial_calendar_generated_post_id_fkey"
+            columns: ["generated_post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_posts: {
+        Row: {
+          author_avatar: string | null
+          author_name: string | null
+          author_role: string | null
+          category: string
+          content: string
+          cover_image: string | null
+          created_at: string | null
+          excerpt: string
+          id: string
+          is_published: boolean | null
+          published_at: string | null
+          reading_time: number | null
+          slug: string
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+          view_count: number | null
+        }
+        Insert: {
+          author_avatar?: string | null
+          author_name?: string | null
+          author_role?: string | null
+          category: string
+          content: string
+          cover_image?: string | null
+          created_at?: string | null
+          excerpt: string
+          id?: string
+          is_published?: boolean | null
+          published_at?: string | null
+          reading_time?: number | null
+          slug: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+          view_count?: number | null
+        }
+        Update: {
+          author_avatar?: string | null
+          author_name?: string | null
+          author_role?: string | null
+          category?: string
+          content?: string
+          cover_image?: string | null
+          created_at?: string | null
+          excerpt?: string
+          id?: string
+          is_published?: boolean | null
+          published_at?: string | null
+          reading_time?: number | null
+          slug?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          view_count?: number | null
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           action_items: Json | null
@@ -298,6 +405,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      newsletter_subscribers: {
+        Row: {
+          email: string
+          id: string
+          is_active: boolean | null
+          subscribed_at: string | null
+        }
+        Insert: {
+          email: string
+          id?: string
+          is_active?: boolean | null
+          subscribed_at?: string | null
+        }
+        Update: {
+          email?: string
+          id?: string
+          is_active?: boolean | null
+          subscribed_at?: string | null
+        }
+        Relationships: []
       }
       notifications: {
         Row: {
@@ -675,6 +803,8 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_post_views: { Args: { post_slug: string }; Returns: undefined }
+      unaccent: { Args: { "": string }; Returns: string }
     }
     Enums: {
       app_role: "client" | "consultant" | "admin" | "super_admin"
