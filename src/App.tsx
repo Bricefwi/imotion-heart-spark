@@ -66,7 +66,7 @@ const App = () => (
               <Route path="/client/projects/new" element={<NewProject />} />
               <Route path="/client/projects/:id/conversation" element={<ProjectConversation />} />
               <Route path="/client/documents" element={<ClientDocuments />} />
-              <Route path="/client/profile" element={<ClientDashboard />} />
+              <Route path="/client/profile" element={<ClientProfile />} />
             </Route>
 
             {/* Consultant */}
