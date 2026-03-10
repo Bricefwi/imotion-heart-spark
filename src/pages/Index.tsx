@@ -6,6 +6,7 @@ import { PricingSection } from "@/components/landing/PricingSection";
 import { CTASection } from "@/components/landing/CTASection";
 import { StatsSection } from "@/components/landing/StatsSection";
 import { FloatingPhotoStrip } from "@/components/landing/FloatingPhotoStrip";
+import { BlogPreviewSection } from "@/components/landing/BlogPreviewSection";
 
 export default function Index() {
   return (
@@ -16,6 +17,7 @@ export default function Index() {
       <FeaturesSection />
       <HowItWorksSection />
       <TestimonialsSection />
+      <BlogPreviewSection />
       <PricingSection />
       <CTASection />
     </div>

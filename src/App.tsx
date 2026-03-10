@@ -19,6 +19,8 @@ import Register from "@/pages/Register";
 import ForgotPassword from "@/pages/ForgotPassword";
 import ResetPassword from "@/pages/ResetPassword";
 import NotFound from "@/pages/NotFound";
+import Blog from "@/pages/Blog";
+import BlogArticle from "@/pages/BlogArticle";
 
 // Client pages
 import ClientDashboard from "@/pages/client/Dashboard";
@@ -56,6 +58,10 @@ const App = () => (
             <Route element={<PublicLayout />}>
               <Route path="/" element={<Index />} />
             </Route>
+
+            {/* Blog (public, own layout) */}
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogArticle />} />
 
             {/* Auth (no layout) */}
             <Route path="/login" element={<Login />} />
