@@ -13,7 +13,18 @@ const fadeUp = {
   }),
 };
 
+const letterVariants = {
+  hidden: { opacity: 0, y: 20, rotateX: -90 },
+  visible: (i: number) => ({
+    opacity: 1, y: 0, rotateX: 0,
+    transition: { delay: i * 0.04, duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] as const },
+  }),
+};
+
 export function HeroSection() {
+  const brandName = "IMOTION";
+  const brandSuffix = "Creator Studio";
+
   return (
     <section className="relative py-20 md:py-32">
       {/* Animated gradient mesh background */}
@@ -33,36 +44,59 @@ export function HeroSection() {
                 Propulsé par l'IA
               </Badge>
             </motion.div>
-            <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={0.5}>
-              <span className="font-display text-sm md:text-base font-bold tracking-widest uppercase gradient-text">
-                IMOTION Creator Studio
-              </span>
-            </motion.div>
+
+            {/* Stylized brand name */}
+            <div className="mb-4">
+              <div className="flex items-baseline justify-center lg:justify-start gap-0 flex-wrap">
+                {brandName.split("").map((letter, i) => (
+                  <motion.span
+                    key={i}
+                    initial="hidden"
+                    animate="visible"
+                    variants={letterVariants}
+                    custom={i}
+                    className="font-display text-4xl md:text-5xl lg:text-6xl font-black tracking-tight gradient-text inline-block"
+                    style={{ perspective: "500px" }}
+                  >
+                    {letter}
+                  </motion.span>
+                ))}
+              </div>
+              <motion.span
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.5 }}
+                className="block font-display text-lg md:text-xl lg:text-2xl font-semibold tracking-[0.25em] uppercase text-muted-foreground mt-1"
+              >
+                {brandSuffix}
+              </motion.span>
+            </div>
+
             <motion.h1
-              initial="hidden" animate="visible" variants={fadeUp} custom={1}
-              className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 mt-3"
+              initial="hidden" animate="visible" variants={fadeUp} custom={2}
+              className="font-display text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight mb-6"
             >
               Transformez vos idées en{" "}
               <span className="gradient-text">projets digitaux concrets</span>
             </motion.h1>
             <motion.p
-              initial="hidden" animate="visible" variants={fadeUp} custom={2}
+              initial="hidden" animate="visible" variants={fadeUp} custom={3}
               className="text-lg md:text-xl text-muted-foreground max-w-xl mb-10"
             >
-              Notre IA vous guide pour définir précisément votre besoin et génère automatiquement votre cahier des charges.
+              Notre IA vous guide pour définir précisément votre besoin et génère automatiquement votre cahier des charges — <strong className="text-foreground">100% gratuit</strong>.
             </motion.p>
             <motion.div
-              initial="hidden" animate="visible" variants={fadeUp} custom={3}
+              initial="hidden" animate="visible" variants={fadeUp} custom={4}
               className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
             >
               <Button asChild size="lg" className="gradient-primary border-0 text-base px-8 h-12 shadow-lg hover:shadow-xl transition-all">
                 <Link to="/register">
                   <Lightbulb className="mr-2 h-5 w-5" />
-                  Commencer gratuitement
+                  Créer mon CDC gratuitement
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="text-base h-12">
-                <a href="#how-it-works">Voir comment ça marche <ArrowRight className="ml-2 h-4 w-4" /></a>
+                <a href="#how-it-works">Comment ça marche <ArrowRight className="ml-2 h-4 w-4" /></a>
               </Button>
             </motion.div>
           </div>
