@@ -1,6 +1,7 @@
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useState, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import logoImotion from "@/assets/logo-imotion.png";
+import { Loader2 } from "lucide-react";
 
 interface ProfessionalDocumentProps {
   content: string;
@@ -12,6 +13,20 @@ interface ProfessionalDocumentProps {
   version?: number;
   date?: string;
   status?: string;
+}
+
+// Extract TOC entries from markdown content
+function extractTOC(markdown: string): { level: number; text: string; id: string }[] {
+  const headingRegex = /^(#{1,3})\s+(.+)$/gm;
+  const entries: { level: number; text: string; id: string }[] = [];
+  let match;
+  while ((match = headingRegex.exec(markdown)) !== null) {
+    const level = match[1].length;
+    const text = match[2].replace(/[*_`]/g, "").trim();
+    const id = text.toLowerCase().replace(/[^a-z0-9àâäéèêëïîôùûüÿçœæ]+/gi, "-").replace(/-+$/,"");
+    entries.push({ level, text, id });
+  }
+  return entries;
 }
 
 export function ProfessionalDocument({
@@ -26,31 +41,9 @@ export function ProfessionalDocument({
   status,
 }: ProfessionalDocumentProps) {
   const documentRef = useRef<HTMLDivElement>(null);
+  const [exporting, setExporting] = useState(false);
 
-  const handleExportPDF = useCallback(async () => {
-    if (!documentRef.current) return;
-
-    const html2pdf = (await import("html2pdf.js")).default;
-
-    const opt = {
-      margin: [10, 12, 16, 12],
-      filename: `${documentName.replace(/\s+/g, "_")}.pdf`,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-        letterRendering: true,
-      },
-      jsPDF: {
-        unit: "mm",
-        format: "a4",
-        orientation: "portrait" as const,
-      },
-      pagebreak: { mode: ["avoid-all", "css", "legacy"] },
-    };
-
-    html2pdf().set(opt).from(documentRef.current).save();
-  }, [documentName]);
+  const toc = useMemo(() => extractTOC(content), [content]);
 
   const currentDate = date || new Date().toLocaleDateString("fr-FR", {
     day: "numeric",
@@ -58,18 +51,107 @@ export function ProfessionalDocument({
     year: "numeric",
   });
 
+  const handleExportPDF = useCallback(async () => {
+    if (!documentRef.current || exporting) return;
+    setExporting(true);
+
+    try {
+      const html2pdf = (await import("html2pdf.js")).default;
+
+      // Clone the document element and add print-specific styles
+      const element = documentRef.current;
+
+      const opt = {
+        margin: [28, 12, 22, 12], // top, right, bottom, left — extra top/bottom for header/footer
+        filename: `${documentName.replace(/\s+/g, "_")}.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          letterRendering: true,
+          logging: false,
+        },
+        jsPDF: {
+          unit: "mm",
+          format: "a4",
+          orientation: "portrait" as const,
+        },
+        pagebreak: { mode: ["avoid-all", "css", "legacy"] },
+      };
+
+      const worker = html2pdf().set(opt).from(element);
+
+      // Generate PDF then add headers/footers on each page
+      await worker.toPdf().get("pdf").then((pdf: any) => {
+        const totalPages = pdf.internal.getNumberOfPages();
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+
+        for (let i = 1; i <= totalPages; i++) {
+          pdf.setPage(i);
+
+          // --- Header ---
+          // Gradient line
+          pdf.setDrawColor(211, 47, 47); // primary red
+          pdf.setLineWidth(0.8);
+          pdf.line(12, 10, pageWidth - 12, 10);
+
+          // Header left: document name
+          pdf.setFontSize(7);
+          pdf.setTextColor(100, 100, 100);
+          pdf.text(documentName, 12, 8);
+
+          // Header right: ref + date
+          const headerRight = `${projectCode ? "Ref. " + projectCode + " | " : ""}${currentDate}`;
+          pdf.text(headerRight, pageWidth - 12, 8, { align: "right" });
+
+          // --- Footer ---
+          // Gradient line
+          pdf.setDrawColor(245, 124, 0); // secondary orange
+          pdf.setLineWidth(0.5);
+          pdf.line(12, pageHeight - 14, pageWidth - 12, pageHeight - 14);
+
+          // Footer left
+          pdf.setFontSize(6.5);
+          pdf.setTextColor(160, 160, 160);
+          pdf.text("IMOTION - Agence Digitale | Document confidentiel", 12, pageHeight - 10);
+
+          // Footer center: page number
+          pdf.setFontSize(7);
+          pdf.setTextColor(100, 100, 100);
+          const pageText = `Page ${i} / ${totalPages}`;
+          pdf.text(pageText, pageWidth / 2, pageHeight - 10, { align: "center" });
+
+          // Footer right: version
+          pdf.setFontSize(6.5);
+          pdf.setTextColor(160, 160, 160);
+          pdf.text(`v${version}`, pageWidth - 12, pageHeight - 10, { align: "right" });
+        }
+      }).save();
+    } catch (err) {
+      console.error("PDF export error:", err);
+    } finally {
+      setExporting(false);
+    }
+  }, [documentName, projectCode, currentDate, version, exporting]);
+
   return (
     <div>
       {/* Export button */}
       <div className="flex justify-end mb-4 print:hidden">
         <button
           onClick={handleExportPDF}
-          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-border bg-background hover:bg-muted transition-colors"
+          disabled={exporting}
+          className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-lg border border-border bg-background hover:bg-muted transition-colors disabled:opacity-50"
         >
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          Exporter en PDF
+          {exporting ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          )}
+          {exporting ? "Export en cours..." : "Exporter en PDF"}
         </button>
       </div>
 
@@ -85,12 +167,7 @@ export function ProfessionalDocument({
           style={{ background: "linear-gradient(135deg, hsl(0 68% 51%), hsl(30 100% 49%))" }}
         >
           <div className="flex items-center gap-4">
-            <img
-              src={logoImotion}
-              alt="IMOTION"
-              className="h-10 w-auto"
-              crossOrigin="anonymous"
-            />
+            <img src={logoImotion} alt="IMOTION" className="h-10 w-auto" crossOrigin="anonymous" />
           </div>
           <div className="text-right text-white/90 text-xs">
             <p className="font-semibold text-white text-sm">{documentName}</p>
@@ -122,11 +199,58 @@ export function ProfessionalDocument({
                   color: status === "signed" ? "#166534" : status === "draft" ? "#374151" : "#92400e",
                 }}
               >
-                {status === "draft" ? "Brouillon" : status === "signed" ? "Signé" : status === "sent" ? "Envoyé" : status}
+                {status === "draft" ? "Brouillon" : status === "signed" ? "Signe" : status === "sent" ? "Envoye" : status}
               </span>
             )}
           </div>
         </div>
+
+        {/* Table of Contents */}
+        {toc.length > 3 && (
+          <div className="px-8 py-6 md:px-12 border-b border-gray-100">
+            <h2 style={{
+              fontSize: "1.1rem",
+              fontWeight: 700,
+              fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif",
+              color: "#1a1a1a",
+              marginBottom: "1rem",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+            }}>
+              Sommaire
+            </h2>
+            <div style={{ columns: toc.length > 12 ? 2 : 1, columnGap: "2rem" }}>
+              {toc.map((entry, i) => (
+                <div
+                  key={i}
+                  style={{
+                    display: "flex",
+                    alignItems: "baseline",
+                    gap: "0.5rem",
+                    paddingLeft: entry.level === 2 ? "1.25rem" : entry.level === 3 ? "2.5rem" : "0",
+                    marginBottom: entry.level === 1 ? "0.5rem" : "0.3rem",
+                    breakInside: "avoid",
+                  }}
+                >
+                  <span style={{
+                    fontSize: entry.level === 1 ? "0.85rem" : "0.8rem",
+                    fontWeight: entry.level === 1 ? 600 : 400,
+                    color: entry.level === 1 ? "#1a1a1a" : "#555",
+                    flex: 1,
+                  }}>
+                    {entry.text}
+                  </span>
+                  <span style={{
+                    flex: "1 1 auto",
+                    borderBottom: "1px dotted #ccc",
+                    minWidth: "2rem",
+                    height: "0.8em",
+                  }} />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Document body */}
         <div className="px-8 py-8 md:px-12 md:py-10">
@@ -134,16 +258,19 @@ export function ProfessionalDocument({
             <ReactMarkdown
               components={{
                 h1: ({ children }) => (
-                  <h1 style={{
-                    fontSize: "1.5rem",
-                    fontWeight: 700,
-                    fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif",
-                    color: "#1a1a1a",
-                    borderBottom: "3px solid hsl(0 68% 51%)",
-                    paddingBottom: "0.75rem",
-                    marginTop: "2.5rem",
-                    marginBottom: "1.25rem",
-                  }}>
+                  <h1
+                    style={{
+                      fontSize: "1.5rem",
+                      fontWeight: 700,
+                      fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif",
+                      color: "#1a1a1a",
+                      borderBottom: "3px solid hsl(0 68% 51%)",
+                      paddingBottom: "0.75rem",
+                      marginTop: "2.5rem",
+                      marginBottom: "1.25rem",
+                      pageBreakAfter: "avoid",
+                    }}
+                  >
                     {children}
                   </h1>
                 ),
@@ -157,6 +284,7 @@ export function ProfessionalDocument({
                     paddingLeft: "0.75rem",
                     marginTop: "2rem",
                     marginBottom: "1rem",
+                    pageBreakAfter: "avoid",
                   }}>
                     {children}
                   </h2>
@@ -169,6 +297,7 @@ export function ProfessionalDocument({
                     color: "#333",
                     marginTop: "1.5rem",
                     marginBottom: "0.75rem",
+                    pageBreakAfter: "avoid",
                   }}>
                     {children}
                   </h3>
