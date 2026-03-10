@@ -26,6 +26,7 @@ IMOTION Discovery Pro design system, architecture, and project constraints
 - AI model: google/gemini-3-flash-preview (via Lovable AI gateway)
 - Realtime enabled for messages and notifications tables
 - Edge functions: ai-chat, generate-document
+- Document types: cdc (17 sections), tech_recommendation (outils + prompt), pricing (devis détaillé 3 options), contract_fr (droit français 20 articles), proposal, contract
 - Settings seeded: company, ai_config, pricing, notifications, discovery_phases
 
 ## Illustrations

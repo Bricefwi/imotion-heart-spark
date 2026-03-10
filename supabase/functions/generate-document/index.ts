@@ -174,7 +174,7 @@ serve(async (req) => {
       description: `Généré automatiquement le ${new Date().toLocaleDateString("fr-FR")}`,
       storage_path: `${projectId}/${docType}_${Date.now()}.md`,
       status: "draft", created_by: userData.user.id,
-      requires_signature: docType === "contract" || docType === "proposal",
+      requires_signature: docType === "contract" || docType === "contract_fr" || docType === "proposal" || docType === "pricing",
     }).select("id").single();
 
     if (docErr) throw docErr;
@@ -206,14 +206,19 @@ serve(async (req) => {
 
 function getDocName(type: string, projectName: string): string {
   const names: Record<string, string> = {
-    cdc: "Cahier des Charges", proposal: "Proposition Commerciale", contract: "Contrat de Prestation",
+    cdc: "Cahier des Charges",
+    proposal: "Proposition Commerciale",
+    contract: "Contrat de Prestation",
+    tech_recommendation: "Recommandation Technique & Prompt",
+    pricing: "Proposition Tarifaire Détaillée",
+    contract_fr: "Contrat de Prestation (Droit Français)",
   };
   return `${names[type] || type} - ${projectName}`;
 }
 
 function getSystemPrompt(type: string): string {
-  if (type === "cdc") {
-    return `Tu es un directeur de projet digital senior dans une agence web premium (IMOTION). Tu rédiges des Cahiers des Charges exhaustifs, professionnels et immédiatement exploitables.
+  const prompts: Record<string, string> = {
+    cdc: `Tu es un directeur de projet digital senior dans une agence web premium (IMOTION). Tu rédiges des Cahiers des Charges exhaustifs, professionnels et immédiatement exploitables.
 
 RÈGLES DE RÉDACTION :
 - Ton professionnel mais accessible, jamais de jargon inutile
@@ -224,9 +229,42 @@ RÈGLES DE RÉDACTION :
 - Personnalise chaque section avec les données réelles du client
 - Le document doit être prêt à être envoyé au client tel quel
 - Rédige en français impeccable
-- Format Markdown structuré avec titres hiérarchiques (# ## ### ####)`;
-  }
-  return `Tu es un expert en rédaction de documents professionnels pour agences digitales premium. Tu génères des documents structurés, élégants et prêts à l'envoi en Markdown. Rédige en français impeccable.`;
+- Format Markdown structuré avec titres hiérarchiques (# ## ### ####)`,
+
+    tech_recommendation: `Tu es un architecte technique senior et CTO d'une agence digitale premium (IMOTION). Tu maîtrises parfaitement l'écosystème des outils no-code, low-code et code (Lovable, Cursor, Bolt, Replit, Webflow, Framer, Bubble, Supabase, Firebase, Vercel, etc.) ainsi que les stacks classiques (React, Next.js, Vue, Node.js, Python, etc.).
+
+RÈGLES :
+- Recommande les outils les PLUS ADAPTÉS au projet, pas les plus populaires
+- Justifie chaque choix technique avec des arguments concrets
+- Fournis un prompt technique COMPLET et prêt à l'emploi pour chaque outil recommandé
+- Pense en termes de ROI, maintenabilité, scalabilité et budget client
+- Rédige en français technique mais compréhensible`,
+
+    pricing: `Tu es un directeur commercial senior d'une agence digitale premium (IMOTION) spécialisé dans le chiffrage de projets digitaux. Tu connais parfaitement les TJM du marché français, les coûts réels de développement, et tu sais construire des devis détaillés, rentables et compétitifs.
+
+RÈGLES :
+- Chiffrage réaliste basé sur les TJM marché français 2024-2025
+- Chaque ligne de devis doit être justifiable auprès du client
+- Inclus TOUJOURS une phase de tests/QA dans le budget
+- Présente 3 options tarifaires (Essentiel, Recommandé, Premium)
+- Détaille les conditions de paiement et les garanties
+- Rédige en français professionnel`,
+
+    contract_fr: `Tu es un juriste spécialisé en droit du numérique et droit des contrats français. Tu rédiges des contrats de prestation de services numériques conformes au droit français, protecteurs pour le prestataire (IMOTION) tout en étant équilibrés et respectueux du client.
+
+RÈGLES JURIDIQUES IMPÉRATIVES :
+- Conforme au Code civil français (articles 1101 et suivants)
+- Conforme au Code de la consommation si B2C
+- Conforme au RGPD (Règlement UE 2016/679)
+- Conforme à la loi pour une République numérique (2016)
+- Conforme à la loi Informatique et Libertés
+- Clauses de limitation de responsabilité conformes à la jurisprudence
+- Clause pénale conforme à l'article 1231-5 du Code civil
+- Clause attributive de juridiction valide
+- Rédige en français juridique précis mais lisible`,
+  };
+
+  return prompts[type] || `Tu es un expert en rédaction de documents professionnels pour agences digitales premium. Tu génères des documents structurés, élégants et prêts à l'envoi en Markdown. Rédige en français impeccable.`;
 }
 
 function formatConversationForPrompt(messages: any[]): string {
@@ -453,6 +491,322 @@ Structure obligatoire :
 11. Prochaines étapes et signature
 
 Le ton doit être confiant, professionnel et rassurant. Chaque option doit avoir un nom attractif et une proposition de valeur claire.`;
+  }
+
+  if (type === "tech_recommendation") {
+    return `En tant qu'architecte technique, analyse ce projet et produis un document de recommandation technique COMPLET :
+
+${base}
+
+## STRUCTURE OBLIGATOIRE
+
+# 1. ANALYSE DU BESOIN TECHNIQUE
+- Synthèse des besoins fonctionnels identifiés
+- Contraintes techniques (performance, scalabilité, sécurité, budget)
+- Niveau de complexité global (Simple / Intermédiaire / Complexe / Très complexe)
+
+# 2. RECOMMANDATION D'OUTILS & STACK
+Pour chaque couche, recommande l'outil LE PLUS ADAPTÉ avec justification :
+
+| Couche | Outil recommandé | Alternative | Justification |
+|--------|-----------------|-------------|---------------|
+| Frontend | ... | ... | ... |
+| Backend / BDD | ... | ... | ... |
+| Hébergement | ... | ... | ... |
+| CMS / Contenu | ... | ... | ... |
+| Design / Prototypage | ... | ... | ... |
+| CI/CD / DevOps | ... | ... | ... |
+| Analytics / Monitoring | ... | ... | ... |
+
+### Approche recommandée
+- Si no-code/low-code est viable, le recommander (Lovable, Cursor, Webflow, Bubble...)
+- Si code custom nécessaire, expliquer pourquoi
+- Comparer le coût total de possession (TCO) sur 12 mois
+
+# 3. PROMPT TECHNIQUE COMPLET
+Pour chaque outil principal recommandé, fournir un **prompt technique détaillé** prêt à copier-coller :
+
+### Prompt pour [Outil 1 - ex: Lovable/Cursor/etc.]
+\`\`\`
+[Prompt complet, structuré, incluant :
+- Description du projet
+- Stack technique
+- Architecture des pages/écrans
+- Composants à créer
+- Base de données (tables, relations, RLS)
+- Authentification
+- Fonctionnalités clés
+- Design system (couleurs, typos, style)
+- Intégrations tierces
+- Responsive / accessibilité
+]
+\`\`\`
+
+### Prompt pour [Outil 2] (si applicable)
+\`\`\`
+[Prompt adapté à cet outil]
+\`\`\`
+
+# 4. ARCHITECTURE TECHNIQUE DÉTAILLÉE
+- Diagramme textuel de l'architecture (Markdown)
+- Flux de données
+- Points d'intégration
+- Stratégie de déploiement
+
+# 5. RISQUES TECHNIQUES & MITIGATIONS
+| Risque | Impact | Probabilité | Mitigation |
+|--------|--------|-------------|------------|
+
+# 6. ESTIMATION DE L'EFFORT TECHNIQUE
+| Phase | Complexité | Jours estimés | Profil requis |
+|-------|-----------|---------------|---------------|
+
+---
+INSTRUCTIONS : Le prompt technique doit être IMMÉDIATEMENT utilisable. Il doit contenir assez de détail pour qu'un développeur (ou un outil IA) puisse démarrer le build sans poser de questions supplémentaires.`;
+  }
+
+  if (type === "pricing") {
+    return `Génère une Proposition Tarifaire Détaillée professionnelle pour ce projet :
+
+${base}
+
+## STRUCTURE OBLIGATOIRE
+
+# 1. PAGE DE GARDE
+- Titre : Proposition Tarifaire - [Nom du projet]
+- Client, date, référence, validité (30 jours)
+
+# 2. RAPPEL DU PÉRIMÈTRE
+- Synthèse du besoin en 5 lignes
+- Périmètre inclus et exclus clairement défini
+
+# 3. MÉTHODOLOGIE DE CHIFFRAGE
+- Expliquer la méthode : découpage en phases → estimation par tâche → TJM appliqué
+- TJM de référence IMOTION :
+  - Direction de projet : 850€/jour
+  - UX/UI Design : 750€/jour
+  - Développement senior : 700€/jour
+  - Développement junior : 450€/jour
+  - Intégration / Recette : 400€/jour
+  - Rédaction contenu : 500€/jour
+
+# 4. DÉTAIL PAR PHASE DE BUILD
+
+Pour CHAQUE phase, créer un tableau détaillé :
+
+### Phase 1 : Cadrage & Conception
+| Tâche | Profil | Jours | Montant HT |
+|-------|--------|-------|------------|
+
+### Phase 2 : Design UX/UI
+| Tâche | Profil | Jours | Montant HT |
+
+### Phase 3 : Développement Frontend
+| Tâche | Profil | Jours | Montant HT |
+
+### Phase 4 : Développement Backend & Intégrations
+| Tâche | Profil | Jours | Montant HT |
+
+### Phase 5 : Tests & Recette (QA)
+| Tâche | Profil | Jours | Montant HT |
+- Tests fonctionnels
+- Tests de performance
+- Tests de sécurité
+- Recette client (2 itérations)
+- Corrections et ajustements
+
+### Phase 6 : Mise en production & Accompagnement
+| Tâche | Profil | Jours | Montant HT |
+
+# 5. SYNTHÈSE TARIFAIRE — 3 OPTIONS
+
+| | Essentiel | Recommandé ⭐ | Premium |
+|---|-----------|--------------|---------|
+| Conception | ... | ... | ... |
+| Design | ... | ... | ... |
+| Développement | ... | ... | ... |
+| Tests & QA | ... | ... | ... |
+| Mise en prod | ... | ... | ... |
+| **TOTAL HT** | **...€** | **...€** | **...€** |
+| TVA (20%) | ... | ... | ... |
+| **TOTAL TTC** | **...€** | **...€** | **...€** |
+
+### Ce qui différencie chaque option
+- **Essentiel** : MVP fonctionnel, design standard
+- **Recommandé** : Version complète, design sur-mesure, optimisations
+- **Premium** : Tout inclus + formations + maintenance 6 mois + évolutions
+
+# 6. CALENDRIER DE PAIEMENT
+| Jalon | % | Montant | Échéance |
+|-------|---|---------|----------|
+| Signature | 30% | ... | J+0 |
+| Validation maquettes | 40% | ... | J+... |
+| Livraison finale | 30% | ... | J+... |
+
+# 7. GARANTIES & MAINTENANCE
+- Garantie de conformité : 3 mois post-livraison
+- Maintenance corrective incluse pendant ...
+- Option maintenance évolutive : .../mois
+
+# 8. CONDITIONS
+- Validité : 30 jours
+- TVA applicable : 20%
+- Pénalités de retard : taux légal
+- Conditions d'annulation
+
+---
+INSTRUCTIONS : Les montants doivent être RÉALISTES et basés sur le marché français. Chiffre en fonction de la complexité réelle du projet. Ne sous-estime jamais la phase de tests.`;
+  }
+
+  if (type === "contract_fr") {
+    return `Génère un Contrat de Prestation de Services Numériques COMPLET conforme au droit français :
+
+${base}
+
+## STRUCTURE OBLIGATOIRE DU CONTRAT
+
+# CONTRAT DE PRESTATION DE SERVICES NUMÉRIQUES
+
+**Entre les soussignés :**
+
+## ARTICLE 1 — IDENTIFICATION DES PARTIES
+- LE PRESTATAIRE : IMOTION (détails à compléter : SIRET, RCS, siège social, représentant légal)
+- LE CLIENT : ${client?.company_name || "[À compléter]"} (${client?.full_name || "[À compléter]"})
+
+## ARTICLE 2 — PRÉAMBULE ET CONTEXTE
+- Contexte de la collaboration
+- Référence au CDC et à la proposition tarifaire
+
+## ARTICLE 3 — OBJET DU CONTRAT
+- Description précise de la prestation
+- Référence aux annexes (CDC, planning, devis)
+
+## ARTICLE 4 — DOCUMENTS CONTRACTUELS
+- Hiérarchie des documents (contrat > annexes > CDC > devis)
+- En cas de contradiction, le contrat prévaut
+
+## ARTICLE 5 — DURÉE ET CALENDRIER
+- Date de démarrage / Date de livraison prévisionnelle
+- Jalons intermédiaires
+- Conditions de prorogation
+
+## ARTICLE 6 — LIVRABLES
+- Liste exhaustive des livrables
+- Format de livraison
+- Critères d'acceptation
+
+## ARTICLE 7 — PRIX ET MODALITÉS DE PAIEMENT
+- Montant total HT et TTC
+- Échéancier de paiement (cf. proposition tarifaire)
+- Conditions de facturation
+- Pénalités de retard de paiement (taux légal majoré de 5 points, conformément à l'article L441-10 du Code de commerce)
+- Indemnité forfaitaire de recouvrement : 40€ (art. D441-5 Code de commerce)
+- Clause de révision de prix si le projet dépasse 6 mois
+
+## ARTICLE 8 — OBLIGATIONS DU PRESTATAIRE
+- Obligation de moyens (pas de résultat)
+- Respect du cahier des charges
+- Information régulière du client
+- Respect des délais (sous réserve de la coopération du client)
+- Confidentialité
+- Conformité RGPD dans les développements
+
+## ARTICLE 9 — OBLIGATIONS DU CLIENT
+- Fourniture des contenus et validations dans les délais
+- Désignation d'un interlocuteur unique
+- Accès aux outils et systèmes nécessaires
+- Paiement dans les délais
+- **Clause de retard client** : tout retard de validation > 5 jours ouvrés entraîne un décalage équivalent du planning
+
+## ARTICLE 10 — PROCESSUS DE VALIDATION ET RECETTE
+- Procédure de recette (délais, PV de recette)
+- Recette tacite : si le client ne formule pas de réserves sous 15 jours ouvrés
+- Réserves : le client dispose de 2 itérations de corrections
+- Au-delà, les corrections sont facturées au TJM contractuel
+
+## ARTICLE 11 — PROPRIÉTÉ INTELLECTUELLE
+- **Développements spécifiques** : cession des droits patrimoniaux au client APRÈS paiement intégral (art. L131-3 CPI)
+- **Étendue de la cession** : reproduction, représentation, adaptation, pour le monde entier, pour la durée légale des droits
+- **Réserve** : le prestataire conserve le droit d'utiliser les méthodes, savoir-faire et outils génériques
+- **Composants tiers** : soumis à leurs licences respectives (open source, SaaS, etc.)
+- **Portfolio** : le prestataire peut mentionner la réalisation dans son portfolio sauf opposition écrite du client
+
+## ARTICLE 12 — DONNÉES PERSONNELLES ET RGPD
+- Le prestataire agit en tant que sous-traitant au sens du RGPD
+- Conformité à l'article 28 du RGPD
+- Mesures techniques et organisationnelles de sécurité
+- Notification des violations de données sous 48h
+- Suppression/restitution des données en fin de contrat
+- Registre des traitements
+
+## ARTICLE 13 — CONFIDENTIALITÉ
+- Durée : pendant le contrat et 3 ans après
+- Périmètre : toute information non publique échangée
+- Exceptions : information publique, connue avant, obtenue d'un tiers, imposée par la loi
+
+## ARTICLE 14 — GARANTIE
+- Garantie de conformité au CDC : 3 mois après la recette
+- Corrections des anomalies bloquantes : sous 48h ouvrés
+- Corrections des anomalies mineures : sous 10 jours ouvrés
+- Exclusions : modifications non autorisées, mauvaise utilisation, contenu fourni par le client
+
+## ARTICLE 15 — RESPONSABILITÉ
+- Limitation de responsabilité au montant total du contrat
+- Exclusion des dommages indirects (perte de CA, perte de données, préjudice d'image)
+- Exception : faute lourde ou dolosive
+- Obligation d'assurance RC Pro du prestataire
+
+## ARTICLE 16 — RÉSILIATION
+- Résiliation pour faute : mise en demeure par LRAR, délai de 30 jours pour régulariser
+- Résiliation pour convenance du client : paiement des travaux réalisés + indemnité de 20% du solde restant
+- Résiliation de plein droit : liquidation judiciaire, cessation d'activité
+- Conséquences : restitution des éléments, paiement du solde
+
+## ARTICLE 17 — FORCE MAJEURE
+- Définition conforme à l'article 1218 du Code civil
+- Suspension des obligations pendant la durée de l'événement
+- Résiliation de plein droit si > 3 mois
+
+## ARTICLE 18 — NON-SOLLICITATION
+- Interdiction de solliciter les collaborateurs de l'autre partie pendant le contrat et 12 mois après
+- Pénalité : 6 mois de salaire brut du collaborateur
+
+## ARTICLE 19 — MÉDIATION ET LITIGES
+- Tentative de résolution amiable obligatoire (30 jours)
+- Médiation possible (médiateur de la consommation si B2C)
+- À défaut : Tribunal compétent de [siège social IMOTION]
+
+## ARTICLE 20 — DISPOSITIONS GÉNÉRALES
+- Intégralité de l'accord (remplace tout accord antérieur)
+- Indépendance des clauses (nullité partielle)
+- Tolérance non constitutive de renonciation
+- Modification par avenant écrit uniquement
+- Élection de domicile
+- Loi applicable : droit français
+
+## SIGNATURES
+
+| | Le Prestataire | Le Client |
+|---|---|---|
+| Nom | IMOTION | ${client?.full_name || "[À compléter]"} |
+| Qualité | ... | ... |
+| Date | ... | ... |
+| Signature | [Espace réservé] | [Espace réservé] |
+| Mention "Lu et approuvé" | | |
+
+## ANNEXES
+- Annexe 1 : Cahier des Charges
+- Annexe 2 : Proposition Tarifaire
+- Annexe 3 : Planning Prévisionnel
+- Annexe 4 : Spécifications Techniques
+
+---
+INSTRUCTIONS JURIDIQUES :
+- Chaque clause DOIT être conforme au droit français en vigueur
+- Cite les articles de loi pertinents entre parenthèses
+- Le contrat doit être PROTECTEUR pour le prestataire (IMOTION) tout en étant ÉQUILIBRÉ
+- Les clauses abusives au sens du Code de la consommation doivent être évitées
+- Adapte le contenu aux spécificités du projet (montants, délais, livrables)`;
   }
 
   return `Génère un Contrat de Prestation professionnel en Markdown :

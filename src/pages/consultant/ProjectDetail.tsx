@@ -233,7 +233,14 @@ export default function ConsultantProjectDetail() {
       }
 
       queryClient.invalidateQueries({ queryKey: ["project-documents", id] });
-      toast.success(`${docType === "cdc" ? "CDC" : docType === "proposal" ? "Proposition" : "Contrat"} généré !`);
+      toast.success(
+        docType === "cdc" ? "CDC généré !" :
+        docType === "proposal" ? "Proposition générée !" :
+        docType === "tech_recommendation" ? "Recommandation technique générée !" :
+        docType === "pricing" ? "Proposition tarifaire générée !" :
+        docType === "contract_fr" ? "Contrat généré !" :
+        "Document généré !"
+      );
     } catch (err: any) {
       toast.error(err.message || "Erreur lors de la génération");
     } finally {
@@ -527,10 +534,22 @@ export default function ConsultantProjectDetail() {
                     <div className="text-center py-8">
                       <FileText className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
                       <p className="text-sm text-muted-foreground mb-4">Aucun document généré.</p>
-                      <div className="flex gap-2 justify-center">
+                      <div className="flex gap-2 justify-center flex-wrap">
                         <Button variant="outline" onClick={() => generateDocument("cdc")} disabled={isGenerating}>
                           {isGenerating && generatingType === "cdc" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <FileText className="h-4 w-4 mr-2" />}
-                          Générer CDC
+                          CDC
+                        </Button>
+                        <Button variant="outline" onClick={() => generateDocument("tech_recommendation")} disabled={isGenerating}>
+                          {isGenerating && generatingType === "tech_recommendation" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <FileText className="h-4 w-4 mr-2" />}
+                          Reco Technique
+                        </Button>
+                        <Button variant="outline" onClick={() => generateDocument("pricing")} disabled={isGenerating}>
+                          {isGenerating && generatingType === "pricing" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <FileText className="h-4 w-4 mr-2" />}
+                          Devis
+                        </Button>
+                        <Button variant="outline" onClick={() => generateDocument("contract_fr")} disabled={isGenerating}>
+                          {isGenerating && generatingType === "contract_fr" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <FileText className="h-4 w-4 mr-2" />}
+                          Contrat FR
                         </Button>
                         <Button variant="outline" onClick={() => generateDocument("proposal")} disabled={isGenerating}>
                           {isGenerating && generatingType === "proposal" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <FileText className="h-4 w-4 mr-2" />}
