@@ -52,6 +52,8 @@ import AdminUsers from "@/pages/admin/Users";
 import AdminSettings from "@/pages/admin/Settings";
 import AdminTemplates from "@/pages/admin/Templates";
 import AdminBlog from "@/pages/admin/Blog";
+import AdminCRM from "@/pages/admin/CRM";
+import AdminAnalytics from "@/pages/admin/Analytics";
 
 const queryClient = new QueryClient();
 
@@ -109,6 +111,8 @@ const App = () => (
             {/* Admin */}
             <Route element={<ProtectedRoute requiredRole="admin"><AdminLayout /></ProtectedRoute>}>
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/crm" element={<AdminCRM />} />
+              <Route path="/admin/analytics" element={<AdminAnalytics />} />
               <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="/admin/blog" element={<AdminBlog />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
