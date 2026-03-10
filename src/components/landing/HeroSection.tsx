@@ -67,12 +67,11 @@ export function HeroSection() {
             initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, delay: 0.3, ease: "easeOut" }}
-            className="hidden lg:block"
           >
             <img
               src={heroImg}
               alt="IMOTION Discovery Pro — Dashboard de gestion de projets digitaux"
-              className="w-full max-w-lg mx-auto drop-shadow-2xl"
+              className="w-full max-w-md lg:max-w-lg mx-auto drop-shadow-2xl rounded-2xl"
             />
           </motion.div>
         </div>
