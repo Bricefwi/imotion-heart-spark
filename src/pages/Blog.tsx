@@ -170,12 +170,15 @@ export default function Blog() {
                       >
                         <Link to={`/blog/${post.slug}`}>
                           <Card className="group h-full hover:shadow-lg transition-all duration-300 overflow-hidden border-border/50">
-                            {post.cover_image && (
+                            {post.cover_image ? (
                               <div className="aspect-video bg-muted overflow-hidden">
-                                <div className="w-full h-full gradient-primary opacity-20" />
+                                <img
+                                  src={post.cover_image}
+                                  alt={post.title}
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                />
                               </div>
-                            )}
-                            {!post.cover_image && (
+                            ) : (
                               <div className="aspect-video bg-gradient-to-br from-primary/5 to-secondary/5 flex items-center justify-center">
                                 <span className="text-4xl">{categories.find(c => c.value === post.category)?.emoji || "📝"}</span>
                               </div>
