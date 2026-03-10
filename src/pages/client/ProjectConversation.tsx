@@ -1,18 +1,20 @@
 import { useState, useRef, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { PhaseProgress } from "@/components/PhaseProgress";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Paperclip, Mic, Pause, Phone, ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Send, Paperclip, Phone, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { sendChatMessage, type ChatMessage } from "@/lib/ai-chat";
+import { toast } from "sonner";
+import ReactMarkdown from "react-markdown";
+import { useQuery } from "@tanstack/react-query";
 
-const phaseLabels = ["Accueil", "Exploration du besoin", "Vision", "Écosystème", "Contraintes", "Profil décisionnel", "Synthèse & Validation"];
-
-interface Message {
+interface DisplayMessage {
   id: string;
   role: "user" | "assistant" | "consultant";
   content: string;
@@ -20,34 +22,110 @@ interface Message {
   suggestions?: string[];
 }
 
-const initialMessages: Message[] = [
-  {
-    id: "1",
-    role: "assistant",
-    content: "Bonjour ! 👋 Je suis l'assistant IMOTION Discovery. Je vais vous aider à définir votre projet digital étape par étape.\n\nPour commencer, pouvez-vous me parler de votre projet ? Qu'est-ce qui vous amène aujourd'hui ?",
-    createdAt: new Date(),
-    suggestions: ["Je veux refondre mon site web", "Je cherche à créer une application mobile", "J'ai besoin d'un outil interne"],
-  },
-];
-
 export default function ProjectConversation() {
-  const { id } = useParams();
-  const [messages, setMessages] = useState<Message[]>(initialMessages);
+  const { id: projectId } = useParams<{ id: string }>();
+  const { user } = useAuth();
+  const [messages, setMessages] = useState<DisplayMessage[]>([]);
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [currentPhase, setCurrentPhase] = useState(1);
+  const [overallProgress, setOverallProgress] = useState(0);
+  const [phaseProgress, setPhaseProgress] = useState(0);
+  const [conversationId, setConversationId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const currentPhase = 1;
-  const overallProgress = 10;
+
+  // Fetch project
+  const { data: project } = useQuery({
+    queryKey: ["project", projectId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("id", projectId!)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!projectId,
+  });
+
+  // Load existing messages
+  useEffect(() => {
+    if (!projectId) return;
+    const loadMessages = async () => {
+      const { data } = await supabase
+        .from("messages")
+        .select("*")
+        .eq("project_id", projectId)
+        .order("created_at", { ascending: true });
+
+      if (data && data.length > 0) {
+        const displayMsgs: DisplayMessage[] = data.map((m) => ({
+          id: m.id,
+          role: m.role as "user" | "assistant" | "consultant",
+          content: m.content,
+          createdAt: new Date(m.created_at!),
+        }));
+        setMessages(displayMsgs);
+        setChatHistory(
+          data
+            .filter((m) => m.role === "user" || m.role === "assistant")
+            .map((m) => ({ role: m.role as "user" | "assistant", content: m.content }))
+        );
+        setConversationId(data[0].conversation_id || null);
+      } else {
+        // Initial welcome message (not saved to DB yet - will be saved on first real interaction)
+        setMessages([
+          {
+            id: "welcome",
+            role: "assistant",
+            content:
+              "Bonjour ! 👋 Je suis l'assistant IMOTION Discovery. Je vais vous aider à définir votre projet digital étape par étape.\n\nPour commencer, pouvez-vous me parler de votre projet ? Qu'est-ce qui vous amène aujourd'hui ?",
+            createdAt: new Date(),
+            suggestions: [
+              "Je veux refondre mon site web",
+              "Je cherche à créer une application mobile",
+              "J'ai besoin d'un outil interne",
+            ],
+          },
+        ]);
+      }
+    };
+    loadMessages();
+  }, [projectId]);
+
+  // Update phase from project
+  useEffect(() => {
+    if (project) {
+      setCurrentPhase(project.current_phase || 1);
+      setOverallProgress(project.overall_progress || 0);
+    }
+  }, [project]);
+
+  // Create conversation session if none exists
+  useEffect(() => {
+    if (!projectId || conversationId || !user) return;
+    const createConversation = async () => {
+      const { data } = await supabase
+        .from("conversations")
+        .insert({ project_id: projectId, phase_start: currentPhase })
+        .select("id")
+        .single();
+      if (data) setConversationId(data.id);
+    };
+    createConversation();
+  }, [projectId, user, conversationId, currentPhase]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, isTyping]);
 
-  const handleSend = (text?: string) => {
+  const handleSend = async (text?: string) => {
     const content = text || input.trim();
-    if (!content) return;
+    if (!content || !projectId || isTyping) return;
 
-    const userMsg: Message = {
+    const userMsg: DisplayMessage = {
       id: Date.now().toString(),
       role: "user",
       content,
@@ -57,18 +135,32 @@ export default function ProjectConversation() {
     setInput("");
     setIsTyping(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const aiMsg: Message = {
+    const newChatHistory: ChatMessage[] = [...chatHistory, { role: "user", content }];
+    setChatHistory(newChatHistory);
+
+    try {
+      const response = await sendChatMessage(newChatHistory, projectId, conversationId || undefined);
+
+      const aiMsg: DisplayMessage = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: "Merci pour ces informations ! C'est très intéressant. Pouvez-vous me décrire plus en détail les problèmes que vous rencontrez avec votre solution actuelle ?",
+        content: response.message,
         createdAt: new Date(),
-        suggestions: ["Performance insuffisante", "Design daté", "Pas adapté mobile"],
+        suggestions: response.suggestions?.length > 0 ? response.suggestions : undefined,
       };
       setMessages((prev) => [...prev, aiMsg]);
+      setChatHistory((prev) => [...prev, { role: "assistant", content: response.message }]);
+      setCurrentPhase(response.phase_current);
+      setOverallProgress(response.overall_progress);
+      setPhaseProgress(response.phase_progress);
+    } catch (error: any) {
+      toast.error(error.message || "Erreur lors de l'envoi du message");
+      // Remove the user message on error
+      setMessages((prev) => prev.filter((m) => m.id !== userMsg.id));
+      setChatHistory(chatHistory);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -77,25 +169,29 @@ export default function ProjectConversation() {
       <div className="border-b bg-background px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" asChild className="shrink-0">
-            <Link to="/client/projects"><ArrowLeft className="h-4 w-4" /></Link>
+            <Link to="/client/projects">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
           </Button>
           <div>
-            <h2 className="font-display font-semibold text-sm">Refonte site e-commerce</h2>
-            <p className="text-xs text-muted-foreground">IM-2603-0042</p>
+            <h2 className="font-display font-semibold text-sm">
+              {project?.name || "Projet"}
+            </h2>
+            <p className="text-xs text-muted-foreground">{project?.code || ""}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon"><Phone className="h-4 w-4" /></Button>
-        </div>
+        <Button variant="ghost" size="icon">
+          <Phone className="h-4 w-4" />
+        </Button>
       </div>
 
       {/* Phase indicator */}
-      <div className="border-b bg-muted/30 px-4 py-2">
-        <div className="flex items-center justify-between text-xs mb-1.5">
-          <span className="font-medium">Phase {currentPhase}/7 : {phaseLabels[currentPhase - 1]}</span>
-          <span className="text-muted-foreground">{overallProgress}%</span>
-        </div>
-        <Progress value={overallProgress} className="h-1.5" />
+      <div className="border-b bg-muted/30 px-4 py-3">
+        <PhaseProgress
+          currentPhase={currentPhase}
+          phaseProgress={phaseProgress}
+          compact
+        />
       </div>
 
       {/* Messages */}
@@ -106,15 +202,27 @@ export default function ProjectConversation() {
               key={message.id}
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              className={cn("flex", message.role === "user" ? "justify-end" : "justify-start")}
+              className={cn(
+                "flex",
+                message.role === "user" ? "justify-end" : "justify-start"
+              )}
             >
-              <div className={cn("flex gap-2.5 max-w-[80%]", message.role === "user" && "flex-row-reverse")}>
+              <div
+                className={cn(
+                  "flex gap-2.5 max-w-[80%]",
+                  message.role === "user" && "flex-row-reverse"
+                )}
+              >
                 {message.role !== "user" && (
                   <Avatar className="h-8 w-8 shrink-0">
-                    <AvatarFallback className={cn(
-                      "text-xs font-bold text-white",
-                      message.role === "consultant" ? "bg-secondary" : "gradient-primary"
-                    )}>
+                    <AvatarFallback
+                      className={cn(
+                        "text-xs font-bold text-white",
+                        message.role === "consultant"
+                          ? "bg-secondary"
+                          : "gradient-primary"
+                      )}
+                    >
                       {message.role === "consultant" ? "C" : "IA"}
                     </AvatarFallback>
                   </Avatar>
@@ -122,7 +230,9 @@ export default function ProjectConversation() {
                 <div>
                   {message.role !== "user" && (
                     <p className="text-[11px] text-muted-foreground mb-1">
-                      {message.role === "consultant" ? "Consultant IMOTION" : "Assistant IMOTION"}
+                      {message.role === "consultant"
+                        ? "Consultant IMOTION"
+                        : "Assistant IMOTION"}
                     </p>
                   )}
                   <div
@@ -135,7 +245,13 @@ export default function ProjectConversation() {
                         : "bg-card border shadow-sm rounded-bl-md"
                     )}
                   >
-                    {message.content}
+                    {message.role === "assistant" ? (
+                      <div className="prose prose-sm max-w-none dark:prose-invert">
+                        <ReactMarkdown>{message.content}</ReactMarkdown>
+                      </div>
+                    ) : (
+                      message.content
+                    )}
                   </div>
                 </div>
               </div>
@@ -144,9 +260,15 @@ export default function ProjectConversation() {
         </AnimatePresence>
 
         {isTyping && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-2.5">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex items-center gap-2.5"
+          >
             <Avatar className="h-8 w-8">
-              <AvatarFallback className="gradient-primary text-xs font-bold text-white">IA</AvatarFallback>
+              <AvatarFallback className="gradient-primary text-xs font-bold text-white">
+                IA
+              </AvatarFallback>
             </Avatar>
             <div className="bg-card border rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
               <div className="flex gap-1.5">
@@ -196,24 +318,13 @@ export default function ProjectConversation() {
               }
             }}
           />
-          <Button variant="ghost" size="icon" className="shrink-0 text-muted-foreground">
-            <Mic className="h-5 w-5" />
-          </Button>
           <Button
             size="icon"
             className="gradient-primary border-0 shrink-0"
             onClick={() => handleSend()}
-            disabled={!input.trim()}
+            disabled={!input.trim() || isTyping}
           >
             <Send className="h-4 w-4" />
-          </Button>
-        </div>
-        <div className="flex gap-2 mt-2">
-          <Button variant="ghost" size="sm" className="text-xs text-muted-foreground">
-            <Pause className="h-3 w-3 mr-1" /> Mettre en pause
-          </Button>
-          <Button variant="ghost" size="sm" className="text-xs text-muted-foreground">
-            <Phone className="h-3 w-3 mr-1" /> Demander un appel
           </Button>
         </div>
       </div>

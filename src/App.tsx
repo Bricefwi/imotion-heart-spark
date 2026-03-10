@@ -25,6 +25,7 @@ import ClientDashboard from "@/pages/client/Dashboard";
 import ClientProjects from "@/pages/client/Projects";
 import ProjectConversation from "@/pages/client/ProjectConversation";
 import ClientDocuments from "@/pages/client/Documents";
+import NewProject from "@/pages/client/NewProject";
 
 // Consultant pages
 import ConsultantDashboard from "@/pages/consultant/Dashboard";
@@ -61,6 +62,7 @@ const App = () => (
             <Route element={<ProtectedRoute><ClientLayout /></ProtectedRoute>}>
               <Route path="/client/dashboard" element={<ClientDashboard />} />
               <Route path="/client/projects" element={<ClientProjects />} />
+              <Route path="/client/projects/new" element={<NewProject />} />
               <Route path="/client/projects/:id/conversation" element={<ProjectConversation />} />
               <Route path="/client/documents" element={<ClientDocuments />} />
               <Route path="/client/profile" element={<ClientDashboard />} />
