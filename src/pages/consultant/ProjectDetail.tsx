@@ -729,10 +729,28 @@ export default function ConsultantProjectDetail() {
                 variant="outline"
                 size="sm"
                 className="w-full justify-start text-xs"
-                onClick={() => generateCDC.mutate()}
-                disabled={generateCDC.isPending}
+                onClick={() => generateDocument("cdc")}
+                disabled={isGenerating}
               >
                 <FileText className="h-3.5 w-3.5 mr-2" />Générer CDC
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-start text-xs"
+                onClick={() => generateDocument("proposal")}
+                disabled={isGenerating}
+              >
+                <FileText className="h-3.5 w-3.5 mr-2" />Proposition
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-start text-xs"
+                onClick={() => generateDocument("contract")}
+                disabled={isGenerating}
+              >
+                <FileText className="h-3.5 w-3.5 mr-2" />Contrat
               </Button>
               <Button
                 variant="outline"
