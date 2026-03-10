@@ -7,7 +7,8 @@ import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, useSidebar,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, FolderKanban, Users, BarChart3, FileStack, LogOut, Bell, Search } from "lucide-react";
+import { LayoutDashboard, FolderKanban, Users, BarChart3, FileStack, LogOut, Search } from "lucide-react";
+import { NotificationCenter } from "@/components/NotificationCenter";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 
