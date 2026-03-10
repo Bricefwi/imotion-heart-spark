@@ -8,7 +8,65 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Logo } from "@/components/Logo";
 import { AuthPhotoCarousel } from "@/components/AuthPhotoCarousel";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, ShieldCheck, X, Check } from "lucide-react";
+import { z } from "zod";
+
+const passwordSchema = z
+  .string()
+  .min(8, "Au moins 8 caractères")
+  .regex(/[A-Z]/, "Au moins une majuscule")
+  .regex(/[a-z]/, "Au moins une minuscule")
+  .regex(/[0-9]/, "Au moins un chiffre")
+  .regex(/[^A-Za-z0-9]/, "Au moins un caractère spécial");
+
+const emailSchema = z.string().trim().email("Adresse email invalide").max(255);
+const nameSchema = z.string().trim().min(2, "Au moins 2 caractères").max(100);
+
+function PasswordStrength({ password }: { password: string }) {
+  const checks = [
+    { label: "8 caractères minimum", ok: password.length >= 8 },
+    { label: "Une majuscule", ok: /[A-Z]/.test(password) },
+    { label: "Une minuscule", ok: /[a-z]/.test(password) },
+    { label: "Un chiffre", ok: /[0-9]/.test(password) },
+    { label: "Un caractère spécial", ok: /[^A-Za-z0-9]/.test(password) },
+  ];
+  const score = checks.filter((c) => c.ok).length;
+
+  if (!password) return null;
+
+  return (
+    <div className="mt-2 space-y-2">
+      <div className="flex gap-1">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div
+            key={i}
+            className={`h-1.5 flex-1 rounded-full transition-colors ${
+              i <= score
+                ? score <= 2
+                  ? "bg-destructive"
+                  : score <= 3
+                  ? "bg-secondary"
+                  : "bg-green-500"
+                : "bg-muted"
+            }`}
+          />
+        ))}
+      </div>
+      <div className="grid grid-cols-2 gap-1">
+        {checks.map((c) => (
+          <div key={c.label} className="flex items-center gap-1 text-[11px]">
+            {c.ok ? (
+              <Check className="h-3 w-3 text-green-500 shrink-0" />
+            ) : (
+              <X className="h-3 w-3 text-muted-foreground shrink-0" />
+            )}
+            <span className={c.ok ? "text-green-600" : "text-muted-foreground"}>{c.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function Register() {
   const navigate = useNavigate();
@@ -18,18 +76,44 @@ export default function Register() {
   const [form, setForm] = useState({
     email: "", password: "", fullName: "", companyName: "", companyRole: "", companySize: "", industry: "",
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const update = (key: string, value: string) => setForm({ ...form, [key]: value });
+  const update = (key: string, value: string) => {
+    setForm({ ...form, [key]: value });
+    setErrors((prev) => ({ ...prev, [key]: "" }));
+  };
+
+  const validateStep1 = () => {
+    const newErrors: Record<string, string> = {};
+    const nameResult = nameSchema.safeParse(form.fullName);
+    if (!nameResult.success) newErrors.fullName = nameResult.error.errors[0].message;
+    const emailResult = emailSchema.safeParse(form.email);
+    if (!emailResult.success) newErrors.email = emailResult.error.errors[0].message;
+    const passResult = passwordSchema.safeParse(form.password);
+    if (!passResult.success) newErrors.password = passResult.error.errors[0].message;
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleStep1 = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validateStep1()) setStep(2);
+  };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateStep1()) { setStep(1); return; }
     setLoading(true);
     const { error } = await supabase.auth.signUp({
-      email: form.email,
+      email: form.email.trim(),
       password: form.password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { full_name: form.fullName, company_name: form.companyName, company_role: form.companyRole },
+        data: {
+          full_name: form.fullName.trim(),
+          company_name: form.companyName.trim(),
+          company_role: form.companyRole.trim(),
+        },
       },
     });
     if (error) {
@@ -103,20 +187,33 @@ export default function Register() {
           <div className={`h-1.5 flex-1 rounded-full ${step >= 2 ? "gradient-primary" : "bg-muted"}`} />
         </div>
 
-        <form onSubmit={step === 1 ? (e) => { e.preventDefault(); setStep(2); } : handleRegister} className="space-y-5">
+        <form onSubmit={step === 1 ? handleStep1 : handleRegister} className="space-y-5">
           {step === 1 ? (
             <>
               <div className="space-y-2">
                 <Label>Nom complet</Label>
                 <Input placeholder="Jean Dupont" value={form.fullName} onChange={(e) => update("fullName", e.target.value)} required />
+                {errors.fullName && <p className="text-xs text-destructive">{errors.fullName}</p>}
               </div>
               <div className="space-y-2">
                 <Label>Email professionnel</Label>
                 <Input type="email" placeholder="jean@entreprise.com" value={form.email} onChange={(e) => update("email", e.target.value)} required />
+                {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
               </div>
               <div className="space-y-2">
-                <Label>Mot de passe</Label>
-                <Input type="password" placeholder="Min. 8 caractères" value={form.password} onChange={(e) => update("password", e.target.value)} required minLength={8} />
+                <Label className="flex items-center gap-1.5">
+                  <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+                  Mot de passe sécurisé
+                </Label>
+                <Input
+                  type="password"
+                  placeholder="Min. 8 caractères avec majuscule, chiffre, spécial"
+                  value={form.password}
+                  onChange={(e) => update("password", e.target.value)}
+                  required
+                />
+                <PasswordStrength password={form.password} />
+                {errors.password && <p className="text-xs text-destructive mt-1">{errors.password}</p>}
               </div>
               <Button type="submit" className="w-full gradient-primary border-0 h-11">Continuer →</Button>
             </>
@@ -160,7 +257,6 @@ export default function Register() {
         </p>
       </div>
 
-      {/* Right - Photo carousel */}
       <div className="hidden lg:block flex-1 relative">
         <AuthPhotoCarousel />
       </div>
