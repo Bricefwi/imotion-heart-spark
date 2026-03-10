@@ -2,6 +2,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
+import avatarMarie from "@/assets/avatar-marie.jpg";
+import avatarThomas from "@/assets/avatar-thomas.jpg";
+import avatarSophie from "@/assets/avatar-sophie.jpg";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -17,18 +20,21 @@ const testimonials = [
     name: "Marie Dupont",
     role: "Directrice Marketing",
     company: "TechVision",
+    avatar: avatarMarie,
   },
   {
     quote: "Le processus de découverte est bluffant. En 45 minutes, nous avions un CDC complet et précis.",
     name: "Thomas Martin",
     role: "CEO",
     company: "StartupFlow",
+    avatar: avatarThomas,
   },
   {
     quote: "Un gain de temps considérable. La qualité des documents générés est impressionnante.",
     name: "Sophie Bernard",
     role: "Product Manager",
     company: "DataCorp",
+    avatar: avatarSophie,
   },
 ];
 
@@ -58,9 +64,11 @@ export function TestimonialsSection() {
                   </div>
                   <p className="text-foreground/80 mb-6 leading-relaxed italic">"{t.quote}"</p>
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full gradient-primary flex items-center justify-center text-primary-foreground font-bold text-sm">
-                      {t.name.split(" ").map(n => n[0]).join("")}
-                    </div>
+                    <img
+                      src={t.avatar}
+                      alt={t.name}
+                      className="h-11 w-11 rounded-full object-cover ring-2 ring-primary/20"
+                    />
                     <div>
                       <p className="font-semibold text-sm">{t.name}</p>
                       <p className="text-xs text-muted-foreground">{t.role}, {t.company}</p>
