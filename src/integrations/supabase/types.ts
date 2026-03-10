@@ -804,7 +804,6 @@ export type Database = {
         Returns: boolean
       }
       increment_post_views: { Args: { post_slug: string }; Returns: undefined }
-      unaccent: { Args: { "": string }; Returns: string }
     }
     Enums: {
       app_role: "client" | "consultant" | "admin" | "super_admin"
