@@ -233,7 +233,14 @@ export default function ConsultantProjectDetail() {
       }
 
       queryClient.invalidateQueries({ queryKey: ["project-documents", id] });
-      toast.success(`${docType === "cdc" ? "CDC" : docType === "proposal" ? "Proposition" : "Contrat"} généré !`);
+      toast.success(
+        docType === "cdc" ? "CDC généré !" :
+        docType === "proposal" ? "Proposition générée !" :
+        docType === "tech_recommendation" ? "Recommandation technique générée !" :
+        docType === "pricing" ? "Proposition tarifaire générée !" :
+        docType === "contract_fr" ? "Contrat généré !" :
+        "Document généré !"
+      );
     } catch (err: any) {
       toast.error(err.message || "Erreur lors de la génération");
     } finally {
