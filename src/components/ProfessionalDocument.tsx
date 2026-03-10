@@ -89,45 +89,29 @@ export function ProfessionalDocument({
 
         for (let i = 1; i <= totalPages; i++) {
           pdf.setPage(i);
-
-          // --- Header ---
-          // Gradient line
-          pdf.setDrawColor(211, 47, 47); // primary red
+          pdf.setDrawColor(211, 47, 47);
           pdf.setLineWidth(0.8);
           pdf.line(12, 10, pageWidth - 12, 10);
-
-          // Header left: document name
           pdf.setFontSize(7);
           pdf.setTextColor(100, 100, 100);
           pdf.text(documentName, 12, 8);
-
-          // Header right: ref + date
           const headerRight = `${projectCode ? "Ref. " + projectCode + " | " : ""}${currentDate}`;
           pdf.text(headerRight, pageWidth - 12, 8, { align: "right" });
-
-          // --- Footer ---
-          // Gradient line
-          pdf.setDrawColor(245, 124, 0); // secondary orange
+          pdf.setDrawColor(245, 124, 0);
           pdf.setLineWidth(0.5);
           pdf.line(12, pageHeight - 14, pageWidth - 12, pageHeight - 14);
-
-          // Footer left
           pdf.setFontSize(6.5);
           pdf.setTextColor(160, 160, 160);
           pdf.text("IMOTION - Agence Digitale | Document confidentiel", 12, pageHeight - 10);
-
-          // Footer center: page number
           pdf.setFontSize(7);
           pdf.setTextColor(100, 100, 100);
-          const pageText = `Page ${i} / ${totalPages}`;
-          pdf.text(pageText, pageWidth / 2, pageHeight - 10, { align: "center" });
-
-          // Footer right: version
+          pdf.text(`Page ${i} / ${totalPages}`, pageWidth / 2, pageHeight - 10, { align: "center" });
           pdf.setFontSize(6.5);
           pdf.setTextColor(160, 160, 160);
           pdf.text(`v${version}`, pageWidth - 12, pageHeight - 10, { align: "right" });
         }
-      }).save();
+        pdf.save();
+      });
     } catch (err) {
       console.error("PDF export error:", err);
     } finally {
