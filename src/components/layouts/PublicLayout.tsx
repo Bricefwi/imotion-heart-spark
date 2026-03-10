@@ -109,7 +109,7 @@ export function PublicLayout() {
               <h4 className="font-display font-semibold mb-3">Entreprise</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><Link to="/a-propos" className="hover:text-foreground transition-colors">À propos</Link></li>
-                <li><a href="mailto:contact@imotion.io" className="hover:text-foreground transition-colors">Contact</a></li>
+                <li><Link to="/contact" className="hover:text-foreground transition-colors">Contact</Link></li>
               </ul>
             </div>
             <div>
