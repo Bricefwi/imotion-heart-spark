@@ -59,6 +59,10 @@ const App = () => (
               <Route path="/" element={<Index />} />
             </Route>
 
+            {/* Blog (public, own layout) */}
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogArticle />} />
+
             {/* Auth (no layout) */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
