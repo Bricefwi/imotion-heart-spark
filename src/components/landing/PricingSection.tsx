@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
+import pricingDeco from "@/assets/pricing-decoration.png";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -43,8 +44,20 @@ const plans = [
 
 export function PricingSection() {
   return (
-    <section id="pricing" className="py-20 md:py-28">
-      <div className="container">
+    <section id="pricing" className="py-20 md:py-28 relative overflow-hidden">
+      {/* Decorative elements */}
+      <img
+        src={pricingDeco}
+        alt=""
+        className="absolute -top-16 -right-16 w-48 h-48 opacity-10 pointer-events-none"
+      />
+      <img
+        src={pricingDeco}
+        alt=""
+        className="absolute -bottom-16 -left-16 w-48 h-48 opacity-10 pointer-events-none rotate-180"
+      />
+
+      <div className="container relative">
         <div className="text-center mb-16">
           <Badge variant="outline" className="mb-4">Tarifs</Badge>
           <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
