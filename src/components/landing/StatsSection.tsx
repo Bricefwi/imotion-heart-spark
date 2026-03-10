@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import statsWave from "@/assets/stats-wave.png";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -16,8 +17,15 @@ const stats = [
 
 export function StatsSection() {
   return (
-    <section className="py-12 border-y bg-muted/30">
-      <div className="container">
+    <section className="py-14 border-y bg-muted/30 relative overflow-hidden">
+      {/* Decorative wave */}
+      <img
+        src={statsWave}
+        alt=""
+        className="absolute inset-0 w-full h-full object-cover opacity-[0.06] pointer-events-none"
+      />
+
+      <div className="container relative">
         <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
           {stats.map((stat, i) => (
             <motion.div

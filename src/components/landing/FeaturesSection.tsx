@@ -1,7 +1,9 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
-import { MessageSquare, FileText, BarChart3 } from "lucide-react";
+import featureConversation from "@/assets/feature-conversation.png";
+import featureDocument from "@/assets/feature-document.png";
+import featureAnalytics from "@/assets/feature-analytics.png";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -13,17 +15,17 @@ const fadeUp = {
 
 const features = [
   {
-    icon: MessageSquare,
+    image: featureConversation,
     title: "Conversation guidée",
     description: "Une IA qui vous pose les bonnes questions pour comprendre votre vision et vos besoins.",
   },
   {
-    icon: FileText,
+    image: featureDocument,
     title: "CDC sur-mesure",
     description: "Un document professionnel généré automatiquement à partir de votre conversation.",
   },
   {
-    icon: BarChart3,
+    image: featureAnalytics,
     title: "Proposition claire",
     description: "Des solutions techniques chiffrées et comparées pour une décision éclairée.",
   },
@@ -50,9 +52,13 @@ export function FeaturesSection() {
               variants={fadeUp} custom={i}
             >
               <Card className="group hover:shadow-lg transition-all duration-300 border-0 shadow-sm bg-card h-full">
-                <CardContent className="p-8">
-                  <div className="h-12 w-12 rounded-xl gradient-primary flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                    <feature.icon className="h-6 w-6 text-primary-foreground" />
+                <CardContent className="p-8 text-center">
+                  <div className="flex justify-center mb-6">
+                    <img
+                      src={feature.image}
+                      alt={feature.title}
+                      className="h-24 w-24 object-contain group-hover:scale-110 transition-transform duration-300"
+                    />
                   </div>
                   <h3 className="font-display text-xl font-bold mb-3">{feature.title}</h3>
                   <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
