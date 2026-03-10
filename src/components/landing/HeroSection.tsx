@@ -70,7 +70,7 @@ export function HeroSection() {
           >
             <img
               src={heroImg}
-              alt="IMOTION Discovery Pro — Dashboard de gestion de projets digitaux"
+              alt="IMOTION Creator Studio — Dashboard de gestion de projets digitaux"
               className="w-full max-w-md lg:max-w-lg mx-auto drop-shadow-2xl rounded-2xl"
             />
           </motion.div>

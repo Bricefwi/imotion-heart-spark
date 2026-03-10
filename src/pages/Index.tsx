@@ -1,12 +1,7 @@
 import { HeroSection } from "@/components/landing/HeroSection";
-import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
-import { FeaturesSection } from "@/components/landing/FeaturesSection";
-import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
-import { PricingSection } from "@/components/landing/PricingSection";
-import { CTASection } from "@/components/landing/CTASection";
 import { StatsSection } from "@/components/landing/StatsSection";
 import { FloatingPhotoStrip } from "@/components/landing/FloatingPhotoStrip";
-import { BlogPreviewSection } from "@/components/landing/BlogPreviewSection";
+import { CTASection } from "@/components/landing/CTASection";
 
 export default function Index() {
   return (
@@ -14,11 +9,6 @@ export default function Index() {
       <HeroSection />
       <StatsSection />
       <FloatingPhotoStrip />
-      <FeaturesSection />
-      <HowItWorksSection />
-      <TestimonialsSection />
-      <BlogPreviewSection />
-      <PricingSection />
       <CTASection />
     </div>
   );

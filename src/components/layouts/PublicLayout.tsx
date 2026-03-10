@@ -5,6 +5,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 
+const navLinks = [
+  { label: "Fonctionnalités", to: "/fonctionnalites" },
+  { label: "Tarifs", to: "/tarifs" },
+  { label: "Blog", to: "/blog" },
+  { label: "À propos", to: "/a-propos" },
+];
+
 export function PublicLayout() {
   const { user } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -20,15 +27,15 @@ export function PublicLayout() {
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-8">
-            <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Fonctionnalités
-            </a>
-            <a href="#pricing" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Tarifs
-            </a>
-            <a href="#about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              À propos
-            </a>
+            {navLinks.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
           </nav>
 
           <div className="hidden md:flex items-center gap-3">
@@ -57,9 +64,16 @@ export function PublicLayout() {
         {/* Mobile menu */}
         {mobileOpen && (
           <div className="md:hidden border-t bg-background p-4 space-y-3 animate-fade-in">
-            <a href="#features" className="block text-sm font-medium py-2" onClick={() => setMobileOpen(false)}>Fonctionnalités</a>
-            <a href="#pricing" className="block text-sm font-medium py-2" onClick={() => setMobileOpen(false)}>Tarifs</a>
-            <a href="#about" className="block text-sm font-medium py-2" onClick={() => setMobileOpen(false)}>À propos</a>
+            {navLinks.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className="block text-sm font-medium py-2"
+                onClick={() => setMobileOpen(false)}
+              >
+                {link.label}
+              </Link>
+            ))}
             <div className="flex flex-col gap-2 pt-2">
               <Button variant="outline" asChild><Link to="/login">Se connecter</Link></Button>
               <Button asChild className="gradient-primary border-0"><Link to="/register">Démarrer</Link></Button>
@@ -85,27 +99,28 @@ export function PublicLayout() {
             <div>
               <h4 className="font-display font-semibold mb-3">Produit</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#features" className="hover:text-foreground transition-colors">Fonctionnalités</a></li>
-                <li><a href="#pricing" className="hover:text-foreground transition-colors">Tarifs</a></li>
+                <li><Link to="/fonctionnalites" className="hover:text-foreground transition-colors">Fonctionnalités</Link></li>
+                <li><Link to="/tarifs" className="hover:text-foreground transition-colors">Tarifs</Link></li>
+                <li><Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-display font-semibold mb-3">Entreprise</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#about" className="hover:text-foreground transition-colors">À propos</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Contact</a></li>
+                <li><Link to="/a-propos" className="hover:text-foreground transition-colors">À propos</Link></li>
+                <li><a href="mailto:contact@imotion.io" className="hover:text-foreground transition-colors">Contact</a></li>
               </ul>
             </div>
             <div>
               <h4 className="font-display font-semibold mb-3">Légal</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground transition-colors">Mentions légales</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Politique de confidentialité</a></li>
+                <li><Link to="/mentions-legales" className="hover:text-foreground transition-colors">Mentions légales</Link></li>
+                <li><Link to="/confidentialite" className="hover:text-foreground transition-colors">Politique de confidentialité</Link></li>
               </ul>
             </div>
           </div>
           <div className="border-t mt-8 pt-6 text-center text-sm text-muted-foreground">
-            © {new Date().getFullYear()} IMOTION Conseil. Tous droits réservés.
+            © {new Date().getFullYear()} IMOTION Creator Studio. Tous droits réservés.
           </div>
         </div>
       </footer>

@@ -12,15 +12,22 @@ import { ClientLayout } from "@/components/layouts/ClientLayout";
 import { ConsultantLayout } from "@/components/layouts/ConsultantLayout";
 import { AdminLayout } from "@/components/layouts/AdminLayout";
 
-// Pages
+// Public pages
 import Index from "@/pages/Index";
+import Features from "@/pages/Features";
+import Pricing from "@/pages/Pricing";
+import About from "@/pages/About";
+import Legal from "@/pages/Legal";
+import Privacy from "@/pages/Privacy";
+import Blog from "@/pages/Blog";
+import BlogArticle from "@/pages/BlogArticle";
+
+// Auth pages
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import ForgotPassword from "@/pages/ForgotPassword";
 import ResetPassword from "@/pages/ResetPassword";
 import NotFound from "@/pages/NotFound";
-import Blog from "@/pages/Blog";
-import BlogArticle from "@/pages/BlogArticle";
 
 // Client pages
 import ClientDashboard from "@/pages/client/Dashboard";
@@ -55,14 +62,17 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            {/* Public */}
+            {/* Public pages with shared layout */}
             <Route element={<PublicLayout />}>
               <Route path="/" element={<Index />} />
+              <Route path="/fonctionnalites" element={<Features />} />
+              <Route path="/tarifs" element={<Pricing />} />
+              <Route path="/a-propos" element={<About />} />
+              <Route path="/mentions-legales" element={<Legal />} />
+              <Route path="/confidentialite" element={<Privacy />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:slug" element={<BlogArticle />} />
             </Route>
-
-            {/* Blog (public, own layout) */}
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/:slug" element={<BlogArticle />} />
 
             {/* Auth (no layout) */}
             <Route path="/login" element={<Login />} />
