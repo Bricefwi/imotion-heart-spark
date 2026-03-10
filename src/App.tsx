@@ -17,6 +17,7 @@ import Index from "@/pages/Index";
 import Features from "@/pages/Features";
 import Pricing from "@/pages/Pricing";
 import About from "@/pages/About";
+import Contact from "@/pages/Contact";
 import Legal from "@/pages/Legal";
 import Privacy from "@/pages/Privacy";
 import Blog from "@/pages/Blog";
