@@ -15,7 +15,8 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, FolderKanban, FileText, User, LogOut, Bell } from "lucide-react";
+import { LayoutDashboard, FolderKanban, FileText, User, LogOut } from "lucide-react";
+import { NotificationCenter } from "@/components/NotificationCenter";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const clientNav = [
