@@ -68,7 +68,7 @@ export default function Login() {
         </div>
         <div className="space-y-2 mb-8">
           <h1 className="font-display text-3xl font-bold">
-            {mode === "password" ? "Bienvenue ! 👋" : "Connexion magique ✨"}
+            {mode === "password" ? "Bienvenue" : "Connexion magique"}
           </h1>
           <p className="text-muted-foreground">
             {mode === "password" ? "Connectez-vous pour accéder à votre espace." : "Recevez un lien de connexion par email."}

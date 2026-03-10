@@ -1,28 +1,27 @@
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Download, PenLine, FileText, MessageSquare, Loader2, CheckCircle, Clock } from "lucide-react";
+import { ArrowLeft, PenLine, FileText, MessageSquare, Loader2, CheckCircle, Clock } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
-import ReactMarkdown from "react-markdown";
 import { useState } from "react";
 import { SignaturePad } from "@/components/SignaturePad";
+import { ProfessionalDocument } from "@/components/ProfessionalDocument";
 import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
 
 const phaseNames: Record<number, string> = {
-  1: "Présentation & Contexte",
-  2: "Objectifs & Cibles",
-  3: "Fonctionnalités & Contenu",
-  4: "Design & Identité visuelle",
-  5: "Technique & Intégrations",
-  6: "Budget & Planning",
-  7: "Synthèse & Validation",
+  1: "Présentation et Contexte",
+  2: "Objectifs et Cibles",
+  3: "Fonctionnalités et Contenu",
+  4: "Design et Identité visuelle",
+  5: "Technique et Intégrations",
+  6: "Budget et Planning",
+  7: "Synthèse et Validation",
 };
 
 const statusLabels: Record<string, { label: string; variant: "default" | "secondary" | "outline" | "destructive" }> = {
@@ -40,7 +39,6 @@ export default function DocumentViewer() {
   const queryClient = useQueryClient();
   const [signingOpen, setSigningOpen] = useState(false);
 
-  // Fetch document
   const { data: document, isLoading: docLoading } = useQuery({
     queryKey: ["document", documentId],
     queryFn: async () => {
@@ -55,7 +53,6 @@ export default function DocumentViewer() {
     enabled: !!documentId,
   });
 
-  // Fetch project info
   const { data: project } = useQuery({
     queryKey: ["project-for-doc", document?.project_id],
     queryFn: async () => {
@@ -70,7 +67,6 @@ export default function DocumentViewer() {
     enabled: !!document?.project_id,
   });
 
-  // Fetch conversation messages grouped by phase
   const { data: messages = [] } = useQuery({
     queryKey: ["doc-messages", document?.project_id],
     queryFn: async () => {
@@ -102,11 +98,10 @@ export default function DocumentViewer() {
       toast.error("Erreur lors de la signature.");
       return;
     }
-    toast.success("Document signé avec succès !");
+    toast.success("Document signé avec succès.");
     queryClient.invalidateQueries({ queryKey: ["document", documentId] });
   };
 
-  // Group messages by phase
   const messagesByPhase: Record<number, typeof messages> = {};
   for (const m of messages) {
     const phase = m.phase || 1;
@@ -134,6 +129,7 @@ export default function DocumentViewer() {
   const status = statusLabels[document.status || "draft"] || statusLabels.draft;
   const isSigned = document.status === "signed";
   const needsSignature = document.requires_signature && !isSigned;
+  const client = project?.client as any;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -156,9 +152,6 @@ export default function DocumentViewer() {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <Download className="h-3.5 w-3.5 mr-1" /> Télécharger
-          </Button>
           {needsSignature && (
             <Button size="sm" className="gradient-primary border-0" onClick={() => setSigningOpen(true)}>
               <PenLine className="h-3.5 w-3.5 mr-1" /> Signer
@@ -167,52 +160,52 @@ export default function DocumentViewer() {
         </div>
       </div>
 
-      {/* Signature banner */}
+      {/* Signature banners */}
       {isSigned && document.signed_at && (
-        <Card className="border-green-200 bg-green-50 border-0 shadow-sm">
-          <CardContent className="p-4 flex items-center gap-3">
-            <CheckCircle className="h-5 w-5 text-green-600" />
-            <div>
-              <p className="text-sm font-medium text-green-800">Document signé</p>
-              <p className="text-xs text-green-600">
-                Signé le {format(new Date(document.signed_at), "dd MMMM yyyy 'à' HH:mm", { locale: fr })}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="flex items-center gap-3 p-4 rounded-xl border border-green-200 bg-green-50">
+          <CheckCircle className="h-5 w-5 text-green-600 shrink-0" />
+          <div>
+            <p className="text-sm font-medium text-green-800">Document signé</p>
+            <p className="text-xs text-green-600">
+              Le {format(new Date(document.signed_at), "dd MMMM yyyy 'a' HH:mm", { locale: fr })}
+            </p>
+          </div>
+        </div>
       )}
 
       {needsSignature && (
-        <Card className="border-orange-200 bg-orange-50 border-0 shadow-sm">
-          <CardContent className="p-4 flex items-center gap-3">
-            <Clock className="h-5 w-5 text-orange-600" />
-            <div>
-              <p className="text-sm font-medium text-orange-800">En attente de votre signature</p>
-              <p className="text-xs text-orange-600">Veuillez relire le document puis le signer pour valider</p>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="flex items-center gap-3 p-4 rounded-xl border border-orange-200 bg-orange-50">
+          <Clock className="h-5 w-5 text-orange-600 shrink-0" />
+          <div>
+            <p className="text-sm font-medium text-orange-800">En attente de votre signature</p>
+            <p className="text-xs text-orange-600">Veuillez relire le document puis le signer pour valider</p>
+          </div>
+        </div>
       )}
 
-      {/* Tabs: Document + Échanges */}
+      {/* Tabs */}
       <Tabs defaultValue="document" className="w-full">
         <TabsList className="w-full justify-start bg-muted/50">
           <TabsTrigger value="document" className="gap-1.5">
             <FileText className="h-3.5 w-3.5" /> Document
           </TabsTrigger>
           <TabsTrigger value="exchanges" className="gap-1.5">
-            <MessageSquare className="h-3.5 w-3.5" /> Échanges ({messages.length})
+            <MessageSquare className="h-3.5 w-3.5" /> Echanges ({messages.length})
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="document" className="mt-4">
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-6 md:p-10">
-              <div className="prose prose-sm max-w-none dark:prose-invert prose-headings:font-display prose-h1:text-2xl prose-h1:border-b prose-h1:pb-3 prose-h2:text-xl prose-h3:text-lg prose-table:text-xs prose-th:bg-muted/50 prose-th:p-2 prose-td:p-2 prose-td:border">
-                <ReactMarkdown>{document.description || "Le contenu du document sera affiché ici une fois généré."}</ReactMarkdown>
-              </div>
-            </CardContent>
-          </Card>
+          <ProfessionalDocument
+            content={document.description || "Le contenu du document sera disponible une fois la generation terminee."}
+            documentName={document.name}
+            projectName={project?.name}
+            projectCode={project?.code || undefined}
+            clientName={client?.full_name}
+            clientCompany={client?.company_name}
+            version={document.version || 1}
+            date={document.created_at ? format(new Date(document.created_at), "dd MMMM yyyy", { locale: fr }) : undefined}
+            status={document.status || "draft"}
+          />
         </TabsContent>
 
         <TabsContent value="exchanges" className="mt-4 space-y-4">
@@ -251,7 +244,7 @@ export default function DocumentViewer() {
             <Card className="border-0 shadow-sm">
               <CardContent className="p-8 text-center">
                 <MessageSquare className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-                <p className="text-sm text-muted-foreground">Aucun échange enregistré pour ce projet</p>
+                <p className="text-sm text-muted-foreground">Aucun echange enregistre pour ce projet</p>
               </CardContent>
             </Card>
           )}

@@ -620,7 +620,7 @@ Pour CHAQUE phase, créer un tableau détaillé :
 
 # 5. SYNTHÈSE TARIFAIRE — 3 OPTIONS
 
-| | Essentiel | Recommandé ⭐ | Premium |
+| | Essentiel | Recommande | Premium |
 |---|-----------|--------------|---------|
 | Conception | ... | ... | ... |
 | Design | ... | ... | ... |
