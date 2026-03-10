@@ -27,7 +27,6 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabase = createClient(supabaseUrl, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 
-    // Verify user
     const anonClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
       global: { headers: { Authorization: authHeader } },
     });
@@ -51,6 +50,13 @@ serve(async (req) => {
       });
     }
 
+    // Get ALL conversation messages for context
+    const { data: allMessages } = await supabase
+      .from("messages")
+      .select("role, content, phase, created_at")
+      .eq("project_id", projectId)
+      .order("created_at", { ascending: true });
+
     // Try to find a template for this type
     const docType = type || "cdc";
     const { data: template } = await supabase
@@ -63,127 +69,99 @@ serve(async (req) => {
 
     const client = project.client;
     const discoveryData = project.discovery_data || {};
-    const prompt = template
-      ? buildPromptFromTemplate(template, project, client, discoveryData)
-      : buildDocumentPrompt(docType, project, client, discoveryData);
+    const conversationContext = formatConversationForPrompt(allMessages || []);
 
-    // Streaming mode
+    const prompt = template
+      ? buildPromptFromTemplate(template, project, client, discoveryData, conversationContext)
+      : buildDocumentPrompt(docType, project, client, discoveryData, conversationContext);
+
+    // Common AI call setup
+    const aiBody = {
+      model: "google/gemini-2.5-flash",
+      messages: [
+        { role: "system", content: getSystemPrompt(docType) },
+        { role: "user", content: prompt },
+      ],
+      stream: !!shouldStream,
+    };
+
+    const aiHeaders = {
+      Authorization: `Bearer ${LOVABLE_API_KEY}`,
+      "Content-Type": "application/json",
+    };
+
     if (shouldStream) {
       const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-3-flash-preview",
-          messages: [
-            { role: "system", content: "Tu es un expert en rédaction de documents professionnels pour agences digitales. Tu génères des documents structurés en Markdown." },
-            { role: "user", content: prompt },
-          ],
-          stream: true,
-        }),
+        method: "POST", headers: aiHeaders, body: JSON.stringify(aiBody),
       });
 
       if (!response.ok) {
         const t = await response.text();
         console.error("AI stream error:", response.status, t);
+        if (response.status === 429) {
+          return new Response(JSON.stringify({ error: "Trop de requêtes, réessayez dans quelques instants." }), {
+            status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
         throw new Error("AI generation failed");
       }
 
-      // Create document record first
       const docName = getDocName(docType, project.name);
       const { data: doc, error: docErr } = await supabase.from("documents").insert({
-        project_id: projectId,
-        type: docType,
-        name: docName,
+        project_id: projectId, type: docType, name: docName,
         description: `Généré automatiquement le ${new Date().toLocaleDateString("fr-FR")}`,
         storage_path: `${projectId}/${docType}_${Date.now()}.md`,
-        status: "draft",
-        created_by: userData.user.id,
+        status: "draft", created_by: userData.user.id,
+        requires_signature: docType === "contract" || docType === "proposal",
       }).select("id").single();
 
       if (docErr) throw docErr;
 
-      // Log activity
       await supabase.from("activities").insert({
-        user_id: userData.user.id,
-        project_id: projectId,
-        action: "document",
-        description: `${docName} généré pour "${project.name}"`,
+        user_id: userData.user.id, project_id: projectId,
+        action: "document", description: `${docName} généré pour "${project.name}"`,
       });
 
-      // Stream: prepend document_id then forward SSE
       const encoder = new TextEncoder();
       const readable = new ReadableStream({
         async start(controller) {
-          // Send document ID as first event
           controller.enqueue(encoder.encode(`data: ${JSON.stringify({ document_id: doc.id })}\n\n`));
-
           const reader = response.body!.getReader();
           const decoder = new TextDecoder();
-          let fullContent = "";
 
           try {
             while (true) {
               const { done, value } = await reader.read();
               if (done) break;
-
-              const chunk = decoder.decode(value, { stream: true });
-              // Parse SSE chunks to accumulate content
-              const lines = chunk.split("\n");
-              for (const line of lines) {
-                if (line.startsWith("data: ") && line !== "data: [DONE]") {
-                  try {
-                    const parsed = JSON.parse(line.slice(6));
-                    const delta = parsed.choices?.[0]?.delta?.content || "";
-                    if (delta) fullContent += delta;
-                  } catch { /* skip parse errors */ }
-                }
-              }
-              // Forward raw SSE to client
               controller.enqueue(value);
             }
           } catch (err) {
             console.error("Stream read error:", err);
           }
 
-          // Store final content (upload to storage would go here)
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));
           controller.close();
         },
       });
 
       return new Response(readable, {
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "text/event-stream",
-          "Cache-Control": "no-cache",
-          "Connection": "keep-alive",
-        },
+        headers: { ...corsHeaders, "Content-Type": "text/event-stream", "Cache-Control": "no-cache", Connection: "keep-alive" },
       });
     }
 
-    // Non-streaming mode (existing behavior)
+    // Non-streaming mode
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          { role: "system", content: "Tu es un expert en rédaction de documents professionnels pour agences digitales. Tu génères des documents structurés en Markdown." },
-          { role: "user", content: prompt },
-        ],
-        stream: false,
-      }),
+      method: "POST", headers: aiHeaders, body: JSON.stringify(aiBody),
     });
 
     if (!response.ok) {
       const t = await response.text();
       console.error("AI error:", response.status, t);
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ error: "Trop de requêtes, réessayez dans quelques instants." }), {
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       throw new Error("AI generation failed");
     }
 
@@ -192,31 +170,25 @@ serve(async (req) => {
 
     const docName = getDocName(docType, project.name);
     const { data: doc, error: docErr } = await supabase.from("documents").insert({
-      project_id: projectId,
-      type: docType,
-      name: docName,
+      project_id: projectId, type: docType, name: docName,
       description: `Généré automatiquement le ${new Date().toLocaleDateString("fr-FR")}`,
       storage_path: `${projectId}/${docType}_${Date.now()}.md`,
-      status: "draft",
-      created_by: userData.user.id,
+      status: "draft", created_by: userData.user.id,
+      requires_signature: docType === "contract" || docType === "proposal",
     }).select("id").single();
 
     if (docErr) throw docErr;
 
     const statusMap: Record<string, string> = {
-      cdc: "cdc_draft",
-      proposal: "proposal_sent",
-      contract: "contract_pending",
+      cdc: "cdc_draft", proposal: "proposal_sent", contract: "contract_pending",
     };
     if (statusMap[docType]) {
       await supabase.from("projects").update({ status: statusMap[docType] }).eq("id", projectId);
     }
 
     await supabase.from("activities").insert({
-      user_id: userData.user.id,
-      project_id: projectId,
-      action: "document",
-      description: `${docName} généré pour "${project.name}"`,
+      user_id: userData.user.id, project_id: projectId,
+      action: "document", description: `${docName} généré pour "${project.name}"`,
     });
 
     return new Response(JSON.stringify({ success: true, document_id: doc.id, content }), {
@@ -230,18 +202,67 @@ serve(async (req) => {
   }
 });
 
+// ─── Helpers ─────────────────────────────────────────────
+
 function getDocName(type: string, projectName: string): string {
   const names: Record<string, string> = {
-    cdc: "Cahier des Charges",
-    proposal: "Proposition Commerciale",
-    contract: "Contrat de Prestation",
+    cdc: "Cahier des Charges", proposal: "Proposition Commerciale", contract: "Contrat de Prestation",
   };
   return `${names[type] || type} - ${projectName}`;
 }
 
-function buildPromptFromTemplate(template: any, project: any, client: any, discoveryData: any): string {
+function getSystemPrompt(type: string): string {
+  if (type === "cdc") {
+    return `Tu es un directeur de projet digital senior dans une agence web premium (IMOTION). Tu rédiges des Cahiers des Charges exhaustifs, professionnels et immédiatement exploitables.
+
+RÈGLES DE RÉDACTION :
+- Ton professionnel mais accessible, jamais de jargon inutile
+- Chaque section doit apporter de la valeur concrète et actionnable
+- Utilise des tableaux Markdown pour structurer les données comparatives
+- Utilise des listes à puces pour les spécifications
+- Inclus des métriques, KPIs et critères de succès mesurables
+- Personnalise chaque section avec les données réelles du client
+- Le document doit être prêt à être envoyé au client tel quel
+- Rédige en français impeccable
+- Format Markdown structuré avec titres hiérarchiques (# ## ### ####)`;
+  }
+  return `Tu es un expert en rédaction de documents professionnels pour agences digitales premium. Tu génères des documents structurés, élégants et prêts à l'envoi en Markdown. Rédige en français impeccable.`;
+}
+
+function formatConversationForPrompt(messages: any[]): string {
+  if (!messages || messages.length === 0) return "Aucun échange enregistré.";
+
+  const phaseNames: Record<number, string> = {
+    1: "Présentation & Contexte",
+    2: "Objectifs & Cibles",
+    3: "Fonctionnalités & Contenu",
+    4: "Design & Identité visuelle",
+    5: "Technique & Intégrations",
+    6: "Budget & Planning",
+    7: "Synthèse & Validation",
+  };
+
+  const byPhase: Record<number, any[]> = {};
+  for (const m of messages) {
+    const phase = m.phase || 1;
+    if (!byPhase[phase]) byPhase[phase] = [];
+    byPhase[phase].push(m);
+  }
+
+  let result = "";
+  for (const [phase, msgs] of Object.entries(byPhase)) {
+    const pNum = Number(phase);
+    result += `\n### Phase ${pNum} — ${phaseNames[pNum] || "Autre"}\n`;
+    for (const m of msgs) {
+      const label = m.role === "user" ? "CLIENT" : "ASSISTANT";
+      result += `**${label}** : ${m.content.substring(0, 500)}\n\n`;
+    }
+  }
+  return result;
+}
+
+function buildPromptFromTemplate(template: any, project: any, client: any, discoveryData: any, conversationContext: string): string {
   let content = template.content;
-  // Replace template variables
   const vars: Record<string, string> = {
     project_name: project.name,
     project_code: project.code || "",
@@ -254,61 +275,204 @@ function buildPromptFromTemplate(template: any, project: any, client: any, disco
     budget_max: String(project.estimated_budget_max || "?"),
     internal_notes: project.internal_notes || "Aucune",
     discovery_data: JSON.stringify(discoveryData, null, 2),
+    conversation_context: conversationContext,
   };
-
   for (const [key, value] of Object.entries(vars)) {
     content = content.replace(new RegExp(`\\{\\{${key}\\}\\}`, "g"), value);
   }
-
   return `À partir du template suivant, génère le document complet en Markdown:\n\n${content}`;
 }
 
-function buildDocumentPrompt(type: string, project: any, client: any, discoveryData: any): string {
+function buildDocumentPrompt(type: string, project: any, client: any, discoveryData: any, conversationContext: string): string {
   const base = `
-Projet: ${project.name} (${project.code})
-Client: ${client?.full_name || "N/A"} - ${client?.company_name || "N/A"}
-Secteur: ${client?.industry || "Non spécifié"}
-Phase actuelle: ${project.current_phase}/7
-Score qualification: ${project.qualification_score || "N/A"}/5
-Budget estimé: ${project.estimated_budget_min || "?"} - ${project.estimated_budget_max || "?"}€
-Notes consultant: ${project.internal_notes || "Aucune"}
+## INFORMATIONS PROJET
+- **Nom** : ${project.name} (Réf. ${project.code})
+- **Client** : ${client?.full_name || "N/A"}
+- **Entreprise** : ${client?.company_name || "N/A"}
+- **Secteur** : ${client?.industry || "Non spécifié"}
+- **Phase actuelle** : ${project.current_phase}/7
+- **Score qualification** : ${project.qualification_score || "N/A"}/5
+- **Budget estimé** : ${project.estimated_budget_min || "?"} - ${project.estimated_budget_max || "?"}€
+- **Deadline souhaitée** : ${project.desired_deadline || "Non définie"}
+- **Notes internes** : ${project.internal_notes || "Aucune"}
 
-Données de découverte collectées:
+## DONNÉES DE DÉCOUVERTE STRUCTURÉES
 ${JSON.stringify(discoveryData, null, 2)}
+
+## HISTORIQUE COMPLET DES ÉCHANGES CLIENT
+${conversationContext}
 `;
 
   if (type === "cdc") {
-    return `Génère un Cahier des Charges professionnel complet en Markdown pour ce projet:
+    return `Génère un Cahier des Charges professionnel, exhaustif et immédiatement exploitable pour ce projet. Utilise TOUTES les informations issues des échanges client ci-dessous pour personnaliser chaque section au maximum. Le CDC doit refléter précisément le besoin profond du client et viser juste dès la première version.
 
 ${base}
 
-Structure requise:
-1. Résumé exécutif
-2. Contexte et enjeux
-3. Analyse du besoin
-4. Positionnement et image de marque
-5. Spécifications fonctionnelles (MVP puis V2)
-6. Architecture technique recommandée
-7. Intégrations requises
-8. Planning prévisionnel
-9. Budget estimatif (3 options: Essentiel, Recommandé, Premium)
-10. Critères de succès
-11. Prochaines étapes
+## STRUCTURE OBLIGATOIRE DU CAHIER DES CHARGES
 
-Sois professionnel, précis et actionnable. Utilise les données collectées pour personnaliser au maximum.`;
+Génère le document avec EXACTEMENT ces sections, dans cet ordre :
+
+# 1. PAGE DE GARDE
+- Titre du projet, référence, client, date, version, mention confidentiel
+- Logo IMOTION (mentionner l'espace réservé)
+
+# 2. RÉSUMÉ EXÉCUTIF
+- Synthèse en 5-8 lignes du projet, objectifs clés et enjeux business
+- Ce résumé doit convaincre un décideur en 30 secondes
+
+# 3. CONTEXTE & ENJEUX
+- Présentation de l'entreprise cliente et son marché
+- Problématiques actuelles identifiées lors des échanges
+- Enjeux business et opportunités à saisir
+- Pourquoi ce projet maintenant (urgence, concurrence, évolution du marché)
+
+# 4. ANALYSE DU BESOIN CLIENT
+- Objectifs stratégiques et opérationnels (utiliser les verbatim du client)
+- Cibles utilisateurs / Personas (créer 2-3 personas détaillés si données suffisantes)
+- Parcours utilisateurs principaux (user journeys)
+- Attentes fonctionnelles exprimées VS besoins latents identifiés
+
+# 5. BENCHMARK & POSITIONNEMENT
+- Analyse de 3-5 concurrents/références (si mentionnés dans les échanges)
+- Positionnement différenciant souhaité par le client
+- Best practices du secteur à intégrer
+- Opportunités de différenciation identifiées
+
+# 6. IDENTITÉ & IMAGE DE MARQUE
+- Univers de marque souhaité (ton, valeurs, personnalité)
+- Références visuelles et inspirations citées par le client
+- Charte graphique existante / à créer
+- Ton éditorial et ligne directrice du contenu
+- Émotions et perceptions à véhiculer
+
+# 7. ARBORESCENCE & ARCHITECTURE DE L'INFORMATION
+- Plan du site / Structure des écrans (sous forme d'arborescence Markdown)
+- Navigation principale et secondaire
+- Hiérarchie du contenu
+- Points d'entrée et parcours critiques
+
+# 8. SPÉCIFICATIONS FONCTIONNELLES
+### 8.1 MVP (Version 1)
+- Tableau des fonctionnalités : | Fonctionnalité | Description | Priorité | Complexité |
+- User stories principales (format : En tant que... je veux... afin de...)
+
+### 8.2 Version 2 (Évolutions)
+- Fonctionnalités différées avec justification
+- Roadmap d'évolution
+
+### 8.3 Back-office / Administration
+- Fonctionnalités d'administration requises
+- Gestion de contenu et droits d'accès
+
+# 9. SPÉCIFICATIONS UX/UI
+- Principes UX directeurs
+- Responsive design : breakpoints et priorités
+- Accessibilité (niveau WCAG visé)
+- Interactions et micro-animations clés
+- Wireframes textuels des pages principales (décrire la structure)
+
+# 10. ARCHITECTURE TECHNIQUE
+- Stack technologique recommandée (avec justification)
+- Architecture applicative (front-end, back-end, BDD)
+- Hébergement et infrastructure
+- Performance : objectifs de temps de chargement
+- Sécurité : mesures et conformité RGPD
+- Scalabilité et évolutivité
+
+# 11. INTÉGRATIONS & APIs
+- Tableau : | Service | Type d'intégration | Priorité | Complexité estimée |
+- Flux de données entre systèmes
+- Contraintes techniques identifiées
+
+# 12. CONTENU & STRATÉGIE ÉDITORIALE
+- Types de contenus à produire
+- Volume de contenus (pages, articles, fiches produit...)
+- Responsabilités (qui fournit quoi)
+- SEO : mots-clés cibles et stratégie
+
+# 13. PLANNING PRÉVISIONNEL
+- Tableau des phases : | Phase | Durée | Livrables | Jalons |
+- Dates clés et milestones
+- Dépendances et chemins critiques
+- Date de livraison cible
+
+# 14. BUDGET ESTIMATIF
+Présenter 3 options sous forme de tableau comparatif :
+
+| Poste | Essentiel | Recommandé | Premium |
+|-------|-----------|------------|---------|
+| ... | ... | ... | ... |
+
+- Détail par poste (conception, design, développement, contenu, recette)
+- Conditions de paiement proposées (30/40/30 par exemple)
+- Ce qui est inclus / exclu dans chaque option
+
+# 15. CRITÈRES DE SUCCÈS & KPIs
+- Tableau : | KPI | Objectif | Méthode de mesure | Fréquence |
+- Critères d'acceptation du projet
+- Indicateurs de performance à 3, 6, 12 mois
+
+# 16. MÉTHODOLOGIE & GOUVERNANCE
+- Méthodologie de projet (Agile/Scrum adaptée)
+- Instances de pilotage (comités, fréquence)
+- Outils de collaboration
+- Process de validation et de recette
+
+# 17. CONDITIONS & PROCHAINES ÉTAPES
+- Validité de la proposition
+- Conditions de modification du périmètre
+- Processus de validation du CDC
+- Prochaines étapes immédiates après signature
+
+---
+
+INSTRUCTIONS FINALES :
+- Utilise les VRAIS mots du client tirés des échanges, pas du générique
+- Si une information manque, propose une hypothèse raisonnable clairement identifiée avec [À CONFIRMER]
+- Sois précis sur les chiffres : délais en jours ouvrés, budgets en €, performances en ms
+- Le document doit faire entre 15 et 30 pages imprimées
+- Chaque section doit apporter de la valeur et ne pas être du remplissage`;
   }
 
   if (type === "proposal") {
-    return `Génère une Proposition Commerciale professionnelle en Markdown:
+    return `Génère une Proposition Commerciale professionnelle et convaincante en Markdown :
 
 ${base}
 
-Structure: Présentation IMOTION, Compréhension du besoin, Solution proposée (3 options avec prix), Planning, Conditions, Prochaines étapes.`;
+Structure obligatoire :
+1. Page de garde (projet, client, date, référence)
+2. Mot d'accompagnement personnalisé
+3. Présentation IMOTION (expertise, références, équipe)
+4. Compréhension du besoin (reformulation empathique du besoin client)
+5. Solution proposée (approche, méthodologie)
+6. Détail de la prestation (3 options : Essentiel, Recommandé, Premium)
+7. Planning détaillé
+8. Investissement (tableau comparatif des 3 options, conditions de paiement)
+9. Garanties et engagements
+10. Conditions générales
+11. Prochaines étapes et signature
+
+Le ton doit être confiant, professionnel et rassurant. Chaque option doit avoir un nom attractif et une proposition de valeur claire.`;
   }
 
-  return `Génère un Contrat de Prestation en Markdown:
+  return `Génère un Contrat de Prestation professionnel en Markdown :
 
 ${base}
 
-Structure: Parties, Objet, Livrables, Délais, Prix et paiement, Obligations, Propriété intellectuelle, Confidentialité, Garantie, Résiliation, Signatures.`;
+Structure obligatoire :
+1. Identification des parties
+2. Préambule et contexte
+3. Objet du contrat
+4. Description des livrables (détaillée)
+5. Calendrier d'exécution (jalons)
+6. Prix et modalités de paiement
+7. Obligations du prestataire
+8. Obligations du client
+9. Propriété intellectuelle
+10. Confidentialité
+11. Garantie et maintenance
+12. Résiliation
+13. Clause de force majeure
+14. Loi applicable et juridiction
+15. Signatures (espace réservé)`;
 }
