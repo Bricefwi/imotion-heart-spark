@@ -116,71 +116,50 @@ export default function ClientDocuments() {
             const needsSignature = doc.requires_signature && !isSigned;
 
             return (
-              <Card key={doc.id} className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                <Link to={`/client/documents/${doc.id}`}>
-                <CardContent className="p-5">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4 min-w-0">
-                      <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                        <FileText className="h-5 w-5 text-primary" />
-                      </div>
-                      <div className="min-w-0">
-                        <h3 className="font-medium text-sm truncate">{doc.name}</h3>
-                        <div className="flex items-center gap-2 mt-1 flex-wrap">
-                          <Badge variant="outline" className="text-[10px]">{typeLabels[doc.type] || doc.type}</Badge>
-                          <Badge variant={status.variant} className="text-[10px]">{status.label}</Badge>
-                          {needsSignature && (
-                            <Badge variant="destructive" className="text-[10px] animate-pulse">
-                              <PenLine className="h-2.5 w-2.5 mr-0.5" /> Signature requise
-                            </Badge>
-                          )}
-                          <span className="text-xs text-muted-foreground">
-                            v{doc.version} · {doc.updated_at && formatDistanceToNow(new Date(doc.updated_at), { addSuffix: true, locale: fr })}
-                          </span>
+              <Card key={doc.id} className="border-0 shadow-sm hover:shadow-md transition-shadow">
+                <Link to={`/client/documents/${doc.id}`} className="block">
+                  <CardContent className="p-5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4 min-w-0">
+                        <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                          <FileText className="h-5 w-5 text-primary" />
+                        </div>
+                        <div className="min-w-0">
+                          <h3 className="font-medium text-sm truncate">{doc.name}</h3>
+                          <div className="flex items-center gap-2 mt-1 flex-wrap">
+                            <Badge variant="outline" className="text-[10px]">{typeLabels[doc.type] || doc.type}</Badge>
+                            <Badge variant={status.variant} className="text-[10px]">{status.label}</Badge>
+                            {needsSignature && (
+                              <Badge variant="destructive" className="text-[10px] animate-pulse">
+                                <PenLine className="h-2.5 w-2.5 mr-0.5" /> Signature requise
+                              </Badge>
+                            )}
+                            <span className="text-xs text-muted-foreground">
+                              v{doc.version} · {doc.updated_at && formatDistanceToNow(new Date(doc.updated_at), { addSuffix: true, locale: fr })}
+                            </span>
+                          </div>
                         </div>
                       </div>
+                      <div className="flex gap-2 shrink-0">
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                      </div>
                     </div>
-                    <div className="flex gap-2 shrink-0">
-                      {doc.storage_url && (
-                        <Button variant="ghost" size="icon" asChild>
-                          <a href={doc.storage_url} target="_blank" rel="noopener noreferrer">
-                            <Eye className="h-4 w-4" />
-                          </a>
-                        </Button>
-                      )}
-                      <Button variant="ghost" size="icon">
-                        <Download className="h-4 w-4" />
-                      </Button>
-                      {needsSignature && (
-                        <Button
-                          size="sm"
-                          className="gradient-primary border-0"
-                          onClick={() => setSigningDoc(doc)}
-                        >
-                          <PenLine className="h-3.5 w-3.5 mr-1" /> Signer
-                        </Button>
-                      )}
-                    </div>
-                  </div>
 
-                  {/* Signature info */}
-                  {isSigned && doc.signed_at && (
-                    <div className="mt-3 pt-3 border-t flex items-center gap-2 text-xs text-green-700 bg-green-50 -mx-5 -mb-5 px-5 py-3 rounded-b-xl">
-                      <CheckCircle className="h-3.5 w-3.5" />
-                      <span>
-                        Signé le {format(new Date(doc.signed_at), "dd MMM yyyy 'à' HH:mm", { locale: fr })}
-                      </span>
-                    </div>
-                  )}
+                    {isSigned && doc.signed_at && (
+                      <div className="mt-3 pt-3 border-t flex items-center gap-2 text-xs text-green-700">
+                        <CheckCircle className="h-3.5 w-3.5" />
+                        <span>Signé le {format(new Date(doc.signed_at), "dd MMM yyyy 'à' HH:mm", { locale: fr })}</span>
+                      </div>
+                    )}
 
-                  {needsSignature && (
-                    <div className="mt-3 pt-3 border-t flex items-center gap-2 text-xs text-muted-foreground">
-                      <Clock className="h-3.5 w-3.5" />
-                      <span>En attente de votre signature</span>
-                    </div>
-                  )}
+                    {needsSignature && (
+                      <div className="mt-3 pt-3 border-t flex items-center gap-2 text-xs text-muted-foreground">
+                        <Clock className="h-3.5 w-3.5" />
+                        <span>En attente de votre signature</span>
+                      </div>
+                    )}
+                  </CardContent>
                 </Link>
-                </CardContent>
               </Card>
             );
           })}
