@@ -62,6 +62,7 @@ const App = () => (
             <Route element={<ProtectedRoute><ClientLayout /></ProtectedRoute>}>
               <Route path="/client/dashboard" element={<ClientDashboard />} />
               <Route path="/client/projects" element={<ClientProjects />} />
+              <Route path="/client/projects/new" element={<NewProject />} />
               <Route path="/client/projects/:id/conversation" element={<ProjectConversation />} />
               <Route path="/client/documents" element={<ClientDocuments />} />
               <Route path="/client/profile" element={<ClientDashboard />} />

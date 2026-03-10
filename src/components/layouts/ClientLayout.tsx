@@ -88,12 +88,7 @@ export function ClientLayout() {
         <div className="flex-1 flex flex-col">
           <header className="h-14 flex items-center justify-between border-b px-4 bg-background">
             <SidebarTrigger />
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5" />
-              <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full gradient-primary flex items-center justify-center text-[10px] text-white font-bold">
-                3
-              </span>
-            </Button>
+            <NotificationCenter />
           </header>
           <main className="flex-1 p-6 bg-muted/30">
             <Outlet />
