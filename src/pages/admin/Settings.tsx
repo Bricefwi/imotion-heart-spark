@@ -1,12 +1,68 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building2, Brain, CreditCard, Bell } from "lucide-react";
+import { Building2, Brain, CreditCard, Bell, Loader2, Save } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export default function AdminSettings() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  const { data: settings = {}, isLoading } = useQuery({
+    queryKey: ["admin-settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("settings").select("*");
+      if (error) throw error;
+      const map: Record<string, any> = {};
+      data?.forEach((s) => { map[s.key] = s.value; });
+      return map;
+    },
+    enabled: !!user,
+  });
+
+  const updateSetting = useMutation({
+    mutationFn: async ({ key, value }: { key: string; value: any }) => {
+      const { error } = await supabase
+        .from("settings")
+        .update({ value, updated_by: user!.id })
+        .eq("key", key);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-settings"] });
+      toast.success("Paramètre sauvegardé");
+    },
+    onError: (error: any) => toast.error(error.message),
+  });
+
+  // Local state for forms
+  const [company, setCompany] = useState<any>({});
+  const [aiConfig, setAiConfig] = useState<any>({});
+  const [pricing, setPricing] = useState<any>({});
+  const [notifConfig, setNotifConfig] = useState<any>({});
+
+  useEffect(() => {
+    if (settings.company) setCompany(settings.company);
+    if (settings.ai_config) setAiConfig(settings.ai_config);
+    if (settings.pricing) setPricing(settings.pricing);
+    if (settings.notifications) setNotifConfig(settings.notifications);
+  }, [settings]);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
@@ -30,12 +86,38 @@ export default function AdminSettings() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2"><Label>Nom commercial</Label><Input defaultValue="IMOTION Conseil" /></div>
-                <div className="space-y-2"><Label>Raison sociale</Label><Input defaultValue="IMOTION Conseil SARL" /></div>
-                <div className="space-y-2"><Label>Email de contact</Label><Input defaultValue="contact@imotion.fr" /></div>
-                <div className="space-y-2"><Label>Site web</Label><Input defaultValue="https://imotion.fr" /></div>
+                <div className="space-y-2">
+                  <Label>Nom commercial</Label>
+                  <Input value={company.name || ""} onChange={(e) => setCompany({ ...company, name: e.target.value })} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Raison sociale</Label>
+                  <Input value={company.legal_name || ""} onChange={(e) => setCompany({ ...company, legal_name: e.target.value })} />
+                </div>
+                <div className="space-y-2">
+                  <Label>SIRET</Label>
+                  <Input value={company.siret || ""} onChange={(e) => setCompany({ ...company, siret: e.target.value })} />
+                </div>
+                <div className="space-y-2">
+                  <Label>N° TVA</Label>
+                  <Input value={company.tva || ""} onChange={(e) => setCompany({ ...company, tva: e.target.value })} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Email de contact</Label>
+                  <Input value={company.contact?.email || ""} onChange={(e) => setCompany({ ...company, contact: { ...company.contact, email: e.target.value } })} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Site web</Label>
+                  <Input value={company.contact?.website || ""} onChange={(e) => setCompany({ ...company, contact: { ...company.contact, website: e.target.value } })} />
+                </div>
               </div>
-              <Button className="gradient-primary border-0">Sauvegarder</Button>
+              <Button
+                className="gradient-primary border-0"
+                onClick={() => updateSetting.mutate({ key: "company", value: company })}
+                disabled={updateSetting.isPending}
+              >
+                <Save className="h-4 w-4 mr-2" /> Sauvegarder
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -44,15 +126,30 @@ export default function AdminSettings() {
           <Card className="border-0 shadow-sm">
             <CardHeader>
               <CardTitle className="font-display text-lg">Configuration IA</CardTitle>
-              <CardDescription>Paramètres du moteur d'IA</CardDescription>
+              <CardDescription>Paramètres du moteur d'intelligence artificielle</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2"><Label>Modèle</Label><Input defaultValue="google/gemini-3-flash-preview" /></div>
-                <div className="space-y-2"><Label>Max tokens</Label><Input type="number" defaultValue="4096" /></div>
-                <div className="space-y-2"><Label>Température</Label><Input type="number" step="0.1" defaultValue="0.7" /></div>
+                <div className="space-y-2">
+                  <Label>Modèle</Label>
+                  <Input value={aiConfig.model || ""} onChange={(e) => setAiConfig({ ...aiConfig, model: e.target.value })} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Max tokens</Label>
+                  <Input type="number" value={aiConfig.max_tokens || ""} onChange={(e) => setAiConfig({ ...aiConfig, max_tokens: parseInt(e.target.value) })} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Température</Label>
+                  <Input type="number" step="0.1" min="0" max="2" value={aiConfig.temperature ?? ""} onChange={(e) => setAiConfig({ ...aiConfig, temperature: parseFloat(e.target.value) })} />
+                </div>
               </div>
-              <Button className="gradient-primary border-0">Sauvegarder</Button>
+              <Button
+                className="gradient-primary border-0"
+                onClick={() => updateSetting.mutate({ key: "ai_config", value: aiConfig })}
+                disabled={updateSetting.isPending}
+              >
+                <Save className="h-4 w-4 mr-2" /> Sauvegarder
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -61,22 +158,38 @@ export default function AdminSettings() {
           <Card className="border-0 shadow-sm">
             <CardHeader>
               <CardTitle className="font-display text-lg">Tarification</CardTitle>
-              <CardDescription>Gérer les plans et tarifs</CardDescription>
+              <CardDescription>Paramètres de facturation par défaut</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {[
-                { name: "Découverte", price: "Gratuit" },
-                { name: "Standard", price: "500 €" },
-                { name: "Premium", price: "Sur devis" },
-              ].map((plan) => (
-                <div key={plan.name} className="flex items-center justify-between py-3 border-b last:border-0">
-                  <div>
-                    <p className="font-medium text-sm">{plan.name}</p>
-                    <p className="text-xs text-muted-foreground">{plan.price}</p>
-                  </div>
-                  <Button variant="outline" size="sm">Modifier</Button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Taux horaire (€)</Label>
+                  <Input type="number" value={pricing.hourly_rate || ""} onChange={(e) => setPricing({ ...pricing, hourly_rate: parseInt(e.target.value) })} />
                 </div>
-              ))}
+                <div className="space-y-2">
+                  <Label>Devise</Label>
+                  <Input value={pricing.currency || ""} onChange={(e) => setPricing({ ...pricing, currency: e.target.value })} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Délai de paiement (jours)</Label>
+                  <Input type="number" value={pricing.payment_terms || ""} onChange={(e) => setPricing({ ...pricing, payment_terms: parseInt(e.target.value) })} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Acompte (%)</Label>
+                  <Input type="number" value={pricing.deposit_percentage || ""} onChange={(e) => setPricing({ ...pricing, deposit_percentage: parseInt(e.target.value) })} />
+                </div>
+                <div className="space-y-2">
+                  <Label>TVA (%)</Label>
+                  <Input type="number" value={pricing.tax_rate || ""} onChange={(e) => setPricing({ ...pricing, tax_rate: parseInt(e.target.value) })} />
+                </div>
+              </div>
+              <Button
+                className="gradient-primary border-0"
+                onClick={() => updateSetting.mutate({ key: "pricing", value: pricing })}
+                disabled={updateSetting.isPending}
+              >
+                <Save className="h-4 w-4 mr-2" /> Sauvegarder
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -85,22 +198,42 @@ export default function AdminSettings() {
           <Card className="border-0 shadow-sm">
             <CardHeader>
               <CardTitle className="font-display text-lg">Notifications</CardTitle>
-              <CardDescription>Configurer les canaux de notification</CardDescription>
+              <CardDescription>Configurer les paramètres de notification</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {[
-                { label: "Notifications email", desc: "Envoyer des emails pour les événements importants" },
-                { label: "Notifications push", desc: "Notifications push dans le navigateur" },
-                { label: "Notifications SMS", desc: "Alertes SMS pour les actions urgentes" },
-              ].map((item) => (
-                <div key={item.label} className="flex items-center justify-between py-3 border-b last:border-0">
-                  <div>
-                    <p className="font-medium text-sm">{item.label}</p>
-                    <p className="text-xs text-muted-foreground">{item.desc}</p>
-                  </div>
-                  <Switch />
+              <div className="flex items-center justify-between py-3 border-b">
+                <div>
+                  <p className="font-medium text-sm">Digest quotidien</p>
+                  <p className="text-xs text-muted-foreground">Envoyer un récapitulatif quotidien aux consultants</p>
                 </div>
-              ))}
+                <Switch
+                  checked={notifConfig.daily_digest_enabled || false}
+                  onCheckedChange={(v) => setNotifConfig({ ...notifConfig, daily_digest_enabled: v })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Alerte inactivité (jours)</Label>
+                <Input
+                  type="number"
+                  value={notifConfig.inactivity_alert_days || ""}
+                  onChange={(e) => setNotifConfig({ ...notifConfig, inactivity_alert_days: parseInt(e.target.value) })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Heure du digest</Label>
+                <Input
+                  type="time"
+                  value={notifConfig.daily_digest_time || "09:00"}
+                  onChange={(e) => setNotifConfig({ ...notifConfig, daily_digest_time: e.target.value })}
+                />
+              </div>
+              <Button
+                className="gradient-primary border-0"
+                onClick={() => updateSetting.mutate({ key: "notifications", value: notifConfig })}
+                disabled={updateSetting.isPending}
+              >
+                <Save className="h-4 w-4 mr-2" /> Sauvegarder
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>

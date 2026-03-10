@@ -6,26 +6,23 @@ IMOTION Discovery Pro design system, architecture, and project constraints
 - Gradient: 135deg red→orange
 - Fonts: Inter (body), Plus Jakarta Sans (headings/display)
 - Border radius: 1rem (16px)
-- Logo: gradient square with "IM" text (will be replaced with uploaded logo)
+- Logo: uploaded image at src/assets/logo-imotion.png
 
 ## Architecture
 - 4 roles: client, consultant, admin, super_admin (stored in user_roles table)
 - 4 layouts: Public, Client, Consultant, Admin
 - 7-phase AI conversation system
 - Database: profiles, user_roles, projects, conversations, messages, documents, notifications, activities, templates, settings
+- Storage bucket: "documents" (private, RLS-protected)
 
 ## Backend
 - Lovable Cloud enabled
 - AI model: google/gemini-3-flash-preview (via Lovable AI gateway)
-- Edge function: ai-chat (structured JSON output, 7-phase system prompt)
 - Realtime enabled for messages and notifications tables
-- DB triggers: on_new_message (updates project total_messages/last_activity_at)
+- Edge functions: ai-chat, generate-document
+- Settings seeded: company, ai_config, pricing, notifications, discovery_phases
 
-## Key Components
-- PhaseProgress: src/components/PhaseProgress.tsx (compact + full modes)
-- StatsCard: src/components/StatsCard.tsx
-- NotificationCenter: src/components/NotificationCenter.tsx (realtime)
-- AI Chat client: src/lib/ai-chat.ts
-
-## Routing
-- /client/projects/new → NewProject page (creates project + redirects to conversation)
+## Specs Reference
+- Full specs uploaded as LOVABLE_IMOTION_ULTRA_COMPLET.md (11188 lines)
+- Part 9 BUILD+RUN model: LOVABLE_IMOTION_PART9_BUILD_RUN.md (1580 lines)
+- Covers: N8N workflows, Notion/Canva/Gmail integrations, CDC/proposal/contract generation, email templates, maintenance plans
