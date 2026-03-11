@@ -1133,24 +1133,578 @@ INSTRUCTIONS JURIDIQUES :
 - Adapte le contenu aux spécificités du projet (montants, délais, livrables)`;
   }
 
-  return `Génère un Contrat de Prestation professionnel en Markdown :
+  if (type === "devis") {
+    return `Genere un Devis professionnel, detaille et conforme au droit commercial francais pour ce projet :
+
+${base}
+
+## STRUCTURE OBLIGATOIRE DU DEVIS
+
+# DEVIS N. [Numero auto]
+
+## EN-TETE
+| EMETTEUR | DESTINATAIRE |
+|---|---|
+| IMOTION Creator Studio | [Entreprise client] |
+| SAS au capital de 10 000 euros | [Nom du contact] |
+| 123 Avenue de l'Innovation, 75008 Paris | [Adresse client] |
+| SIRET: XXX XXX XXX 000XX | [Email client] |
+| TVA: FR XX XXX XXX XXX | [Telephone client] |
+
+**Objet** : [Nom du projet]
+**Reference projet** : [Code]
+**Date** : [Date du jour]
+**Validite** : 30 jours
+
+---
+
+# 1. PHASE BUILD - REALISATION
+
+## 1.1 Cadrage et Conception
+| Designation | Description | Qte | P.U. HT | Total HT |
+|---|---|---|---|---|
+| Ateliers de cadrage | Analyse fonctionnelle, user stories, specs detaillees | 1 | ... | ... |
+| Architecture technique | Choix technologiques, architecture systeme | 1 | ... | ... |
+| Maquettes UX (wireframes) | Wireframes basse fidelite des ecrans principaux | 1 | ... | ... |
+
+## 1.2 Design UX/UI
+| Designation | Description | Qte | P.U. HT | Total HT |
+|---|---|---|---|---|
+| Direction artistique | Proposition de 2 pistes creatives | 1 | ... | ... |
+| Design UI haute fidelite | Maquettes pixel-perfect responsive | 1 | ... | ... |
+| Design system | Composants, tokens, guide de style | 1 | ... | ... |
+| Prototypage interactif | Prototype cliquable pour validation | 1 | ... | ... |
+
+## 1.3 Developpement Frontend
+| Designation | Description | Qte | P.U. HT | Total HT |
+|---|---|---|---|---|
+| Integration des maquettes | HTML/CSS responsive, composants React | 1 | ... | ... |
+| Animations et interactions | Micro-interactions, transitions | 1 | ... | ... |
+| Optimisation performance | Lazy loading, compression, Core Web Vitals | 1 | ... | ... |
+
+## 1.4 Developpement Backend et Integrations
+| Designation | Description | Qte | P.U. HT | Total HT |
+|---|---|---|---|---|
+| Base de donnees et API | Modelisation, endpoints, securite | 1 | ... | ... |
+| Authentification et roles | Systeme de connexion, gestion des droits | 1 | ... | ... |
+| Integrations tierces | APIs externes, connecteurs | ... | ... | ... |
+| Back-office administration | Interface de gestion du contenu | 1 | ... | ... |
+
+## 1.5 Tests et Recette (QA)
+| Designation | Description | Qte | P.U. HT | Total HT |
+|---|---|---|---|---|
+| Tests fonctionnels | Tests manuels et automatises | 1 | ... | ... |
+| Tests de performance | Charge, stress, temps de reponse | 1 | ... | ... |
+| Tests de securite | Audit de securite, pentest basique | 1 | ... | ... |
+| Recette client | 2 iterations de corrections | 1 | ... | ... |
+
+## 1.6 Mise en Production et Accompagnement
+| Designation | Description | Qte | P.U. HT | Total HT |
+|---|---|---|---|---|
+| Deploiement production | Configuration serveur, DNS, SSL | 1 | ... | ... |
+| Migration de donnees | Import des contenus existants | 1 | ... | ... |
+| Formation utilisateurs | Session de formation (2h) | 1 | ... | ... |
+| Documentation technique | Guide utilisateur et technique | 1 | ... | ... |
+
+## 1.7 Gestion de Projet
+| Designation | Description | Qte | P.U. HT | Total HT |
+|---|---|---|---|---|
+| Pilotage de projet | Coordination, reporting, comites | 1 | ... | ... |
+
+---
+
+| **SOUS-TOTAL BUILD HT** | **...euros** |
+|---|---|
+
+## Options et modules complementaires
+| Designation | Description | P.U. HT |
+|---|---|---|
+- Lister les options applicables du systeme de pricing
+
+---
+
+# 2. PHASE RUN - MAINTENANCE (Optionnel)
+
+| Forfait | Description | Engagement | Prix mensuel HT |
+|---|---|---|---|
+| Essentiel | Maintenance corrective, monitoring, support email (48h) | 12 mois | 199 euros/mois |
+| Confort | + Mises a jour, 4h d'evolution/mois, support prioritaire (24h) | 12 mois | 399 euros/mois |
+| Premium | + Evolutions illimitees, SLA 99.9%, support telephone (4h) | 12 mois | 799 euros/mois |
+
+**Forfait recommande** : [Recommandation basee sur le type de projet]
+
+---
+
+# 3. RECAPITULATIF FINANCIER
+
+| | Montant |
+|---|---|
+| Total BUILD HT | ...euros |
+| Forfait maintenance annuel HT (optionnel) | ...euros |
+| **Sous-total HT** | **...euros** |
+| TVA (20%) | ...euros |
+| **TOTAL TTC** | **...euros** |
+
+---
+
+# 4. CONDITIONS DE PAIEMENT
+
+## Echelonnement BUILD
+| Etape | % | Montant HT | Montant TTC | Echeance |
+|---|---|---|---|---|
+| Acompte a la commande | 30% | ... | ... | Signature du devis |
+| Validation des maquettes | 20% | ... | ... | + 3 semaines |
+| Livraison en recette | 35% | ... | ... | + [duree dev] semaines |
+| Mise en production | 15% | ... | ... | Go Live |
+
+**Mode de paiement** : Virement bancaire sous 15 jours
+IBAN : FR76 XXXX XXXX XXXX XXXX XXXX XXX
+BIC : XXXXXXXX
+
+---
+
+# 5. DELAIS DE REALISATION
+
+| Phase | Duree estimee |
+|---|---|
+| Conception et design | 3-4 semaines |
+| Developpement | 4-8 semaines |
+| Tests et recette | 2 semaines |
+| Mise en production | 1 semaine |
+| **Total** | **[min]-[max] semaines** |
+
+Demarrage : Sous 2 semaines apres reception de l'acompte et des elements necessaires.
+
+---
+
+# 6. GARANTIES INCLUSES
+- Garantie de conformite : 3 mois apres mise en production
+- Corrections des anomalies bloquantes sous 48h ouvrees
+- Corrections des anomalies mineures sous 10 jours ouvres
+- 2 iterations de corrections incluses pendant la recette
+
+# 7. CONDITIONS GENERALES (Extrait)
+- Devis valable 30 jours a compter de sa date d'emission
+- Garantie 3 mois post-livraison incluse (corrections des anomalies)
+- Les delais sont indicatifs et dependent de la reactivite du client pour les validations
+- Tout travail supplementaire non prevu au present devis sera facture au TJM de 650 euros HT/jour
+- En cas de retard de paiement : penalites de 3 fois le taux d'interet legal + indemnite forfaitaire de 40 euros (art. D441-5 Code de commerce)
+- Aucun escompte pour paiement anticipe
+- Les CGV completes sont annexees au present devis
+
+---
+
+# ACCEPTATION
+
+Pour acceptation, merci de retourner ce devis signe avec la mention "Bon pour accord".
+
+| | Client |
+|---|---|
+| Date | _________________ |
+| Nom et qualite | _________________ |
+| Signature et cachet | |
+| (precede de la mention "Bon pour accord") | |
+
+---
+
+*Devis genere par IMOTION Creator Studio - www.clarivi.io*
+
+---
+
+INSTRUCTIONS :
+- Les montants doivent etre REALISTES et bases sur les donnees de pricing du projet
+- Si des donnees de pricing existent dans le contexte, utiliser les montants exacts
+- Sinon, estimer en fonction du type et de la complexite du projet
+- Chaque ligne doit etre detaillee et justifiable
+- NE JAMAIS utiliser d'emojis`;
+  }
+
+  if (type === "contrat") {
+    return `Genere un Contrat de Prestation de Services Numeriques COMPLET, detaille et conforme au droit francais :
+
+${base}
+
+## STRUCTURE OBLIGATOIRE DU CONTRAT
+
+# CONTRAT DE PRESTATION DE SERVICES NUMERIQUES
+
+**N. [Numero auto]**
+
+---
+
+## ENTRE LES SOUSSIGNES
+
+**IMOTION Creator Studio**, Societe par Actions Simplifiee (SAS)
+- Siege social : 123 Avenue de l'Innovation, 75008 Paris
+- SIRET : XXX XXX XXX 000XX | RCS Paris B XXX XXX XXX
+- Capital social : 10 000 euros
+- TVA intracommunautaire : FR XX XXX XXX XXX
+- Representee par son representant legal dument habilite
+- Ci-apres denommee "Le Prestataire"
+
+D'une part,
+
+ET
+
+**[Entreprise client]**, [Forme juridique]
+- Siege social : [Adresse]
+- SIRET : [SIRET client]
+- Representee par [Nom], en qualite de [Fonction]
+- Ci-apres denommee "Le Client"
+
+D'autre part,
+
+Les Parties sont ci-apres denommees individuellement une "Partie" et collectivement les "Parties".
+
+---
+
+## PREAMBULE
+
+Le Client a exprime le besoin de : [objectif principal du projet]
+
+Suite a la phase de decouverte realisee via la plateforme IMOTION Creator Studio, un Cahier des Charges (ref. [reference CDC]) et un Devis (ref. [reference devis]) ont ete etablis et valides par les deux Parties.
+
+Le Prestataire declare disposer des competences, moyens et ressources necessaires pour realiser la prestation objet du present contrat.
+
+Les Parties ont donc convenu de ce qui suit :
+
+---
+
+## ARTICLE 1 - OBJET
+
+Le present contrat a pour objet de definir les conditions dans lesquelles le Prestataire s'engage a realiser pour le compte du Client :
+
+**[Nom du projet]** - Type : [Type de projet]
+
+La prestation comprend notamment :
+- [Liste detaillee des livrables principaux]
+- [Basee sur le CDC et le devis valides]
+
+## ARTICLE 2 - DOCUMENTS CONTRACTUELS
+
+Les documents contractuels sont, par ordre de priorite decroissante :
+1. Le present contrat et ses eventuels avenants
+2. Le Cahier des Charges (ref. [reference])
+3. Le devis accepte (ref. [reference])
+4. Les Conditions Generales de Vente annexees
+
+En cas de contradiction entre ces documents, le document de rang superieur prevaut.
+
+## ARTICLE 3 - DUREE ET CALENDRIER
+
+### 3.1 Duree
+La prestation debutera a compter de la reception de l'acompte prevu a l'article 5.
+Duree previsionnelle : [min] a [max] semaines.
+
+### 3.2 Jalons
+| Jalon | Description | Date previsionnelle |
+|---|---|---|
+| Kick-off | Reunion de lancement | J+7 apres acompte |
+| Maquettes | Livraison des maquettes UX/UI | J+[x] |
+| Developpement | Livraison en recette | J+[x] |
+| Go Live | Mise en production | J+[x] |
+
+### 3.3 Prorogation
+Cette duree est indicative et pourra etre adaptee en fonction de la reactivite du Client dans les phases de validation. Tout retard de validation superieur a 5 jours ouvres entraine un decalage equivalent du planning.
+
+## ARTICLE 4 - PRIX
+
+Le prix total de la prestation est fixe a :
+
+| | Montant |
+|---|---|
+| Developpement (HT) | [montant] euros |
+| TVA (20%) | [montant] euros |
+| **TOTAL TTC** | **[montant] euros** |
+
+Ce prix est ferme et definitif pour le perimetre defini au Cahier des Charges.
+
+Toute prestation supplementaire hors perimetre fera l'objet d'un avenant et sera facturee au tarif journalier de 650 euros HT.
+
+## ARTICLE 5 - MODALITES DE PAIEMENT
+
+### 5.1 Echelonnement
+| Etape | % | Montant TTC | Echeance |
+|---|---|---|---|
+| Acompte | 30% | [montant] euros | Signature du contrat |
+| Maquettes validees | 20% | [montant] euros | Validation du design |
+| Livraison recette | 35% | [montant] euros | PV de recette signe |
+| Mise en production | 15% | [montant] euros | Go Live |
+
+### 5.2 Conditions de facturation
+Paiement par virement bancaire sous 15 jours a compter de la date de facturation.
+
+### 5.3 Penalites de retard
+En cas de retard de paiement, des penalites de retard egales a 3 fois le taux d'interet legal seront appliquees de plein droit (art. L441-10 Code de commerce), ainsi qu'une indemnite forfaitaire de 40 euros pour frais de recouvrement (art. D441-5 Code de commerce).
+
+### 5.4 Clause de reserve de propriete
+Le Prestataire conserve la propriete des livrables jusqu'au paiement integral du prix.
+
+## ARTICLE 6 - OBLIGATIONS DU PRESTATAIRE
+
+Le Prestataire s'engage a :
+- Realiser la prestation conformement au Cahier des Charges valide
+- Respecter les delais convenus, sous reserve de la reactivite du Client
+- Informer le Client de l'avancement via des points reguliers (a minima hebdomadaires)
+- Livrer un produit fonctionnel et conforme aux specifications
+- Assurer une garantie de 3 mois apres la mise en production
+- Maintenir la confidentialite des informations communiquees par le Client
+- Mettre en oeuvre les meilleures pratiques en matiere de securite et de performance
+- Fournir la documentation technique et utilisateur
+
+Le Prestataire est tenu a une obligation de moyens.
+
+## ARTICLE 7 - OBLIGATIONS DU CLIENT
+
+Le Client s'engage a :
+- Fournir les elements necessaires dans les delais convenus (contenus, visuels, acces, identifiants)
+- Designer un interlocuteur unique habilite pour les validations
+- Valider les livrables dans un delai de 5 jours ouvres maximum
+- Regler les factures aux echeances prevues
+- Informer le Prestataire de tout changement impactant le projet
+- Ne pas modifier les livrables pendant la phase de garantie sans accord du Prestataire
+
+**Clause de retard client** : Tout retard de validation superieur a 5 jours ouvres entraine un decalage equivalent du planning et peut entrainer une revision du budget si le retard depasse 30 jours ouvres cumules.
+
+## ARTICLE 8 - PROCESSUS DE VALIDATION ET RECETTE
+
+### 8.1 Livraison
+Le Prestataire livre les developpements sur un environnement de recette accessible au Client.
+
+### 8.2 Recette
+Le Client dispose de 10 jours ouvres pour effectuer la recette et formuler ses reserves par ecrit.
+
+### 8.3 Recette tacite
+A defaut de reserves formulees dans le delai de 10 jours ouvres, la recette est reputee acquise tacitement.
+
+### 8.4 Iterations de corrections
+Le Client dispose de 2 iterations de corrections incluses dans le forfait. Au-dela, les corrections sont facturees au TJM contractuel de 650 euros HT/jour.
+
+### 8.5 Proces-verbal de recette
+Un PV de recette est signe par les deux Parties a l'issue de la recette. Ce PV declenche le paiement du jalon correspondant.
+
+## ARTICLE 9 - PROPRIETE INTELLECTUELLE
+
+### 9.1 Cession de droits
+A complet paiement du prix, le Prestataire cede au Client les droits patrimoniaux sur les developpements specifiques (art. L131-3 du Code de la propriete intellectuelle) :
+- Le code source developpe specifiquement pour le projet
+- Les elements graphiques crees sur-mesure
+- Les droits de reproduction, representation et adaptation pour tous supports, pour le monde entier, pour la duree legale des droits
+
+### 9.2 Exclusions
+Le Prestataire conserve la propriete de :
+- Ses outils, methodes et composants reutilisables preexistants
+- Les bibliotheques et frameworks open source utilises (soumis a leurs licences respectives)
+- Son savoir-faire et ses methodologies
+
+### 9.3 Portfolio
+Le Prestataire peut mentionner la realisation dans son portfolio et ses references commerciales, sauf opposition ecrite du Client dans les 30 jours suivant la mise en production.
+
+## ARTICLE 10 - DONNEES PERSONNELLES ET RGPD
+
+### 10.1 Qualite des parties
+Le Prestataire agit en tant que sous-traitant au sens de l'article 28 du RGPD.
+
+### 10.2 Engagements du Prestataire
+- Traiter les donnees uniquement selon les instructions documentees du Client
+- Garantir la confidentialite des donnees traitees
+- Mettre en oeuvre les mesures techniques et organisationnelles de securite appropriees
+- Notifier toute violation de donnees dans les 48 heures
+- Supprimer ou restituer les donnees en fin de contrat
+- Tenir un registre des traitements effectues pour le compte du Client
+
+### 10.3 Sous-traitance
+Le Prestataire ne fait pas appel a d'autres sous-traitants sans l'autorisation prealable ecrite du Client.
+
+## ARTICLE 11 - CONFIDENTIALITE
+
+### 11.1 Etendue
+Les Parties s'engagent a garder confidentielles toutes les informations de nature commerciale, technique, financiere ou strategique echangees dans le cadre du present contrat.
+
+### 11.2 Duree
+Cette obligation perdure pendant la duree du contrat et 3 ans apres son terme.
+
+### 11.3 Exceptions
+Ne sont pas couvertes : les informations deja publiques, connues prealablement, obtenues d'un tiers de bonne foi, ou devant etre divulguees par obligation legale.
+
+## ARTICLE 12 - GARANTIE
+
+### 12.1 Duree et perimetre
+Le Prestataire garantit le bon fonctionnement de la solution pendant 3 mois a compter de la mise en production.
+
+### 12.2 Couverture
+- Corrections des anomalies bloquantes : sous 48h ouvrees
+- Corrections des anomalies majeures : sous 5 jours ouvres
+- Corrections des anomalies mineures : sous 10 jours ouvres
+- Ajustements necessaires a la conformite au CDC
+
+### 12.3 Exclusions
+Sont exclus de la garantie :
+- Les evolutions fonctionnelles non prevues au CDC
+- Les anomalies dues a une mauvaise utilisation ou a des modifications non autorisees
+- Les problemes lies a l'environnement ou aux systemes du Client
+- Les contenus fournis par le Client
+
+## ARTICLE 13 - LIMITATION DE RESPONSABILITE
+
+### 13.1 Plafond
+La responsabilite du Prestataire est limitee au montant total du contrat HT.
+
+### 13.2 Exclusions
+Le Prestataire ne pourra etre tenu responsable des :
+- Dommages indirects (perte de chiffre d'affaires, perte de donnees, prejudice d'image, manque a gagner)
+- Retards causes par le Client
+- Problemes lies aux prestataires tiers (hebergeur, services externes)
+
+### 13.3 Exception
+Les limitations ci-dessus ne s'appliquent pas en cas de faute lourde ou dolosive du Prestataire.
+
+### 13.4 Assurance
+Le Prestataire declare etre titulaire d'une assurance Responsabilite Civile Professionnelle couvrant les consequences pecuniaires de sa responsabilite.
+
+## ARTICLE 14 - RESILIATION
+
+### 14.1 Resiliation pour manquement grave
+En cas de manquement grave par l'une des Parties a ses obligations contractuelles, l'autre Partie pourra resilier le contrat de plein droit par lettre recommandee avec accuse de reception, apres mise en demeure restee sans effet pendant 30 jours.
+
+### 14.2 Resiliation pour convenance du Client
+Le Client peut resilier le contrat a tout moment moyennant le paiement des travaux realises et une indemnite de 20% du solde restant du.
+
+### 14.3 Resiliation de plein droit
+Le contrat est resilie de plein droit en cas de liquidation judiciaire ou de cessation d'activite de l'une des Parties.
+
+### 14.4 Consequences
+En cas de resiliation :
+- Les prestations realisees restent acquises et facturees
+- Les elements produits sont remis au Client (sous reserve de paiement integral)
+- Les sommes versees ne sont pas remboursees (sauf faute du Prestataire)
+
+## ARTICLE 15 - FORCE MAJEURE
+
+Aucune Partie ne sera responsable d'un retard ou d'une defaillance resultant d'un cas de force majeure au sens de l'article 1218 du Code civil.
+
+En cas de force majeure :
+- Suspension des obligations pendant la duree de l'evenement
+- Notification ecrite sous 5 jours ouvres
+- Resiliation de plein droit si la duree excede 3 mois
+
+## ARTICLE 16 - NON-SOLLICITATION
+
+Les Parties s'interdisent de solliciter ou embaucher les collaborateurs de l'autre Partie pendant la duree du contrat et 12 mois apres son terme. Toute infraction donne lieu au paiement d'une indemnite forfaitaire egale a 6 mois de remuneration brute du collaborateur concerne.
+
+## ARTICLE 17 - MEDIATION ET LITIGES
+
+### 17.1 Resolution amiable
+En cas de litige, les Parties s'engagent a rechercher une solution amiable pendant 30 jours.
+
+### 17.2 Mediation
+A defaut, les Parties peuvent recourir a un mediateur agree.
+
+### 17.3 Juridiction competente
+A defaut d'accord, le litige sera soumis aux tribunaux competents de Paris.
+
+## ARTICLE 18 - DISPOSITIONS GENERALES
+
+- Le present contrat constitue l'integralite de l'accord entre les Parties et remplace tout accord anterieur
+- La nullite d'une clause n'affecte pas la validite des autres clauses
+- Toute tolerance d'une Partie ne constitue pas une renonciation a ses droits
+- Toute modification du contrat doit faire l'objet d'un avenant ecrit et signe
+- Le contrat est regi par le droit francais
+
+---
+
+## SIGNATURES
+
+Fait en deux exemplaires originaux.
+
+A _________________, le [Date]
+
+| | **Pour le Prestataire** | **Pour le Client** |
+|---|---|---|
+| Societe | IMOTION Creator Studio | [Entreprise client] |
+| Nom | _________________ | [Nom client] |
+| Qualite | Representant legal | [Fonction] |
+| Date | _________________ | _________________ |
+| Signature | | |
+| *(precede de la mention "Lu et approuve")* | | |
+
+---
+
+## ANNEXES
+
+- **Annexe 1** : Cahier des Charges (ref. [reference])
+- **Annexe 2** : Devis accepte (ref. [reference])
+- **Annexe 3** : Planning previsionnel detaille
+- **Annexe 4** : Conditions Generales de Vente
+
+---
+
+## ANNEXE - CONDITIONS GENERALES DE VENTE (Extrait)
+
+### Article CGV-1 - Champ d'application
+Les presentes CGV s'appliquent a toutes les prestations de services conclues par IMOTION Creator Studio.
+
+### Article CGV-2 - Prix et paiement
+Les prix sont indiques en euros HT. TVA applicable : 20%. Aucun escompte pour paiement anticipe.
+
+### Article CGV-3 - Delais
+Les delais indiques sont indicatifs et commencent a courir a reception de l'acompte et des elements necessaires.
+
+### Article CGV-4 - Propriete intellectuelle
+Le transfert de propriete est conditionne au paiement integral du prix. Le Prestataire peut mentionner la realisation dans son portfolio.
+
+### Article CGV-5 - Garantie et responsabilite
+Garantie de 3 mois post-livraison. Responsabilite limitee au montant du contrat.
+
+### Article CGV-6 - Confidentialite
+Les parties s'engagent a la confidentialite pendant 3 ans apres la fin du contrat.
+
+### Article CGV-7 - Force majeure
+Conforme a l'article 1218 du Code civil.
+
+### Article CGV-8 - Protection des donnees
+Conforme au RGPD. Contact DPO : contact@imotion-creator.studio
+
+### Article CGV-9 - Droit applicable
+Droit francais. Competence exclusive des tribunaux de Paris.
+
+*CGV en vigueur au 01/01/2026 - IMOTION Creator Studio*
+
+---
+
+*Contrat genere par IMOTION Creator Studio - www.clarivi.io*
+
+---
+
+INSTRUCTIONS JURIDIQUES :
+- Chaque clause DOIT etre conforme au droit francais en vigueur
+- Cite les articles de loi pertinents entre parentheses
+- Le contrat doit etre PROTECTEUR pour le prestataire (IMOTION Creator Studio) tout en etant EQUILIBRE
+- Les clauses abusives doivent etre evitees
+- Adapte le contenu aux specificites du projet (montants, delais, livrables)
+- NE JAMAIS utiliser d'emojis`;
+  }
+
+  return `Genere un document professionnel detaille en Markdown pour IMOTION Creator Studio :
 
 ${base}
 
 Structure obligatoire :
-1. Identification des parties
-2. Préambule et contexte
-3. Objet du contrat
-4. Description des livrables (détaillée)
-5. Calendrier d'exécution (jalons)
-6. Prix et modalités de paiement
+1. Identification des parties (IMOTION Creator Studio comme prestataire)
+2. Preambule et contexte
+3. Objet du document
+4. Description detaillee des livrables
+5. Calendrier d'execution (jalons)
+6. Prix et modalites de paiement
 7. Obligations du prestataire
 8. Obligations du client
-9. Propriété intellectuelle
-10. Confidentialité
+9. Propriete intellectuelle
+10. Confidentialite
 11. Garantie et maintenance
-12. Résiliation
+12. Resiliation
 13. Clause de force majeure
 14. Loi applicable et juridiction
-15. Signatures (espace réservé)`;
+15. Signatures (espace reserve)
+
+NE JAMAIS utiliser d'emojis.`;
 }
