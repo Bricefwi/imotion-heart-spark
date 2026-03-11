@@ -804,7 +804,7 @@ ${base}
 Structure obligatoire :
 1. Page de garde (projet, client, date, référence)
 2. Mot d'accompagnement personnalisé
-3. Présentation IMOTION (expertise, références, équipe)
+3. Présentation IMOTION Creator Studio (expertise, références, équipe)
 4. Compréhension du besoin (reformulation empathique du besoin client)
 5. Solution proposée (approche, méthodologie)
 6. Détail de la prestation (3 options : Essentiel, Recommandé, Premium)
