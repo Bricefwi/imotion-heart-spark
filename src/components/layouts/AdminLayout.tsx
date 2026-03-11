@@ -41,6 +41,25 @@ const adminQuickNav = [
   { title: "Blog", url: "/admin/blog" },
 ];
 
+function useUnreadNotifications() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["admin-unread-notifications", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return 0;
+      const { count, error } = await supabase
+        .from("notifications")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("is_read", false);
+      if (error) return 0;
+      return count || 0;
+    },
+    enabled: !!user?.id,
+    refetchInterval: 30000,
+  });
+}
+
 function AdminSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
