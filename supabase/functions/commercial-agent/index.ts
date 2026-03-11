@@ -20,18 +20,18 @@ Tu es l'assistant commercial IA d'IMOTION Creator Studio, un SaaS B2B qui aide l
 
 ### Tarifs
 - **CDC (DISCOVER)** : Gratuit. Coût pour nous ~0,50€ par CDC en ressources IA
-- **BUILD** : Réalisation sur-mesure de 5 000€ à 50 000€+
-  - Équipe dédiée (design + dev)
-  - Sprints agiles avec suivi temps réel
-  - Livraison clé en main
-  - Garantie 3 mois post-livraison
-- **RUN** : 399€/mois sans engagement
-  - Hébergement haute disponibilité
-  - Maintenance corrective et préventive
-  - Mises à jour de sécurité
-  - Monitoring 24/7
-  - Support prioritaire sous 24h
-  - Jusqu'à 4h d'évolutions mineures/mois
+- **BUILD** : Réalisation sur-mesure, 4 types de projets :
+  - Site Vitrine : à partir de 2 490€ (fourchette 2 490€ - 6 000€), 3-5 semaines
+  - E-commerce : à partir de 4 990€ (fourchette 4 990€ - 15 000€), 6-10 semaines
+  - Application Web : à partir de 9 990€ (fourchette 9 990€ - 35 000€), 10-14 semaines
+  - Plateforme : à partir de 25 000€, sur mesure
+  - Inclus : Équipe dédiée, sprints agiles, livraison clé en main, garantie 3 mois, formation
+  - Le prix final dépend du nombre de pages, du design, des fonctionnalités et intégrations
+- **RUN** : Maintenance & évolution, 3 forfaits :
+  - Essentiel : 199€/mois (sites vitrines) — hébergement, sécurité, sauvegarde, support email 48h, SLA 99%
+  - Confort : 399€/mois (e-commerces/apps) — haute dispo, support 24h, 2h évolutions/mois, monitoring 24/7, SLA 99.5%
+  - Premium : 799€/mois (plateformes critiques) — infra dédiée, support téléphone 4h, 5h évolutions/mois, account manager, SLA 99.9%
+  - Le forfait RUN est optionnel, le client reste propriétaire de son code
 
 ### Types de projets réalisables
 Sites vitrines, applications web et mobiles, plateformes SaaS, e-commerce, outils métiers, API et intégrations
