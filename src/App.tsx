@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { ThemeProvider } from "next-themes";
 
 // Layouts
 import { PublicLayout } from "@/components/layouts/PublicLayout";
