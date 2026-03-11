@@ -10,7 +10,7 @@ export default function About() {
     <div className="overflow-hidden">
       <SEOHead
         title="À propos — Notre mission et notre équipe"
-        description="IMOTION Creator Studio transforme vos idées en projets digitaux concrets grâce à l'IA et l'expertise humaine. +150 entreprises accompagnées."
+        description="IMOTION Creator Studio transforme vos idées en projets digitaux concrets grâce à l'IA et l'expertise humaine. Découvrez notre approche unique."
         canonical="/a-propos"
         jsonLd={[
           organizationSchema,
