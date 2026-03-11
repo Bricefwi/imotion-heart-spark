@@ -10,9 +10,9 @@ const fadeUp = {
 };
 
 const stats = [
-  { value: "150+", label: "Projets accompagnés" },
-  { value: "98%", label: "Taux de satisfaction" },
-  { value: "45 min", label: "Durée moyenne" },
+  { value: "7", label: "Phases de découverte" },
+  { value: "~45 min", label: "Pour un CDC complet" },
+  { value: "100%", label: "Cadrage structuré" },
 ];
 
 export function StatsSection() {
