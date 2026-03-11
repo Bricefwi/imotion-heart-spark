@@ -1,8 +1,12 @@
 import { Outlet, Link } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut } from "lucide-react";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 
 const navLinks = [
@@ -14,7 +18,7 @@ const navLinks = [
 ];
 
 export function PublicLayout() {
-  const { user } = useAuth();
+  const { user, profile, roles, signOut } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -41,9 +45,36 @@ export function PublicLayout() {
 
           <div className="hidden md:flex items-center gap-3">
             {user ? (
-              <Button asChild className="gradient-primary border-0">
-                <Link to="/client/dashboard">Mon espace</Link>
-              </Button>
+              <div className="flex items-center gap-3">
+                <Button asChild variant="ghost" size="sm">
+                  <Link to={roles.includes("admin") ? "/admin/dashboard" : roles.includes("consultant") ? "/consultant/dashboard" : "/client/dashboard"}>
+                    Mon espace
+                  </Link>
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center gap-2 rounded-full hover:ring-2 hover:ring-primary/20 transition-all">
+                      <Avatar className="h-9 w-9 border-2 border-primary/20">
+                        <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.full_name || ""} />
+                        <AvatarFallback className="gradient-primary text-white text-xs font-bold">
+                          {(profile?.full_name || user.email || "U").charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-sm font-medium max-w-[120px] truncate">{profile?.full_name || user.email}</span>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem asChild>
+                      <Link to={roles.includes("admin") ? "/admin/dashboard" : roles.includes("consultant") ? "/consultant/dashboard" : "/client/dashboard"}>
+                        Mon espace
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={signOut} className="text-destructive">
+                      <LogOut className="h-4 w-4 mr-2" /> Déconnexion
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             ) : (
               <>
                 <Button variant="ghost" asChild>
@@ -75,10 +106,20 @@ export function PublicLayout() {
                 {link.label}
               </Link>
             ))}
-            <div className="flex flex-col gap-2 pt-2">
-              <Button variant="outline" asChild><Link to="/login">Se connecter</Link></Button>
-              <Button asChild className="gradient-primary border-0"><Link to="/register">Démarrer</Link></Button>
-            </div>
+            {user ? (
+              <div className="flex items-center gap-3 pt-2 border-t">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={profile?.avatar_url || undefined} />
+                  <AvatarFallback className="gradient-primary text-white text-xs">{(profile?.full_name || "U").charAt(0)}</AvatarFallback>
+                </Avatar>
+                <span className="text-sm font-medium">{profile?.full_name || user.email}</span>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2 pt-2">
+                <Button variant="outline" asChild><Link to="/login">Se connecter</Link></Button>
+                <Button asChild className="gradient-primary border-0"><Link to="/register">Démarrer</Link></Button>
+              </div>
+            )}
           </div>
         )}
       </header>
