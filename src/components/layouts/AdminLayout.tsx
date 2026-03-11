@@ -15,8 +15,11 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { LayoutDashboard, Users, Settings, Plug, ScrollText, LogOut, Shield, FileText, BookOpen, Radar, BarChart3, Globe, ExternalLink, ChevronRight, Home } from "lucide-react";
+import { LayoutDashboard, Users, Settings, Plug, ScrollText, LogOut, Shield, FileText, BookOpen, Radar, BarChart3, Globe, ExternalLink, ChevronRight, Home, Bell } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Badge } from "@/components/ui/badge";
 
 const adminNav = [
   { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard },
@@ -38,10 +41,30 @@ const adminQuickNav = [
   { title: "Blog", url: "/admin/blog" },
 ];
 
+function useUnreadNotifications() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["admin-unread-notifications", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return 0;
+      const { count, error } = await supabase
+        .from("notifications")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("is_read", false);
+      if (error) return 0;
+      return count || 0;
+    },
+    enabled: !!user?.id,
+    refetchInterval: 30000,
+  });
+}
+
 function AdminSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const { profile, signOut } = useAuth();
+  const { data: unreadCount = 0 } = useUnreadNotifications();
 
   return (
     <Sidebar collapsible="icon" className="border-r-0">
@@ -103,12 +126,19 @@ function AdminSidebar() {
       <div className="mt-auto p-4 border-t border-sidebar-border">
         {!collapsed && (
           <div className="flex items-center gap-3 mb-3">
-            <Avatar className="h-8 w-8">
-              <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.full_name || ""} />
-              <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                {profile?.full_name?.charAt(0) || "A"}
-              </AvatarFallback>
-            </Avatar>
+            <div className="relative">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.full_name || ""} />
+                <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                  {profile?.full_name?.charAt(0) || "A"}
+                </AvatarFallback>
+              </Avatar>
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
+            </div>
             <div className="min-w-0">
               <p className="text-sm font-medium text-sidebar-foreground truncate">{profile?.full_name || "Admin"}</p>
               <p className="text-xs text-sidebar-foreground/50">Administrateur</p>
@@ -201,7 +231,7 @@ function BreadcrumbNavigation() {
 
 export function AdminLayout() {
   const location = useLocation();
-
+  const { data: unreadCount = 0 } = useUnreadNotifications();
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
@@ -230,6 +260,14 @@ export function AdminLayout() {
             </div>
 
             <div className="ml-auto flex items-center gap-2">
+              <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-lg text-muted-foreground hover:text-foreground">
+                <Bell className="h-4 w-4" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground animate-pulse">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
+              </Button>
               <Button asChild variant="outline" size="sm" className="shrink-0 gap-2 rounded-lg border-primary/20 text-primary hover:bg-primary/10 hover:text-primary">
                 <Link to="/">
                   <Globe className="h-3.5 w-3.5" />
