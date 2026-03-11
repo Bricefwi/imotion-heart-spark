@@ -126,8 +126,18 @@ INSTRUCTIONS :
       .eq("project_id", projectId)
       .order("created_at", { ascending: true });
 
-    // Try to find a template for this type
+    // Try to find a template for this type (check new document_templates first, then legacy templates)
     const docType = type || "cdc";
+    
+    // Check new pricing-aware document_templates table
+    const { data: pricingTemplate } = await supabase
+      .from("document_templates")
+      .select("*")
+      .eq("code", docType)
+      .eq("is_active", true)
+      .single();
+
+    // Check legacy templates table
     const { data: template } = await supabase
       .from("templates")
       .select("*")
@@ -136,13 +146,71 @@ INSTRUCTIONS :
       .eq("is_default", true)
       .single();
 
+    // Try to fetch current estimate from pricing system
+    let estimate: any = null;
+    let pricingConfig: any = null;
+    let maintenancePlan: any = null;
+
+    const { data: currentEstimate } = await supabase
+      .from("project_estimates")
+      .select("*")
+      .eq("project_id", projectId)
+      .eq("is_current", true)
+      .single();
+
+    if (currentEstimate) {
+      estimate = currentEstimate;
+      
+      if (estimate.project_type_code) {
+        const { data: pc } = await supabase
+          .from("pricing_config")
+          .select("*")
+          .eq("code", estimate.project_type_code)
+          .single();
+        pricingConfig = pc;
+      }
+      
+      if (estimate.recommended_maintenance_code) {
+        const { data: mp } = await supabase
+          .from("pricing_maintenance")
+          .select("*")
+          .eq("code", estimate.recommended_maintenance_code)
+          .single();
+        maintenancePlan = mp;
+      }
+    }
+
     const client = project.client;
     const discoveryData = project.discovery_data || {};
     const conversationContext = formatConversationForPrompt(allMessages || []);
 
+    // Build pricing context if estimate exists
+    let pricingContext = "";
+    if (estimate) {
+      const buildTotal = estimate.final_price;
+      const tvaAmount = Math.round(buildTotal * 0.20);
+      const buildTotalTTC = buildTotal + tvaAmount;
+      
+      pricingContext = `
+## DONNÉES TARIFAIRES (du système de pricing)
+- **Type de projet** : ${pricingConfig?.name || estimate.project_type_code}
+- **Prix de base** : ${estimate.base_price?.toLocaleString('fr-FR')}€
+- **Options sélectionnées** : ${JSON.stringify(estimate.selected_options)}
+- **Total options** : ${estimate.options_total?.toLocaleString('fr-FR')}€
+- **Prix final HT** : ${estimate.final_price?.toLocaleString('fr-FR')}€
+- **TVA (20%)** : ${tvaAmount.toLocaleString('fr-FR')}€
+- **Prix final TTC** : ${buildTotalTTC.toLocaleString('fr-FR')}€
+- **Durée estimée** : ${estimate.duration_weeks_min}-${estimate.duration_weeks_max} semaines
+- **Complexité** : ${estimate.complexity_score}/5
+- **Forfait maintenance recommandé** : ${maintenancePlan?.name || 'Non défini'} (${maintenancePlan?.monthly_price || 0}€/mois)
+- **Fourchette type** : ${pricingConfig?.price_range_min?.toLocaleString('fr-FR')}€ - ${pricingConfig?.price_range_max?.toLocaleString('fr-FR') || 'Sur devis'}€
+- **Échelonnement** : Acompte 30% (${Math.round(buildTotal * 0.30)}€), Maquettes 20% (${Math.round(buildTotal * 0.20)}€), Recette 35% (${Math.round(buildTotal * 0.35)}€), Production 15% (${Math.round(buildTotal * 0.15)}€)
+`;
+    }
+
     const prompt = template
       ? buildPromptFromTemplate(template, project, client, discoveryData, conversationContext)
-      : buildDocumentPrompt(docType, project, client, discoveryData, conversationContext);
+      : buildDocumentPrompt(docType, project, client, discoveryData, conversationContext + pricingContext);
 
     // Common AI call setup
     const aiBody = {
@@ -186,6 +254,20 @@ INSTRUCTIONS :
 
       if (docErr) throw docErr;
 
+      // Also save to generated_documents if estimate exists
+      if (estimate) {
+        await supabase.from("generated_documents").insert({
+          project_id: projectId,
+          estimate_id: estimate.id,
+          document_type: docType,
+          template_code: pricingTemplate ? docType : null,
+          content_markdown: "(streaming - content saved after completion)",
+          variables_snapshot: { estimate, pricingConfig, maintenancePlan },
+          status: "draft",
+          requires_signature: docType === "contrat" || docType === "devis",
+        });
+      }
+
       await supabase.from("activities").insert({
         user_id: userData.user.id, project_id: projectId,
         action: "document", description: `${docName} généré pour "${project.name}"`,
@@ -196,7 +278,6 @@ INSTRUCTIONS :
         async start(controller) {
           controller.enqueue(encoder.encode(`data: ${JSON.stringify({ document_id: doc.id })}\n\n`));
           const reader = response.body!.getReader();
-          const decoder = new TextDecoder();
 
           try {
             while (true) {
@@ -248,6 +329,20 @@ INSTRUCTIONS :
 
     if (docErr) throw docErr;
 
+    // Also save to generated_documents if estimate exists
+    if (estimate) {
+      await supabase.from("generated_documents").insert({
+        project_id: projectId,
+        estimate_id: estimate.id,
+        document_type: docType,
+        template_code: pricingTemplate ? docType : null,
+        content_markdown: content,
+        variables_snapshot: { estimate, pricingConfig, maintenancePlan },
+        status: "draft",
+        requires_signature: docType === "contrat" || docType === "devis",
+      });
+    }
+
     const statusMap: Record<string, string> = {
       cdc: "cdc_draft", proposal: "proposal_sent", contract: "contract_pending",
     };
@@ -260,7 +355,7 @@ INSTRUCTIONS :
       action: "document", description: `${docName} généré pour "${project.name}"`,
     });
 
-    return new Response(JSON.stringify({ success: true, document_id: doc.id, content }), {
+    return new Response(JSON.stringify({ success: true, document_id: doc.id, content, estimate: estimate ? { final_price: estimate.final_price, duration: `${estimate.duration_weeks_min}-${estimate.duration_weeks_max} semaines` } : null }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
