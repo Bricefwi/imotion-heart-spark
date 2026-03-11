@@ -35,24 +35,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (session?.user) {
           setTimeout(async () => {
-            const { data: profileData } = await supabase
-              .from("profiles")
-              .select("*")
-              .eq("id", session.user.id)
-              .single();
-            setProfile(profileData);
+            try {
+              const { data: profileData } = await supabase
+                .from("profiles")
+                .select("*")
+                .eq("id", session.user.id)
+                .single();
+              setProfile(profileData);
 
-            const { data: rolesData } = await supabase
-              .from("user_roles")
-              .select("role")
-              .eq("user_id", session.user.id);
-            setRoles(rolesData?.map((r: any) => r.role) || ["client"]);
+              const { data: rolesData } = await supabase
+                .from("user_roles")
+                .select("role")
+                .eq("user_id", session.user.id);
+              setRoles(rolesData?.map((r: any) => r.role) || ["client"]);
+            } catch (e) {
+              console.error("Error fetching profile/roles:", e);
+              setRoles(["client"]);
+            } finally {
+              setLoading(false);
+            }
           }, 0);
         } else {
           setProfile(null);
           setRoles([]);
+          setLoading(false);
         }
-        setLoading(false);
       }
     );
 
