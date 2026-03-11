@@ -130,8 +130,8 @@ export function AdminLayout() {
                 <NavLink
                   key={item.url}
                   to={item.url}
-                  className="whitespace-nowrap rounded-md px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-muted"
-                  activeClassName="bg-muted text-foreground"
+                  className="whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted transition-all duration-200"
+                  activeClassName="bg-primary/10 text-primary font-semibold shadow-sm"
                 >
                   {item.title}
                 </NavLink>
