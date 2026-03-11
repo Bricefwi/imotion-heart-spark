@@ -371,6 +371,8 @@ INSTRUCTIONS :
 function getDocName(type: string, projectName: string): string {
   const names: Record<string, string> = {
     cdc: "Cahier des Charges",
+    devis: "Devis",
+    contrat: "Contrat de Prestation",
     proposal: "Proposition Commerciale",
     contract: "Contrat de Prestation",
     tech_recommendation: "Recommandation Technique & Prompt",
@@ -382,53 +384,82 @@ function getDocName(type: string, projectName: string): string {
 
 function getSystemPrompt(type: string): string {
   const prompts: Record<string, string> = {
-    cdc: `Tu es un directeur de projet digital senior dans une agence web premium (IMOTION). Tu rédiges des Cahiers des Charges exhaustifs, professionnels et immédiatement exploitables.
+    cdc: `Tu es un directeur de projet digital senior chez IMOTION Creator Studio, agence digitale premium specialisee en solutions no-code et IA. Tu rediges des Cahiers des Charges exhaustifs, professionnels et immediatement exploitables.
 
-RÈGLES DE RÉDACTION :
+REGLES DE REDACTION :
 - Ton professionnel mais accessible, jamais de jargon inutile
-- Chaque section doit apporter de la valeur concrète et actionnable
-- Utilise des tableaux Markdown pour structurer les données comparatives
-- Utilise des listes à puces pour les spécifications
-- Inclus des métriques, KPIs et critères de succès mesurables
-- Personnalise chaque section avec les données réelles du client
-- Le document doit être prêt à être envoyé au client tel quel
-- Rédige en français impeccable
-- Format Markdown structuré avec titres hiérarchiques (# ## ### ####)`,
+- Chaque section doit apporter de la valeur concrete et actionnable
+- Utilise des tableaux Markdown pour structurer les donnees comparatives
+- Utilise des listes a puces pour les specifications
+- Inclus des metriques, KPIs et criteres de succes mesurables
+- Personnalise chaque section avec les donnees reelles du client
+- Le document doit etre pret a etre envoye au client tel quel
+- Redige en francais impeccable
+- Format Markdown structure avec titres hierarchiques (# ## ### ####)
+- NE JAMAIS utiliser d'emojis
+- Le prestataire est "IMOTION Creator Studio" (pas "IMOTION Conseil")
+- Site web : www.clarivi.io`,
 
-    tech_recommendation: `Tu es un architecte technique senior et CTO d'une agence digitale premium (IMOTION). Tu maîtrises parfaitement l'écosystème des outils no-code, low-code et code (Lovable, Cursor, Bolt, Replit, Webflow, Framer, Bubble, Supabase, Firebase, Vercel, etc.) ainsi que les stacks classiques (React, Next.js, Vue, Node.js, Python, etc.).
+    devis: `Tu es le directeur commercial senior d'IMOTION Creator Studio, agence digitale premium specialisee en solutions no-code et IA. Tu rediges des devis detailles, professionnels, competitifs et conformes au droit commercial francais.
 
-RÈGLES :
-- Recommande les outils les PLUS ADAPTÉS au projet, pas les plus populaires
+REGLES DE REDACTION :
+- Le devis doit etre juridiquement valide et conforme au Code de commerce
+- Chaque ligne doit etre justifiable et detaillee
+- Inclure systematiquement : TVA, conditions de paiement, validite, penalites de retard
+- Presenter les phases BUILD et RUN separement
+- Proposer un echelonnement de paiement clair
+- Redige en francais impeccable, ton professionnel et rassurant
+- NE JAMAIS utiliser d'emojis
+- Le prestataire est "IMOTION Creator Studio"
+- SIRET: XXX XXX XXX 000XX | RCS Paris B XXX XXX XXX | Capital: 10 000 euros
+- TVA: FR XX XXX XXX XXX`,
+
+    contrat: `Tu es un juriste specialise en droit du numerique et droit des contrats francais, travaillant pour IMOTION Creator Studio. Tu rediges des contrats de prestation de services numeriques conformes au droit francais, protecteurs pour le prestataire tout en etant equilibres.
+
+REGLES JURIDIQUES IMPERATIVES :
+- Conforme au Code civil francais (articles 1101 et suivants)
+- Conforme au RGPD (Reglement UE 2016/679)
+- Conforme a la loi pour une Republique numerique (2016)
+- Clauses de limitation de responsabilite conformes a la jurisprudence
+- Clause penale conforme a l'article 1231-5 du Code civil
+- Redige en francais juridique precis mais lisible
+- NE JAMAIS utiliser d'emojis
+- Le prestataire est "IMOTION Creator Studio" (SAS)
+- SIRET: XXX XXX XXX 000XX | RCS Paris B XXX XXX XXX | Capital: 10 000 euros`,
+
+    tech_recommendation: `Tu es un architecte technique senior et CTO d'IMOTION Creator Studio, agence digitale premium. Tu maitrises parfaitement l'ecosysteme no-code, low-code et code.
+
+REGLES :
+- Recommande les outils les PLUS ADAPTES au projet
 - Justifie chaque choix technique avec des arguments concrets
-- Fournis un prompt technique COMPLET et prêt à l'emploi pour chaque outil recommandé
-- Pense en termes de ROI, maintenabilité, scalabilité et budget client
-- Rédige en français technique mais compréhensible`,
+- Fournis un prompt technique COMPLET et pret a l'emploi
+- Pense ROI, maintenabilite, scalabilite et budget client
+- Redige en francais technique mais comprehensible
+- NE JAMAIS utiliser d'emojis`,
 
-    pricing: `Tu es un directeur commercial senior d'une agence digitale premium (IMOTION) spécialisé dans le chiffrage de projets digitaux. Tu connais parfaitement les TJM du marché français, les coûts réels de développement, et tu sais construire des devis détaillés, rentables et compétitifs.
+    pricing: `Tu es le directeur commercial senior d'IMOTION Creator Studio specialise dans le chiffrage de projets digitaux. Tu connais les TJM du marche francais et tu construis des devis detailles, rentables et competitifs.
 
-RÈGLES :
-- Chiffrage réaliste basé sur les TJM marché français 2024-2025
-- Chaque ligne de devis doit être justifiable auprès du client
-- Inclus TOUJOURS une phase de tests/QA dans le budget
-- Présente 3 options tarifaires (Essentiel, Recommandé, Premium)
-- Détaille les conditions de paiement et les garanties
-- Rédige en français professionnel`,
+REGLES :
+- Chiffrage realiste base sur les TJM marche francais 2024-2026
+- Chaque ligne justifiable aupres du client
+- Inclus TOUJOURS une phase de tests/QA
+- Presente 3 options tarifaires (Essentiel, Recommande, Premium)
+- Detaille conditions de paiement et garanties
+- Redige en francais professionnel
+- NE JAMAIS utiliser d'emojis`,
 
-    contract_fr: `Tu es un juriste spécialisé en droit du numérique et droit des contrats français. Tu rédiges des contrats de prestation de services numériques conformes au droit français, protecteurs pour le prestataire (IMOTION) tout en étant équilibrés et respectueux du client.
+    contract_fr: `Tu es un juriste specialise en droit du numerique chez IMOTION Creator Studio. Tu rediges des contrats conformes au droit francais, protecteurs pour le prestataire tout en etant equilibres.
 
-RÈGLES JURIDIQUES IMPÉRATIVES :
-- Conforme au Code civil français (articles 1101 et suivants)
-- Conforme au Code de la consommation si B2C
-- Conforme au RGPD (Règlement UE 2016/679)
-- Conforme à la loi pour une République numérique (2016)
-- Conforme à la loi Informatique et Libertés
-- Clauses de limitation de responsabilité conformes à la jurisprudence
-- Clause pénale conforme à l'article 1231-5 du Code civil
-- Clause attributive de juridiction valide
-- Rédige en français juridique précis mais lisible`,
+REGLES JURIDIQUES :
+- Conforme au Code civil francais (articles 1101 et suivants)
+- Conforme au RGPD (Reglement UE 2016/679)
+- Clauses de limitation de responsabilite conformes a la jurisprudence
+- Clause penale conforme a l'article 1231-5 du Code civil
+- Redige en francais juridique precis mais lisible
+- NE JAMAIS utiliser d'emojis`,
   };
 
-  return prompts[type] || `Tu es un expert en rédaction de documents professionnels pour agences digitales premium. Tu génères des documents structurés, élégants et prêts à l'envoi en Markdown. Rédige en français impeccable.`;
+  return prompts[type] || `Tu es un expert en redaction de documents professionnels pour IMOTION Creator Studio, agence digitale premium. Tu generes des documents structures et prets a l'envoi en Markdown. Redige en francais impeccable. NE JAMAIS utiliser d'emojis.`;
 }
 
 function formatConversationForPrompt(messages: any[]): string {
@@ -506,134 +537,263 @@ ${conversationContext}
 `;
 
   if (type === "cdc") {
-    return `Génère un Cahier des Charges professionnel, exhaustif et immédiatement exploitable pour ce projet. Utilise TOUTES les informations issues des échanges client ci-dessous pour personnaliser chaque section au maximum. Le CDC doit refléter précisément le besoin profond du client et viser juste dès la première version.
+    return `Genere un Cahier des Charges professionnel, exhaustif et immediatement exploitable pour ce projet. Utilise TOUTES les informations issues des echanges client ci-dessous pour personnaliser chaque section au maximum. Le CDC doit refleter precisement le besoin profond du client et viser juste des la premiere version.
 
 ${base}
 
 ## STRUCTURE OBLIGATOIRE DU CAHIER DES CHARGES
 
-Génère le document avec EXACTEMENT ces sections, dans cet ordre :
+Genere le document avec EXACTEMENT ces sections, dans cet ordre :
 
 # 1. PAGE DE GARDE
-- Titre du projet, référence, client, date, version, mention confidentiel
-- Logo IMOTION (mentionner l'espace réservé)
+- Titre : CAHIER DES CHARGES - [Nom du projet]
+- Reference : [Code projet]
+- Date, Version 1.0
+- PRESTATAIRE : IMOTION Creator Studio, SAS au capital de 10 000 euros, 123 Avenue de l'Innovation, 75008 Paris, SIRET: XXX XXX XXX 000XX
+- CLIENT : [Entreprise], [Nom], [Email]
+- Mention "Document confidentiel"
 
-# 2. RÉSUMÉ EXÉCUTIF
-- Synthèse en 5-8 lignes du projet, objectifs clés et enjeux business
-- Ce résumé doit convaincre un décideur en 30 secondes
+# 2. RESUME EXECUTIF
+- Synthese en 8-12 lignes du projet, objectifs cles et enjeux business
+- Ce resume doit convaincre un decideur en 30 secondes
+- Mentionner le type de projet, le budget indicatif et le delai cible
 
-# 3. CONTEXTE & ENJEUX
-- Présentation de l'entreprise cliente et son marché
-- Problématiques actuelles identifiées lors des échanges
-- Enjeux business et opportunités à saisir
-- Pourquoi ce projet maintenant (urgence, concurrence, évolution du marché)
+# 3. TABLEAU DE BORD DU PROJET
+| Information | Detail |
+|---|---|
+| Nom du projet | ... |
+| Reference | ... |
+| Client | ... |
+| Secteur d'activite | ... |
+| Contact principal | ... |
+| Type de projet | ... |
+| Budget estimatif | ... |
+| Delai souhaite | ... |
+| Score de qualification | ... |
 
-# 4. ANALYSE DU BESOIN CLIENT
-- Objectifs stratégiques et opérationnels (utiliser les verbatim du client)
-- Cibles utilisateurs / Personas (créer 2-3 personas détaillés si données suffisantes)
-- Parcours utilisateurs principaux (user journeys)
-- Attentes fonctionnelles exprimées VS besoins latents identifiés
+# 4. CONTEXTE ET ENJEUX STRATEGIQUES
+## 4.1 Presentation de l'entreprise cliente
+- Activite, marche, positionnement, taille, historique
+## 4.2 Contexte du projet
+- Situation actuelle, facteurs declencheurs
+- Pourquoi ce projet maintenant (urgence, concurrence, evolution du marche)
+## 4.3 Problematiques identifiees
+- Liste des points de douleur (utiliser les verbatim du client)
+## 4.4 Impact business des problematiques
+- Chiffrer l'impact quand possible (temps perdu, CA manque, insatisfaction)
+## 4.5 Solutions deja tentees
+- Ce qui a ete fait avant, pourquoi ca n'a pas fonctionne
 
-# 5. BENCHMARK & POSITIONNEMENT
-- Analyse de 3-5 concurrents/références (si mentionnés dans les échanges)
-- Positionnement différenciant souhaité par le client
-- Best practices du secteur à intégrer
-- Opportunités de différenciation identifiées
+# 5. ANALYSE DETAILLEE DU BESOIN
+## 5.1 Objectifs strategiques
+- Objectifs business mesurables (SMART)
+## 5.2 Objectifs operationnels
+- Actions concretes attendues
+## 5.3 Cibles utilisateurs et Personas
+- Creer 2-4 personas detailles avec : nom fictif, age, role, objectifs, frustrations, niveau tech, parcours type
+## 5.4 Parcours utilisateurs (User Journeys)
+- Decrire 3-5 parcours utilisateurs principaux etape par etape
+## 5.5 Besoins exprimes VS besoins latents identifies
+- Tableau comparatif de ce que le client dit vs ce qu'il faut reellement
 
-# 6. IDENTITÉ & IMAGE DE MARQUE
-- Univers de marque souhaité (ton, valeurs, personnalité)
-- Références visuelles et inspirations citées par le client
-- Charte graphique existante / à créer
-- Ton éditorial et ligne directrice du contenu
-- Émotions et perceptions à véhiculer
+# 6. BENCHMARK ET POSITIONNEMENT
+## 6.1 Analyse concurrentielle
+| Concurrent | Forces | Faiblesses | Elements a reprendre |
+|---|---|---|---|
+- Analyser 3-5 concurrents ou references citees
+## 6.2 Positionnement differenciant
+- Ce qui distinguera le projet du marche
+## 6.3 Best practices du secteur
+- Tendances et standards a integrer
+## 6.4 Inspirations et references
+- Sites/apps cites par le client avec analyse
 
-# 7. ARBORESCENCE & ARCHITECTURE DE L'INFORMATION
-- Plan du site / Structure des écrans (sous forme d'arborescence Markdown)
-- Navigation principale et secondaire
-- Hiérarchie du contenu
-- Points d'entrée et parcours critiques
+# 7. IDENTITE ET IMAGE DE MARQUE
+## 7.1 Univers de marque
+- Valeurs, personnalite, ton
+## 7.2 Charte graphique
+- Couleurs, typographies, style visuel (existant ou a creer)
+## 7.3 References visuelles et inspirations
+- Moodboard textuel base sur les retours client
+## 7.4 Ton editorial
+- Style de communication, registre de langue
+## 7.5 Emotions et perceptions a vehiculer
+- Ce que l'utilisateur doit ressentir
 
-# 8. SPÉCIFICATIONS FONCTIONNELLES
-### 8.1 MVP (Version 1)
-- Tableau des fonctionnalités : | Fonctionnalité | Description | Priorité | Complexité |
-- User stories principales (format : En tant que... je veux... afin de...)
+# 8. ARBORESCENCE ET ARCHITECTURE DE L'INFORMATION
+## 8.1 Plan du site / Structure des ecrans
+- Arborescence detaillee sous forme hierarchique
+## 8.2 Navigation principale et secondaire
+- Menu principal, footer, navigation contextuelle
+## 8.3 Hierarchie du contenu
+- Priorite de l'information par page/ecran
+## 8.4 Points d'entree et parcours critiques
+- Entonnoirs de conversion, CTA principaux
 
-### 8.2 Version 2 (Évolutions)
-- Fonctionnalités différées avec justification
-- Roadmap d'évolution
+# 9. SPECIFICATIONS FONCTIONNELLES DETAILLEES
+## 9.1 MVP - Fonctionnalites essentielles (Must Have)
+| ID | Fonctionnalite | Description detaillee | User Story | Priorite | Complexite |
+|---|---|---|---|---|---|
+- Minimum 10-15 fonctionnalites detaillees
+## 9.2 Fonctionnalites souhaitees (Should Have)
+- Tableau similaire pour les nice-to-have
+## 9.3 Fonctionnalites differees (Could Have - V2)
+- Roadmap d'evolution post-lancement
+## 9.4 Hors perimetre (Won't Have)
+- Ce qui est explicitement exclu et pourquoi
+## 9.5 Back-office et administration
+- Fonctionnalites d'admin detaillees
+- Gestion de contenu, roles et droits d'acces
+## 9.6 Gestion des utilisateurs
+- Inscription, connexion, profils, roles
+## 9.7 Notifications et alertes
+- Types de notifications, canaux (email, push, in-app)
 
-### 8.3 Back-office / Administration
-- Fonctionnalités d'administration requises
-- Gestion de contenu et droits d'accès
+# 10. SPECIFICATIONS UX/UI
+## 10.1 Principes UX directeurs
+- 5-7 principes guides pour le design
+## 10.2 Responsive design
+- Breakpoints (mobile, tablette, desktop)
+- Approche mobile-first ou desktop-first
+## 10.3 Accessibilite
+- Niveau WCAG vise (AA minimum)
+- Mesures specifiques
+## 10.4 Interactions et animations
+- Micro-interactions, transitions, feedback visuel
+## 10.5 Wireframes textuels
+- Description detaillee de la structure de chaque page principale
+## 10.6 Formulaires et saisie
+- Detail des formulaires, validation, messages d'erreur
 
-# 9. SPÉCIFICATIONS UX/UI
-- Principes UX directeurs
-- Responsive design : breakpoints et priorités
-- Accessibilité (niveau WCAG visé)
-- Interactions et micro-animations clés
-- Wireframes textuels des pages principales (décrire la structure)
+# 11. ARCHITECTURE TECHNIQUE
+## 11.1 Stack technologique recommandee
+| Couche | Technologie | Justification |
+|---|---|---|
+## 11.2 Architecture applicative
+- Frontend, backend, base de donnees, APIs
+- Diagramme textuel de l'architecture
+## 11.3 Hebergement et infrastructure
+- Serveurs, CDN, DNS, SSL
+## 11.4 Performance
+- Objectifs : temps de chargement < 3s, Core Web Vitals
+- Strategies d'optimisation
+## 11.5 Securite
+- Authentification, autorisation, chiffrement
+- Conformite RGPD dans le code
+## 11.6 Scalabilite
+- Capacite d'evolution, montee en charge
 
-# 10. ARCHITECTURE TECHNIQUE
-- Stack technologique recommandée (avec justification)
-- Architecture applicative (front-end, back-end, BDD)
-- Hébergement et infrastructure
-- Performance : objectifs de temps de chargement
-- Sécurité : mesures et conformité RGPD
-- Scalabilité et évolutivité
+# 12. INTEGRATIONS ET APIs
+| Service | Type | Description | Priorite | Complexite |
+|---|---|---|---|---|
+- Lister TOUTES les integrations mentionnees
+## 12.1 Flux de donnees
+- Schemas d'echange entre systemes
+## 12.2 APIs tierces
+- Documentation des APIs a consommer
+## 12.3 Contraintes techniques d'integration
+- Limites, authentification, quotas
 
-# 11. INTÉGRATIONS & APIs
-- Tableau : | Service | Type d'intégration | Priorité | Complexité estimée |
-- Flux de données entre systèmes
-- Contraintes techniques identifiées
+# 13. CONTENU ET STRATEGIE EDITORIALE
+## 13.1 Types de contenus
+- Pages, articles, fiches produit, medias
+## 13.2 Volume de contenus
+- Estimation quantitative
+## 13.3 Responsabilites
+| Type de contenu | Responsable | Format | Delai |
+|---|---|---|---|
+## 13.4 SEO et referencement
+- Mots-cles cibles, meta-donnees, structure URL
+- Strategie de contenu SEO
 
-# 12. CONTENU & STRATÉGIE ÉDITORIALE
-- Types de contenus à produire
-- Volume de contenus (pages, articles, fiches produit...)
-- Responsabilités (qui fournit quoi)
-- SEO : mots-clés cibles et stratégie
+# 14. PLANNING PREVISIONNEL DETAILLE
+## 14.1 Phases du projet
+| Phase | Description | Duree | Debut | Fin | Livrables |
+|---|---|---|---|---|---|
+- Phase 1 : Cadrage et conception (2 semaines)
+- Phase 2 : Design UX/UI (2-3 semaines)
+- Phase 3 : Developpement (4-8 semaines)
+- Phase 4 : Tests et recette (2 semaines)
+- Phase 5 : Mise en production (1 semaine)
+- Phase 6 : Accompagnement post-lancement (2 semaines)
+## 14.2 Jalons et milestones
+- Points de validation obligatoires
+## 14.3 Dependances et chemin critique
+- Taches bloquantes identifiees
+## 14.4 Risques planning
+- Facteurs de retard potentiels et mitigations
 
-# 13. PLANNING PRÉVISIONNEL
-- Tableau des phases : | Phase | Durée | Livrables | Jalons |
-- Dates clés et milestones
-- Dépendances et chemins critiques
-- Date de livraison cible
+# 15. ESTIMATION BUDGETAIRE
+## 15.1 Detail par poste
+| Poste | Description | Montant HT |
+|---|---|---|
+- Conception, design, developpement, tests, mise en prod, gestion de projet
+## 15.2 Options et modules complementaires
+- Chaque option avec son cout unitaire
+## 15.3 Forfait maintenance recommande
+- Plans de maintenance avec comparatif
+## 15.4 Recapitulatif financier
+| | Montant |
+|---|---|
+| Total HT | ... |
+| TVA (20%) | ... |
+| Total TTC | ... |
+## 15.5 Conditions de paiement
+- Echelonnement propose : 30% acompte, 20% maquettes, 35% recette, 15% production
 
-# 14. BUDGET ESTIMATIF
-Présenter 3 options sous forme de tableau comparatif :
+# 16. CRITERES DE SUCCES ET KPIs
+| KPI | Objectif | Methode de mesure | Frequence |
+|---|---|---|---|
+- Minimum 8-10 KPIs mesurables
+## 16.1 Criteres d'acceptation du projet
+- Conditions pour la recette finale
+## 16.2 Indicateurs de performance
+- A 3 mois, 6 mois, 12 mois post-lancement
 
-| Poste | Essentiel | Recommandé | Premium |
-|-------|-----------|------------|---------|
-| ... | ... | ... | ... |
+# 17. METHODOLOGIE ET GOUVERNANCE
+## 17.1 Methodologie de projet
+- Approche Agile/Scrum adaptee
+- Duree des sprints, ceremonies
+## 17.2 Instances de pilotage
+| Instance | Frequence | Participants | Objectif |
+|---|---|---|---|
+## 17.3 Outils de collaboration
+- Plateforme IMOTION Creator Studio, outils de suivi
+## 17.4 Process de validation
+- Circuit de validation, delais, escalade
 
-- Détail par poste (conception, design, développement, contenu, recette)
-- Conditions de paiement proposées (30/40/30 par exemple)
-- Ce qui est inclus / exclu dans chaque option
+# 18. GESTION DES RISQUES
+| Risque | Probabilite | Impact | Mitigation |
+|---|---|---|---|
+- Minimum 5-8 risques identifies avec plans de mitigation
 
-# 15. CRITÈRES DE SUCCÈS & KPIs
-- Tableau : | KPI | Objectif | Méthode de mesure | Fréquence |
-- Critères d'acceptation du projet
-- Indicateurs de performance à 3, 6, 12 mois
+# 19. CONDITIONS ET PROCHAINES ETAPES
+## 19.1 Validite du document
+- 30 jours a compter de la date d'emission
+## 19.2 Conditions de modification du perimetre
+- Processus d'avenant, impact budget/delai
+## 19.3 Prochaines etapes
+1. Validation du present Cahier des Charges
+2. Presentation du devis detaille
+3. Reunion de cadrage (kick-off)
+4. Signature du contrat
+5. Versement de l'acompte
+6. Lancement du projet
 
-# 16. MÉTHODOLOGIE & GOUVERNANCE
-- Méthodologie de projet (Agile/Scrum adaptée)
-- Instances de pilotage (comités, fréquence)
-- Outils de collaboration
-- Process de validation et de recette
+---
 
-# 17. CONDITIONS & PROCHAINES ÉTAPES
-- Validité de la proposition
-- Conditions de modification du périmètre
-- Processus de validation du CDC
-- Prochaines étapes immédiates après signature
+*Document genere par IMOTION Creator Studio - www.clarivi.io*
+*Ce document est confidentiel et destine uniquement au client mentionne.*
 
 ---
 
 INSTRUCTIONS FINALES :
-- Utilise les VRAIS mots du client tirés des échanges, pas du générique
-- Si une information manque, propose une hypothèse raisonnable clairement identifiée avec [À CONFIRMER]
-- Sois précis sur les chiffres : délais en jours ouvrés, budgets en €, performances en ms
-- Le document doit faire entre 15 et 30 pages imprimées
-- Chaque section doit apporter de la valeur et ne pas être du remplissage`;
+- Utilise les VRAIS mots du client tires des echanges, pas du generique
+- Si une information manque, propose une hypothese raisonnable identifiee avec [A CONFIRMER]
+- Sois precis sur les chiffres : delais en jours ouvres, budgets en euros, performances en ms
+- Le document doit faire entre 20 et 40 pages imprimees
+- Chaque section doit apporter de la valeur et ne pas etre du remplissage
+- NE JAMAIS utiliser d'emojis`;
   }
 
   if (type === "proposal") {
@@ -644,7 +804,7 @@ ${base}
 Structure obligatoire :
 1. Page de garde (projet, client, date, référence)
 2. Mot d'accompagnement personnalisé
-3. Présentation IMOTION (expertise, références, équipe)
+3. Présentation IMOTION Creator Studio (expertise, références, équipe)
 4. Compréhension du besoin (reformulation empathique du besoin client)
 5. Solution proposée (approche, méthodologie)
 6. Détail de la prestation (3 options : Essentiel, Recommandé, Premium)
@@ -968,29 +1128,583 @@ ${base}
 INSTRUCTIONS JURIDIQUES :
 - Chaque clause DOIT être conforme au droit français en vigueur
 - Cite les articles de loi pertinents entre parenthèses
-- Le contrat doit être PROTECTEUR pour le prestataire (IMOTION) tout en étant ÉQUILIBRÉ
+- Le contrat doit être PROTECTEUR pour le prestataire (IMOTION Creator Studio) tout en étant ÉQUILIBRÉ
 - Les clauses abusives au sens du Code de la consommation doivent être évitées
 - Adapte le contenu aux spécificités du projet (montants, délais, livrables)`;
   }
 
-  return `Génère un Contrat de Prestation professionnel en Markdown :
+  if (type === "devis") {
+    return `Genere un Devis professionnel, detaille et conforme au droit commercial francais pour ce projet :
+
+${base}
+
+## STRUCTURE OBLIGATOIRE DU DEVIS
+
+# DEVIS N. [Numero auto]
+
+## EN-TETE
+| EMETTEUR | DESTINATAIRE |
+|---|---|
+| IMOTION Creator Studio | [Entreprise client] |
+| SAS au capital de 10 000 euros | [Nom du contact] |
+| 123 Avenue de l'Innovation, 75008 Paris | [Adresse client] |
+| SIRET: XXX XXX XXX 000XX | [Email client] |
+| TVA: FR XX XXX XXX XXX | [Telephone client] |
+
+**Objet** : [Nom du projet]
+**Reference projet** : [Code]
+**Date** : [Date du jour]
+**Validite** : 30 jours
+
+---
+
+# 1. PHASE BUILD - REALISATION
+
+## 1.1 Cadrage et Conception
+| Designation | Description | Qte | P.U. HT | Total HT |
+|---|---|---|---|---|
+| Ateliers de cadrage | Analyse fonctionnelle, user stories, specs detaillees | 1 | ... | ... |
+| Architecture technique | Choix technologiques, architecture systeme | 1 | ... | ... |
+| Maquettes UX (wireframes) | Wireframes basse fidelite des ecrans principaux | 1 | ... | ... |
+
+## 1.2 Design UX/UI
+| Designation | Description | Qte | P.U. HT | Total HT |
+|---|---|---|---|---|
+| Direction artistique | Proposition de 2 pistes creatives | 1 | ... | ... |
+| Design UI haute fidelite | Maquettes pixel-perfect responsive | 1 | ... | ... |
+| Design system | Composants, tokens, guide de style | 1 | ... | ... |
+| Prototypage interactif | Prototype cliquable pour validation | 1 | ... | ... |
+
+## 1.3 Developpement Frontend
+| Designation | Description | Qte | P.U. HT | Total HT |
+|---|---|---|---|---|
+| Integration des maquettes | HTML/CSS responsive, composants React | 1 | ... | ... |
+| Animations et interactions | Micro-interactions, transitions | 1 | ... | ... |
+| Optimisation performance | Lazy loading, compression, Core Web Vitals | 1 | ... | ... |
+
+## 1.4 Developpement Backend et Integrations
+| Designation | Description | Qte | P.U. HT | Total HT |
+|---|---|---|---|---|
+| Base de donnees et API | Modelisation, endpoints, securite | 1 | ... | ... |
+| Authentification et roles | Systeme de connexion, gestion des droits | 1 | ... | ... |
+| Integrations tierces | APIs externes, connecteurs | ... | ... | ... |
+| Back-office administration | Interface de gestion du contenu | 1 | ... | ... |
+
+## 1.5 Tests et Recette (QA)
+| Designation | Description | Qte | P.U. HT | Total HT |
+|---|---|---|---|---|
+| Tests fonctionnels | Tests manuels et automatises | 1 | ... | ... |
+| Tests de performance | Charge, stress, temps de reponse | 1 | ... | ... |
+| Tests de securite | Audit de securite, pentest basique | 1 | ... | ... |
+| Recette client | 2 iterations de corrections | 1 | ... | ... |
+
+## 1.6 Mise en Production et Accompagnement
+| Designation | Description | Qte | P.U. HT | Total HT |
+|---|---|---|---|---|
+| Deploiement production | Configuration serveur, DNS, SSL | 1 | ... | ... |
+| Migration de donnees | Import des contenus existants | 1 | ... | ... |
+| Formation utilisateurs | Session de formation (2h) | 1 | ... | ... |
+| Documentation technique | Guide utilisateur et technique | 1 | ... | ... |
+
+## 1.7 Gestion de Projet
+| Designation | Description | Qte | P.U. HT | Total HT |
+|---|---|---|---|---|
+| Pilotage de projet | Coordination, reporting, comites | 1 | ... | ... |
+
+---
+
+| **SOUS-TOTAL BUILD HT** | **...euros** |
+|---|---|
+
+## Options et modules complementaires
+| Designation | Description | P.U. HT |
+|---|---|---|
+- Lister les options applicables du systeme de pricing
+
+---
+
+# 2. PHASE RUN - MAINTENANCE (Optionnel)
+
+| Forfait | Description | Engagement | Prix mensuel HT |
+|---|---|---|---|
+| Essentiel | Maintenance corrective, monitoring, support email (48h) | 12 mois | 199 euros/mois |
+| Confort | + Mises a jour, 4h d'evolution/mois, support prioritaire (24h) | 12 mois | 399 euros/mois |
+| Premium | + Evolutions illimitees, SLA 99.9%, support telephone (4h) | 12 mois | 799 euros/mois |
+
+**Forfait recommande** : [Recommandation basee sur le type de projet]
+
+---
+
+# 3. RECAPITULATIF FINANCIER
+
+| | Montant |
+|---|---|
+| Total BUILD HT | ...euros |
+| Forfait maintenance annuel HT (optionnel) | ...euros |
+| **Sous-total HT** | **...euros** |
+| TVA (20%) | ...euros |
+| **TOTAL TTC** | **...euros** |
+
+---
+
+# 4. CONDITIONS DE PAIEMENT
+
+## Echelonnement BUILD
+| Etape | % | Montant HT | Montant TTC | Echeance |
+|---|---|---|---|---|
+| Acompte a la commande | 30% | ... | ... | Signature du devis |
+| Validation des maquettes | 20% | ... | ... | + 3 semaines |
+| Livraison en recette | 35% | ... | ... | + [duree dev] semaines |
+| Mise en production | 15% | ... | ... | Go Live |
+
+**Mode de paiement** : Virement bancaire sous 15 jours
+IBAN : FR76 XXXX XXXX XXXX XXXX XXXX XXX
+BIC : XXXXXXXX
+
+---
+
+# 5. DELAIS DE REALISATION
+
+| Phase | Duree estimee |
+|---|---|
+| Conception et design | 3-4 semaines |
+| Developpement | 4-8 semaines |
+| Tests et recette | 2 semaines |
+| Mise en production | 1 semaine |
+| **Total** | **[min]-[max] semaines** |
+
+Demarrage : Sous 2 semaines apres reception de l'acompte et des elements necessaires.
+
+---
+
+# 6. GARANTIES INCLUSES
+- Garantie de conformite : 3 mois apres mise en production
+- Corrections des anomalies bloquantes sous 48h ouvrees
+- Corrections des anomalies mineures sous 10 jours ouvres
+- 2 iterations de corrections incluses pendant la recette
+
+# 7. CONDITIONS GENERALES (Extrait)
+- Devis valable 30 jours a compter de sa date d'emission
+- Garantie 3 mois post-livraison incluse (corrections des anomalies)
+- Les delais sont indicatifs et dependent de la reactivite du client pour les validations
+- Tout travail supplementaire non prevu au present devis sera facture au TJM de 650 euros HT/jour
+- En cas de retard de paiement : penalites de 3 fois le taux d'interet legal + indemnite forfaitaire de 40 euros (art. D441-5 Code de commerce)
+- Aucun escompte pour paiement anticipe
+- Les CGV completes sont annexees au present devis
+
+---
+
+# ACCEPTATION
+
+Pour acceptation, merci de retourner ce devis signe avec la mention "Bon pour accord".
+
+| | Client |
+|---|---|
+| Date | _________________ |
+| Nom et qualite | _________________ |
+| Signature et cachet | |
+| (precede de la mention "Bon pour accord") | |
+
+---
+
+*Devis genere par IMOTION Creator Studio - www.clarivi.io*
+
+---
+
+INSTRUCTIONS :
+- Les montants doivent etre REALISTES et bases sur les donnees de pricing du projet
+- Si des donnees de pricing existent dans le contexte, utiliser les montants exacts
+- Sinon, estimer en fonction du type et de la complexite du projet
+- Chaque ligne doit etre detaillee et justifiable
+- NE JAMAIS utiliser d'emojis`;
+  }
+
+  if (type === "contrat") {
+    return `Genere un Contrat de Prestation de Services Numeriques COMPLET, detaille et conforme au droit francais :
+
+${base}
+
+## STRUCTURE OBLIGATOIRE DU CONTRAT
+
+# CONTRAT DE PRESTATION DE SERVICES NUMERIQUES
+
+**N. [Numero auto]**
+
+---
+
+## ENTRE LES SOUSSIGNES
+
+**IMOTION Creator Studio**, Societe par Actions Simplifiee (SAS)
+- Siege social : 123 Avenue de l'Innovation, 75008 Paris
+- SIRET : XXX XXX XXX 000XX | RCS Paris B XXX XXX XXX
+- Capital social : 10 000 euros
+- TVA intracommunautaire : FR XX XXX XXX XXX
+- Representee par son representant legal dument habilite
+- Ci-apres denommee "Le Prestataire"
+
+D'une part,
+
+ET
+
+**[Entreprise client]**, [Forme juridique]
+- Siege social : [Adresse]
+- SIRET : [SIRET client]
+- Representee par [Nom], en qualite de [Fonction]
+- Ci-apres denommee "Le Client"
+
+D'autre part,
+
+Les Parties sont ci-apres denommees individuellement une "Partie" et collectivement les "Parties".
+
+---
+
+## PREAMBULE
+
+Le Client a exprime le besoin de : [objectif principal du projet]
+
+Suite a la phase de decouverte realisee via la plateforme IMOTION Creator Studio, un Cahier des Charges (ref. [reference CDC]) et un Devis (ref. [reference devis]) ont ete etablis et valides par les deux Parties.
+
+Le Prestataire declare disposer des competences, moyens et ressources necessaires pour realiser la prestation objet du present contrat.
+
+Les Parties ont donc convenu de ce qui suit :
+
+---
+
+## ARTICLE 1 - OBJET
+
+Le present contrat a pour objet de definir les conditions dans lesquelles le Prestataire s'engage a realiser pour le compte du Client :
+
+**[Nom du projet]** - Type : [Type de projet]
+
+La prestation comprend notamment :
+- [Liste detaillee des livrables principaux]
+- [Basee sur le CDC et le devis valides]
+
+## ARTICLE 2 - DOCUMENTS CONTRACTUELS
+
+Les documents contractuels sont, par ordre de priorite decroissante :
+1. Le present contrat et ses eventuels avenants
+2. Le Cahier des Charges (ref. [reference])
+3. Le devis accepte (ref. [reference])
+4. Les Conditions Generales de Vente annexees
+
+En cas de contradiction entre ces documents, le document de rang superieur prevaut.
+
+## ARTICLE 3 - DUREE ET CALENDRIER
+
+### 3.1 Duree
+La prestation debutera a compter de la reception de l'acompte prevu a l'article 5.
+Duree previsionnelle : [min] a [max] semaines.
+
+### 3.2 Jalons
+| Jalon | Description | Date previsionnelle |
+|---|---|---|
+| Kick-off | Reunion de lancement | J+7 apres acompte |
+| Maquettes | Livraison des maquettes UX/UI | J+[x] |
+| Developpement | Livraison en recette | J+[x] |
+| Go Live | Mise en production | J+[x] |
+
+### 3.3 Prorogation
+Cette duree est indicative et pourra etre adaptee en fonction de la reactivite du Client dans les phases de validation. Tout retard de validation superieur a 5 jours ouvres entraine un decalage equivalent du planning.
+
+## ARTICLE 4 - PRIX
+
+Le prix total de la prestation est fixe a :
+
+| | Montant |
+|---|---|
+| Developpement (HT) | [montant] euros |
+| TVA (20%) | [montant] euros |
+| **TOTAL TTC** | **[montant] euros** |
+
+Ce prix est ferme et definitif pour le perimetre defini au Cahier des Charges.
+
+Toute prestation supplementaire hors perimetre fera l'objet d'un avenant et sera facturee au tarif journalier de 650 euros HT.
+
+## ARTICLE 5 - MODALITES DE PAIEMENT
+
+### 5.1 Echelonnement
+| Etape | % | Montant TTC | Echeance |
+|---|---|---|---|
+| Acompte | 30% | [montant] euros | Signature du contrat |
+| Maquettes validees | 20% | [montant] euros | Validation du design |
+| Livraison recette | 35% | [montant] euros | PV de recette signe |
+| Mise en production | 15% | [montant] euros | Go Live |
+
+### 5.2 Conditions de facturation
+Paiement par virement bancaire sous 15 jours a compter de la date de facturation.
+
+### 5.3 Penalites de retard
+En cas de retard de paiement, des penalites de retard egales a 3 fois le taux d'interet legal seront appliquees de plein droit (art. L441-10 Code de commerce), ainsi qu'une indemnite forfaitaire de 40 euros pour frais de recouvrement (art. D441-5 Code de commerce).
+
+### 5.4 Clause de reserve de propriete
+Le Prestataire conserve la propriete des livrables jusqu'au paiement integral du prix.
+
+## ARTICLE 6 - OBLIGATIONS DU PRESTATAIRE
+
+Le Prestataire s'engage a :
+- Realiser la prestation conformement au Cahier des Charges valide
+- Respecter les delais convenus, sous reserve de la reactivite du Client
+- Informer le Client de l'avancement via des points reguliers (a minima hebdomadaires)
+- Livrer un produit fonctionnel et conforme aux specifications
+- Assurer une garantie de 3 mois apres la mise en production
+- Maintenir la confidentialite des informations communiquees par le Client
+- Mettre en oeuvre les meilleures pratiques en matiere de securite et de performance
+- Fournir la documentation technique et utilisateur
+
+Le Prestataire est tenu a une obligation de moyens.
+
+## ARTICLE 7 - OBLIGATIONS DU CLIENT
+
+Le Client s'engage a :
+- Fournir les elements necessaires dans les delais convenus (contenus, visuels, acces, identifiants)
+- Designer un interlocuteur unique habilite pour les validations
+- Valider les livrables dans un delai de 5 jours ouvres maximum
+- Regler les factures aux echeances prevues
+- Informer le Prestataire de tout changement impactant le projet
+- Ne pas modifier les livrables pendant la phase de garantie sans accord du Prestataire
+
+**Clause de retard client** : Tout retard de validation superieur a 5 jours ouvres entraine un decalage equivalent du planning et peut entrainer une revision du budget si le retard depasse 30 jours ouvres cumules.
+
+## ARTICLE 8 - PROCESSUS DE VALIDATION ET RECETTE
+
+### 8.1 Livraison
+Le Prestataire livre les developpements sur un environnement de recette accessible au Client.
+
+### 8.2 Recette
+Le Client dispose de 10 jours ouvres pour effectuer la recette et formuler ses reserves par ecrit.
+
+### 8.3 Recette tacite
+A defaut de reserves formulees dans le delai de 10 jours ouvres, la recette est reputee acquise tacitement.
+
+### 8.4 Iterations de corrections
+Le Client dispose de 2 iterations de corrections incluses dans le forfait. Au-dela, les corrections sont facturees au TJM contractuel de 650 euros HT/jour.
+
+### 8.5 Proces-verbal de recette
+Un PV de recette est signe par les deux Parties a l'issue de la recette. Ce PV declenche le paiement du jalon correspondant.
+
+## ARTICLE 9 - PROPRIETE INTELLECTUELLE
+
+### 9.1 Cession de droits
+A complet paiement du prix, le Prestataire cede au Client les droits patrimoniaux sur les developpements specifiques (art. L131-3 du Code de la propriete intellectuelle) :
+- Le code source developpe specifiquement pour le projet
+- Les elements graphiques crees sur-mesure
+- Les droits de reproduction, representation et adaptation pour tous supports, pour le monde entier, pour la duree legale des droits
+
+### 9.2 Exclusions
+Le Prestataire conserve la propriete de :
+- Ses outils, methodes et composants reutilisables preexistants
+- Les bibliotheques et frameworks open source utilises (soumis a leurs licences respectives)
+- Son savoir-faire et ses methodologies
+
+### 9.3 Portfolio
+Le Prestataire peut mentionner la realisation dans son portfolio et ses references commerciales, sauf opposition ecrite du Client dans les 30 jours suivant la mise en production.
+
+## ARTICLE 10 - DONNEES PERSONNELLES ET RGPD
+
+### 10.1 Qualite des parties
+Le Prestataire agit en tant que sous-traitant au sens de l'article 28 du RGPD.
+
+### 10.2 Engagements du Prestataire
+- Traiter les donnees uniquement selon les instructions documentees du Client
+- Garantir la confidentialite des donnees traitees
+- Mettre en oeuvre les mesures techniques et organisationnelles de securite appropriees
+- Notifier toute violation de donnees dans les 48 heures
+- Supprimer ou restituer les donnees en fin de contrat
+- Tenir un registre des traitements effectues pour le compte du Client
+
+### 10.3 Sous-traitance
+Le Prestataire ne fait pas appel a d'autres sous-traitants sans l'autorisation prealable ecrite du Client.
+
+## ARTICLE 11 - CONFIDENTIALITE
+
+### 11.1 Etendue
+Les Parties s'engagent a garder confidentielles toutes les informations de nature commerciale, technique, financiere ou strategique echangees dans le cadre du present contrat.
+
+### 11.2 Duree
+Cette obligation perdure pendant la duree du contrat et 3 ans apres son terme.
+
+### 11.3 Exceptions
+Ne sont pas couvertes : les informations deja publiques, connues prealablement, obtenues d'un tiers de bonne foi, ou devant etre divulguees par obligation legale.
+
+## ARTICLE 12 - GARANTIE
+
+### 12.1 Duree et perimetre
+Le Prestataire garantit le bon fonctionnement de la solution pendant 3 mois a compter de la mise en production.
+
+### 12.2 Couverture
+- Corrections des anomalies bloquantes : sous 48h ouvrees
+- Corrections des anomalies majeures : sous 5 jours ouvres
+- Corrections des anomalies mineures : sous 10 jours ouvres
+- Ajustements necessaires a la conformite au CDC
+
+### 12.3 Exclusions
+Sont exclus de la garantie :
+- Les evolutions fonctionnelles non prevues au CDC
+- Les anomalies dues a une mauvaise utilisation ou a des modifications non autorisees
+- Les problemes lies a l'environnement ou aux systemes du Client
+- Les contenus fournis par le Client
+
+## ARTICLE 13 - LIMITATION DE RESPONSABILITE
+
+### 13.1 Plafond
+La responsabilite du Prestataire est limitee au montant total du contrat HT.
+
+### 13.2 Exclusions
+Le Prestataire ne pourra etre tenu responsable des :
+- Dommages indirects (perte de chiffre d'affaires, perte de donnees, prejudice d'image, manque a gagner)
+- Retards causes par le Client
+- Problemes lies aux prestataires tiers (hebergeur, services externes)
+
+### 13.3 Exception
+Les limitations ci-dessus ne s'appliquent pas en cas de faute lourde ou dolosive du Prestataire.
+
+### 13.4 Assurance
+Le Prestataire declare etre titulaire d'une assurance Responsabilite Civile Professionnelle couvrant les consequences pecuniaires de sa responsabilite.
+
+## ARTICLE 14 - RESILIATION
+
+### 14.1 Resiliation pour manquement grave
+En cas de manquement grave par l'une des Parties a ses obligations contractuelles, l'autre Partie pourra resilier le contrat de plein droit par lettre recommandee avec accuse de reception, apres mise en demeure restee sans effet pendant 30 jours.
+
+### 14.2 Resiliation pour convenance du Client
+Le Client peut resilier le contrat a tout moment moyennant le paiement des travaux realises et une indemnite de 20% du solde restant du.
+
+### 14.3 Resiliation de plein droit
+Le contrat est resilie de plein droit en cas de liquidation judiciaire ou de cessation d'activite de l'une des Parties.
+
+### 14.4 Consequences
+En cas de resiliation :
+- Les prestations realisees restent acquises et facturees
+- Les elements produits sont remis au Client (sous reserve de paiement integral)
+- Les sommes versees ne sont pas remboursees (sauf faute du Prestataire)
+
+## ARTICLE 15 - FORCE MAJEURE
+
+Aucune Partie ne sera responsable d'un retard ou d'une defaillance resultant d'un cas de force majeure au sens de l'article 1218 du Code civil.
+
+En cas de force majeure :
+- Suspension des obligations pendant la duree de l'evenement
+- Notification ecrite sous 5 jours ouvres
+- Resiliation de plein droit si la duree excede 3 mois
+
+## ARTICLE 16 - NON-SOLLICITATION
+
+Les Parties s'interdisent de solliciter ou embaucher les collaborateurs de l'autre Partie pendant la duree du contrat et 12 mois apres son terme. Toute infraction donne lieu au paiement d'une indemnite forfaitaire egale a 6 mois de remuneration brute du collaborateur concerne.
+
+## ARTICLE 17 - MEDIATION ET LITIGES
+
+### 17.1 Resolution amiable
+En cas de litige, les Parties s'engagent a rechercher une solution amiable pendant 30 jours.
+
+### 17.2 Mediation
+A defaut, les Parties peuvent recourir a un mediateur agree.
+
+### 17.3 Juridiction competente
+A defaut d'accord, le litige sera soumis aux tribunaux competents de Paris.
+
+## ARTICLE 18 - DISPOSITIONS GENERALES
+
+- Le present contrat constitue l'integralite de l'accord entre les Parties et remplace tout accord anterieur
+- La nullite d'une clause n'affecte pas la validite des autres clauses
+- Toute tolerance d'une Partie ne constitue pas une renonciation a ses droits
+- Toute modification du contrat doit faire l'objet d'un avenant ecrit et signe
+- Le contrat est regi par le droit francais
+
+---
+
+## SIGNATURES
+
+Fait en deux exemplaires originaux.
+
+A _________________, le [Date]
+
+| | **Pour le Prestataire** | **Pour le Client** |
+|---|---|---|
+| Societe | IMOTION Creator Studio | [Entreprise client] |
+| Nom | _________________ | [Nom client] |
+| Qualite | Representant legal | [Fonction] |
+| Date | _________________ | _________________ |
+| Signature | | |
+| *(precede de la mention "Lu et approuve")* | | |
+
+---
+
+## ANNEXES
+
+- **Annexe 1** : Cahier des Charges (ref. [reference])
+- **Annexe 2** : Devis accepte (ref. [reference])
+- **Annexe 3** : Planning previsionnel detaille
+- **Annexe 4** : Conditions Generales de Vente
+
+---
+
+## ANNEXE - CONDITIONS GENERALES DE VENTE (Extrait)
+
+### Article CGV-1 - Champ d'application
+Les presentes CGV s'appliquent a toutes les prestations de services conclues par IMOTION Creator Studio.
+
+### Article CGV-2 - Prix et paiement
+Les prix sont indiques en euros HT. TVA applicable : 20%. Aucun escompte pour paiement anticipe.
+
+### Article CGV-3 - Delais
+Les delais indiques sont indicatifs et commencent a courir a reception de l'acompte et des elements necessaires.
+
+### Article CGV-4 - Propriete intellectuelle
+Le transfert de propriete est conditionne au paiement integral du prix. Le Prestataire peut mentionner la realisation dans son portfolio.
+
+### Article CGV-5 - Garantie et responsabilite
+Garantie de 3 mois post-livraison. Responsabilite limitee au montant du contrat.
+
+### Article CGV-6 - Confidentialite
+Les parties s'engagent a la confidentialite pendant 3 ans apres la fin du contrat.
+
+### Article CGV-7 - Force majeure
+Conforme a l'article 1218 du Code civil.
+
+### Article CGV-8 - Protection des donnees
+Conforme au RGPD. Contact DPO : contact@imotion-creator.studio
+
+### Article CGV-9 - Droit applicable
+Droit francais. Competence exclusive des tribunaux de Paris.
+
+*CGV en vigueur au 01/01/2026 - IMOTION Creator Studio*
+
+---
+
+*Contrat genere par IMOTION Creator Studio - www.clarivi.io*
+
+---
+
+INSTRUCTIONS JURIDIQUES :
+- Chaque clause DOIT etre conforme au droit francais en vigueur
+- Cite les articles de loi pertinents entre parentheses
+- Le contrat doit etre PROTECTEUR pour le prestataire (IMOTION Creator Studio) tout en etant EQUILIBRE
+- Les clauses abusives doivent etre evitees
+- Adapte le contenu aux specificites du projet (montants, delais, livrables)
+- NE JAMAIS utiliser d'emojis`;
+  }
+
+  return `Genere un document professionnel detaille en Markdown pour IMOTION Creator Studio :
 
 ${base}
 
 Structure obligatoire :
-1. Identification des parties
-2. Préambule et contexte
-3. Objet du contrat
-4. Description des livrables (détaillée)
-5. Calendrier d'exécution (jalons)
-6. Prix et modalités de paiement
+1. Identification des parties (IMOTION Creator Studio comme prestataire)
+2. Preambule et contexte
+3. Objet du document
+4. Description detaillee des livrables
+5. Calendrier d'execution (jalons)
+6. Prix et modalites de paiement
 7. Obligations du prestataire
 8. Obligations du client
-9. Propriété intellectuelle
-10. Confidentialité
+9. Propriete intellectuelle
+10. Confidentialite
 11. Garantie et maintenance
-12. Résiliation
+12. Resiliation
 13. Clause de force majeure
 14. Loi applicable et juridiction
-15. Signatures (espace réservé)`;
+15. Signatures (espace reserve)
+
+NE JAMAIS utiliser d'emojis.`;
 }
