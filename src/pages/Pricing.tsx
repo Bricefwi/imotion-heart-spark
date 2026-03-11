@@ -21,6 +21,11 @@ const faqSchema = {
 export default function Pricing() {
   return (
     <div className="overflow-hidden">
+      {/* JSON-LD FAQPage Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       <PricingSection />
       <PricingFAQ />
       <HowItWorksSection />
