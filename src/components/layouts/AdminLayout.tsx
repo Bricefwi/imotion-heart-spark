@@ -20,7 +20,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { LayoutDashboard, Users, Settings, Plug, ScrollText, LogOut, Shield, FileText, BookOpen, Radar, BarChart3, Globe, ExternalLink, ChevronRight, Home, Bell, Check, CheckCheck, Inbox } from "lucide-react";
+import { LayoutDashboard, Users, Settings, Plug, ScrollText, LogOut, Shield, FileText, BookOpen, Radar, BarChart3, Globe, ExternalLink, ChevronRight, Home, Bell, Check, CheckCheck, Inbox, Sun, Moon } from "lucide-react";
+import { useTheme } from "next-themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -390,6 +391,7 @@ function BreadcrumbNavigation() {
 export function AdminLayout() {
   const location = useLocation();
   const { data: unreadCount = 0 } = useUnreadNotifications();
+  const { theme, setTheme } = useTheme();
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
@@ -418,6 +420,16 @@ export function AdminLayout() {
             </div>
 
             <div className="ml-auto flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 rounded-lg text-muted-foreground hover:text-foreground"
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              >
+                <Sun className="h-4 w-4 rotate-0 scale-100 transition-transform dark:-rotate-90 dark:scale-0" />
+                <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-transform dark:rotate-0 dark:scale-100" />
+                <span className="sr-only">Basculer le theme</span>
+              </Button>
               <NotificationDropdown unreadCount={unreadCount} />
               <Button asChild variant="outline" size="sm" className="shrink-0 gap-2 rounded-lg border-primary/20 text-primary hover:bg-primary/10 hover:text-primary">
                 <Link to="/">
