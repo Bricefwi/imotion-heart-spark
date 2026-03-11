@@ -146,7 +146,7 @@ INSTRUCTIONS :
 
     // Common AI call setup
     const aiBody = {
-      model: "google/gemini-2.5-flash",
+      model: "openai/gpt-5",
       messages: [
         { role: "system", content: getSystemPrompt(docType) },
         { role: "user", content: prompt },
