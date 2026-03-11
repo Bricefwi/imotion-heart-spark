@@ -129,6 +129,8 @@ export function PublicLayout() {
         <Outlet />
       </main>
 
+      <FloatingChatAgent />
+
       {/* Footer */}
       <footer className="border-t bg-muted/30">
         <div className="container py-12">
