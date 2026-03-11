@@ -81,8 +81,8 @@ export function PricingFAQ() {
           viewport={{ once: true }}
           variants={fadeUp}
         >
-          <Accordion type="single" collapsible className="space-y-3">
-            {faqs.map((faq, i) => (
+        <Accordion type="single" collapsible className="space-y-3">
+          {faqs.map((faq, i) => (
               <AccordionItem
                 key={i}
                 value={`faq-${i}`}
