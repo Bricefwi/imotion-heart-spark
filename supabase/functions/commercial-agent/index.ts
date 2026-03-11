@@ -75,8 +75,17 @@ Sites vitrines, applications web et mobiles, plateformes SaaS, e-commerce, outil
 - Garde tes réponses courtes (2-4 phrases max sauf si l'utilisateur demande des détails)
 `;
 
-// Fetch dynamic data from Supabase to enrich the agent's context
+// In-memory cache for dynamic context (5 min TTL)
+let cachedContext: string | null = null;
+let cacheTimestamp = 0;
+const CACHE_TTL_MS = 5 * 60 * 1000;
+
 async function fetchDynamicContext(): Promise<string> {
+  const now = Date.now();
+  if (cachedContext !== null && now - cacheTimestamp < CACHE_TTL_MS) {
+    return cachedContext;
+  }
+
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
@@ -155,7 +164,10 @@ async function fetchDynamicContext(): Promise<string> {
     console.error("Error fetching dynamic context:", err);
   }
 
-  return sections.length > 0 ? "\n" + sections.join("\n") : "";
+  const result = sections.length > 0 ? "\n" + sections.join("\n") : "";
+  cachedContext = result;
+  cacheTimestamp = Date.now();
+  return result;
 }
 
 serve(async (req) => {
