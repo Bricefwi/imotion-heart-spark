@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -6,7 +7,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SITE_KNOWLEDGE = `
+const STATIC_KNOWLEDGE = `
 Tu es l'assistant commercial IA d'IMOTION Creator Studio, un SaaS B2B qui aide les entrepreneurs et PME à structurer leur projet digital.
 
 ## CE QUE TU SAIS
@@ -65,13 +66,97 @@ Sites vitrines, applications web et mobiles, plateformes SaaS, e-commerce, outil
 ## RÈGLES DE COMPORTEMENT
 - Sois chaleureux, professionnel et concis
 - Réponds en français
-- Ne fabrique JAMAIS de statistiques ou de chiffres non mentionnés ci-dessus
+- Ne fabrique JAMAIS de statistiques ou de chiffres non mentionnés dans tes connaissances
 - Si tu ne sais pas, dis-le honnêtement et oriente vers la page /contact
 - Propose des liens pertinents vers les pages du site quand c'est utile (format: [texte](/chemin))
+- Quand tu mentionnes un article de blog, utilise le lien /blog/{slug}
 - Encourage l'inscription gratuite quand c'est pertinent
 - Ne parle jamais de concurrents
 - Garde tes réponses courtes (2-4 phrases max sauf si l'utilisateur demande des détails)
 `;
+
+// Fetch dynamic data from Supabase to enrich the agent's context
+async function fetchDynamicContext(): Promise<string> {
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+
+  if (!supabaseUrl || !supabaseKey) {
+    console.warn("Missing Supabase credentials for dynamic context");
+    return "";
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseKey);
+  const sections: string[] = [];
+
+  try {
+    // Fetch published blog posts (title, excerpt, slug, category, tags)
+    const { data: posts } = await supabase
+      .from("blog_posts")
+      .select("title, excerpt, slug, category, tags, published_at")
+      .eq("is_published", true)
+      .order("published_at", { ascending: false })
+      .limit(20);
+
+    if (posts && posts.length > 0) {
+      sections.push("## ARTICLES DE BLOG PUBLIÉS (connaissances dynamiques)");
+      sections.push(`Tu as accès à ${posts.length} article(s) de blog. Voici les plus récents :`);
+      for (const p of posts) {
+        const tags = p.tags?.length ? ` | Tags: ${p.tags.join(", ")}` : "";
+        sections.push(`- **${p.title}** (${p.category}${tags})`);
+        sections.push(`  Résumé : ${p.excerpt}`);
+        sections.push(`  Lien : [Lire l'article](/blog/${p.slug})`);
+      }
+      sections.push("");
+    }
+
+    // Fetch platform stats (number of projects, users, etc.)
+    const { count: projectCount } = await supabase
+      .from("projects")
+      .select("id", { count: "exact", head: true });
+
+    const { count: profileCount } = await supabase
+      .from("profiles")
+      .select("id", { count: "exact", head: true });
+
+    const { count: publishedPostsCount } = await supabase
+      .from("blog_posts")
+      .select("id", { count: "exact", head: true })
+      .eq("is_published", true);
+
+    if (projectCount !== null || profileCount !== null) {
+      sections.push("## STATISTIQUES PLATEFORME (données en temps réel)");
+      if (profileCount !== null && profileCount > 0) {
+        sections.push(`- ${profileCount} utilisateur(s) inscrit(s) sur la plateforme`);
+      }
+      if (projectCount !== null && projectCount > 0) {
+        sections.push(`- ${projectCount} projet(s) créé(s) au total`);
+      }
+      if (publishedPostsCount !== null && publishedPostsCount > 0) {
+        sections.push(`- ${publishedPostsCount} article(s) de blog publié(s)`);
+      }
+      sections.push("Note : tu peux mentionner ces chiffres car ils sont factuels et issus de la base de données.");
+      sections.push("");
+    }
+
+    // Fetch any custom settings that might be relevant
+    const { data: settings } = await supabase
+      .from("settings")
+      .select("key, value, description")
+      .in("category", ["public", "branding", "general"]);
+
+    if (settings && settings.length > 0) {
+      sections.push("## PARAMÈTRES DU SITE");
+      for (const s of settings) {
+        sections.push(`- ${s.key}: ${JSON.stringify(s.value)}${s.description ? ` (${s.description})` : ""}`);
+      }
+      sections.push("");
+    }
+  } catch (err) {
+    console.error("Error fetching dynamic context:", err);
+  }
+
+  return sections.length > 0 ? "\n" + sections.join("\n") : "";
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -82,6 +167,10 @@ serve(async (req) => {
     const { messages } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+
+    // Fetch dynamic context from DB
+    const dynamicContext = await fetchDynamicContext();
+    const systemPrompt = STATIC_KNOWLEDGE + dynamicContext;
 
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
@@ -94,7 +183,7 @@ serve(async (req) => {
         body: JSON.stringify({
           model: "google/gemini-3-flash-preview",
           messages: [
-            { role: "system", content: SITE_KNOWLEDGE },
+            { role: "system", content: systemPrompt },
             ...messages,
           ],
           stream: true,
