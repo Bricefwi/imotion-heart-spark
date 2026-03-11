@@ -11,6 +11,7 @@ import { fr } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { motion, AnimatePresence, Reorder } from "framer-motion";
 
 interface KanbanProject {
   id: string;
@@ -54,6 +55,22 @@ interface KanbanBoardProps {
   onClientClick: (id: string) => void;
 }
 
+const cardVariants = {
+  initial: { opacity: 0, y: 20, scale: 0.95 },
+  animate: { opacity: 1, y: 0, scale: 1 },
+  exit: { opacity: 0, scale: 0.9, transition: { duration: 0.15 } },
+  dragging: { scale: 1.05, boxShadow: "0 20px 40px -10px rgba(0,0,0,0.15)", zIndex: 50 },
+};
+
+const columnVariants = {
+  initial: { opacity: 0, y: 10 },
+  animate: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.05, duration: 0.3, ease: "easeOut" as const },
+  }),
+};
+
 export function KanbanBoard({ projects, onClientClick }: KanbanBoardProps) {
   const queryClient = useQueryClient();
   const [draggedProjectId, setDraggedProjectId] = useState<string | null>(null);
@@ -74,19 +91,12 @@ export function KanbanBoard({ projects, onClientClick }: KanbanBoardProps) {
     setDraggedProjectId(projectId);
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setData("text/plain", projectId);
-    // Make the drag image slightly transparent
-    if (e.currentTarget instanceof HTMLElement) {
-      e.currentTarget.style.opacity = "0.5";
-    }
   };
 
-  const handleDragEnd = (e: React.DragEvent) => {
+  const handleDragEnd = () => {
     setDraggedProjectId(null);
     setDropTarget(null);
     dragCounterRef.current = {};
-    if (e.currentTarget instanceof HTMLElement) {
-      e.currentTarget.style.opacity = "1";
-    }
   };
 
   const handleDragEnter = (e: React.DragEvent, status: string) => {
@@ -119,14 +129,12 @@ export function KanbanBoard({ projects, onClientClick }: KanbanBoardProps) {
     const project = projects.find((p) => p.id === projectId);
     if (!project) return;
 
-    // Skip if same status
     const currentStatus = project.status === "discovery_active" ? "discovery" : project.status;
     if (currentStatus === newStatus) {
       setDraggedProjectId(null);
       return;
     }
 
-    // Optimistic update
     queryClient.setQueryData(["crm-projects"], (old: KanbanProject[] | undefined) =>
       old?.map((p) => (p.id === projectId ? { ...p, status: newStatus } : p))
     );
@@ -142,7 +150,6 @@ export function KanbanBoard({ projects, onClientClick }: KanbanBoardProps) {
       toast.success(`Projet déplacé vers "${KANBAN_COLUMNS.find((c) => c.status === newStatus)?.label}"`);
       queryClient.invalidateQueries({ queryKey: ["crm-projects"] });
     } catch (error: unknown) {
-      // Revert optimistic update
       queryClient.invalidateQueries({ queryKey: ["crm-projects"] });
       const msg = error instanceof Error ? error.message : "Erreur lors du déplacement";
       toast.error(msg);
@@ -154,24 +161,30 @@ export function KanbanBoard({ projects, onClientClick }: KanbanBoardProps) {
   return (
     <div className="overflow-x-auto pb-4 -mx-2">
       <div className="flex gap-3 min-w-max px-2">
-        {projectsByStatus.map((column) => (
-          <div
+        {projectsByStatus.map((column, colIndex) => (
+          <motion.div
             key={column.status}
+            custom={colIndex}
+            variants={columnVariants}
+            initial="initial"
+            animate="animate"
             className={cn(
-              "w-[280px] shrink-0 rounded-xl border bg-muted/30 transition-colors",
-              dropTarget === column.status && "border-primary/50 bg-primary/5"
+              "w-[280px] shrink-0 rounded-xl border bg-muted/30 transition-colors duration-200",
+              dropTarget === column.status && "border-primary/50 bg-primary/5 ring-2 ring-primary/10"
             )}
-            onDragEnter={(e) => handleDragEnter(e, column.status)}
-            onDragLeave={(e) => handleDragLeave(e, column.status)}
-            onDragOver={handleDragOver}
-            onDrop={(e) => handleDrop(e, column.status)}
+            onDragEnter={(e) => handleDragEnter(e as unknown as React.DragEvent, column.status)}
+            onDragLeave={(e) => handleDragLeave(e as unknown as React.DragEvent, column.status)}
+            onDragOver={(e) => handleDragOver(e as unknown as React.DragEvent)}
+            onDrop={(e) => handleDrop(e as unknown as React.DragEvent, column.status)}
           >
             {/* Column header */}
             <div className="p-3 border-b flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div
+                <motion.div
                   className="h-2.5 w-2.5 rounded-full"
                   style={{ backgroundColor: column.color }}
+                  animate={dropTarget === column.status ? { scale: [1, 1.4, 1] } : {}}
+                  transition={{ repeat: Infinity, duration: 1 }}
                 />
                 <span className="font-semibold text-xs">{column.label}</span>
               </div>
@@ -183,81 +196,107 @@ export function KanbanBoard({ projects, onClientClick }: KanbanBoardProps) {
             {/* Cards */}
             <div className="p-2 space-y-2 min-h-[120px]">
               {column.projects.length === 0 && (
-                <div className="text-[11px] text-muted-foreground text-center py-6 italic">
+                <motion.div
+                  className="text-[11px] text-muted-foreground text-center py-6 italic"
+                  animate={dropTarget === column.status ? { scale: 1.05, opacity: 1 } : { scale: 1, opacity: 0.6 }}
+                  transition={{ duration: 0.2 }}
+                >
                   Glissez un projet ici
-                </div>
+                </motion.div>
               )}
-              {column.projects.map((project) => {
-                const client = project.client as Record<string, string | null> | null;
-                return (
-                  <div
-                    key={project.id}
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, project.id)}
-                    onDragEnd={handleDragEnd}
-                    className={cn(
-                      "bg-card border rounded-lg p-3 cursor-grab active:cursor-grabbing shadow-sm hover:shadow-md transition-all group",
-                      draggedProjectId === project.id && "opacity-50 scale-95"
-                    )}
-                  >
-                    <div className="flex items-start justify-between gap-1">
-                      <div className="min-w-0 flex-1">
-                        <p className="font-medium text-xs truncate">{project.name}</p>
-                        <p className="text-[10px] text-muted-foreground mt-0.5">{project.code}</p>
-                      </div>
-                      <GripVertical className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-
-                    {client?.full_name && (
-                      <button
-                        className="flex items-center gap-1.5 mt-2 text-[11px] text-muted-foreground hover:text-primary transition-colors"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (client?.id) onClientClick(client.id);
-                        }}
-                      >
-                        <Avatar className="h-5 w-5">
-                          <AvatarFallback className="gradient-primary text-primary-foreground text-[8px]">
-                            {client.full_name?.charAt(0) || "?"}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="truncate">{client.full_name}</span>
-                      </button>
-                    )}
-
-                    <div className="flex items-center gap-3 mt-2 text-[10px] text-muted-foreground">
-                      <span className="flex items-center gap-0.5">
-                        <MessageSquare className="h-3 w-3" />
-                        {project.total_messages || 0}
-                      </span>
-                      {(project.proposal_amount || project.estimated_budget_max) ? (
-                        <span className="flex items-center gap-0.5 font-medium text-foreground">
-                          <Euro className="h-3 w-3" />
-                          {((project.proposal_amount || project.estimated_budget_max || 0) / 1000).toFixed(0)}k
-                        </span>
-                      ) : null}
-                      {project.last_activity_at && (
-                        <span className="flex items-center gap-0.5">
-                          <Clock className="h-3 w-3" />
-                          {formatDistanceToNow(new Date(project.last_activity_at), { locale: fr })}
-                        </span>
+              <AnimatePresence mode="popLayout">
+                {column.projects.map((project, cardIndex) => {
+                  const client = project.client as Record<string, string | null> | null;
+                  const isDragging = draggedProjectId === project.id;
+                  return (
+                    <motion.div
+                      key={project.id}
+                      layout
+                      layoutId={project.id}
+                      variants={cardVariants}
+                      initial="initial"
+                      animate={isDragging ? "dragging" : "animate"}
+                      exit="exit"
+                      transition={{
+                        layout: { type: "spring", stiffness: 300, damping: 30 },
+                        delay: cardIndex * 0.03,
+                        duration: 0.25,
+                      }}
+                      whileHover={{ y: -2, boxShadow: "0 8px 25px -8px rgba(0,0,0,0.1)" }}
+                      whileTap={{ scale: 0.98 }}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e as unknown as React.DragEvent, project.id)}
+                      onDragEnd={handleDragEnd}
+                      className={cn(
+                        "bg-card border rounded-lg p-3 cursor-grab active:cursor-grabbing shadow-sm group",
+                        isDragging && "opacity-50"
                       )}
-                    </div>
+                    >
+                      <div className="flex items-start justify-between gap-1">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-xs truncate">{project.name}</p>
+                          <p className="text-[10px] text-muted-foreground mt-0.5">{project.code}</p>
+                        </div>
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          whileHover={{ opacity: 1 }}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <GripVertical className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" />
+                        </motion.div>
+                      </div>
 
-                    <Progress value={project.overall_progress || 0} className="h-1 mt-2" />
+                      {client?.full_name && (
+                        <button
+                          className="flex items-center gap-1.5 mt-2 text-[11px] text-muted-foreground hover:text-primary transition-colors"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (client?.id) onClientClick(client.id);
+                          }}
+                        >
+                          <Avatar className="h-5 w-5">
+                            <AvatarFallback className="gradient-primary text-primary-foreground text-[8px]">
+                              {client.full_name?.charAt(0) || "?"}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="truncate">{client.full_name}</span>
+                        </button>
+                      )}
 
-                    <div className="mt-2 flex justify-end">
-                      <Button variant="ghost" size="sm" className="h-6 text-[10px] px-2" asChild>
-                        <Link to={`/consultant/projects/${project.id}`}>
-                          <Eye className="h-3 w-3 mr-1" /> Voir
-                        </Link>
-                      </Button>
-                    </div>
-                  </div>
-                );
-              })}
+                      <div className="flex items-center gap-3 mt-2 text-[10px] text-muted-foreground">
+                        <span className="flex items-center gap-0.5">
+                          <MessageSquare className="h-3 w-3" />
+                          {project.total_messages || 0}
+                        </span>
+                        {(project.proposal_amount || project.estimated_budget_max) ? (
+                          <span className="flex items-center gap-0.5 font-medium text-foreground">
+                            <Euro className="h-3 w-3" />
+                            {((project.proposal_amount || project.estimated_budget_max || 0) / 1000).toFixed(0)}k
+                          </span>
+                        ) : null}
+                        {project.last_activity_at && (
+                          <span className="flex items-center gap-0.5">
+                            <Clock className="h-3 w-3" />
+                            {formatDistanceToNow(new Date(project.last_activity_at), { locale: fr })}
+                          </span>
+                        )}
+                      </div>
+
+                      <Progress value={project.overall_progress || 0} className="h-1 mt-2" />
+
+                      <div className="mt-2 flex justify-end">
+                        <Button variant="ghost" size="sm" className="h-6 text-[10px] px-2" asChild>
+                          <Link to={`/consultant/projects/${project.id}`}>
+                            <Eye className="h-3 w-3 mr-1" /> Voir
+                          </Link>
+                        </Button>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
     </div>
