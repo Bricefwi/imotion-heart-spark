@@ -10,7 +10,7 @@ export default function About() {
     <div className="overflow-hidden">
       <SEOHead
         title="À propos — Notre mission et notre équipe"
-        description="IMOTION Creator Studio transforme vos idées en projets digitaux concrets grâce à l'IA et l'expertise humaine. +150 entreprises accompagnées."
+        description="IMOTION Creator Studio transforme vos idées en projets digitaux concrets grâce à l'IA et l'expertise humaine. Découvrez notre approche unique."
         canonical="/a-propos"
         jsonLd={[
           organizationSchema,
@@ -44,7 +44,7 @@ export default function About() {
               En 45 minutes de conversation guidée, notre système analyse vos besoins, identifie les enjeux et génère automatiquement un cahier des charges professionnel, prêt à être partagé avec vos équipes techniques.
             </p>
             <p className="text-muted-foreground text-lg leading-relaxed">
-              Plus de 150 entreprises nous font déjà confiance pour transformer leur vision en réalité digitale.
+              Chaque projet que nous accompagnons renforce notre conviction : quand la technologie est au service de la clarté, les résultats dépassent les attentes. Rejoignez les entreprises qui ont choisi une approche structurée pour concrétiser leurs ambitions digitales.
             </p>
           </div>
         </div>

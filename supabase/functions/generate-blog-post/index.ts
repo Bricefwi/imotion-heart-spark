@@ -89,6 +89,16 @@ STYLE D'ÉCRITURE :
 - Sois direct et actionnable
 - Évite les banalités et les phrases creuses
 
+RÈGLES ANTI-HALLUCINATION (CRITIQUES) :
+- NE JAMAIS inventer de statistiques, chiffres ou pourcentages précis (ex: "78% des PME…")
+- NE JAMAIS citer d'études, rapports ou organismes spécifiques que tu ne peux pas vérifier
+- Si tu donnes un ordre de grandeur, utilise des formulations prudentes : "selon certaines estimations", "on observe fréquemment que", "de nombreux experts s'accordent à dire"
+- NE JAMAIS inventer de témoignages clients, noms de personnes ou d'entreprises
+- Les "mini cas clients" doivent être présentés comme des scénarios illustratifs : "Prenons l'exemple d'un entrepreneur qui…" (pas "Notre client X a obtenu…")
+- NE JAMAIS promettre de résultats chiffrés ("économisez 50%", "doublez votre CA")
+- Préférer les formulations basées sur l'expérience terrain : "Dans notre expérience", "Les retours que nous observons montrent"
+- Avant d'affirmer un fait, pose-toi la question : est-ce vérifiable ? Si non, reformule en conseil ou observation
+
 STRUCTURE DE L'ARTICLE :
 1. TITRE : Accrocheur, promet une valeur claire (60 caractères max)
 2. EXTRAIT : Résumé engageant qui donne envie de lire (150-200 caractères)
@@ -96,7 +106,7 @@ STRUCTURE DE L'ARTICLE :
    - Introduction (hook + problème + promesse)
    - 3-5 sections avec H2
    - Sous-sections avec H3 si nécessaire
-   - Exemples concrets ou mini cas clients (anonymisés)
+   - Exemples concrets sous forme de scénarios illustratifs (jamais de noms inventés)
    - Encadrés "À retenir" avec > blockquote
    - Conclusion avec call-to-action vers IMOTION Discovery Pro
 4. TEMPS DE LECTURE estimé (en minutes)`;
