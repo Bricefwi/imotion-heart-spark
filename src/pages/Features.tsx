@@ -8,6 +8,7 @@ export default function Features() {
     <div className="overflow-hidden">
       <FeaturesSection />
       <HowItWorksSection />
+      <TestimonialsSection />
       <CTASection />
     </div>
   );
