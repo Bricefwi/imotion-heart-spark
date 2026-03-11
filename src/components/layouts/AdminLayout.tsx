@@ -198,6 +198,26 @@ function NotificationDropdown({ unreadCount }: { unreadCount: number }) {
   );
 }
 
+const adminNav = [
+  { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard },
+  { title: "Tower Control", url: "/admin/crm", icon: Radar },
+  { title: "Analytiques", url: "/admin/analytics", icon: BarChart3 },
+  { title: "Utilisateurs", url: "/admin/users", icon: Users },
+  { title: "Blog", url: "/admin/blog", icon: BookOpen },
+  { title: "Templates", url: "/admin/templates", icon: FileText },
+  { title: "Paramètres", url: "/admin/settings", icon: Settings },
+  { title: "Intégrations", url: "/admin/integrations", icon: Plug },
+  { title: "Logs", url: "/admin/logs", icon: ScrollText },
+];
+
+const adminQuickNav = [
+  { title: "Dashboard", url: "/admin/dashboard" },
+  { title: "CRM", url: "/admin/crm" },
+  { title: "Analytics", url: "/admin/analytics" },
+  { title: "Users", url: "/admin/users" },
+  { title: "Blog", url: "/admin/blog" },
+];
+
 function AdminSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
