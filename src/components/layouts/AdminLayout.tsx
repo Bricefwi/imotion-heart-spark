@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, Link } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/hooks/useAuth";
@@ -7,8 +7,8 @@ import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, useSidebar,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, Users, Settings, Plug, ScrollText, LogOut, Shield, FileText, BookOpen, Radar, BarChart3 } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { LayoutDashboard, Users, Settings, Plug, ScrollText, LogOut, Shield, FileText, BookOpen, Radar, BarChart3, Globe, ExternalLink } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const adminNav = [
   { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard },
@@ -56,11 +56,39 @@ function AdminSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Quick links */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-sidebar-foreground/40 uppercase text-[10px] tracking-wider">
+            {!collapsed && "Navigation"}
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/" className="flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
+                    <Globe className="h-5 w-5 shrink-0" />
+                    {!collapsed && <span>Voir le site</span>}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/client/dashboard" className="flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
+                    <ExternalLink className="h-5 w-5 shrink-0" />
+                    {!collapsed && <span>Espace client</span>}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
       <div className="mt-auto p-4 border-t border-sidebar-border">
         {!collapsed && (
           <div className="flex items-center gap-3 mb-3">
             <Avatar className="h-8 w-8">
+              <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.full_name || ""} />
               <AvatarFallback className="bg-primary text-primary-foreground text-xs">
                 {profile?.full_name?.charAt(0) || "A"}
               </AvatarFallback>
