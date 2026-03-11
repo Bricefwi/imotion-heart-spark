@@ -443,7 +443,7 @@ export function ProfessionalDocument({
         >
           <div className="flex items-center gap-2">
             <img src={logoImotion} alt="IMOTION" className="h-5 w-auto opacity-50" crossOrigin="anonymous" />
-            <span>IMOTION - Agence Digitale</span>
+            <span>IMOTION Creator Studio</span>
           </div>
           <div className="text-right">
             <p>Document confidentiel - {currentDate}</p>
