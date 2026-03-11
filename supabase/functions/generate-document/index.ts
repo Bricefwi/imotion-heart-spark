@@ -1128,7 +1128,7 @@ ${base}
 INSTRUCTIONS JURIDIQUES :
 - Chaque clause DOIT être conforme au droit français en vigueur
 - Cite les articles de loi pertinents entre parenthèses
-- Le contrat doit être PROTECTEUR pour le prestataire (IMOTION) tout en étant ÉQUILIBRÉ
+- Le contrat doit être PROTECTEUR pour le prestataire (IMOTION Creator Studio) tout en étant ÉQUILIBRÉ
 - Les clauses abusives au sens du Code de la consommation doivent être évitées
 - Adapte le contenu aux spécificités du projet (montants, délais, livrables)`;
   }
