@@ -374,6 +374,45 @@ export type Database = {
           },
         ]
       }
+      document_templates: {
+        Row: {
+          available_variables: Json | null
+          code: string
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          template_content: string
+          updated_at: string | null
+          version: number | null
+        }
+        Insert: {
+          available_variables?: Json | null
+          code: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          template_content: string
+          updated_at?: string | null
+          version?: number | null
+        }
+        Update: {
+          available_variables?: Json | null
+          code?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          template_content?: string
+          updated_at?: string | null
+          version?: number | null
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           created_at: string | null
@@ -521,6 +560,110 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      generated_documents: {
+        Row: {
+          content_html: string | null
+          content_markdown: string
+          created_at: string | null
+          document_number: string | null
+          document_type: string
+          estimate_id: string | null
+          generated_at: string | null
+          id: string
+          opened_at: string | null
+          pdf_storage_path: string | null
+          pdf_url: string | null
+          project_id: string
+          requires_signature: boolean | null
+          sent_at: string | null
+          sent_to: string[] | null
+          signature_ip: string | null
+          signed_at: string | null
+          signed_by: string | null
+          status: string | null
+          template_code: string | null
+          updated_at: string | null
+          variables_snapshot: Json | null
+        }
+        Insert: {
+          content_html?: string | null
+          content_markdown: string
+          created_at?: string | null
+          document_number?: string | null
+          document_type: string
+          estimate_id?: string | null
+          generated_at?: string | null
+          id?: string
+          opened_at?: string | null
+          pdf_storage_path?: string | null
+          pdf_url?: string | null
+          project_id: string
+          requires_signature?: boolean | null
+          sent_at?: string | null
+          sent_to?: string[] | null
+          signature_ip?: string | null
+          signed_at?: string | null
+          signed_by?: string | null
+          status?: string | null
+          template_code?: string | null
+          updated_at?: string | null
+          variables_snapshot?: Json | null
+        }
+        Update: {
+          content_html?: string | null
+          content_markdown?: string
+          created_at?: string | null
+          document_number?: string | null
+          document_type?: string
+          estimate_id?: string | null
+          generated_at?: string | null
+          id?: string
+          opened_at?: string | null
+          pdf_storage_path?: string | null
+          pdf_url?: string | null
+          project_id?: string
+          requires_signature?: boolean | null
+          sent_at?: string | null
+          sent_to?: string[] | null
+          signature_ip?: string | null
+          signed_at?: string | null
+          signed_by?: string | null
+          status?: string | null
+          template_code?: string | null
+          updated_at?: string | null
+          variables_snapshot?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generated_documents_estimate_id_fkey"
+            columns: ["estimate_id"]
+            isOneToOne: false
+            referencedRelation: "project_estimates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generated_documents_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generated_documents_signed_by_fkey"
+            columns: ["signed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generated_documents_template_code_fkey"
+            columns: ["template_code"]
+            isOneToOne: false
+            referencedRelation: "document_templates"
+            referencedColumns: ["code"]
           },
         ]
       }
@@ -698,6 +841,159 @@ export type Database = {
           },
         ]
       }
+      pricing_config: {
+        Row: {
+          base_price: number
+          code: string
+          created_at: string | null
+          default_features: Json | null
+          description: string | null
+          display_order: number | null
+          duration_weeks_max: number | null
+          duration_weeks_min: number
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          is_popular: boolean | null
+          name: string
+          price_range_max: number | null
+          price_range_min: number
+          updated_at: string | null
+        }
+        Insert: {
+          base_price: number
+          code: string
+          created_at?: string | null
+          default_features?: Json | null
+          description?: string | null
+          display_order?: number | null
+          duration_weeks_max?: number | null
+          duration_weeks_min: number
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_popular?: boolean | null
+          name: string
+          price_range_max?: number | null
+          price_range_min: number
+          updated_at?: string | null
+        }
+        Update: {
+          base_price?: number
+          code?: string
+          created_at?: string | null
+          default_features?: Json | null
+          description?: string | null
+          display_order?: number | null
+          duration_weeks_max?: number | null
+          duration_weeks_min?: number
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_popular?: boolean | null
+          name?: string
+          price_range_max?: number | null
+          price_range_min?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      pricing_maintenance: {
+        Row: {
+          code: string
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          evolution_hours_included: number | null
+          features: Json | null
+          id: string
+          is_active: boolean | null
+          is_highlighted: boolean | null
+          monthly_price: number
+          name: string
+          recommended_for: string[] | null
+          sla_percentage: number
+          support_response_hours: number | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          evolution_hours_included?: number | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          is_highlighted?: boolean | null
+          monthly_price: number
+          name: string
+          recommended_for?: string[] | null
+          sla_percentage: number
+          support_response_hours?: number | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          evolution_hours_included?: number | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          is_highlighted?: boolean | null
+          monthly_price?: number
+          name?: string
+          recommended_for?: string[] | null
+          sla_percentage?: number
+          support_response_hours?: number | null
+        }
+        Relationships: []
+      }
+      pricing_options: {
+        Row: {
+          applicable_to: string[] | null
+          category: string
+          code: string
+          created_at: string | null
+          description: string | null
+          duration_impact_days: number | null
+          id: string
+          is_active: boolean | null
+          name: string
+          price_amount: number
+          price_type: string
+          unit_label: string | null
+        }
+        Insert: {
+          applicable_to?: string[] | null
+          category: string
+          code: string
+          created_at?: string | null
+          description?: string | null
+          duration_impact_days?: number | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          price_amount: number
+          price_type: string
+          unit_label?: string | null
+        }
+        Update: {
+          applicable_to?: string[] | null
+          category?: string
+          code?: string
+          created_at?: string | null
+          description?: string | null
+          duration_impact_days?: number | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          price_amount?: number
+          price_type?: string
+          unit_label?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -766,6 +1062,112 @@ export type Database = {
           website?: string | null
         }
         Relationships: []
+      }
+      project_estimates: {
+        Row: {
+          base_price: number
+          calculation_inputs: Json | null
+          calculation_rules_version: string | null
+          complexity_factors: Json | null
+          complexity_score: number | null
+          created_at: string | null
+          discount_percentage: number | null
+          discount_reason: string | null
+          duration_weeks_max: number | null
+          duration_weeks_min: number | null
+          final_price: number
+          generated_at: string | null
+          id: string
+          is_current: boolean | null
+          options_total: number | null
+          project_id: string
+          project_type_code: string | null
+          recommended_maintenance_code: string | null
+          responded_at: string | null
+          selected_options: Json | null
+          sent_at: string | null
+          status: string | null
+          updated_at: string | null
+          valid_until: string | null
+          version: number | null
+        }
+        Insert: {
+          base_price: number
+          calculation_inputs?: Json | null
+          calculation_rules_version?: string | null
+          complexity_factors?: Json | null
+          complexity_score?: number | null
+          created_at?: string | null
+          discount_percentage?: number | null
+          discount_reason?: string | null
+          duration_weeks_max?: number | null
+          duration_weeks_min?: number | null
+          final_price: number
+          generated_at?: string | null
+          id?: string
+          is_current?: boolean | null
+          options_total?: number | null
+          project_id: string
+          project_type_code?: string | null
+          recommended_maintenance_code?: string | null
+          responded_at?: string | null
+          selected_options?: Json | null
+          sent_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+          valid_until?: string | null
+          version?: number | null
+        }
+        Update: {
+          base_price?: number
+          calculation_inputs?: Json | null
+          calculation_rules_version?: string | null
+          complexity_factors?: Json | null
+          complexity_score?: number | null
+          created_at?: string | null
+          discount_percentage?: number | null
+          discount_reason?: string | null
+          duration_weeks_max?: number | null
+          duration_weeks_min?: number | null
+          final_price?: number
+          generated_at?: string | null
+          id?: string
+          is_current?: boolean | null
+          options_total?: number | null
+          project_id?: string
+          project_type_code?: string | null
+          recommended_maintenance_code?: string | null
+          responded_at?: string | null
+          selected_options?: Json | null
+          sent_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+          valid_until?: string | null
+          version?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_estimates_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_estimates_project_type_code_fkey"
+            columns: ["project_type_code"]
+            isOneToOne: false
+            referencedRelation: "pricing_config"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "project_estimates_recommended_maintenance_code_fkey"
+            columns: ["recommended_maintenance_code"]
+            isOneToOne: false
+            referencedRelation: "pricing_maintenance"
+            referencedColumns: ["code"]
+          },
+        ]
       }
       projects: {
         Row: {
@@ -1001,6 +1403,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_project_estimate: {
+        Args: { p_project_id: string }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
