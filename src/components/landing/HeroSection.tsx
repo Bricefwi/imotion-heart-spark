@@ -111,6 +111,9 @@ export function HeroSection() {
               src={heroImg}
               alt="IMOTION Creator Studio — Dashboard de gestion de projets digitaux"
               className="w-full max-w-md lg:max-w-lg mx-auto drop-shadow-2xl rounded-2xl"
+              loading="eager"
+              width={512}
+              height={512}
             />
           </motion.div>
         </div>

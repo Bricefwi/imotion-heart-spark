@@ -2,11 +2,24 @@ import { Badge } from "@/components/ui/badge";
 import { StatsSection } from "@/components/landing/StatsSection";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { CTASection } from "@/components/landing/CTASection";
+import { SEOHead, organizationSchema, breadcrumbSchema } from "@/components/SEOHead";
 import teamImg from "@/assets/team-collaboration.jpg";
 
 export default function About() {
   return (
     <div className="overflow-hidden">
+      <SEOHead
+        title="À propos — Notre mission et notre équipe"
+        description="IMOTION Creator Studio transforme vos idées en projets digitaux concrets grâce à l'IA et l'expertise humaine. +150 entreprises accompagnées."
+        canonical="/a-propos"
+        jsonLd={[
+          organizationSchema,
+          breadcrumbSchema([
+            { name: "Accueil", url: "/" },
+            { name: "À propos", url: "/a-propos" },
+          ]),
+        ]}
+      />
       <section className="py-20 md:py-28">
         <div className="container max-w-4xl">
           <div className="text-center mb-16">
@@ -20,7 +33,7 @@ export default function About() {
           </div>
 
           <div className="rounded-2xl overflow-hidden mb-16">
-            <img src={teamImg} alt="L'équipe IMOTION" className="w-full h-64 md:h-80 object-cover" />
+            <img src={teamImg} alt="L'équipe IMOTION Creator Studio en réunion de travail" className="w-full h-64 md:h-80 object-cover" loading="lazy" />
           </div>
 
           <div className="prose prose-neutral dark:prose-invert max-w-none space-y-6">

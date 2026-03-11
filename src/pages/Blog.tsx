@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { SEOHead, breadcrumbSchema } from "@/components/SEOHead";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -88,6 +89,15 @@ export default function Blog() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <SEOHead
+        title="Blog — Conseils en stratégie digitale et expression du besoin"
+        description="Articles experts sur l'expression du besoin, la stratégie digitale, le cahier des charges et les bonnes pratiques pour réussir votre projet digital."
+        canonical="/blog"
+        jsonLd={breadcrumbSchema([
+          { name: "Accueil", url: "/" },
+          { name: "Blog", url: "/blog" },
+        ])}
+      />
       {/* Header */}
       <header className="sticky top-0 z-50 glass">
         <div className="container flex h-16 items-center justify-between">
