@@ -15,8 +15,11 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { LayoutDashboard, Users, Settings, Plug, ScrollText, LogOut, Shield, FileText, BookOpen, Radar, BarChart3, Globe, ExternalLink, ChevronRight, Home } from "lucide-react";
+import { LayoutDashboard, Users, Settings, Plug, ScrollText, LogOut, Shield, FileText, BookOpen, Radar, BarChart3, Globe, ExternalLink, ChevronRight, Home, Bell } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Badge } from "@/components/ui/badge";
 
 const adminNav = [
   { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard },
