@@ -67,6 +67,15 @@ export default function Contact() {
 
   return (
     <div className="overflow-hidden">
+      <SEOHead
+        title="Contact — Parlons de votre projet digital"
+        description="Contactez IMOTION Creator Studio pour discuter de votre projet digital. Réponse sous 24h. Devis gratuit et sans engagement."
+        canonical="/contact"
+        jsonLd={breadcrumbSchema([
+          { name: "Accueil", url: "/" },
+          { name: "Contact", url: "/contact" },
+        ])}
+      />
       {/* Hero */}
       <section className="py-16 md:py-24 relative">
         <div className="absolute inset-0 -z-10">
