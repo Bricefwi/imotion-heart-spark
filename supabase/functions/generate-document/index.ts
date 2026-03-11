@@ -537,134 +537,263 @@ ${conversationContext}
 `;
 
   if (type === "cdc") {
-    return `Génère un Cahier des Charges professionnel, exhaustif et immédiatement exploitable pour ce projet. Utilise TOUTES les informations issues des échanges client ci-dessous pour personnaliser chaque section au maximum. Le CDC doit refléter précisément le besoin profond du client et viser juste dès la première version.
+    return `Genere un Cahier des Charges professionnel, exhaustif et immediatement exploitable pour ce projet. Utilise TOUTES les informations issues des echanges client ci-dessous pour personnaliser chaque section au maximum. Le CDC doit refleter precisement le besoin profond du client et viser juste des la premiere version.
 
 ${base}
 
 ## STRUCTURE OBLIGATOIRE DU CAHIER DES CHARGES
 
-Génère le document avec EXACTEMENT ces sections, dans cet ordre :
+Genere le document avec EXACTEMENT ces sections, dans cet ordre :
 
 # 1. PAGE DE GARDE
-- Titre du projet, référence, client, date, version, mention confidentiel
-- Logo IMOTION (mentionner l'espace réservé)
+- Titre : CAHIER DES CHARGES - [Nom du projet]
+- Reference : [Code projet]
+- Date, Version 1.0
+- PRESTATAIRE : IMOTION Creator Studio, SAS au capital de 10 000 euros, 123 Avenue de l'Innovation, 75008 Paris, SIRET: XXX XXX XXX 000XX
+- CLIENT : [Entreprise], [Nom], [Email]
+- Mention "Document confidentiel"
 
-# 2. RÉSUMÉ EXÉCUTIF
-- Synthèse en 5-8 lignes du projet, objectifs clés et enjeux business
-- Ce résumé doit convaincre un décideur en 30 secondes
+# 2. RESUME EXECUTIF
+- Synthese en 8-12 lignes du projet, objectifs cles et enjeux business
+- Ce resume doit convaincre un decideur en 30 secondes
+- Mentionner le type de projet, le budget indicatif et le delai cible
 
-# 3. CONTEXTE & ENJEUX
-- Présentation de l'entreprise cliente et son marché
-- Problématiques actuelles identifiées lors des échanges
-- Enjeux business et opportunités à saisir
-- Pourquoi ce projet maintenant (urgence, concurrence, évolution du marché)
+# 3. TABLEAU DE BORD DU PROJET
+| Information | Detail |
+|---|---|
+| Nom du projet | ... |
+| Reference | ... |
+| Client | ... |
+| Secteur d'activite | ... |
+| Contact principal | ... |
+| Type de projet | ... |
+| Budget estimatif | ... |
+| Delai souhaite | ... |
+| Score de qualification | ... |
 
-# 4. ANALYSE DU BESOIN CLIENT
-- Objectifs stratégiques et opérationnels (utiliser les verbatim du client)
-- Cibles utilisateurs / Personas (créer 2-3 personas détaillés si données suffisantes)
-- Parcours utilisateurs principaux (user journeys)
-- Attentes fonctionnelles exprimées VS besoins latents identifiés
+# 4. CONTEXTE ET ENJEUX STRATEGIQUES
+## 4.1 Presentation de l'entreprise cliente
+- Activite, marche, positionnement, taille, historique
+## 4.2 Contexte du projet
+- Situation actuelle, facteurs declencheurs
+- Pourquoi ce projet maintenant (urgence, concurrence, evolution du marche)
+## 4.3 Problematiques identifiees
+- Liste des points de douleur (utiliser les verbatim du client)
+## 4.4 Impact business des problematiques
+- Chiffrer l'impact quand possible (temps perdu, CA manque, insatisfaction)
+## 4.5 Solutions deja tentees
+- Ce qui a ete fait avant, pourquoi ca n'a pas fonctionne
 
-# 5. BENCHMARK & POSITIONNEMENT
-- Analyse de 3-5 concurrents/références (si mentionnés dans les échanges)
-- Positionnement différenciant souhaité par le client
-- Best practices du secteur à intégrer
-- Opportunités de différenciation identifiées
+# 5. ANALYSE DETAILLEE DU BESOIN
+## 5.1 Objectifs strategiques
+- Objectifs business mesurables (SMART)
+## 5.2 Objectifs operationnels
+- Actions concretes attendues
+## 5.3 Cibles utilisateurs et Personas
+- Creer 2-4 personas detailles avec : nom fictif, age, role, objectifs, frustrations, niveau tech, parcours type
+## 5.4 Parcours utilisateurs (User Journeys)
+- Decrire 3-5 parcours utilisateurs principaux etape par etape
+## 5.5 Besoins exprimes VS besoins latents identifies
+- Tableau comparatif de ce que le client dit vs ce qu'il faut reellement
 
-# 6. IDENTITÉ & IMAGE DE MARQUE
-- Univers de marque souhaité (ton, valeurs, personnalité)
-- Références visuelles et inspirations citées par le client
-- Charte graphique existante / à créer
-- Ton éditorial et ligne directrice du contenu
-- Émotions et perceptions à véhiculer
+# 6. BENCHMARK ET POSITIONNEMENT
+## 6.1 Analyse concurrentielle
+| Concurrent | Forces | Faiblesses | Elements a reprendre |
+|---|---|---|---|
+- Analyser 3-5 concurrents ou references citees
+## 6.2 Positionnement differenciant
+- Ce qui distinguera le projet du marche
+## 6.3 Best practices du secteur
+- Tendances et standards a integrer
+## 6.4 Inspirations et references
+- Sites/apps cites par le client avec analyse
 
-# 7. ARBORESCENCE & ARCHITECTURE DE L'INFORMATION
-- Plan du site / Structure des écrans (sous forme d'arborescence Markdown)
-- Navigation principale et secondaire
-- Hiérarchie du contenu
-- Points d'entrée et parcours critiques
+# 7. IDENTITE ET IMAGE DE MARQUE
+## 7.1 Univers de marque
+- Valeurs, personnalite, ton
+## 7.2 Charte graphique
+- Couleurs, typographies, style visuel (existant ou a creer)
+## 7.3 References visuelles et inspirations
+- Moodboard textuel base sur les retours client
+## 7.4 Ton editorial
+- Style de communication, registre de langue
+## 7.5 Emotions et perceptions a vehiculer
+- Ce que l'utilisateur doit ressentir
 
-# 8. SPÉCIFICATIONS FONCTIONNELLES
-### 8.1 MVP (Version 1)
-- Tableau des fonctionnalités : | Fonctionnalité | Description | Priorité | Complexité |
-- User stories principales (format : En tant que... je veux... afin de...)
+# 8. ARBORESCENCE ET ARCHITECTURE DE L'INFORMATION
+## 8.1 Plan du site / Structure des ecrans
+- Arborescence detaillee sous forme hierarchique
+## 8.2 Navigation principale et secondaire
+- Menu principal, footer, navigation contextuelle
+## 8.3 Hierarchie du contenu
+- Priorite de l'information par page/ecran
+## 8.4 Points d'entree et parcours critiques
+- Entonnoirs de conversion, CTA principaux
 
-### 8.2 Version 2 (Évolutions)
-- Fonctionnalités différées avec justification
-- Roadmap d'évolution
+# 9. SPECIFICATIONS FONCTIONNELLES DETAILLEES
+## 9.1 MVP - Fonctionnalites essentielles (Must Have)
+| ID | Fonctionnalite | Description detaillee | User Story | Priorite | Complexite |
+|---|---|---|---|---|---|
+- Minimum 10-15 fonctionnalites detaillees
+## 9.2 Fonctionnalites souhaitees (Should Have)
+- Tableau similaire pour les nice-to-have
+## 9.3 Fonctionnalites differees (Could Have - V2)
+- Roadmap d'evolution post-lancement
+## 9.4 Hors perimetre (Won't Have)
+- Ce qui est explicitement exclu et pourquoi
+## 9.5 Back-office et administration
+- Fonctionnalites d'admin detaillees
+- Gestion de contenu, roles et droits d'acces
+## 9.6 Gestion des utilisateurs
+- Inscription, connexion, profils, roles
+## 9.7 Notifications et alertes
+- Types de notifications, canaux (email, push, in-app)
 
-### 8.3 Back-office / Administration
-- Fonctionnalités d'administration requises
-- Gestion de contenu et droits d'accès
+# 10. SPECIFICATIONS UX/UI
+## 10.1 Principes UX directeurs
+- 5-7 principes guides pour le design
+## 10.2 Responsive design
+- Breakpoints (mobile, tablette, desktop)
+- Approche mobile-first ou desktop-first
+## 10.3 Accessibilite
+- Niveau WCAG vise (AA minimum)
+- Mesures specifiques
+## 10.4 Interactions et animations
+- Micro-interactions, transitions, feedback visuel
+## 10.5 Wireframes textuels
+- Description detaillee de la structure de chaque page principale
+## 10.6 Formulaires et saisie
+- Detail des formulaires, validation, messages d'erreur
 
-# 9. SPÉCIFICATIONS UX/UI
-- Principes UX directeurs
-- Responsive design : breakpoints et priorités
-- Accessibilité (niveau WCAG visé)
-- Interactions et micro-animations clés
-- Wireframes textuels des pages principales (décrire la structure)
+# 11. ARCHITECTURE TECHNIQUE
+## 11.1 Stack technologique recommandee
+| Couche | Technologie | Justification |
+|---|---|---|
+## 11.2 Architecture applicative
+- Frontend, backend, base de donnees, APIs
+- Diagramme textuel de l'architecture
+## 11.3 Hebergement et infrastructure
+- Serveurs, CDN, DNS, SSL
+## 11.4 Performance
+- Objectifs : temps de chargement < 3s, Core Web Vitals
+- Strategies d'optimisation
+## 11.5 Securite
+- Authentification, autorisation, chiffrement
+- Conformite RGPD dans le code
+## 11.6 Scalabilite
+- Capacite d'evolution, montee en charge
 
-# 10. ARCHITECTURE TECHNIQUE
-- Stack technologique recommandée (avec justification)
-- Architecture applicative (front-end, back-end, BDD)
-- Hébergement et infrastructure
-- Performance : objectifs de temps de chargement
-- Sécurité : mesures et conformité RGPD
-- Scalabilité et évolutivité
+# 12. INTEGRATIONS ET APIs
+| Service | Type | Description | Priorite | Complexite |
+|---|---|---|---|---|
+- Lister TOUTES les integrations mentionnees
+## 12.1 Flux de donnees
+- Schemas d'echange entre systemes
+## 12.2 APIs tierces
+- Documentation des APIs a consommer
+## 12.3 Contraintes techniques d'integration
+- Limites, authentification, quotas
 
-# 11. INTÉGRATIONS & APIs
-- Tableau : | Service | Type d'intégration | Priorité | Complexité estimée |
-- Flux de données entre systèmes
-- Contraintes techniques identifiées
+# 13. CONTENU ET STRATEGIE EDITORIALE
+## 13.1 Types de contenus
+- Pages, articles, fiches produit, medias
+## 13.2 Volume de contenus
+- Estimation quantitative
+## 13.3 Responsabilites
+| Type de contenu | Responsable | Format | Delai |
+|---|---|---|---|
+## 13.4 SEO et referencement
+- Mots-cles cibles, meta-donnees, structure URL
+- Strategie de contenu SEO
 
-# 12. CONTENU & STRATÉGIE ÉDITORIALE
-- Types de contenus à produire
-- Volume de contenus (pages, articles, fiches produit...)
-- Responsabilités (qui fournit quoi)
-- SEO : mots-clés cibles et stratégie
+# 14. PLANNING PREVISIONNEL DETAILLE
+## 14.1 Phases du projet
+| Phase | Description | Duree | Debut | Fin | Livrables |
+|---|---|---|---|---|---|
+- Phase 1 : Cadrage et conception (2 semaines)
+- Phase 2 : Design UX/UI (2-3 semaines)
+- Phase 3 : Developpement (4-8 semaines)
+- Phase 4 : Tests et recette (2 semaines)
+- Phase 5 : Mise en production (1 semaine)
+- Phase 6 : Accompagnement post-lancement (2 semaines)
+## 14.2 Jalons et milestones
+- Points de validation obligatoires
+## 14.3 Dependances et chemin critique
+- Taches bloquantes identifiees
+## 14.4 Risques planning
+- Facteurs de retard potentiels et mitigations
 
-# 13. PLANNING PRÉVISIONNEL
-- Tableau des phases : | Phase | Durée | Livrables | Jalons |
-- Dates clés et milestones
-- Dépendances et chemins critiques
-- Date de livraison cible
+# 15. ESTIMATION BUDGETAIRE
+## 15.1 Detail par poste
+| Poste | Description | Montant HT |
+|---|---|---|
+- Conception, design, developpement, tests, mise en prod, gestion de projet
+## 15.2 Options et modules complementaires
+- Chaque option avec son cout unitaire
+## 15.3 Forfait maintenance recommande
+- Plans de maintenance avec comparatif
+## 15.4 Recapitulatif financier
+| | Montant |
+|---|---|
+| Total HT | ... |
+| TVA (20%) | ... |
+| Total TTC | ... |
+## 15.5 Conditions de paiement
+- Echelonnement propose : 30% acompte, 20% maquettes, 35% recette, 15% production
 
-# 14. BUDGET ESTIMATIF
-Présenter 3 options sous forme de tableau comparatif :
+# 16. CRITERES DE SUCCES ET KPIs
+| KPI | Objectif | Methode de mesure | Frequence |
+|---|---|---|---|
+- Minimum 8-10 KPIs mesurables
+## 16.1 Criteres d'acceptation du projet
+- Conditions pour la recette finale
+## 16.2 Indicateurs de performance
+- A 3 mois, 6 mois, 12 mois post-lancement
 
-| Poste | Essentiel | Recommandé | Premium |
-|-------|-----------|------------|---------|
-| ... | ... | ... | ... |
+# 17. METHODOLOGIE ET GOUVERNANCE
+## 17.1 Methodologie de projet
+- Approche Agile/Scrum adaptee
+- Duree des sprints, ceremonies
+## 17.2 Instances de pilotage
+| Instance | Frequence | Participants | Objectif |
+|---|---|---|---|
+## 17.3 Outils de collaboration
+- Plateforme IMOTION Creator Studio, outils de suivi
+## 17.4 Process de validation
+- Circuit de validation, delais, escalade
 
-- Détail par poste (conception, design, développement, contenu, recette)
-- Conditions de paiement proposées (30/40/30 par exemple)
-- Ce qui est inclus / exclu dans chaque option
+# 18. GESTION DES RISQUES
+| Risque | Probabilite | Impact | Mitigation |
+|---|---|---|---|
+- Minimum 5-8 risques identifies avec plans de mitigation
 
-# 15. CRITÈRES DE SUCCÈS & KPIs
-- Tableau : | KPI | Objectif | Méthode de mesure | Fréquence |
-- Critères d'acceptation du projet
-- Indicateurs de performance à 3, 6, 12 mois
+# 19. CONDITIONS ET PROCHAINES ETAPES
+## 19.1 Validite du document
+- 30 jours a compter de la date d'emission
+## 19.2 Conditions de modification du perimetre
+- Processus d'avenant, impact budget/delai
+## 19.3 Prochaines etapes
+1. Validation du present Cahier des Charges
+2. Presentation du devis detaille
+3. Reunion de cadrage (kick-off)
+4. Signature du contrat
+5. Versement de l'acompte
+6. Lancement du projet
 
-# 16. MÉTHODOLOGIE & GOUVERNANCE
-- Méthodologie de projet (Agile/Scrum adaptée)
-- Instances de pilotage (comités, fréquence)
-- Outils de collaboration
-- Process de validation et de recette
+---
 
-# 17. CONDITIONS & PROCHAINES ÉTAPES
-- Validité de la proposition
-- Conditions de modification du périmètre
-- Processus de validation du CDC
-- Prochaines étapes immédiates après signature
+*Document genere par IMOTION Creator Studio - www.clarivi.io*
+*Ce document est confidentiel et destine uniquement au client mentionne.*
 
 ---
 
 INSTRUCTIONS FINALES :
-- Utilise les VRAIS mots du client tirés des échanges, pas du générique
-- Si une information manque, propose une hypothèse raisonnable clairement identifiée avec [À CONFIRMER]
-- Sois précis sur les chiffres : délais en jours ouvrés, budgets en €, performances en ms
-- Le document doit faire entre 15 et 30 pages imprimées
-- Chaque section doit apporter de la valeur et ne pas être du remplissage`;
+- Utilise les VRAIS mots du client tires des echanges, pas du generique
+- Si une information manque, propose une hypothese raisonnable identifiee avec [A CONFIRMER]
+- Sois precis sur les chiffres : delais en jours ouvres, budgets en euros, performances en ms
+- Le document doit faire entre 20 et 40 pages imprimees
+- Chaque section doit apporter de la valeur et ne pas etre du remplissage
+- NE JAMAIS utiliser d'emojis`;
   }
 
   if (type === "proposal") {
