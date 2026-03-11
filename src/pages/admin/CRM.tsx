@@ -10,28 +10,30 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { StatsCard } from "@/components/StatsCard";
+import { ClientDetailDrawer } from "@/components/admin/ClientDetailDrawer";
+import { AutomationRulesTab } from "@/components/admin/AutomationRulesTab";
+import { CampaignsTab } from "@/components/admin/CampaignsTab";
 import { Link } from "react-router-dom";
 import { formatDistanceToNow, format } from "date-fns";
 import { fr } from "date-fns/locale";
 import {
-  Users, FolderKanban, Euro, TrendingUp, Search, Filter, Eye,
-  MessageSquare, FileText, Clock, CheckCircle2, AlertTriangle,
-  ArrowRight, Mail, Phone, Building2, Globe, Calendar, Activity,
-  BarChart3, Target, Zap,
+  Users, FolderKanban, Euro, TrendingUp, Search, Eye,
+  MessageSquare, FileText, Clock, Mail, Phone, Building2, Globe,
+  Activity, BarChart3, Target, Zap, Star, Megaphone,
 } from "lucide-react";
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bgClass: string }> = {
   draft: { label: "Brouillon", color: "hsl(220,10%,60%)", bgClass: "bg-muted text-muted-foreground" },
   discovery_active: { label: "Découverte", color: "hsl(30,100%,49%)", bgClass: "bg-secondary/10 text-secondary" },
   discovery: { label: "Découverte", color: "hsl(30,100%,49%)", bgClass: "bg-secondary/10 text-secondary" },
-  review_pending: { label: "En revue", color: "hsl(45,100%,50%)", bgClass: "bg-yellow-100 text-yellow-800" },
-  cdc_ready: { label: "CDC prêt", color: "hsl(200,80%,50%)", bgClass: "bg-blue-100 text-blue-800" },
-  proposal: { label: "Proposition", color: "hsl(200,80%,50%)", bgClass: "bg-blue-100 text-blue-800" },
-  negotiation: { label: "Négociation", color: "hsl(280,60%,55%)", bgClass: "bg-purple-100 text-purple-800" },
-  signed: { label: "Signé", color: "hsl(145,63%,42%)", bgClass: "bg-green-100 text-green-800" },
-  in_progress: { label: "En cours", color: "hsl(200,80%,50%)", bgClass: "bg-blue-100 text-blue-800" },
-  delivered: { label: "Livré", color: "hsl(145,63%,42%)", bgClass: "bg-green-100 text-green-800" },
-  completed: { label: "Terminé", color: "hsl(145,63%,42%)", bgClass: "bg-green-100 text-green-800" },
+  review_pending: { label: "En revue", color: "hsl(45,100%,50%)", bgClass: "bg-accent/50 text-accent-foreground" },
+  cdc_ready: { label: "CDC prêt", color: "hsl(200,80%,50%)", bgClass: "bg-primary/10 text-primary" },
+  proposal: { label: "Proposition", color: "hsl(200,80%,50%)", bgClass: "bg-primary/10 text-primary" },
+  negotiation: { label: "Négociation", color: "hsl(280,60%,55%)", bgClass: "bg-accent text-accent-foreground" },
+  signed: { label: "Signé", color: "hsl(145,63%,42%)", bgClass: "bg-primary/10 text-primary" },
+  in_progress: { label: "En cours", color: "hsl(200,80%,50%)", bgClass: "bg-primary/10 text-primary" },
+  delivered: { label: "Livré", color: "hsl(145,63%,42%)", bgClass: "bg-primary/10 text-primary" },
+  completed: { label: "Terminé", color: "hsl(145,63%,42%)", bgClass: "bg-primary/10 text-primary" },
   cancelled: { label: "Annulé", color: "hsl(0,0%,70%)", bgClass: "bg-muted text-muted-foreground" },
   lost: { label: "Perdu", color: "hsl(0,68%,51%)", bgClass: "bg-destructive/10 text-destructive" },
   archived: { label: "Archivé", color: "hsl(0,0%,70%)", bgClass: "bg-muted text-muted-foreground" },
@@ -40,23 +42,36 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bgClass: str
 const PRIORITY_COLORS: Record<string, string> = {
   urgent: "bg-destructive/10 text-destructive border-destructive/20",
   high: "bg-secondary/10 text-secondary border-secondary/20",
-  medium: "bg-blue-50 text-blue-700 border-blue-200",
+  medium: "bg-primary/10 text-primary border-primary/20",
   low: "bg-muted text-muted-foreground border-border",
 };
+
+function computeClientScore(profile: any, clientProjects: any[]): number {
+  let score = 0;
+  if (profile?.company_name) score += 10;
+  if (profile?.phone) score += 5;
+  if (profile?.website) score += 5;
+  if (profile?.industry) score += 5;
+  if (profile?.onboarding_completed) score += 15;
+  score += Math.min(clientProjects.length * 10, 30);
+  const signed = clientProjects.filter((p: any) => ["signed", "completed", "delivered"].includes(p.status));
+  score += signed.length * 10;
+  const totalMsgs = clientProjects.reduce((s: number, p: any) => s + (p.total_messages || 0), 0);
+  score += Math.min(totalMsgs, 20);
+  return Math.min(score, 100);
+}
 
 export default function AdminCRM() {
   const { user } = useAuth();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
-  // ── Queries ──
   const { data: profiles = [] } = useQuery({
     queryKey: ["crm-profiles"],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const { data } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
       return data || [];
     },
     enabled: !!user,
@@ -99,7 +114,7 @@ export default function AdminCRM() {
     enabled: !!user,
   });
 
-  // ── Computed ──
+  // Computed
   const activeProjects = projects.filter((p) => !["archived", "lost", "cancelled"].includes(p.status));
   const signedProjects = projects.filter((p) => ["signed", "completed", "delivered"].includes(p.status));
   const pipelineValue = projects.reduce((s, p) => s + (p.proposal_amount || p.estimated_budget_max || 0), 0);
@@ -117,9 +132,7 @@ export default function AdminCRM() {
     return matchSearch && matchStatus;
   });
 
-  // Pipeline stages for Kanban-style view
-  const pipelineStages = ["draft", "discovery_active", "discovery", "review_pending", "cdc_ready", "proposal", "negotiation", "signed", "in_progress", "delivered", "completed"];
-  const stageGroups = pipelineStages
+  const stageGroups = ["draft", "discovery_active", "discovery", "review_pending", "cdc_ready", "proposal", "negotiation", "signed", "in_progress", "delivered", "completed"]
     .map((stage) => ({
       stage,
       config: STATUS_CONFIG[stage] || { label: stage, bgClass: "bg-muted", color: "" },
@@ -135,31 +148,32 @@ export default function AdminCRM() {
     other: documents.filter((d) => !["cahier_des_charges", "cdc", "proposal", "proposition", "devis", "quote", "facture", "invoice"].includes(d.type)),
   };
 
+  function openClientDetail(id: string) {
+    setSelectedClientId(id);
+    setDrawerOpen(true);
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl gradient-primary flex items-center justify-center">
-              <Zap className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <div>
-              <h1 className="font-display text-2xl md:text-3xl font-bold">Tower Control</h1>
-              <p className="text-muted-foreground text-sm">CRM & Gestion centralisée</p>
-            </div>
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl gradient-primary flex items-center justify-center">
+            <Zap className="h-5 w-5 text-primary-foreground" />
+          </div>
+          <div>
+            <h1 className="font-display text-2xl md:text-3xl font-bold">CRM 360</h1>
+            <p className="text-muted-foreground text-sm">Vision complète clients, pipeline & automatisations</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Rechercher client, projet…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 w-64"
-            />
-          </div>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Rechercher client, projet…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9 w-64"
+          />
         </div>
       </div>
 
@@ -177,14 +191,24 @@ export default function AdminCRM() {
       <Tabs defaultValue="pipeline" className="space-y-4">
         <TabsList className="bg-muted/50">
           <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
-          <TabsTrigger value="clients">Clients</TabsTrigger>
+          <TabsTrigger value="clients">
+            <Users className="h-3.5 w-3.5 mr-1.5" />
+            CRM 360
+          </TabsTrigger>
+          <TabsTrigger value="automations">
+            <Zap className="h-3.5 w-3.5 mr-1.5" />
+            Automatisations
+          </TabsTrigger>
+          <TabsTrigger value="campaigns">
+            <Megaphone className="h-3.5 w-3.5 mr-1.5" />
+            Campagnes
+          </TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
           <TabsTrigger value="activity">Activité</TabsTrigger>
         </TabsList>
 
         {/* ── PIPELINE ── */}
         <TabsContent value="pipeline" className="space-y-4">
-          {/* Status filter */}
           <div className="flex flex-wrap gap-2">
             <Button
               variant={statusFilter === "all" ? "default" : "outline"}
@@ -206,13 +230,10 @@ export default function AdminCRM() {
             ))}
           </div>
 
-          {/* Projects list */}
           <div className="space-y-3">
             {filteredProjects.length === 0 ? (
               <Card className="border-0 shadow-sm">
-                <CardContent className="p-8 text-center text-muted-foreground">
-                  Aucun projet trouvé.
-                </CardContent>
+                <CardContent className="p-8 text-center text-muted-foreground">Aucun projet trouvé.</CardContent>
               </Card>
             ) : (
               filteredProjects.map((project) => {
@@ -222,9 +243,11 @@ export default function AdminCRM() {
                   <Card key={project.id} className="border-0 shadow-sm hover:shadow-md transition-shadow">
                     <CardContent className="p-4">
                       <div className="flex flex-col md:flex-row md:items-center gap-4">
-                        {/* Client avatar + info */}
                         <div className="flex items-center gap-3 min-w-0 flex-1">
-                          <Avatar className="h-10 w-10 shrink-0">
+                          <Avatar
+                            className="h-10 w-10 shrink-0 cursor-pointer"
+                            onClick={() => client?.id && openClientDetail(client.id)}
+                          >
                             <AvatarFallback className="gradient-primary text-primary-foreground text-xs">
                               {client?.full_name?.charAt(0) || "?"}
                             </AvatarFallback>
@@ -241,13 +264,19 @@ export default function AdminCRM() {
                             </div>
                             <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
                               <span>{project.code}</span>
-                              {client?.full_name && <span>• {client.full_name}</span>}
+                              {client?.full_name && (
+                                <button
+                                  className="hover:text-primary transition-colors cursor-pointer"
+                                  onClick={() => client?.id && openClientDetail(client.id)}
+                                >
+                                  • {client.full_name}
+                                </button>
+                              )}
                               {client?.company_name && <span>• {client.company_name}</span>}
                             </div>
                           </div>
                         </div>
 
-                        {/* Metrics */}
                         <div className="flex items-center gap-4 text-xs text-muted-foreground shrink-0">
                           <div className="flex items-center gap-1" title="Phase">
                             <BarChart3 className="h-3.5 w-3.5" />
@@ -273,15 +302,12 @@ export default function AdminCRM() {
                           </div>
                         </div>
 
-                        {/* Actions */}
                         <Button variant="ghost" size="sm" asChild className="shrink-0">
                           <Link to={`/consultant/projects/${project.id}`}>
                             <Eye className="h-4 w-4 mr-1" /> Voir
                           </Link>
                         </Button>
                       </div>
-
-                      {/* Progress bar */}
                       <div className="mt-3">
                         <Progress value={project.overall_progress || 0} className="h-1.5" />
                       </div>
@@ -293,7 +319,7 @@ export default function AdminCRM() {
           </div>
         </TabsContent>
 
-        {/* ── CLIENTS ── */}
+        {/* ── CRM 360 / CLIENTS ── */}
         <TabsContent value="clients" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {profiles
@@ -307,8 +333,16 @@ export default function AdminCRM() {
               .map((profile) => {
                 const clientProjects = projects.filter((pr) => pr.client_id === profile.id);
                 const activeCount = clientProjects.filter((p) => !["archived", "lost", "cancelled"].includes(p.status)).length;
+                const score = computeClientScore(profile, clientProjects);
+                const daysSinceLastSeen = profile.last_seen_at
+                  ? Math.floor((Date.now() - new Date(profile.last_seen_at).getTime()) / 86400000)
+                  : null;
                 return (
-                  <Card key={profile.id} className="border-0 shadow-sm hover:shadow-md transition-shadow">
+                  <Card
+                    key={profile.id}
+                    className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                    onClick={() => openClientDetail(profile.id)}
+                  >
                     <CardContent className="p-5">
                       <div className="flex items-start gap-3">
                         <Avatar className="h-12 w-12">
@@ -324,12 +358,20 @@ export default function AdminCRM() {
                             </p>
                           )}
                         </div>
-                        {activeCount > 0 && (
-                          <Badge className="gradient-primary border-0 text-[10px]">{activeCount} actif{activeCount > 1 ? "s" : ""}</Badge>
-                        )}
+                        <div className="flex flex-col items-end gap-1">
+                          <Badge
+                            variant={score >= 70 ? "default" : score >= 40 ? "secondary" : "outline"}
+                            className={`text-[10px] ${score >= 70 ? "gradient-primary border-0" : ""}`}
+                          >
+                            <Star className="h-2.5 w-2.5 mr-0.5" /> {score}
+                          </Badge>
+                          {daysSinceLastSeen !== null && daysSinceLastSeen > 14 && (
+                            <Badge variant="destructive" className="text-[9px]">Inactif {daysSinceLastSeen}j</Badge>
+                          )}
+                        </div>
                       </div>
 
-                      <div className="mt-4 space-y-2 text-xs text-muted-foreground">
+                      <div className="mt-3 space-y-1.5 text-xs text-muted-foreground">
                         <div className="flex items-center gap-2">
                           <Mail className="h-3.5 w-3.5 shrink-0" />
                           <span className="truncate">{profile.email}</span>
@@ -340,14 +382,6 @@ export default function AdminCRM() {
                             <span>{profile.phone}</span>
                           </div>
                         )}
-                        {profile.website && (
-                          <div className="flex items-center gap-2">
-                            <Globe className="h-3.5 w-3.5 shrink-0" />
-                            <a href={profile.website} target="_blank" rel="noopener noreferrer" className="truncate hover:text-primary">
-                              {profile.website.replace(/^https?:\/\//, "")}
-                            </a>
-                          </div>
-                        )}
                         {profile.industry && (
                           <div className="flex items-center gap-2">
                             <Target className="h-3.5 w-3.5 shrink-0" />
@@ -356,12 +390,15 @@ export default function AdminCRM() {
                         )}
                       </div>
 
-                      <div className="mt-4 pt-3 border-t flex items-center justify-between text-xs">
+                      <div className="mt-3 pt-3 border-t flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-3">
+                          <span>{clientProjects.length} projet{clientProjects.length !== 1 ? "s" : ""}</span>
+                          {activeCount > 0 && (
+                            <Badge className="gradient-primary border-0 text-[10px]">{activeCount} actif{activeCount > 1 ? "s" : ""}</Badge>
+                          )}
+                        </div>
                         <span className="text-muted-foreground">
-                          {clientProjects.length} projet{clientProjects.length !== 1 ? "s" : ""}
-                        </span>
-                        <span className="text-muted-foreground">
-                          Inscrit {profile.created_at ? formatDistanceToNow(new Date(profile.created_at), { addSuffix: true, locale: fr }) : "—"}
+                          {profile.created_at ? formatDistanceToNow(new Date(profile.created_at), { addSuffix: true, locale: fr }) : "—"}
                         </span>
                       </div>
                     </CardContent>
@@ -371,43 +408,35 @@ export default function AdminCRM() {
           </div>
         </TabsContent>
 
+        {/* ── AUTOMATIONS ── */}
+        <TabsContent value="automations">
+          <AutomationRulesTab />
+        </TabsContent>
+
+        {/* ── CAMPAIGNS ── */}
+        <TabsContent value="campaigns">
+          <CampaignsTab />
+        </TabsContent>
+
         {/* ── DOCUMENTS ── */}
         <TabsContent value="documents" className="space-y-4">
-          {/* Document stats */}
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            <Card className="border-0 shadow-sm">
-              <CardContent className="p-4 text-center">
-                <p className="text-2xl font-bold">{docsByType.cdc.length}</p>
-                <p className="text-xs text-muted-foreground mt-1">Cahiers des charges</p>
-              </CardContent>
-            </Card>
-            <Card className="border-0 shadow-sm">
-              <CardContent className="p-4 text-center">
-                <p className="text-2xl font-bold">{docsByType.proposal.length}</p>
-                <p className="text-xs text-muted-foreground mt-1">Propositions</p>
-              </CardContent>
-            </Card>
-            <Card className="border-0 shadow-sm">
-              <CardContent className="p-4 text-center">
-                <p className="text-2xl font-bold">{docsByType.quote.length}</p>
-                <p className="text-xs text-muted-foreground mt-1">Devis</p>
-              </CardContent>
-            </Card>
-            <Card className="border-0 shadow-sm">
-              <CardContent className="p-4 text-center">
-                <p className="text-2xl font-bold">{docsByType.invoice.length}</p>
-                <p className="text-xs text-muted-foreground mt-1">Factures</p>
-              </CardContent>
-            </Card>
-            <Card className="border-0 shadow-sm">
-              <CardContent className="p-4 text-center">
-                <p className="text-2xl font-bold">{docsByType.other.length}</p>
-                <p className="text-xs text-muted-foreground mt-1">Autres</p>
-              </CardContent>
-            </Card>
+            {[
+              { label: "Cahiers des charges", count: docsByType.cdc.length },
+              { label: "Propositions", count: docsByType.proposal.length },
+              { label: "Devis", count: docsByType.quote.length },
+              { label: "Factures", count: docsByType.invoice.length },
+              { label: "Autres", count: docsByType.other.length },
+            ].map((d) => (
+              <Card key={d.label} className="border-0 shadow-sm">
+                <CardContent className="p-4 text-center">
+                  <p className="text-2xl font-bold">{d.count}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{d.label}</p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
 
-          {/* Documents list */}
           <Card className="border-0 shadow-sm">
             <CardContent className="p-0">
               <div className="overflow-x-auto">
@@ -430,14 +459,12 @@ export default function AdminCRM() {
                             <span className="font-medium truncate max-w-[200px]">{doc.name}</span>
                           </div>
                         </td>
-                        <td className="p-3">
-                          <Badge variant="outline" className="text-[10px]">{doc.type}</Badge>
-                        </td>
+                        <td className="p-3"><Badge variant="outline" className="text-[10px]">{doc.type}</Badge></td>
                         <td className="p-3 text-muted-foreground text-xs">
                           {(doc.project as any)?.name || "—"} <span className="opacity-50">{(doc.project as any)?.code}</span>
                         </td>
                         <td className="p-3">
-                          <Badge variant="outline" className={`text-[10px] ${doc.status === "final" || doc.status === "signed" ? "bg-green-100 text-green-800" : ""}`}>
+                          <Badge variant="outline" className={`text-[10px] ${doc.status === "final" || doc.status === "signed" ? "bg-primary/10 text-primary" : ""}`}>
                             {doc.status || "brouillon"}
                           </Badge>
                         </td>
@@ -447,11 +474,7 @@ export default function AdminCRM() {
                       </tr>
                     ))}
                     {documents.length === 0 && (
-                      <tr>
-                        <td colSpan={5} className="p-8 text-center text-muted-foreground">
-                          Aucun document.
-                        </td>
-                      </tr>
+                      <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">Aucun document.</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -485,31 +508,19 @@ export default function AdminCRM() {
                             ? "bg-primary/10 text-primary"
                             : "bg-muted text-muted-foreground"
                         }`}>
-                          {act.action === "message" ? (
-                            <MessageSquare className="h-3.5 w-3.5" />
-                          ) : act.action === "document" ? (
-                            <FileText className="h-3.5 w-3.5" />
-                          ) : act.action === "project" ? (
-                            <FolderKanban className="h-3.5 w-3.5" />
-                          ) : (
-                            <Activity className="h-3.5 w-3.5" />
-                          )}
+                          {act.action === "message" ? <MessageSquare className="h-3.5 w-3.5" />
+                            : act.action === "document" ? <FileText className="h-3.5 w-3.5" />
+                            : act.action === "project" ? <FolderKanban className="h-3.5 w-3.5" />
+                            : <Activity className="h-3.5 w-3.5" />}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium">{act.description || act.action}</p>
                           <div className="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground">
                             <span>{(act.profile as any)?.full_name || "Système"}</span>
                             <span>•</span>
-                            <span>
-                              {act.created_at
-                                ? formatDistanceToNow(new Date(act.created_at), { addSuffix: true, locale: fr })
-                                : "—"}
-                            </span>
+                            <span>{act.created_at ? formatDistanceToNow(new Date(act.created_at), { addSuffix: true, locale: fr }) : "—"}</span>
                             {act.importance === "high" && (
-                              <>
-                                <span>•</span>
-                                <Badge variant="destructive" className="text-[9px] h-4">Important</Badge>
-                              </>
+                              <><span>•</span><Badge variant="destructive" className="text-[9px] h-4">Important</Badge></>
                             )}
                           </div>
                         </div>
@@ -522,6 +533,13 @@ export default function AdminCRM() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Client Detail Drawer */}
+      <ClientDetailDrawer
+        profileId={selectedClientId}
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+      />
     </div>
   );
 }
