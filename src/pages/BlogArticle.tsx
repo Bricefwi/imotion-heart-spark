@@ -12,6 +12,7 @@ import { Logo } from "@/components/Logo";
 import ReactMarkdown from "react-markdown";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { SEOHead, breadcrumbSchema } from "@/components/SEOHead";
 
 const categoryLabels: Record<string, string> = {
   "expression-besoin": "Expression du besoin",
