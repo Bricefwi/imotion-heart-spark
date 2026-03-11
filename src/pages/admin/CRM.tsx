@@ -211,114 +211,141 @@ export default function AdminCRM() {
 
         {/* ── PIPELINE ── */}
         <TabsContent value="pipeline" className="space-y-4">
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant={statusFilter === "all" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setStatusFilter("all")}
-              className={statusFilter === "all" ? "gradient-primary border-0" : ""}
-            >
-              Tous ({projects.length})
-            </Button>
-            {stageGroups.map((g) => (
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-wrap gap-2">
+              {pipelineView === "list" && (
+                <>
+                  <Button
+                    variant={statusFilter === "all" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setStatusFilter("all")}
+                    className={statusFilter === "all" ? "gradient-primary border-0" : ""}
+                  >
+                    Tous ({projects.length})
+                  </Button>
+                  {stageGroups.map((g) => (
+                    <Button
+                      key={g.stage}
+                      variant={statusFilter === g.stage ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setStatusFilter(statusFilter === g.stage ? "all" : g.stage)}
+                    >
+                      {g.config.label} ({g.projects.length})
+                    </Button>
+                  ))}
+                </>
+              )}
+            </div>
+            <div className="flex gap-1 shrink-0">
               <Button
-                key={g.stage}
-                variant={statusFilter === g.stage ? "default" : "outline"}
+                variant={pipelineView === "kanban" ? "default" : "outline"}
                 size="sm"
-                onClick={() => setStatusFilter(statusFilter === g.stage ? "all" : g.stage)}
+                onClick={() => setPipelineView("kanban")}
+                className={pipelineView === "kanban" ? "gradient-primary border-0" : ""}
               >
-                {g.config.label} ({g.projects.length})
+                <FolderKanban className="h-3.5 w-3.5 mr-1" /> Kanban
               </Button>
-            ))}
+              <Button
+                variant={pipelineView === "list" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setPipelineView("list")}
+              >
+                <Activity className="h-3.5 w-3.5 mr-1" /> Liste
+              </Button>
+            </div>
           </div>
 
-          <div className="space-y-3">
-            {filteredProjects.length === 0 ? (
-              <Card className="border-0 shadow-sm">
-                <CardContent className="p-8 text-center text-muted-foreground">Aucun projet trouvé.</CardContent>
-              </Card>
-            ) : (
-              filteredProjects.map((project) => {
-                const client = project.client as any;
-                const statusCfg = STATUS_CONFIG[project.status] || STATUS_CONFIG.draft;
-                return (
-                  <Card key={project.id} className="border-0 shadow-sm hover:shadow-md transition-shadow">
-                    <CardContent className="p-4">
-                      <div className="flex flex-col md:flex-row md:items-center gap-4">
-                        <div className="flex items-center gap-3 min-w-0 flex-1">
-                          <Avatar
-                            className="h-10 w-10 shrink-0 cursor-pointer"
-                            onClick={() => client?.id && openClientDetail(client.id)}
-                          >
-                            <AvatarFallback className="gradient-primary text-primary-foreground text-xs">
-                              {client?.full_name?.charAt(0) || "?"}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="font-semibold text-sm truncate">{project.name}</span>
-                              <Badge className={`text-[10px] ${statusCfg.bgClass} border`}>{statusCfg.label}</Badge>
-                              {project.priority && project.priority !== "medium" && (
-                                <Badge variant="outline" className={`text-[10px] ${PRIORITY_COLORS[project.priority] || ""}`}>
-                                  {project.priority}
-                                </Badge>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
-                              <span>{project.code}</span>
-                              {client?.full_name && (
-                                <button
-                                  className="hover:text-primary transition-colors cursor-pointer"
-                                  onClick={() => client?.id && openClientDetail(client.id)}
-                                >
-                                  • {client.full_name}
-                                </button>
-                              )}
-                              {client?.company_name && <span>• {client.company_name}</span>}
+          {pipelineView === "kanban" ? (
+            <KanbanBoard projects={projects as any} onClientClick={openClientDetail} />
+          ) : (
+            <div className="space-y-3">
+              {filteredProjects.length === 0 ? (
+                <Card className="border-0 shadow-sm">
+                  <CardContent className="p-8 text-center text-muted-foreground">Aucun projet trouvé.</CardContent>
+                </Card>
+              ) : (
+                filteredProjects.map((project) => {
+                  const client = project.client as any;
+                  const statusCfg = STATUS_CONFIG[project.status] || STATUS_CONFIG.draft;
+                  return (
+                    <Card key={project.id} className="border-0 shadow-sm hover:shadow-md transition-shadow">
+                      <CardContent className="p-4">
+                        <div className="flex flex-col md:flex-row md:items-center gap-4">
+                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <Avatar
+                              className="h-10 w-10 shrink-0 cursor-pointer"
+                              onClick={() => client?.id && openClientDetail(client.id)}
+                            >
+                              <AvatarFallback className="gradient-primary text-primary-foreground text-xs">
+                                {client?.full_name?.charAt(0) || "?"}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-semibold text-sm truncate">{project.name}</span>
+                                <Badge className={`text-[10px] ${statusCfg.bgClass} border`}>{statusCfg.label}</Badge>
+                                {project.priority && project.priority !== "medium" && (
+                                  <Badge variant="outline" className={`text-[10px] ${PRIORITY_COLORS[project.priority] || ""}`}>
+                                    {project.priority}
+                                  </Badge>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
+                                <span>{project.code}</span>
+                                {client?.full_name && (
+                                  <button
+                                    className="hover:text-primary transition-colors cursor-pointer"
+                                    onClick={() => client?.id && openClientDetail(client.id)}
+                                  >
+                                    • {client.full_name}
+                                  </button>
+                                )}
+                                {client?.company_name && <span>• {client.company_name}</span>}
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground shrink-0">
-                          <div className="flex items-center gap-1" title="Phase">
-                            <BarChart3 className="h-3.5 w-3.5" />
-                            <span>Phase {project.current_phase || 1}/7</span>
-                          </div>
-                          <div className="flex items-center gap-1" title="Messages">
-                            <MessageSquare className="h-3.5 w-3.5" />
-                            <span>{project.total_messages || 0}</span>
-                          </div>
-                          {(project.proposal_amount || project.estimated_budget_max) && (
-                            <div className="flex items-center gap-1 font-medium text-foreground" title="Budget">
-                              <Euro className="h-3.5 w-3.5" />
-                              <span>{((project.proposal_amount || project.estimated_budget_max || 0) / 1000).toFixed(0)}k€</span>
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground shrink-0">
+                            <div className="flex items-center gap-1" title="Phase">
+                              <BarChart3 className="h-3.5 w-3.5" />
+                              <span>Phase {project.current_phase || 1}/7</span>
                             </div>
-                          )}
-                          <div className="flex items-center gap-1" title="Dernière activité">
-                            <Clock className="h-3.5 w-3.5" />
-                            <span>
-                              {project.last_activity_at
-                                ? formatDistanceToNow(new Date(project.last_activity_at), { addSuffix: true, locale: fr })
-                                : "—"}
-                            </span>
+                            <div className="flex items-center gap-1" title="Messages">
+                              <MessageSquare className="h-3.5 w-3.5" />
+                              <span>{project.total_messages || 0}</span>
+                            </div>
+                            {(project.proposal_amount || project.estimated_budget_max) && (
+                              <div className="flex items-center gap-1 font-medium text-foreground" title="Budget">
+                                <Euro className="h-3.5 w-3.5" />
+                                <span>{((project.proposal_amount || project.estimated_budget_max || 0) / 1000).toFixed(0)}k€</span>
+                              </div>
+                            )}
+                            <div className="flex items-center gap-1" title="Dernière activité">
+                              <Clock className="h-3.5 w-3.5" />
+                              <span>
+                                {project.last_activity_at
+                                  ? formatDistanceToNow(new Date(project.last_activity_at), { addSuffix: true, locale: fr })
+                                  : "—"}
+                              </span>
+                            </div>
                           </div>
-                        </div>
 
-                        <Button variant="ghost" size="sm" asChild className="shrink-0">
-                          <Link to={`/consultant/projects/${project.id}`}>
-                            <Eye className="h-4 w-4 mr-1" /> Voir
-                          </Link>
-                        </Button>
-                      </div>
-                      <div className="mt-3">
-                        <Progress value={project.overall_progress || 0} className="h-1.5" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })
-            )}
-          </div>
+                          <Button variant="ghost" size="sm" asChild className="shrink-0">
+                            <Link to={`/consultant/projects/${project.id}`}>
+                              <Eye className="h-4 w-4 mr-1" /> Voir
+                            </Link>
+                          </Button>
+                        </div>
+                        <div className="mt-3">
+                          <Progress value={project.overall_progress || 0} className="h-1.5" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })
+              )}
+            </div>
+          )}
         </TabsContent>
 
         {/* ── CRM 360 / CLIENTS ── */}
