@@ -140,6 +140,7 @@ export default function Register() {
 
   return (
     <div className="min-h-screen flex">
+      <SEOHead title="Inscription — Créez votre CDC gratuitement" description="Inscrivez-vous gratuitement à IMOTION Creator Studio et générez votre cahier des charges en 45 minutes grâce à l'IA." canonical="/register" noindex />
       <div className="flex-1 flex flex-col justify-center px-8 md:px-16 lg:px-24 max-w-xl">
         <div className="mb-8">
           <Link to="/"><Logo size="lg" /></Link>
