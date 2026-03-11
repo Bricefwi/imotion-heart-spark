@@ -28,5 +28,5 @@ IMOTION Creator Studio design system, architecture, and project constraints
 
 ## Backend
 - Lovable Cloud enabled
-- AI model: google/gemini-3-flash-preview (via Lovable AI gateway)
+- AI model: openai/gpt-5 (via Lovable AI gateway) — for ai-chat + generate-document
 - Realtime enabled for messages and notifications tables
