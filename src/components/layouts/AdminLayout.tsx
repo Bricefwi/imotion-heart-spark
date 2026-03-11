@@ -126,12 +126,19 @@ function AdminSidebar() {
       <div className="mt-auto p-4 border-t border-sidebar-border">
         {!collapsed && (
           <div className="flex items-center gap-3 mb-3">
-            <Avatar className="h-8 w-8">
-              <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.full_name || ""} />
-              <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                {profile?.full_name?.charAt(0) || "A"}
-              </AvatarFallback>
-            </Avatar>
+            <div className="relative">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.full_name || ""} />
+                <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                  {profile?.full_name?.charAt(0) || "A"}
+                </AvatarFallback>
+              </Avatar>
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
+            </div>
             <div className="min-w-0">
               <p className="text-sm font-medium text-sidebar-foreground truncate">{profile?.full_name || "Admin"}</p>
               <p className="text-xs text-sidebar-foreground/50">Administrateur</p>
