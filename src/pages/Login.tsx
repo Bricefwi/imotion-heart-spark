@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { SEOHead } from "@/components/SEOHead";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -58,6 +59,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex">
+      <SEOHead title="Connexion" description="Connectez-vous à IMOTION Creator Studio pour accéder à vos projets et votre cahier des charges." canonical="/login" noindex />
       {/* Left - Form */}
       <div className="flex-1 flex flex-col justify-center px-8 md:px-16 lg:px-24 max-w-xl">
         <div className="mb-8">

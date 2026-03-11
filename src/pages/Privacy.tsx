@@ -1,6 +1,17 @@
+import { SEOHead, breadcrumbSchema } from "@/components/SEOHead";
+
 export default function Privacy() {
   return (
     <div className="py-20">
+      <SEOHead
+        title="Politique de confidentialité"
+        description="Politique de confidentialité d'IMOTION Creator Studio : données collectées, finalités, droits RGPD, cookies et transferts internationaux."
+        canonical="/confidentialite"
+        jsonLd={breadcrumbSchema([
+          { name: "Accueil", url: "/" },
+          { name: "Confidentialité", url: "/confidentialite" },
+        ])}
+      />
       <div className="container max-w-3xl">
         <h1 className="font-display text-3xl md:text-4xl font-bold mb-4">Politique de confidentialité</h1>
         <p className="text-sm text-muted-foreground mb-10">Dernière mise à jour : {new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}</p>
