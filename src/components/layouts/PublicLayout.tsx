@@ -64,12 +64,28 @@ export function PublicLayout() {
                       <span className="text-sm font-medium max-w-[120px] truncate">{profile?.full_name || user.email}</span>
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuContent align="end" className="w-52">
                     <DropdownMenuItem asChild>
-                      <Link to={roles.includes("admin") ? "/admin/dashboard" : roles.includes("consultant") ? "/consultant/dashboard" : "/client/dashboard"}>
+                      <Link to="/client/dashboard" className="flex items-center gap-2">
                         Mon espace
                       </Link>
                     </DropdownMenuItem>
+                    {roles.includes("consultant") && (
+                      <DropdownMenuItem asChild>
+                        <Link to="/consultant/dashboard" className="flex items-center gap-2">
+                          Espace Consultant
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
+                    {roles.includes("admin") && (
+                      <>
+                        <DropdownMenuItem asChild>
+                          <Link to="/admin/dashboard" className="flex items-center gap-2 text-primary font-medium">
+                            Administration
+                          </Link>
+                        </DropdownMenuItem>
+                      </>
+                    )}
                     <DropdownMenuItem onClick={signOut} className="text-destructive">
                       <LogOut className="h-4 w-4 mr-2" /> Déconnexion
                     </DropdownMenuItem>
@@ -108,12 +124,30 @@ export function PublicLayout() {
               </Link>
             ))}
             {user ? (
-              <div className="flex items-center gap-3 pt-2 border-t">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={profile?.avatar_url || undefined} />
-                  <AvatarFallback className="gradient-primary text-white text-xs">{(profile?.full_name || "U").charAt(0)}</AvatarFallback>
-                </Avatar>
-                <span className="text-sm font-medium">{profile?.full_name || user.email}</span>
+              <div className="space-y-2 pt-2 border-t">
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={profile?.avatar_url || undefined} />
+                    <AvatarFallback className="gradient-primary text-white text-xs">{(profile?.full_name || "U").charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm font-medium">{profile?.full_name || user.email}</span>
+                </div>
+                <Link to="/client/dashboard" className="block text-sm py-2 font-medium" onClick={() => setMobileOpen(false)}>
+                  Mon espace
+                </Link>
+                {roles.includes("consultant") && (
+                  <Link to="/consultant/dashboard" className="block text-sm py-2 font-medium" onClick={() => setMobileOpen(false)}>
+                    Espace Consultant
+                  </Link>
+                )}
+                {roles.includes("admin") && (
+                  <Link to="/admin/dashboard" className="block text-sm py-2 font-medium text-primary" onClick={() => setMobileOpen(false)}>
+                    Administration
+                  </Link>
+                )}
+                <button onClick={signOut} className="block text-sm py-2 text-destructive">
+                  Déconnexion
+                </button>
               </div>
             ) : (
               <div className="flex flex-col gap-2 pt-2">
