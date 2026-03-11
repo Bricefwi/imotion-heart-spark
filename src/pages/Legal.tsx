@@ -1,6 +1,17 @@
+import { SEOHead, breadcrumbSchema } from "@/components/SEOHead";
+
 export default function Legal() {
   return (
     <div className="py-20">
+      <SEOHead
+        title="Mentions légales"
+        description="Mentions légales d'IMOTION Creator Studio : éditeur, hébergeur, propriété intellectuelle, responsabilité et droit applicable."
+        canonical="/mentions-legales"
+        jsonLd={breadcrumbSchema([
+          { name: "Accueil", url: "/" },
+          { name: "Mentions légales", url: "/mentions-legales" },
+        ])}
+      />
       <div className="container max-w-3xl">
         <h1 className="font-display text-3xl md:text-4xl font-bold mb-4">Mentions légales</h1>
         <p className="text-sm text-muted-foreground mb-10">Dernière mise à jour : {new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}</p>

@@ -118,8 +118,46 @@ export default function BlogArticle() {
     );
   }
 
+  const articleSchema = post ? {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.excerpt,
+    image: post.cover_image || undefined,
+    datePublished: post.published_at || post.created_at,
+    dateModified: post.updated_at || post.published_at,
+    author: { "@type": "Person", name: post.author_name || "Équipe IMOTION" },
+    publisher: {
+      "@type": "Organization",
+      name: "IMOTION Creator Studio",
+      logo: { "@type": "ImageObject", url: "https://imotion-heart-spark.lovable.app/favicon.png" },
+    },
+    mainEntityOfPage: { "@type": "WebPage", "@id": `https://imotion-heart-spark.lovable.app/blog/${slug}` },
+    wordCount: post.content?.split(/\s+/).length || 0,
+    articleSection: categoryLabels[post.category] || post.category,
+    keywords: post.tags?.join(", ") || "",
+    inLanguage: "fr-FR",
+  } : undefined;
+
   return (
     <div className="min-h-screen flex flex-col">
+      {post && (
+        <SEOHead
+          title={post.title}
+          description={post.excerpt}
+          canonical={`/blog/${slug}`}
+          type="article"
+          image={post.cover_image || undefined}
+          jsonLd={[
+            articleSchema!,
+            breadcrumbSchema([
+              { name: "Accueil", url: "/" },
+              { name: "Blog", url: "/blog" },
+              { name: post.title, url: `/blog/${slug}` },
+            ]),
+          ]}
+        />
+      )}
       {/* Reading progress bar */}
       <div className="fixed top-0 left-0 right-0 z-[60] h-1 bg-muted">
         <div className="h-full gradient-primary transition-all duration-150" style={{ width: `${readProgress}%` }} />
