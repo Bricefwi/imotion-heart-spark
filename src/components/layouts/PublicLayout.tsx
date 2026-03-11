@@ -1,5 +1,6 @@
 import { Outlet, Link } from "react-router-dom";
 import { Logo } from "@/components/Logo";
+import { FloatingChatAgent } from "@/components/FloatingChatAgent";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
@@ -127,6 +128,8 @@ export function PublicLayout() {
       <main className="flex-1">
         <Outlet />
       </main>
+
+      <FloatingChatAgent />
 
       {/* Footer */}
       <footer className="border-t bg-muted/30">
