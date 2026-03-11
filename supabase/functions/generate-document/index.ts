@@ -1230,11 +1230,11 @@ INSTRUCTIONS :
 
 ${base}
 
-## STRUCTURE OBLIGATOIRE DU CONTRAT
+## STRUCTURE OBLIGATOIRE DU CONTRAT (Template IMOTION Creator Studio V2)
 
 # CONTRAT DE PRESTATION DE SERVICES NUMERIQUES
 
-**N. [Numero auto]**
+**N. [Numero auto-genere]**
 
 ---
 
@@ -1266,25 +1266,24 @@ Les Parties sont ci-apres denommees individuellement une "Partie" et collectivem
 
 ## PREAMBULE
 
-Le Client a exprime le besoin de : [objectif principal du projet]
+Le Client a exprime le besoin de developper un projet digital dont les specifications sont detaillees dans le Cahier des Charges valide par les deux Parties.
 
-Suite a la phase de decouverte realisee via la plateforme IMOTION Creator Studio, un Cahier des Charges (ref. [reference CDC]) et un Devis (ref. [reference devis]) ont ete etablis et valides par les deux Parties.
+Projet concerne : [Nom du projet]
+
+Suite a la phase de decouverte realisee via la plateforme IMOTION Creator Studio, un Cahier des Charges a ete etabli (ref. [reference CDC]).
 
 Le Prestataire declare disposer des competences, moyens et ressources necessaires pour realiser la prestation objet du present contrat.
 
 Les Parties ont donc convenu de ce qui suit :
 
----
+## ARTICLE 1 - OBJET DU CONTRAT
 
-## ARTICLE 1 - OBJET
-
-Le present contrat a pour objet de definir les conditions dans lesquelles le Prestataire s'engage a realiser pour le compte du Client :
+Le present contrat a pour objet de definir les conditions dans lesquelles le Prestataire s'engage a realiser pour le compte du Client le projet suivant :
 
 **[Nom du projet]** - Type : [Type de projet]
 
 La prestation comprend notamment :
-- [Liste detaillee des livrables principaux]
-- [Basee sur le CDC et le devis valides]
+- [Liste detaillee des livrables principaux bases sur le CDC]
 
 ## ARTICLE 2 - DOCUMENTS CONTRACTUELS
 
@@ -1296,55 +1295,40 @@ Les documents contractuels sont, par ordre de priorite decroissante :
 
 En cas de contradiction entre ces documents, le document de rang superieur prevaut.
 
-## ARTICLE 3 - DUREE ET CALENDRIER
+## ARTICLE 3 - DUREE ET PLANNING
 
-### 3.1 Duree
+### 3.1 Date de demarrage
 La prestation debutera a compter de la reception de l'acompte prevu a l'article 5.
-Duree previsionnelle : [min] a [max] semaines.
 
-### 3.2 Jalons
-| Jalon | Description | Date previsionnelle |
-|---|---|---|
-| Kick-off | Reunion de lancement | J+7 apres acompte |
-| Maquettes | Livraison des maquettes UX/UI | J+[x] |
-| Developpement | Livraison en recette | J+[x] |
-| Go Live | Mise en production | J+[x] |
+### 3.2 Duree previsionnelle
+Duree estimee : [duration_weeks_min] a [duration_weeks_max] semaines
 
-### 3.3 Prorogation
-Cette duree est indicative et pourra etre adaptee en fonction de la reactivite du Client dans les phases de validation. Tout retard de validation superieur a 5 jours ouvres entraine un decalage equivalent du planning.
+Cette duree est indicative et pourra etre adaptee en fonction de la reactivite du Client dans les phases de validation.
 
 ## ARTICLE 4 - PRIX
 
-Le prix total de la prestation est fixe a :
+Le prix total de la prestation est fixe comme suit :
 
 | | Montant |
 |---|---|
-| Developpement (HT) | [montant] euros |
-| TVA (20%) | [montant] euros |
-| **TOTAL TTC** | **[montant] euros** |
+| Developpement (HT) | [final_price] euros |
+| TVA (20%) | [tva_amount] euros |
+| **TOTAL TTC** | **[total_ttc] euros** |
 
 Ce prix est ferme et definitif pour le perimetre defini au Cahier des Charges.
 
-Toute prestation supplementaire hors perimetre fera l'objet d'un avenant et sera facturee au tarif journalier de 650 euros HT.
-
 ## ARTICLE 5 - MODALITES DE PAIEMENT
 
-### 5.1 Echelonnement
+Le paiement s'effectuera selon l'echeancier suivant :
+
 | Etape | % | Montant TTC | Echeance |
 |---|---|---|---|
-| Acompte | 30% | [montant] euros | Signature du contrat |
-| Maquettes validees | 20% | [montant] euros | Validation du design |
-| Livraison recette | 35% | [montant] euros | PV de recette signe |
+| Acompte | 30% | [montant] euros | Signature |
+| Maquettes validees | 20% | [montant] euros | Validation design |
+| Livraison recette | 35% | [montant] euros | PV recette signe |
 | Mise en production | 15% | [montant] euros | Go Live |
 
-### 5.2 Conditions de facturation
 Paiement par virement bancaire sous 15 jours a compter de la date de facturation.
-
-### 5.3 Penalites de retard
-En cas de retard de paiement, des penalites de retard egales a 3 fois le taux d'interet legal seront appliquees de plein droit (art. L441-10 Code de commerce), ainsi qu'une indemnite forfaitaire de 40 euros pour frais de recouvrement (art. D441-5 Code de commerce).
-
-### 5.4 Clause de reserve de propriete
-Le Prestataire conserve la propriete des livrables jusqu'au paiement integral du prix.
 
 ## ARTICLE 6 - OBLIGATIONS DU PRESTATAIRE
 
@@ -1354,168 +1338,82 @@ Le Prestataire s'engage a :
 - Informer le Client de l'avancement via des points reguliers (a minima hebdomadaires)
 - Livrer un produit fonctionnel et conforme aux specifications
 - Assurer une garantie de 3 mois apres la mise en production
-- Maintenir la confidentialite des informations communiquees par le Client
-- Mettre en oeuvre les meilleures pratiques en matiere de securite et de performance
-- Fournir la documentation technique et utilisateur
-
-Le Prestataire est tenu a une obligation de moyens.
 
 ## ARTICLE 7 - OBLIGATIONS DU CLIENT
 
 Le Client s'engage a :
-- Fournir les elements necessaires dans les delais convenus (contenus, visuels, acces, identifiants)
+- Fournir les elements necessaires dans les delais convenus (contenus, visuels, acces...)
 - Designer un interlocuteur unique habilite pour les validations
 - Valider les livrables dans un delai de 5 jours ouvres maximum
 - Regler les factures aux echeances prevues
 - Informer le Prestataire de tout changement impactant le projet
-- Ne pas modifier les livrables pendant la phase de garantie sans accord du Prestataire
 
-**Clause de retard client** : Tout retard de validation superieur a 5 jours ouvres entraine un decalage equivalent du planning et peut entrainer une revision du budget si le retard depasse 30 jours ouvres cumules.
+## ARTICLE 8 - PROPRIETE INTELLECTUELLE
 
-## ARTICLE 8 - PROCESSUS DE VALIDATION ET RECETTE
-
-### 8.1 Livraison
-Le Prestataire livre les developpements sur un environnement de recette accessible au Client.
-
-### 8.2 Recette
-Le Client dispose de 10 jours ouvres pour effectuer la recette et formuler ses reserves par ecrit.
-
-### 8.3 Recette tacite
-A defaut de reserves formulees dans le delai de 10 jours ouvres, la recette est reputee acquise tacitement.
-
-### 8.4 Iterations de corrections
-Le Client dispose de 2 iterations de corrections incluses dans le forfait. Au-dela, les corrections sont facturees au TJM contractuel de 650 euros HT/jour.
-
-### 8.5 Proces-verbal de recette
-Un PV de recette est signe par les deux Parties a l'issue de la recette. Ce PV declenche le paiement du jalon correspondant.
-
-## ARTICLE 9 - PROPRIETE INTELLECTUELLE
-
-### 9.1 Cession de droits
-A complet paiement du prix, le Prestataire cede au Client les droits patrimoniaux sur les developpements specifiques (art. L131-3 du Code de la propriete intellectuelle) :
+### 8.1 Cession de droits
+A complet paiement du prix, le Prestataire cede au Client :
 - Le code source developpe specifiquement pour le projet
-- Les elements graphiques crees sur-mesure
-- Les droits de reproduction, representation et adaptation pour tous supports, pour le monde entier, pour la duree legale des droits
+- Les elements graphiques crees sur-mesure pour le projet
+- Les droits de reproduction, representation et adaptation pour tous supports
 
-### 9.2 Exclusions
+### 8.2 Exclusions
 Le Prestataire conserve la propriete de :
 - Ses outils, methodes et composants reutilisables preexistants
-- Les bibliotheques et frameworks open source utilises (soumis a leurs licences respectives)
+- Les bibliotheques et frameworks open source utilises
 - Son savoir-faire et ses methodologies
 
-### 9.3 Portfolio
-Le Prestataire peut mentionner la realisation dans son portfolio et ses references commerciales, sauf opposition ecrite du Client dans les 30 jours suivant la mise en production.
+## ARTICLE 9 - CONFIDENTIALITE
 
-## ARTICLE 10 - DONNEES PERSONNELLES ET RGPD
-
-### 10.1 Qualite des parties
-Le Prestataire agit en tant que sous-traitant au sens de l'article 28 du RGPD.
-
-### 10.2 Engagements du Prestataire
-- Traiter les donnees uniquement selon les instructions documentees du Client
-- Garantir la confidentialite des donnees traitees
-- Mettre en oeuvre les mesures techniques et organisationnelles de securite appropriees
-- Notifier toute violation de donnees dans les 48 heures
-- Supprimer ou restituer les donnees en fin de contrat
-- Tenir un registre des traitements effectues pour le compte du Client
-
-### 10.3 Sous-traitance
-Le Prestataire ne fait pas appel a d'autres sous-traitants sans l'autorisation prealable ecrite du Client.
-
-## ARTICLE 11 - CONFIDENTIALITE
-
-### 11.1 Etendue
 Les Parties s'engagent a garder confidentielles toutes les informations de nature commerciale, technique, financiere ou strategique echangees dans le cadre du present contrat.
 
-### 11.2 Duree
-Cette obligation perdure pendant la duree du contrat et 3 ans apres son terme.
+Cette obligation perdure pendant 2 ans apres la fin du contrat.
 
-### 11.3 Exceptions
-Ne sont pas couvertes : les informations deja publiques, connues prealablement, obtenues d'un tiers de bonne foi, ou devant etre divulguees par obligation legale.
+## ARTICLE 10 - GARANTIE
 
-## ARTICLE 12 - GARANTIE
-
-### 12.1 Duree et perimetre
 Le Prestataire garantit le bon fonctionnement de la solution pendant 3 mois a compter de la mise en production.
 
-### 12.2 Couverture
-- Corrections des anomalies bloquantes : sous 48h ouvrees
-- Corrections des anomalies majeures : sous 5 jours ouvres
-- Corrections des anomalies mineures : sous 10 jours ouvres
-- Ajustements necessaires a la conformite au CDC
+Cette garantie couvre :
+- La correction des anomalies bloquantes et majeures
+- Les ajustements mineurs necessaires a la conformite au CDC
 
-### 12.3 Exclusions
-Sont exclus de la garantie :
-- Les evolutions fonctionnelles non prevues au CDC
-- Les anomalies dues a une mauvaise utilisation ou a des modifications non autorisees
-- Les problemes lies a l'environnement ou aux systemes du Client
-- Les contenus fournis par le Client
+Sont exclus : les evolutions fonctionnelles, les anomalies dues a une mauvaise utilisation, les problemes lies a l'environnement du Client.
 
-## ARTICLE 13 - LIMITATION DE RESPONSABILITE
+## ARTICLE 11 - LIMITATION DE RESPONSABILITE
 
-### 13.1 Plafond
-La responsabilite du Prestataire est limitee au montant total du contrat HT.
+La responsabilite du Prestataire est limitee au montant total du contrat.
 
-### 13.2 Exclusions
 Le Prestataire ne pourra etre tenu responsable des :
-- Dommages indirects (perte de chiffre d'affaires, perte de donnees, prejudice d'image, manque a gagner)
-- Retards causes par le Client
-- Problemes lies aux prestataires tiers (hebergeur, services externes)
+- Dommages indirects (perte de chiffre d'affaires, perte de donnees...)
+- Retards causes par le Client (fourniture tardive des elements, validation...)
+- Problemes lies aux prestataires tiers (hebergeur, services externes...)
 
-### 13.3 Exception
-Les limitations ci-dessus ne s'appliquent pas en cas de faute lourde ou dolosive du Prestataire.
+## ARTICLE 12 - RESILIATION
 
-### 13.4 Assurance
-Le Prestataire declare etre titulaire d'une assurance Responsabilite Civile Professionnelle couvrant les consequences pecuniaires de sa responsabilite.
+### 12.1 Resiliation pour manquement grave
+En cas de manquement grave par l'une des Parties, l'autre Partie pourra resilier le contrat de plein droit par lettre recommandee avec accuse de reception, apres mise en demeure restee sans effet pendant 15 jours.
 
-## ARTICLE 14 - RESILIATION
-
-### 14.1 Resiliation pour manquement grave
-En cas de manquement grave par l'une des Parties a ses obligations contractuelles, l'autre Partie pourra resilier le contrat de plein droit par lettre recommandee avec accuse de reception, apres mise en demeure restee sans effet pendant 30 jours.
-
-### 14.2 Resiliation pour convenance du Client
-Le Client peut resilier le contrat a tout moment moyennant le paiement des travaux realises et une indemnite de 20% du solde restant du.
-
-### 14.3 Resiliation de plein droit
-Le contrat est resilie de plein droit en cas de liquidation judiciaire ou de cessation d'activite de l'une des Parties.
-
-### 14.4 Consequences
-En cas de resiliation :
+### 12.2 Consequences de la resiliation
+En cas de resiliation anticipee :
 - Les prestations realisees restent acquises et facturees
-- Les elements produits sont remis au Client (sous reserve de paiement integral)
+- Les elements produits sont remis au Client (sous reserve de paiement)
 - Les sommes versees ne sont pas remboursees (sauf faute du Prestataire)
 
-## ARTICLE 15 - FORCE MAJEURE
+## ARTICLE 13 - PROTECTION DES DONNEES PERSONNELLES
 
-Aucune Partie ne sera responsable d'un retard ou d'une defaillance resultant d'un cas de force majeure au sens de l'article 1218 du Code civil.
+Le Prestataire s'engage a respecter le Reglement General sur la Protection des Donnees (RGPD) et la loi Informatique et Libertes.
 
-En cas de force majeure :
-- Suspension des obligations pendant la duree de l'evenement
-- Notification ecrite sous 5 jours ouvres
-- Resiliation de plein droit si la duree excede 3 mois
+En tant que sous-traitant au sens du RGPD, le Prestataire s'engage a :
+- Traiter les donnees uniquement selon les instructions du Client
+- Garantir la confidentialite des donnees traitees
+- Mettre en oeuvre les mesures de securite appropriees
+- Notifier toute violation de donnees dans les 72 heures
+- Supprimer ou restituer les donnees en fin de contrat
 
-## ARTICLE 16 - NON-SOLLICITATION
+## ARTICLE 14 - LOI APPLICABLE ET LITIGES
 
-Les Parties s'interdisent de solliciter ou embaucher les collaborateurs de l'autre Partie pendant la duree du contrat et 12 mois apres son terme. Toute infraction donne lieu au paiement d'une indemnite forfaitaire egale a 6 mois de remuneration brute du collaborateur concerne.
+Le present contrat est regi par le droit francais.
 
-## ARTICLE 17 - MEDIATION ET LITIGES
-
-### 17.1 Resolution amiable
-En cas de litige, les Parties s'engagent a rechercher une solution amiable pendant 30 jours.
-
-### 17.2 Mediation
-A defaut, les Parties peuvent recourir a un mediateur agree.
-
-### 17.3 Juridiction competente
-A defaut d'accord, le litige sera soumis aux tribunaux competents de Paris.
-
-## ARTICLE 18 - DISPOSITIONS GENERALES
-
-- Le present contrat constitue l'integralite de l'accord entre les Parties et remplace tout accord anterieur
-- La nullite d'une clause n'affecte pas la validite des autres clauses
-- Toute tolerance d'une Partie ne constitue pas une renonciation a ses droits
-- Toute modification du contrat doit faire l'objet d'un avenant ecrit et signe
-- Le contrat est regi par le droit francais
+En cas de litige relatif a l'interpretation ou a l'execution du present contrat, les Parties s'engagent a rechercher une solution amiable. A defaut d'accord amiable dans un delai de 30 jours, le litige sera soumis aux tribunaux competents de Paris.
 
 ---
 
@@ -1525,69 +1423,78 @@ Fait en deux exemplaires originaux.
 
 A _________________, le [Date]
 
-| | **Pour le Prestataire** | **Pour le Client** |
+| | Pour le Prestataire | Pour le Client |
 |---|---|---|
 | Societe | IMOTION Creator Studio | [Entreprise client] |
 | Nom | _________________ | [Nom client] |
-| Qualite | Representant legal | [Fonction] |
 | Date | _________________ | _________________ |
-| Signature | | |
-| *(precede de la mention "Lu et approuve")* | | |
+| Signature | *(precede de "Lu et approuve")* | *(precede de "Lu et approuve")* |
 
 ---
 
-## ANNEXES
+## ANNEXE - CONDITIONS GENERALES DE VENTE
 
-- **Annexe 1** : Cahier des Charges (ref. [reference])
-- **Annexe 2** : Devis accepte (ref. [reference])
-- **Annexe 3** : Planning previsionnel detaille
-- **Annexe 4** : Conditions Generales de Vente
+### Article 1 - Champ d'application
+Les presentes CGV s'appliquent a toutes les prestations de services conclues par IMOTION Creator Studio. Le Client reconnait avoir pris connaissance des presentes CGV et les accepte sans reserve.
 
----
+### Article 2 - Prix et paiement
+2.1. Les prix sont indiques en euros HT. TVA applicable : 20%.
+2.2. Paiement selon l'echeancier defini au devis.
+2.3. Penalites de retard : 3 fois le taux d'interet legal + indemnite forfaitaire de 40 euros.
+2.4. Aucun escompte pour paiement anticipe.
 
-## ANNEXE - CONDITIONS GENERALES DE VENTE (Extrait)
+### Article 3 - Delais de realisation
+3.1. Les delais indiques sont indicatifs.
+3.2. Les delais commencent a courir a reception de l'acompte et des elements necessaires.
+3.3. Tout retard imputable au Client prolonge d'autant les delais.
 
-### Article CGV-1 - Champ d'application
-Les presentes CGV s'appliquent a toutes les prestations de services conclues par IMOTION Creator Studio.
+### Article 4 - Obligations du Client
+4.1. Fournir des informations exactes et a jour.
+4.2. Designer un interlocuteur unique habilite.
+4.3. Valider les livrables sous 5 jours ouvres.
 
-### Article CGV-2 - Prix et paiement
-Les prix sont indiques en euros HT. TVA applicable : 20%. Aucun escompte pour paiement anticipe.
+### Article 5 - Propriete intellectuelle
+5.1. Transfert conditionne au paiement integral.
+5.2. Le Prestataire conserve ses outils et composants reutilisables.
+5.3. Le Prestataire peut mentionner la realisation a titre de reference.
 
-### Article CGV-3 - Delais
-Les delais indiques sont indicatifs et commencent a courir a reception de l'acompte et des elements necessaires.
+### Article 6 - Garantie et responsabilite
+6.1. Garantie de bon fonctionnement : 3 mois post-livraison.
+6.2. Responsabilite limitee au montant du contrat.
+6.3. Pas de responsabilite pour dommages indirects.
 
-### Article CGV-4 - Propriete intellectuelle
-Le transfert de propriete est conditionne au paiement integral du prix. Le Prestataire peut mentionner la realisation dans son portfolio.
+### Article 7 - Confidentialite
+Les parties s'engagent a la confidentialite pendant 2 ans apres la fin du contrat.
 
-### Article CGV-5 - Garantie et responsabilite
-Garantie de 3 mois post-livraison. Responsabilite limitee au montant du contrat.
+### Article 8 - Force majeure
+Aucune partie ne sera responsable en cas de force majeure au sens de l'article 1218 du Code civil.
 
-### Article CGV-6 - Confidentialite
-Les parties s'engagent a la confidentialite pendant 3 ans apres la fin du contrat.
+### Article 9 - Resiliation
+9.1. Resiliation pour manquement grave apres mise en demeure.
+9.2. Les sommes versees restent acquises au Prestataire.
 
-### Article CGV-7 - Force majeure
-Conforme a l'article 1218 du Code civil.
+### Article 10 - Protection des donnees
+Conformement au RGPD. Contact : contact@imotion-studio.com
 
-### Article CGV-8 - Protection des donnees
-Conforme au RGPD. Contact DPO : contact@imotion-creator.studio
-
-### Article CGV-9 - Droit applicable
+### Article 11 - Droit applicable et juridiction
 Droit francais. Competence exclusive des tribunaux de Paris.
 
 *CGV en vigueur au 01/01/2026 - IMOTION Creator Studio*
 
 ---
 
-*Contrat genere par IMOTION Creator Studio - www.clarivi.io*
+Contrat genere par IMOTION Creator Studio le [date]
+IMOTION Creator Studio | SAS au capital de 10 000 euros | 123 Avenue de l'Innovation, 75008 Paris | www.imotion-studio.com
 
 ---
 
 INSTRUCTIONS JURIDIQUES :
 - Chaque clause DOIT etre conforme au droit francais en vigueur
 - Cite les articles de loi pertinents entre parentheses
-- Le contrat doit etre PROTECTEUR pour le prestataire (IMOTION Creator Studio) tout en etant EQUILIBRE
+- Le contrat doit etre PROTECTEUR pour IMOTION Creator Studio tout en etant EQUILIBRE
 - Les clauses abusives doivent etre evitees
 - Adapte le contenu aux specificites du projet (montants, delais, livrables)
+- Le format doit suivre EXACTEMENT la structure V2 : 14 articles + annexe CGV
 - NE JAMAIS utiliser d'emojis`;
   }
 
