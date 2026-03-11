@@ -45,6 +45,7 @@ function AdminSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const { profile, signOut } = useAuth();
+  const { data: unreadCount = 0 } = useUnreadNotifications();
 
   return (
     <Sidebar collapsible="icon" className="border-r-0">
