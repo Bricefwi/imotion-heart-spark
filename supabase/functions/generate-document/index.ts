@@ -1097,180 +1097,122 @@ INSTRUCTIONS JURIDIQUES :
   }
 
   if (type === "devis") {
-    return `Genere un Devis professionnel, detaille et conforme au droit commercial francais pour ce projet :
+    return `Genere un Devis Commercial professionnel, detaille et conforme au droit commercial francais pour ce projet (Template IMOTION Creator Studio V2) :
 
 ${base}
 
 ## STRUCTURE OBLIGATOIRE DU DEVIS
 
-# DEVIS N. [Numero auto]
+# PAGE DE GARDE / EN-TETE
 
-## EN-TETE
+## DEVIS N. [Numero auto-genere]
+
+| Date d'emission | Validite | Reference projet |
+|---|---|---|
+| [Date du jour] | 30 jours | [Code projet] |
+
 | EMETTEUR | DESTINATAIRE |
 |---|---|
 | IMOTION Creator Studio | [Entreprise client] |
 | SAS au capital de 10 000 euros | [Nom du contact] |
-| 123 Avenue de l'Innovation, 75008 Paris | [Adresse client] |
-| SIRET: XXX XXX XXX 000XX | [Email client] |
-| TVA: FR XX XXX XXX XXX | [Telephone client] |
+| 123 Avenue de l'Innovation, 75008 Paris | [Fonction] |
+| SIRET: XXX XXX XXX 000XX | [Adresse client] |
+| TVA: FR XX XXX XXX XXX | [Email client] |
+| contact@imotion-studio.com | [Telephone client] |
 
-**Objet** : [Nom du projet]
-**Reference projet** : [Code]
-**Date** : [Date du jour]
-**Validite** : 30 jours
+**OBJET DU DEVIS** : [Nom du projet] - Type : [Type de projet]
 
 ---
 
-# 1. PHASE BUILD - REALISATION
+# Phase BUILD - Realisation
 
-## 1.1 Cadrage et Conception
-| Designation | Description | Qte | P.U. HT | Total HT |
-|---|---|---|---|---|
-| Ateliers de cadrage | Analyse fonctionnelle, user stories, specs detaillees | 1 | ... | ... |
-| Architecture technique | Choix technologiques, architecture systeme | 1 | ... | ... |
-| Maquettes UX (wireframes) | Wireframes basse fidelite des ecrans principaux | 1 | ... | ... |
+Conception, developpement et mise en production de votre projet digital.
 
-## 1.2 Design UX/UI
-| Designation | Description | Qte | P.U. HT | Total HT |
-|---|---|---|---|---|
-| Direction artistique | Proposition de 2 pistes creatives | 1 | ... | ... |
-| Design UI haute fidelite | Maquettes pixel-perfect responsive | 1 | ... | ... |
-| Design system | Composants, tokens, guide de style | 1 | ... | ... |
-| Prototypage interactif | Prototype cliquable pour validation | 1 | ... | ... |
-
-## 1.3 Developpement Frontend
-| Designation | Description | Qte | P.U. HT | Total HT |
-|---|---|---|---|---|
-| Integration des maquettes | HTML/CSS responsive, composants React | 1 | ... | ... |
-| Animations et interactions | Micro-interactions, transitions | 1 | ... | ... |
-| Optimisation performance | Lazy loading, compression, Core Web Vitals | 1 | ... | ... |
-
-## 1.4 Developpement Backend et Integrations
-| Designation | Description | Qte | P.U. HT | Total HT |
-|---|---|---|---|---|
-| Base de donnees et API | Modelisation, endpoints, securite | 1 | ... | ... |
-| Authentification et roles | Systeme de connexion, gestion des droits | 1 | ... | ... |
-| Integrations tierces | APIs externes, connecteurs | ... | ... | ... |
-| Back-office administration | Interface de gestion du contenu | 1 | ... | ... |
-
-## 1.5 Tests et Recette (QA)
-| Designation | Description | Qte | P.U. HT | Total HT |
-|---|---|---|---|---|
-| Tests fonctionnels | Tests manuels et automatises | 1 | ... | ... |
-| Tests de performance | Charge, stress, temps de reponse | 1 | ... | ... |
-| Tests de securite | Audit de securite, pentest basique | 1 | ... | ... |
-| Recette client | 2 iterations de corrections | 1 | ... | ... |
-
-## 1.6 Mise en Production et Accompagnement
-| Designation | Description | Qte | P.U. HT | Total HT |
-|---|---|---|---|---|
-| Deploiement production | Configuration serveur, DNS, SSL | 1 | ... | ... |
-| Migration de donnees | Import des contenus existants | 1 | ... | ... |
-| Formation utilisateurs | Session de formation (2h) | 1 | ... | ... |
-| Documentation technique | Guide utilisateur et technique | 1 | ... | ... |
-
-## 1.7 Gestion de Projet
-| Designation | Description | Qte | P.U. HT | Total HT |
-|---|---|---|---|---|
-| Pilotage de projet | Coordination, reporting, comites | 1 | ... | ... |
-
----
-
-| **SOUS-TOTAL BUILD HT** | **...euros** |
-|---|---|
-
-## Options et modules complementaires
-| Designation | Description | P.U. HT |
-|---|---|---|
-- Lister les options applicables du systeme de pricing
-
----
-
-# 2. PHASE RUN - MAINTENANCE (Optionnel)
-
-| Forfait | Description | Engagement | Prix mensuel HT |
+| Designation | Qte | P.U. HT | Total HT |
 |---|---|---|---|
-| Essentiel | Maintenance corrective, monitoring, support email (48h) | 12 mois | 199 euros/mois |
-| Confort | + Mises a jour, 4h d'evolution/mois, support prioritaire (24h) | 12 mois | 399 euros/mois |
-| Premium | + Evolutions illimitees, SLA 99.9%, support telephone (4h) | 12 mois | 799 euros/mois |
+| [Type projet] - Forfait de base | 1 | [base_price] euros | [base_price] euros |
+| Conception UX/UI, developpement, tests, deploiement | | | |
+| **Options additionnelles :** | | | |
+| - [Nom option 1] | 1 | [prix] euros | [prix] euros |
+| - [Nom option 2] | 1 | [prix] euros | [prix] euros |
+| **SOUS-TOTAL BUILD HT** | | | **[build_total] euros** |
 
-**Forfait recommande** : [Recommandation basee sur le type de projet]
+Si remise applicable :
+| Remise exceptionnelle : -[X]% (-[montant] euros) |
+|---|
+| Motif : [raison de la remise] |
 
 ---
 
-# 3. RECAPITULATIF FINANCIER
+# Phase RUN - Maintenance (recommande)
+
+Hebergement, monitoring, mises a jour de securite et evolutions mineures incluses.
+
+| Forfait | Engagement | Prix mensuel HT |
+|---|---|---|
+| Essentiel | 12 mois | 199 euros/mois |
+| Confort | 12 mois | 399 euros/mois |
+| Premium | 12 mois | 799 euros/mois |
+
+**Forfait recommande** : [Nom du forfait recommande] - [prix] euros/mois
+
+---
+
+# Recapitulatif Financier
 
 | | Montant |
 |---|---|
-| Total BUILD HT | ...euros |
-| Forfait maintenance annuel HT (optionnel) | ...euros |
-| **Sous-total HT** | **...euros** |
-| TVA (20%) | ...euros |
-| **TOTAL TTC** | **...euros** |
+| Total BUILD HT | [build_total_after_discount] euros |
+| TVA (20%) | [tva_amount] euros |
+| **TOTAL TTC** | **[build_total_ttc] euros** |
 
 ---
 
-# 4. CONDITIONS DE PAIEMENT
+# Echeancier de Paiement
 
-## Echelonnement BUILD
-| Etape | % | Montant HT | Montant TTC | Echeance |
-|---|---|---|---|---|
-| Acompte a la commande | 30% | ... | ... | Signature du devis |
-| Validation des maquettes | 20% | ... | ... | + 3 semaines |
-| Livraison en recette | 35% | ... | ... | + [duree dev] semaines |
-| Mise en production | 15% | ... | ... | Go Live |
+| Etape | % | Montant TTC | Echeance |
+|---|---|---|---|
+| Acompte a la commande | 30% | [montant] euros | Signature |
+| Validation maquettes | 20% | [montant] euros | +3 semaines |
+| Livraison recette | 35% | [montant] euros | PV recette signe |
+| Mise en production | 15% | [montant] euros | Go Live |
 
-**Mode de paiement** : Virement bancaire sous 15 jours
+## Coordonnees Bancaires
 IBAN : FR76 XXXX XXXX XXXX XXXX XXXX XXX
 BIC : XXXXXXXX
+Banque : Banque XXXX
 
 ---
 
-# 5. DELAIS DE REALISATION
+# Delais de Realisation
 
-| Phase | Duree estimee |
-|---|---|
-| Conception et design | 3-4 semaines |
-| Developpement | 4-8 semaines |
-| Tests et recette | 2 semaines |
-| Mise en production | 1 semaine |
-| **Total** | **[min]-[max] semaines** |
-
-Demarrage : Sous 2 semaines apres reception de l'acompte et des elements necessaires.
+Duree estimee : [duration_weeks_min] a [duration_weeks_max] semaines
+Demarrage : Sous 2 semaines apres reception de l'acompte
 
 ---
 
-# 6. GARANTIES INCLUSES
-- Garantie de conformite : 3 mois apres mise en production
-- Corrections des anomalies bloquantes sous 48h ouvrees
-- Corrections des anomalies mineures sous 10 jours ouvres
-- 2 iterations de corrections incluses pendant la recette
+# Conditions Generales (Extrait)
 
-# 7. CONDITIONS GENERALES (Extrait)
 - Devis valable 30 jours a compter de sa date d'emission
 - Garantie 3 mois post-livraison incluse (corrections des anomalies)
-- Les delais sont indicatifs et dependent de la reactivite du client pour les validations
-- Tout travail supplementaire non prevu au present devis sera facture au TJM de 650 euros HT/jour
-- En cas de retard de paiement : penalites de 3 fois le taux d'interet legal + indemnite forfaitaire de 40 euros (art. D441-5 Code de commerce)
-- Aucun escompte pour paiement anticipe
+- Les delais sont indicatifs et dependent de la reactivite du client
+- Tout travail supplementaire sera facture au tarif journalier de 750 euros HT
+- Penalites de retard : 3 fois le taux legal + indemnite forfaitaire de 40 euros
 - Les CGV completes sont annexees au present devis
 
 ---
 
-# ACCEPTATION
+# Acceptation du Devis
 
 Pour acceptation, merci de retourner ce devis signe avec la mention "Bon pour accord".
 
-| | Client |
+| Date : | Signature et cachet : |
 |---|---|
-| Date | _________________ |
-| Nom et qualite | _________________ |
-| Signature et cachet | |
-| (precede de la mention "Bon pour accord") | |
+| _______________ | (precede de "Bon pour accord") |
 
 ---
-
-*Devis genere par IMOTION Creator Studio - www.clarivi.io*
+Devis genere par IMOTION Creator Studio le [date]
+IMOTION Creator Studio | SAS au capital de 10 000 euros | 123 Avenue de l'Innovation, 75008 Paris | www.imotion-studio.com
 
 ---
 
@@ -1279,6 +1221,7 @@ INSTRUCTIONS :
 - Si des donnees de pricing existent dans le contexte, utiliser les montants exacts
 - Sinon, estimer en fonction du type et de la complexite du projet
 - Chaque ligne doit etre detaillee et justifiable
+- L'echelonnement DOIT toujours etre 30/20/35/15
 - NE JAMAIS utiliser d'emojis`;
   }
 
