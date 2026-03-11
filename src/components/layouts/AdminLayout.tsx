@@ -125,7 +125,7 @@ export function AdminLayout() {
         <div className="flex-1 flex flex-col">
           <header className="h-14 flex items-center gap-2 border-b px-4 bg-background">
             <SidebarTrigger />
-            <div className="flex items-center gap-1 overflow-x-auto">
+            <div className="flex items-center gap-1 overflow-x-auto flex-1">
               {adminQuickNav.map((item) => (
                 <NavLink
                   key={item.url}
@@ -136,13 +136,13 @@ export function AdminLayout() {
                   {item.title}
                 </NavLink>
               ))}
-              <Link
-                to="/"
-                className={`whitespace-nowrap rounded-md px-2.5 py-1.5 text-xs transition-colors ${location.pathname === "/" ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted"}`}
-              >
-                Site
-              </Link>
             </div>
+            <Button asChild variant="outline" size="sm" className="shrink-0 gap-2 rounded-lg border-primary/20 text-primary hover:bg-primary/10 hover:text-primary">
+              <Link to="/">
+                <Globe className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Retour au site</span>
+              </Link>
+            </Button>
           </header>
           <main className="flex-1 p-6 bg-muted/30">
             <Outlet />
