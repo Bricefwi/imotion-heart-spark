@@ -18,7 +18,7 @@ const navLinks = [
 ];
 
 export function PublicLayout() {
-  const { user } = useAuth();
+  const { user, profile, roles, signOut } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
