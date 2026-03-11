@@ -15,31 +15,21 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { LayoutDashboard, Users, Settings, Plug, ScrollText, LogOut, Shield, FileText, BookOpen, Radar, BarChart3, Globe, ExternalLink, ChevronRight, Home, Bell } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { LayoutDashboard, Users, Settings, Plug, ScrollText, LogOut, Shield, FileText, BookOpen, Radar, BarChart3, Globe, ExternalLink, ChevronRight, Home, Bell, Check, CheckCheck, Inbox } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
-
-const adminNav = [
-  { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard },
-  { title: "Tower Control", url: "/admin/crm", icon: Radar },
-  { title: "Analytiques", url: "/admin/analytics", icon: BarChart3 },
-  { title: "Utilisateurs", url: "/admin/users", icon: Users },
-  { title: "Blog", url: "/admin/blog", icon: BookOpen },
-  { title: "Templates", url: "/admin/templates", icon: FileText },
-  { title: "Paramètres", url: "/admin/settings", icon: Settings },
-  { title: "Intégrations", url: "/admin/integrations", icon: Plug },
-  { title: "Logs", url: "/admin/logs", icon: ScrollText },
-];
-
-const adminQuickNav = [
-  { title: "Dashboard", url: "/admin/dashboard" },
-  { title: "CRM", url: "/admin/crm" },
-  { title: "Analytics", url: "/admin/analytics" },
-  { title: "Users", url: "/admin/users" },
-  { title: "Blog", url: "/admin/blog" },
-];
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { toast } from "sonner";
+import { formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
+import { useState } from "react";
 
 function useUnreadNotifications() {
   const { user } = useAuth();
@@ -58,6 +48,154 @@ function useUnreadNotifications() {
     enabled: !!user?.id,
     refetchInterval: 30000,
   });
+}
+
+function useRecentNotifications() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["admin-recent-notifications", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const { data, error } = await supabase
+        .from("notifications")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(20);
+      if (error) return [];
+      return data || [];
+    },
+    enabled: !!user?.id,
+    refetchInterval: 30000,
+  });
+}
+
+function NotificationDropdown({ unreadCount }: { unreadCount: number }) {
+  const [open, setOpen] = useState(false);
+  const { data: notifications = [] } = useRecentNotifications();
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+
+  const markAsRead = useMutation({
+    mutationFn: async (notificationId: string) => {
+      const { error } = await supabase
+        .from("notifications")
+        .update({ is_read: true, read_at: new Date().toISOString() })
+        .eq("id", notificationId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-unread-notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-recent-notifications"] });
+    },
+  });
+
+  const markAllAsRead = useMutation({
+    mutationFn: async () => {
+      if (!user?.id) return;
+      const { error } = await supabase
+        .from("notifications")
+        .update({ is_read: true, read_at: new Date().toISOString() })
+        .eq("user_id", user.id)
+        .eq("is_read", false);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-unread-notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-recent-notifications"] });
+      toast.success("Toutes les notifications marquees comme lues");
+    },
+  });
+
+  const typeStyles: Record<string, string> = {
+    info: "bg-blue-500/10 text-blue-600",
+    success: "bg-emerald-500/10 text-emerald-600",
+    warning: "bg-amber-500/10 text-amber-600",
+    error: "bg-destructive/10 text-destructive",
+    document: "bg-primary/10 text-primary",
+    project: "bg-secondary/10 text-secondary",
+  };
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-lg text-muted-foreground hover:text-foreground">
+          <Bell className="h-4 w-4" />
+          {unreadCount > 0 && (
+            <span className="absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground animate-pulse">
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </span>
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-96 p-0" align="end" sideOffset={8}>
+        <div className="flex items-center justify-between px-4 py-3 border-b">
+          <h3 className="font-semibold text-sm">Notifications</h3>
+          {unreadCount > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 text-xs text-muted-foreground hover:text-foreground gap-1"
+              onClick={() => markAllAsRead.mutate()}
+              disabled={markAllAsRead.isPending}
+            >
+              <CheckCheck className="h-3.5 w-3.5" />
+              Tout marquer lu
+            </Button>
+          )}
+        </div>
+
+        <ScrollArea className="max-h-80">
+          {notifications.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-10 text-muted-foreground">
+              <Inbox className="h-8 w-8 mb-2 opacity-40" />
+              <p className="text-sm">Aucune notification</p>
+            </div>
+          ) : (
+            <div className="divide-y">
+              {notifications.map((notif) => (
+                <div
+                  key={notif.id}
+                  className={`flex items-start gap-3 px-4 py-3 transition-colors hover:bg-muted/50 cursor-pointer ${
+                    !notif.is_read ? "bg-primary/5" : ""
+                  }`}
+                  onClick={() => {
+                    if (!notif.is_read) markAsRead.mutate(notif.id);
+                    if (notif.link) {
+                      setOpen(false);
+                      window.location.href = notif.link;
+                    }
+                  }}
+                >
+                  <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-medium ${typeStyles[notif.type] || "bg-muted text-muted-foreground"}`}>
+                    {notif.type === "info" ? "i" : notif.type === "success" ? "ok" : notif.type === "warning" ? "!" : notif.type?.charAt(0)?.toUpperCase() || "N"}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className={`text-sm leading-tight ${!notif.is_read ? "font-semibold text-foreground" : "text-foreground/80"}`}>
+                        {notif.title}
+                      </p>
+                      {!notif.is_read && (
+                        <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary" />
+                      )}
+                    </div>
+                    {notif.body && (
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{notif.body}</p>
+                    )}
+                    <p className="text-[11px] text-muted-foreground/60 mt-1">
+                      {notif.created_at
+                        ? formatDistanceToNow(new Date(notif.created_at), { addSuffix: true, locale: fr })
+                        : ""}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </ScrollArea>
+      </PopoverContent>
+    </Popover>
+  );
 }
 
 function AdminSidebar() {
