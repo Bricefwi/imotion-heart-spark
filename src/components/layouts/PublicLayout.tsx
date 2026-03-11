@@ -64,12 +64,28 @@ export function PublicLayout() {
                       <span className="text-sm font-medium max-w-[120px] truncate">{profile?.full_name || user.email}</span>
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuContent align="end" className="w-52">
                     <DropdownMenuItem asChild>
-                      <Link to={roles.includes("admin") ? "/admin/dashboard" : roles.includes("consultant") ? "/consultant/dashboard" : "/client/dashboard"}>
+                      <Link to="/client/dashboard" className="flex items-center gap-2">
                         Mon espace
                       </Link>
                     </DropdownMenuItem>
+                    {roles.includes("consultant") && (
+                      <DropdownMenuItem asChild>
+                        <Link to="/consultant/dashboard" className="flex items-center gap-2">
+                          Espace Consultant
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
+                    {roles.includes("admin") && (
+                      <>
+                        <DropdownMenuItem asChild>
+                          <Link to="/admin/dashboard" className="flex items-center gap-2 text-primary font-medium">
+                            Administration
+                          </Link>
+                        </DropdownMenuItem>
+                      </>
+                    )}
                     <DropdownMenuItem onClick={signOut} className="text-destructive">
                       <LogOut className="h-4 w-4 mr-2" /> Déconnexion
                     </DropdownMenuItem>
