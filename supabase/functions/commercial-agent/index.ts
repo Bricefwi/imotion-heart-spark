@@ -164,7 +164,10 @@ async function fetchDynamicContext(): Promise<string> {
     console.error("Error fetching dynamic context:", err);
   }
 
-  return sections.length > 0 ? "\n" + sections.join("\n") : "";
+  const result = sections.length > 0 ? "\n" + sections.join("\n") : "";
+  cachedContext = result;
+  cacheTimestamp = Date.now();
+  return result;
 }
 
 serve(async (req) => {
