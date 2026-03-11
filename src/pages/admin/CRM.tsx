@@ -66,6 +66,7 @@ export default function AdminCRM() {
   const { user } = useAuth();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [pipelineView, setPipelineView] = useState<"kanban" | "list">("kanban");
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
