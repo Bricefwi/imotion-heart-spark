@@ -1,8 +1,6 @@
 import { HeroSection } from "@/components/landing/HeroSection";
 import { StatsSection } from "@/components/landing/StatsSection";
-import { FeaturesSection } from "@/components/landing/FeaturesSection";
-import { PricingSection } from "@/components/landing/PricingSection";
-import { FloatingPhotoStrip } from "@/components/landing/FloatingPhotoStrip";
+import { MiniPreviewCards } from "@/components/landing/MiniPreviewCards";
 import { CTASection } from "@/components/landing/CTASection";
 
 export default function Index() {
@@ -10,9 +8,7 @@ export default function Index() {
     <div className="overflow-hidden">
       <HeroSection />
       <StatsSection />
-      <FeaturesSection />
-      <PricingSection />
-      <FloatingPhotoStrip />
+      <MiniPreviewCards />
       <CTASection />
     </div>
   );
