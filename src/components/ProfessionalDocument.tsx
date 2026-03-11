@@ -102,7 +102,7 @@ export function ProfessionalDocument({
           pdf.line(12, pageHeight - 14, pageWidth - 12, pageHeight - 14);
           pdf.setFontSize(6.5);
           pdf.setTextColor(160, 160, 160);
-          pdf.text("IMOTION - Agence Digitale | Document confidentiel", 12, pageHeight - 10);
+          pdf.text("IMOTION Creator Studio | Document confidentiel", 12, pageHeight - 10);
           pdf.setFontSize(7);
           pdf.setTextColor(100, 100, 100);
           pdf.text(`Page ${i} / ${totalPages}`, pageWidth / 2, pageHeight - 10, { align: "center" });
