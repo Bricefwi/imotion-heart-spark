@@ -13,6 +13,7 @@ import { StatsCard } from "@/components/StatsCard";
 import { ClientDetailDrawer } from "@/components/admin/ClientDetailDrawer";
 import { AutomationRulesTab } from "@/components/admin/AutomationRulesTab";
 import { CampaignsTab } from "@/components/admin/CampaignsTab";
+import { KanbanBoard } from "@/components/admin/KanbanBoard";
 import { Link } from "react-router-dom";
 import { formatDistanceToNow, format } from "date-fns";
 import { fr } from "date-fns/locale";
