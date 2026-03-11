@@ -106,10 +106,20 @@ export function PublicLayout() {
                 {link.label}
               </Link>
             ))}
-            <div className="flex flex-col gap-2 pt-2">
-              <Button variant="outline" asChild><Link to="/login">Se connecter</Link></Button>
-              <Button asChild className="gradient-primary border-0"><Link to="/register">Démarrer</Link></Button>
-            </div>
+            {user ? (
+              <div className="flex items-center gap-3 pt-2 border-t">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={profile?.avatar_url || undefined} />
+                  <AvatarFallback className="gradient-primary text-white text-xs">{(profile?.full_name || "U").charAt(0)}</AvatarFallback>
+                </Avatar>
+                <span className="text-sm font-medium">{profile?.full_name || user.email}</span>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2 pt-2">
+                <Button variant="outline" asChild><Link to="/login">Se connecter</Link></Button>
+                <Button asChild className="gradient-primary border-0"><Link to="/register">Démarrer</Link></Button>
+              </div>
+            )}
           </div>
         )}
       </header>
