@@ -123,6 +123,82 @@ function AdminSidebar() {
   );
 }
 
+// Mapping des routes vers les libellés de breadcrumb
+const breadcrumbLabels: Record<string, string> = {
+  "admin": "Admin",
+  "dashboard": "Dashboard",
+  "crm": "CRM",
+  "analytics": "Analytiques",
+  "users": "Utilisateurs",
+  "blog": "Blog",
+  "templates": "Templates",
+  "settings": "Paramètres",
+  "integrations": "Intégrations",
+  "logs": "Logs",
+};
+
+function BreadcrumbNavigation() {
+  const location = useLocation();
+  const matches = useMatches();
+
+  // Parse le pathname pour créer le breadcrumb
+  const pathSegments = location.pathname.split("/").filter(Boolean);
+
+  // Génère les items du breadcrumb
+  const breadcrumbItems = pathSegments.reduce<
+    Array<{ label: string; path: string; isLast: boolean }>
+  >((acc, segment, index) => {
+    const path = "/" + pathSegments.slice(0, index + 1).join("/");
+    const label = breadcrumbLabels[segment] || segment.charAt(0).toUpperCase() + segment.slice(1);
+    const isLast = index === pathSegments.length - 1;
+
+    acc.push({ label, path, isLast });
+    return acc;
+  }, []);
+
+  // Si on est juste sur /admin, on ajoute Dashboard
+  if (breadcrumbItems.length === 1 && breadcrumbItems[0].label === "Admin") {
+    breadcrumbItems[0] = { ...breadcrumbItems[0], isLast: false };
+    breadcrumbItems.push({
+      label: "Dashboard",
+      path: "/admin/dashboard",
+      isLast: true,
+    });
+  }
+
+  return (
+    <Breadcrumb>
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink asChild>
+            <Link to="/admin/dashboard" className="flex items-center gap-1">
+              <Home className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Admin</span>
+            </Link>
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+        {breadcrumbItems.length > 0 && <BreadcrumbSeparator />}
+        {breadcrumbItems.map((item, index) => (
+          <BreadcrumbItem key={item.path}>
+            {item.isLast ? (
+              <BreadcrumbPage className="font-medium text-foreground">
+                {item.label}
+              </BreadcrumbPage>
+            ) : (
+              <>
+                <BreadcrumbLink asChild>
+                  <Link to={item.path}>{item.label}</Link>
+                </BreadcrumbLink>
+                {index < breadcrumbItems.length - 1 && <BreadcrumbSeparator />}
+              </>
+            )}
+          </BreadcrumbItem>
+        ))}
+      </BreadcrumbList>
+    </Breadcrumb>
+  );
+}
+
 export function AdminLayout() {
   const location = useLocation();
 
@@ -131,9 +207,16 @@ export function AdminLayout() {
       <div className="min-h-screen flex w-full">
         <AdminSidebar />
         <div className="flex-1 flex flex-col">
-          <header className="h-14 flex items-center gap-2 border-b px-4 bg-background">
+          <header className="h-14 flex items-center gap-4 border-b px-4 bg-background">
             <SidebarTrigger />
-            <div className="flex items-center gap-1 overflow-x-auto flex-1">
+
+            {/* Breadcrumb contextuel */}
+            <div className="hidden sm:flex items-center">
+              <BreadcrumbNavigation />
+            </div>
+
+            {/* Quick nav - visible uniquement sur mobile/tablette */}
+            <div className="flex sm:hidden items-center gap-1 overflow-x-auto flex-1">
               {adminQuickNav.map((item) => (
                 <NavLink
                   key={item.url}
@@ -145,12 +228,15 @@ export function AdminLayout() {
                 </NavLink>
               ))}
             </div>
-            <Button asChild variant="outline" size="sm" className="shrink-0 gap-2 rounded-lg border-primary/20 text-primary hover:bg-primary/10 hover:text-primary">
-              <Link to="/">
-                <Globe className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Retour au site</span>
-              </Link>
-            </Button>
+
+            <div className="ml-auto flex items-center gap-2">
+              <Button asChild variant="outline" size="sm" className="shrink-0 gap-2 rounded-lg border-primary/20 text-primary hover:bg-primary/10 hover:text-primary">
+                <Link to="/">
+                  <Globe className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Retour au site</span>
+                </Link>
+              </Button>
+            </div>
           </header>
           <main className="flex-1 p-6 bg-muted/30">
             <Outlet />
