@@ -27,11 +27,13 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
     return <Navigate to="/client/dashboard" replace />;
   }
 
-  // Redirect to onboarding if not completed (only for client routes)
+  // Redirect to onboarding if not completed (only for client routes, skip for admin/consultant)
   if (
     profile &&
     !profile.onboarding_completed &&
     !requiredRole &&
+    !roles.includes("admin") &&
+    !roles.includes("consultant") &&
     location.pathname !== "/client/onboarding"
   ) {
     return <Navigate to="/client/onboarding" replace />;
