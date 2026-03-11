@@ -1,4 +1,4 @@
-import { Outlet, Link } from "react-router-dom";
+import { Outlet, Link, useLocation } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/hooks/useAuth";
@@ -20,6 +20,14 @@ const adminNav = [
   { title: "Paramètres", url: "/admin/settings", icon: Settings },
   { title: "Intégrations", url: "/admin/integrations", icon: Plug },
   { title: "Logs", url: "/admin/logs", icon: ScrollText },
+];
+
+const adminQuickNav = [
+  { title: "Dashboard", url: "/admin/dashboard" },
+  { title: "CRM", url: "/admin/crm" },
+  { title: "Analytics", url: "/admin/analytics" },
+  { title: "Users", url: "/admin/users" },
+  { title: "Blog", url: "/admin/blog" },
 ];
 
 function AdminSidebar() {
@@ -108,13 +116,33 @@ function AdminSidebar() {
 }
 
 export function AdminLayout() {
+  const location = useLocation();
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
         <AdminSidebar />
         <div className="flex-1 flex flex-col">
-          <header className="h-14 flex items-center border-b px-4 bg-background">
+          <header className="h-14 flex items-center gap-2 border-b px-4 bg-background">
             <SidebarTrigger />
+            <div className="flex items-center gap-1 overflow-x-auto">
+              {adminQuickNav.map((item) => (
+                <NavLink
+                  key={item.url}
+                  to={item.url}
+                  className="whitespace-nowrap rounded-md px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-muted"
+                  activeClassName="bg-muted text-foreground"
+                >
+                  {item.title}
+                </NavLink>
+              ))}
+              <Link
+                to="/"
+                className={`whitespace-nowrap rounded-md px-2.5 py-1.5 text-xs transition-colors ${location.pathname === "/" ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted"}`}
+              >
+                Site
+              </Link>
+            </div>
           </header>
           <main className="flex-1 p-6 bg-muted/30">
             <Outlet />
@@ -124,3 +152,4 @@ export function AdminLayout() {
     </SidebarProvider>
   );
 }
+
