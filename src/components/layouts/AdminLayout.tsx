@@ -391,6 +391,7 @@ function BreadcrumbNavigation() {
 export function AdminLayout() {
   const location = useLocation();
   const { data: unreadCount = 0 } = useUnreadNotifications();
+  const { theme, setTheme } = useTheme();
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
