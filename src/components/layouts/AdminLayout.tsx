@@ -330,24 +330,20 @@ function BreadcrumbNavigation() {
   const location = useLocation();
   const matches = useMatches();
 
-  // Parse le pathname pour créer le breadcrumb
+  // Parse le pathname, skip the "admin" prefix (already shown as fixed Home link)
   const pathSegments = location.pathname.split("/").filter(Boolean);
+  const subSegments = pathSegments.slice(1); // Remove "admin"
 
-  // Génère les items du breadcrumb
-  const breadcrumbItems = pathSegments.reduce<
-    Array<{ label: string; path: string; isLast: boolean }>
-  >((acc, segment, index) => {
-    const path = "/" + pathSegments.slice(0, index + 1).join("/");
+  // Build breadcrumb items from sub-segments only
+  const breadcrumbItems = subSegments.map((segment, index) => {
+    const path = "/" + pathSegments.slice(0, index + 2).join("/");
     const label = breadcrumbLabels[segment] || segment.charAt(0).toUpperCase() + segment.slice(1);
-    const isLast = index === pathSegments.length - 1;
+    const isLast = index === subSegments.length - 1;
+    return { label, path, isLast };
+  });
 
-    acc.push({ label, path, isLast });
-    return acc;
-  }, []);
-
-  // Si on est juste sur /admin, on ajoute Dashboard
-  if (breadcrumbItems.length === 1 && breadcrumbItems[0].label === "Admin") {
-    breadcrumbItems[0] = { ...breadcrumbItems[0], isLast: false };
+  // If no sub-segments (just /admin), show Dashboard
+  if (breadcrumbItems.length === 0) {
     breadcrumbItems.push({
       label: "Dashboard",
       path: "/admin/dashboard",

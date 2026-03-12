@@ -11,6 +11,9 @@ interface ProtectedRouteProps {
 
 type AppRoleLiteral = "client" | "consultant" | "admin" | "super_admin";
 
+/**
+ * Maps a required role to all roles that satisfy it (role hierarchy).
+ */
 const toRoleTargets = (requiredRole: string): AppRoleLiteral[] => {
   if (requiredRole === "admin") return ["admin", "super_admin"];
   if (requiredRole === "consultant") return ["consultant", "admin", "super_admin"];
@@ -21,10 +24,11 @@ const toRoleTargets = (requiredRole: string): AppRoleLiteral[] => {
 export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
   const { user, profile, roles, loading } = useAuth();
   const location = useLocation();
-  const [serverRoleCheck, setServerRoleCheck] = useState({ checked: false, allowed: false });
 
+  // Derive role flags from context
   const isAdmin = roles.includes("admin") || roles.includes("super_admin");
   const isConsultant = roles.includes("consultant") || isAdmin;
+  const isStaff = isAdmin || isConsultant;
 
   const hasRequiredRole =
     !requiredRole
@@ -33,53 +37,52 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
         ? isAdmin
         : requiredRole === "consultant"
           ? isConsultant
-          : roles.includes(requiredRole as never);
+          : roles.includes(requiredRole as AppRoleLiteral);
+
+  // Server-side fallback: only runs when local role check fails
+  const [serverCheck, setServerCheck] = useState<{
+    checked: boolean;
+    allowed: boolean;
+  }>({ checked: false, allowed: false });
 
   useEffect(() => {
     let active = true;
 
-    const verifyRoleServerSide = async () => {
-      if (!user || !requiredRole || hasRequiredRole) {
-        if (active) {
-          setServerRoleCheck({ checked: true, allowed: false });
-        }
-        return;
-      }
+    // If no required role, or local check already passed, skip server check
+    if (!user || !requiredRole || hasRequiredRole) {
+      setServerCheck({ checked: true, allowed: false });
+      return;
+    }
 
+    // Reset and perform server-side verification
+    setServerCheck({ checked: false, allowed: false });
+
+    const verify = async () => {
       const roleTargets = toRoleTargets(requiredRole);
       if (roleTargets.length === 0) {
-        if (active) {
-          setServerRoleCheck({ checked: true, allowed: false });
-        }
+        if (active) setServerCheck({ checked: true, allowed: false });
         return;
       }
 
-      if (active) {
-        setServerRoleCheck({ checked: false, allowed: false });
+      try {
+        const results = await Promise.all(
+          roleTargets.map((role) =>
+            supabase.rpc("has_role", { _user_id: user.id, _role: role }),
+          ),
+        );
+        if (!active) return;
+        const allowed = results.some((r) => !r.error && r.data === true);
+        setServerCheck({ checked: true, allowed });
+      } catch {
+        if (active) setServerCheck({ checked: true, allowed: false });
       }
-
-      const checks = await Promise.all(
-        roleTargets.map((role) =>
-          supabase.rpc("has_role", {
-            _user_id: user.id,
-            _role: role,
-          }),
-        ),
-      );
-
-      if (!active) return;
-
-      const allowed = checks.some((result) => !result.error && result.data === true);
-      setServerRoleCheck({ checked: true, allowed });
     };
 
-    void verifyRoleServerSide();
-
-    return () => {
-      active = false;
-    };
+    void verify();
+    return () => { active = false; };
   }, [user?.id, requiredRole, hasRequiredRole]);
 
+  // 1. Wait for auth context to finish loading
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -88,12 +91,13 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
     );
   }
 
+  // 2. Not authenticated -> redirect to login
   if (!user) {
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 
-  const waitingServerRoleCheck = Boolean(requiredRole && !hasRequiredRole && !serverRoleCheck.checked);
-  if (waitingServerRoleCheck) {
+  // 3. If a role is required and local check failed, wait for server check
+  if (requiredRole && !hasRequiredRole && !serverCheck.checked) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -101,19 +105,20 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
     );
   }
 
-  const hasEffectiveRequiredRole = hasRequiredRole || serverRoleCheck.allowed;
-
-  if (requiredRole && !hasEffectiveRequiredRole) {
+  // 4. Check effective role (local OR server-side)
+  const hasAccess = hasRequiredRole || serverCheck.allowed;
+  if (requiredRole && !hasAccess) {
     return <Navigate to="/client/dashboard" replace />;
   }
 
-  // Redirect to onboarding if not completed (only for pure client routes)
-  const hasAnyStaffRole = hasRequiredRole || isAdmin || isConsultant || serverRoleCheck.allowed;
+  // 5. Onboarding redirect: ONLY for pure client users on unprotected routes
+  //    Staff users (admin/consultant) NEVER get redirected to onboarding.
+  const effectiveStaff = isStaff || serverCheck.allowed;
   if (
+    !requiredRole &&
     profile &&
     !profile.onboarding_completed &&
-    !requiredRole &&
-    !hasAnyStaffRole &&
+    !effectiveStaff &&
     location.pathname !== "/client/onboarding"
   ) {
     return <Navigate to="/client/onboarding" replace />;
@@ -121,5 +126,3 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
 
   return <>{children}</>;
 }
-
-
