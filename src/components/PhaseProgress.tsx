@@ -4,12 +4,12 @@ import { motion } from "framer-motion";
 
 const defaultPhases = [
   "Accueil",
-  "Besoin",
+  "Enjeux",
   "Vision",
-  "Écosystème",
-  "Contraintes",
-  "Décision",
-  "Validation",
+  "Fonctions",
+  "Technique",
+  "Budget",
+  "Synthèse",
 ];
 
 interface PhaseProgressProps {
