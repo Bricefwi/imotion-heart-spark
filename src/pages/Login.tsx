@@ -11,6 +11,15 @@ import { AuthPhotoCarousel } from "@/components/AuthPhotoCarousel";
 import { toast } from "sonner";
 import { Loader2, Mail, Wand2 } from "lucide-react";
 
+const getSmartRedirect = async (userId: string | undefined, fallback: string): Promise<string> => {
+  if (!userId || (fallback !== "/client/dashboard" && fallback !== "/")) return fallback;
+  const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+  const roles = data?.map((r) => r.role) ?? [];
+  if (roles.includes("admin") || roles.includes("super_admin")) return "/admin/dashboard";
+  if (roles.includes("consultant")) return "/consultant/dashboard";
+  return fallback;
+};
+
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -28,11 +37,13 @@ export default function Login() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       toast.error(error.message === "Invalid login credentials" ? "Email ou mot de passe incorrect." : error.message);
     } else {
-      navigate(redirectPath, { replace: true });
+      // Check roles to redirect admin/consultant to their dashboard
+      const target = await getSmartRedirect(data.user?.id, redirectPath);
+      navigate(target, { replace: true });
     }
     setLoading(false);
   };
@@ -162,4 +173,3 @@ export default function Login() {
     </div>
   );
 }
-
