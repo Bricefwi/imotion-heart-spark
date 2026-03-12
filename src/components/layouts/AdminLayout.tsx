@@ -1,4 +1,4 @@
-import { Outlet, Link, useLocation, useMatches } from "react-router-dom";
+import { Outlet, Link, useLocation } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/hooks/useAuth";
@@ -328,7 +328,6 @@ const breadcrumbLabels: Record<string, string> = {
 
 function BreadcrumbNavigation() {
   const location = useLocation();
-  const matches = useMatches();
 
   // Parse le pathname, skip the "admin" prefix (already shown as fixed Home link)
   const pathSegments = location.pathname.split("/").filter(Boolean);
