@@ -57,6 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(true);
 
       try {
+        // Step 1: Fetch profile and roles from DB in parallel (2 queries only)
         const [profileResult, rolesResult] = await Promise.all([
           supabase.from("profiles").select("*").eq("id", currentUser.id).maybeSingle(),
           supabase.from("user_roles").select("role").eq("user_id", currentUser.id),
@@ -65,43 +66,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!isActive || requestId !== requestIdRef.current) return;
 
         if (profileResult.error) {
-          console.error("Error fetching profile:", profileResult.error);
+          console.warn("[useAuth] Profile fetch failed:", profileResult.error.message);
         }
         setProfile(profileResult.data ?? null);
 
+        // Step 2: Resolve roles from DB result
+        const directRoles: AppRole[] =
+          !rolesResult.error && rolesResult.data && rolesResult.data.length > 0
+            ? rolesResult.data.map(({ role }) => role)
+            : [];
+
         if (rolesResult.error) {
-          console.error("Error fetching roles:", rolesResult.error);
+          console.warn("[useAuth] Roles fetch failed:", rolesResult.error.message);
         }
 
-        const directRoles: AppRole[] = rolesResult.error
-          ? []
-          : rolesResult.data.map(({ role }) => role);
-
-        const roleChecks = await Promise.all(
-          APP_ROLES.map((role) =>
-            supabase.rpc("has_role", {
-              _user_id: currentUser.id,
-              _role: role,
-            }),
-          ),
-        );
-
-        if (!isActive || requestId !== requestIdRef.current) return;
-
-        const rpcRoles = APP_ROLES.filter((_, index) =>
-          roleChecks[index].error ? false : roleChecks[index].data === true,
-        );
-
-        let resolvedRoles = Array.from(new Set([...directRoles, ...rpcRoles]));
+        // Step 3: If DB returned roles, use them. Otherwise try fallbacks.
+        let resolvedRoles = directRoles;
 
         if (resolvedRoles.length === 0) {
+          // Fallback A: Extract from JWT metadata (no network call needed)
           resolvedRoles = extractRolesFromMetadata(currentUser);
         }
 
-        setRoles(resolvedRoles.length > 0 ? resolvedRoles : ["client"]);
+        if (resolvedRoles.length === 0) {
+          // Fallback B: Single targeted RPC check for admin role
+          // (uses SECURITY DEFINER, bypasses RLS)
+          try {
+            const { data, error } = await supabase.rpc("has_role", {
+              _user_id: currentUser.id,
+              _role: "admin" as AppRole,
+            });
+            if (!isActive || requestId !== requestIdRef.current) return;
+            if (!error && data === true) {
+              resolvedRoles = ["admin"];
+            }
+          } catch {
+            // RPC unavailable, continue
+          }
+        }
+
+        if (!isActive || requestId !== requestIdRef.current) return;
+
+        const finalRoles = resolvedRoles.length > 0 ? resolvedRoles : ["client" as AppRole];
+        console.info("[useAuth] Roles resolved:", finalRoles, "for user:", currentUser.id);
+        setRoles(finalRoles);
       } catch (error) {
         if (!isActive || requestId !== requestIdRef.current) return;
-        console.error("Error fetching auth context:", error);
+        console.error("[useAuth] Unexpected error:", error);
         setProfile(null);
         const metadataRoles = extractRolesFromMetadata(currentUser);
         setRoles(metadataRoles.length > 0 ? metadataRoles : ["client"]);
@@ -165,4 +176,3 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 }
 
 export const useAuth = () => useContext(AuthContext);
-
