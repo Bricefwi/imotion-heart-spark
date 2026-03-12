@@ -78,7 +78,7 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
     return () => {
       active = false;
     };
-  }, [user, requiredRole, hasRequiredRole]);
+  }, [user?.id, requiredRole, hasRequiredRole]);
 
   if (loading) {
     return (
