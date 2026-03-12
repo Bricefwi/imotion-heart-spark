@@ -28,11 +28,13 @@ export default function Login() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       toast.error(error.message === "Invalid login credentials" ? "Email ou mot de passe incorrect." : error.message);
     } else {
-      navigate(redirectPath, { replace: true });
+      // Check roles to redirect admin/consultant to their dashboard
+      const target = await getSmartRedirect(data.user?.id, redirectPath);
+      navigate(target, { replace: true });
     }
     setLoading(false);
   };
