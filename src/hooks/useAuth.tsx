@@ -73,26 +73,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           console.error("Error fetching roles:", rolesResult.error);
         }
 
-        let resolvedRoles: AppRole[] = rolesResult.error
+        const directRoles: AppRole[] = rolesResult.error
           ? []
           : rolesResult.data.map(({ role }) => role);
 
-        if (resolvedRoles.length === 0) {
-          const roleChecks = await Promise.all(
-            APP_ROLES.map((role) =>
-              supabase.rpc("has_role", {
-                _user_id: currentUser.id,
-                _role: role,
-              }),
-            ),
-          );
+        const roleChecks = await Promise.all(
+          APP_ROLES.map((role) =>
+            supabase.rpc("has_role", {
+              _user_id: currentUser.id,
+              _role: role,
+            }),
+          ),
+        );
 
-          if (!isActive || requestId !== requestIdRef.current) return;
+        if (!isActive || requestId !== requestIdRef.current) return;
 
-          resolvedRoles = APP_ROLES.filter((_, index) =>
-            roleChecks[index].error ? false : roleChecks[index].data === true,
-          );
-        }
+        const rpcRoles = APP_ROLES.filter((_, index) =>
+          roleChecks[index].error ? false : roleChecks[index].data === true,
+        );
+
+        let resolvedRoles = Array.from(new Set([...directRoles, ...rpcRoles]));
 
         if (resolvedRoles.length === 0) {
           resolvedRoles = extractRolesFromMetadata(currentUser);
