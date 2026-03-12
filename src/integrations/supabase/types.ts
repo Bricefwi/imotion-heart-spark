@@ -996,6 +996,10 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address_city: string | null
+          address_country: string | null
+          address_postal_code: string | null
+          address_street: string | null
           avatar_url: string | null
           company_name: string | null
           company_role: string | null
@@ -1018,6 +1022,10 @@ export type Database = {
           website: string | null
         }
         Insert: {
+          address_city?: string | null
+          address_country?: string | null
+          address_postal_code?: string | null
+          address_street?: string | null
           avatar_url?: string | null
           company_name?: string | null
           company_role?: string | null
@@ -1040,6 +1048,10 @@ export type Database = {
           website?: string | null
         }
         Update: {
+          address_city?: string | null
+          address_country?: string | null
+          address_postal_code?: string | null
+          address_street?: string | null
           avatar_url?: string | null
           company_name?: string | null
           company_role?: string | null
