@@ -49,8 +49,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   // ── Effect 1: Track auth state only (NO DB queries here) ──
-  // Supabase requires that we don't make data queries inside onAuthStateChange
-  // because the client's internal auth headers may not be updated yet.
   useEffect(() => {
     const {
       data: { subscription },
@@ -64,7 +62,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    // Also get initial session (in case onAuthStateChange doesn't fire INITIAL_SESSION)
     supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
       setSession(initialSession);
       setUser(initialSession?.user ?? null);
@@ -79,13 +76,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // ── Effect 2: Load profile & roles when user changes ──
-  // This runs in a separate React render cycle, after the Supabase client
-  // has fully updated its internal auth state, so DB queries work correctly.
   useEffect(() => {
     if (!user) return;
 
     let isActive = true;
-    setLoading(true);
+
+    // Step 0: Immediately extract roles from JWT metadata (no network needed).
+    // This unblocks rendering instantly if metadata contains roles.
+    const metadataRoles = extractRolesFromMetadata(user);
+    if (metadataRoles.length > 0) {
+      console.info("[useAuth] Immediate roles from metadata:", metadataRoles);
+      setRoles(metadataRoles);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
 
     const loadContext = async () => {
       try {
@@ -114,15 +119,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           console.warn("[useAuth] user_roles returned empty for user:", user.id);
         }
 
-        // Step 3: Fallback A - JWT metadata (no network call)
+        // Step 3: Fallback to metadata if DB returned nothing
         if (resolvedRoles.length === 0) {
-          resolvedRoles = extractRolesFromMetadata(user);
-          if (resolvedRoles.length > 0) {
-            console.info("[useAuth] Roles from metadata:", resolvedRoles);
-          }
+          resolvedRoles = metadataRoles;
         }
 
-        // Step 4: Fallback B - Single RPC check (SECURITY DEFINER, bypasses RLS)
+        // Step 4: Fallback to single RPC check (SECURITY DEFINER, bypasses RLS)
         if (resolvedRoles.length === 0) {
           try {
             const { data, error } = await supabase.rpc("has_role", {
@@ -148,8 +150,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!isActive) return;
         console.error("[useAuth] Unexpected error loading context:", error);
         setProfile(null);
-        const metadataRoles = extractRolesFromMetadata(user);
-        setRoles(metadataRoles.length > 0 ? metadataRoles : ["client"]);
+        if (metadataRoles.length === 0) {
+          setRoles(["client"]);
+        }
       } finally {
         if (isActive) {
           setLoading(false);
@@ -159,8 +162,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     void loadContext();
 
+    // Safety timeout: if DB queries hang, force loading to end after 8 seconds
+    const safetyTimer = setTimeout(() => {
+      if (isActive) {
+        console.warn("[useAuth] Safety timeout reached - forcing loading=false");
+        setLoading(false);
+      }
+    }, 8000);
+
     return () => {
       isActive = false;
+      clearTimeout(safetyTimer);
     };
   }, [user?.id]);
 
