@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 import type { Database, Tables } from "@/integrations/supabase/types";
@@ -47,120 +47,125 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(true);
-  const requestIdRef = useRef(0);
 
+  // ── Effect 1: Track auth state only (NO DB queries here) ──
+  // Supabase requires that we don't make data queries inside onAuthStateChange
+  // because the client's internal auth headers may not be updated yet.
   useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      setSession(nextSession);
+      setUser(nextSession?.user ?? null);
+      if (!nextSession?.user) {
+        setProfile(null);
+        setRoles([]);
+        setLoading(false);
+      }
+    });
+
+    // Also get initial session (in case onAuthStateChange doesn't fire INITIAL_SESSION)
+    supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
+      setSession(initialSession);
+      setUser(initialSession?.user ?? null);
+      if (!initialSession?.user) {
+        setLoading(false);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  // ── Effect 2: Load profile & roles when user changes ──
+  // This runs in a separate React render cycle, after the Supabase client
+  // has fully updated its internal auth state, so DB queries work correctly.
+  useEffect(() => {
+    if (!user) return;
+
     let isActive = true;
+    setLoading(true);
 
-    const loadUserContext = async (currentUser: User) => {
-      const requestId = ++requestIdRef.current;
-      setLoading(true);
-
+    const loadContext = async () => {
       try {
-        // Step 1: Fetch profile and roles from DB in parallel (2 queries only)
+        // Step 1: Fetch profile and roles from DB in parallel
         const [profileResult, rolesResult] = await Promise.all([
-          supabase.from("profiles").select("*").eq("id", currentUser.id).maybeSingle(),
-          supabase.from("user_roles").select("role").eq("user_id", currentUser.id),
+          supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
+          supabase.from("user_roles").select("role").eq("user_id", user.id),
         ]);
 
-        if (!isActive || requestId !== requestIdRef.current) return;
+        if (!isActive) return;
 
         if (profileResult.error) {
-          console.warn("[useAuth] Profile fetch failed:", profileResult.error.message);
+          console.warn("[useAuth] Profile fetch error:", profileResult.error.message);
         }
         setProfile(profileResult.data ?? null);
 
-        // Step 2: Resolve roles from DB result
-        const directRoles: AppRole[] =
+        // Step 2: Resolve roles from DB
+        let resolvedRoles: AppRole[] =
           !rolesResult.error && rolesResult.data && rolesResult.data.length > 0
             ? rolesResult.data.map(({ role }) => role)
             : [];
 
         if (rolesResult.error) {
-          console.warn("[useAuth] Roles fetch failed:", rolesResult.error.message);
+          console.warn("[useAuth] Roles fetch error:", rolesResult.error.message);
+        } else if (rolesResult.data && rolesResult.data.length === 0) {
+          console.warn("[useAuth] user_roles returned empty for user:", user.id);
         }
 
-        // Step 3: If DB returned roles, use them. Otherwise try fallbacks.
-        let resolvedRoles = directRoles;
-
+        // Step 3: Fallback A - JWT metadata (no network call)
         if (resolvedRoles.length === 0) {
-          // Fallback A: Extract from JWT metadata (no network call needed)
-          resolvedRoles = extractRolesFromMetadata(currentUser);
-        }
-
-        if (resolvedRoles.length === 0) {
-          // Fallback B: Single targeted RPC check for admin role
-          // (uses SECURITY DEFINER, bypasses RLS)
-          try {
-            const { data, error } = await supabase.rpc("has_role", {
-              _user_id: currentUser.id,
-              _role: "admin" as AppRole,
-            });
-            if (!isActive || requestId !== requestIdRef.current) return;
-            if (!error && data === true) {
-              resolvedRoles = ["admin"];
-            }
-          } catch {
-            // RPC unavailable, continue
+          resolvedRoles = extractRolesFromMetadata(user);
+          if (resolvedRoles.length > 0) {
+            console.info("[useAuth] Roles from metadata:", resolvedRoles);
           }
         }
 
-        if (!isActive || requestId !== requestIdRef.current) return;
+        // Step 4: Fallback B - Single RPC check (SECURITY DEFINER, bypasses RLS)
+        if (resolvedRoles.length === 0) {
+          try {
+            const { data, error } = await supabase.rpc("has_role", {
+              _user_id: user.id,
+              _role: "admin" as AppRole,
+            });
+            if (!isActive) return;
+            if (!error && data === true) {
+              resolvedRoles = ["admin"];
+              console.info("[useAuth] Admin role confirmed via RPC");
+            }
+          } catch {
+            console.warn("[useAuth] has_role RPC unavailable");
+          }
+        }
+
+        if (!isActive) return;
 
         const finalRoles = resolvedRoles.length > 0 ? resolvedRoles : ["client" as AppRole];
-        console.info("[useAuth] Roles resolved:", finalRoles, "for user:", currentUser.id);
+        console.info("[useAuth] Final roles:", finalRoles, "for user:", user.id);
         setRoles(finalRoles);
       } catch (error) {
-        if (!isActive || requestId !== requestIdRef.current) return;
-        console.error("[useAuth] Unexpected error:", error);
+        if (!isActive) return;
+        console.error("[useAuth] Unexpected error loading context:", error);
         setProfile(null);
-        const metadataRoles = extractRolesFromMetadata(currentUser);
+        const metadataRoles = extractRolesFromMetadata(user);
         setRoles(metadataRoles.length > 0 ? metadataRoles : ["client"]);
       } finally {
-        if (isActive && requestId === requestIdRef.current) {
+        if (isActive) {
           setLoading(false);
         }
       }
     };
 
-    const applySession = async (nextSession: Session | null) => {
-      if (!isActive) return;
-
-      setSession(nextSession);
-      const currentUser = nextSession?.user ?? null;
-      setUser(currentUser);
-
-      if (!currentUser) {
-        requestIdRef.current += 1;
-        setProfile(null);
-        setRoles([]);
-        setLoading(false);
-        return;
-      }
-
-      await loadUserContext(currentUser);
-    };
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      void applySession(nextSession);
-    });
-
-    void supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
-      void applySession(initialSession);
-    });
+    void loadContext();
 
     return () => {
       isActive = false;
-      requestIdRef.current += 1;
-      subscription.unsubscribe();
     };
-  }, []);
+  }, [user?.id]);
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    requestIdRef.current += 1;
     setUser(null);
     setSession(null);
     setProfile(null);
