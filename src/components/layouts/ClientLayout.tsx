@@ -1,4 +1,4 @@
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet, Link } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,7 +15,7 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, FolderKanban, FileText, User, LogOut } from "lucide-react";
+import { LayoutDashboard, FolderKanban, FileText, User, LogOut, Home, Shield } from "lucide-react";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
@@ -29,7 +29,8 @@ const clientNav = [
 function ClientSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const { profile, signOut } = useAuth();
+  const { profile, roles, signOut } = useAuth();
+  const isAdmin = roles.includes("admin") || roles.includes("super_admin");
 
   return (
     <Sidebar collapsible="icon" className="border-r-0">
@@ -54,6 +55,32 @@ function ClientSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <NavLink
+                    to="/"
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+                    activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+                  >
+                    <Home className="h-5 w-5 shrink-0" />
+                    {!collapsed && <span>Site public</span>}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              {isAdmin && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      to="/admin/dashboard"
+                      className="flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+                      activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+                    >
+                      <Shield className="h-5 w-5 shrink-0" />
+                      {!collapsed && <span>Administration</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -81,6 +108,9 @@ function ClientSidebar() {
 }
 
 export function ClientLayout() {
+  const { roles } = useAuth();
+  const isAdmin = roles.includes("admin") || roles.includes("super_admin");
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
@@ -88,7 +118,17 @@ export function ClientLayout() {
         <div className="flex-1 flex flex-col">
           <header className="h-14 flex items-center justify-between border-b px-4 bg-background">
             <SidebarTrigger />
-            <NotificationCenter />
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/">Site public</Link>
+              </Button>
+              {isAdmin && (
+                <Button variant="ghost" size="sm" asChild>
+                  <Link to="/admin/dashboard">Administration</Link>
+                </Button>
+              )}
+              <NotificationCenter />
+            </div>
           </header>
           <main className="flex-1 p-6 bg-muted/30">
             <Outlet />

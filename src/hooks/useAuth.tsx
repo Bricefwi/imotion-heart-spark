@@ -6,6 +6,23 @@ import type { Database, Tables } from "@/integrations/supabase/types";
 type Profile = Tables<"profiles">;
 type AppRole = Database["public"]["Enums"]["app_role"];
 
+const APP_ROLES: AppRole[] = ["client", "consultant", "admin", "super_admin"];
+
+const isAppRole = (value: unknown): value is AppRole =>
+  typeof value === "string" && APP_ROLES.includes(value as AppRole);
+
+const extractRolesFromMetadata = (currentUser: User): AppRole[] => {
+  const metadata = currentUser.app_metadata as Record<string, unknown>;
+
+  const rolesFromArray = Array.isArray(metadata.roles)
+    ? metadata.roles.filter(isAppRole)
+    : [];
+
+  const roleFromSingle = isAppRole(metadata.role) ? [metadata.role] : [];
+
+  return Array.from(new Set([...rolesFromArray, ...roleFromSingle]));
+};
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
@@ -54,17 +71,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (rolesResult.error) {
           console.error("Error fetching roles:", rolesResult.error);
-          setRoles([]);
-          return;
         }
 
-        const fetchedRoles = rolesResult.data.map(({ role }) => role);
-        setRoles(fetchedRoles.length > 0 ? fetchedRoles : ["client"]);
+        let resolvedRoles: AppRole[] = rolesResult.error
+          ? []
+          : rolesResult.data.map(({ role }) => role);
+
+        if (resolvedRoles.length === 0) {
+          const roleChecks = await Promise.all(
+            APP_ROLES.map((role) =>
+              supabase.rpc("has_role", {
+                _user_id: currentUser.id,
+                _role: role,
+              }),
+            ),
+          );
+
+          if (!isActive || requestId !== requestIdRef.current) return;
+
+          resolvedRoles = APP_ROLES.filter((_, index) =>
+            roleChecks[index].error ? false : roleChecks[index].data === true,
+          );
+        }
+
+        if (resolvedRoles.length === 0) {
+          resolvedRoles = extractRolesFromMetadata(currentUser);
+        }
+
+        setRoles(resolvedRoles.length > 0 ? resolvedRoles : ["client"]);
       } catch (error) {
         if (!isActive || requestId !== requestIdRef.current) return;
         console.error("Error fetching auth context:", error);
         setProfile(null);
-        setRoles([]);
+        const metadataRoles = extractRolesFromMetadata(currentUser);
+        setRoles(metadataRoles.length > 0 ? metadataRoles : ["client"]);
       } finally {
         if (isActive && requestId === requestIdRef.current) {
           setLoading(false);
