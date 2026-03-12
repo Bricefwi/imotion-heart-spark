@@ -81,12 +81,12 @@ export default function ProjectConversation() {
             id: "welcome",
             role: "assistant",
             content:
-              "Bonjour, je suis l'assistant IMOTION Discovery. Je vais vous accompagner pour définir votre projet digital étape par étape.\n\nPour commencer, pouvez-vous me parler de votre projet ? Qu'est-ce qui vous amène aujourd'hui ?",
+              "Bonjour et bienvenue chez **IMOTION Creator Studio** ! Je suis votre consultant digital dédié.\n\nEn quelques minutes d'échange, nous allons ensemble :\n- **Comprendre votre besoin** en profondeur\n- **Définir les contours** de votre projet digital\n- **Préparer votre cahier des charges** personnalisé\n\nChaque réponse que vous apportez nous rapproche d'une proposition sur-mesure, parfaitement calibrée pour vous.\n\nPour commencer, pouvez-vous me présenter votre entreprise en quelques mots et me dire ce qui vous amène aujourd'hui ?",
             createdAt: new Date(),
             suggestions: [
-              "Je veux refondre mon site web",
-              "Je cherche à créer une application mobile",
-              "J'ai besoin d'un outil interne",
+              "Je souhaite créer ou refondre mon site web",
+              "J'ai besoin d'une application ou d'un outil métier",
+              "Je veux développer mon activité en ligne (e-commerce)",
             ],
           },
         ]);
