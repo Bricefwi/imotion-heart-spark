@@ -11,6 +11,18 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
   const { user, profile, roles, loading } = useAuth();
   const location = useLocation();
 
+  const isAdmin = roles.includes("admin") || roles.includes("super_admin");
+  const isConsultant = roles.includes("consultant") || isAdmin;
+
+  const hasRequiredRole =
+    !requiredRole
+      ? true
+      : requiredRole === "admin"
+        ? isAdmin
+        : requiredRole === "consultant"
+          ? isConsultant
+          : roles.includes(requiredRole as never);
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -20,10 +32,10 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 
-  if (requiredRole && !roles.includes(requiredRole)) {
+  if (requiredRole && !hasRequiredRole) {
     return <Navigate to="/client/dashboard" replace />;
   }
 
@@ -32,8 +44,8 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
     profile &&
     !profile.onboarding_completed &&
     !requiredRole &&
-    !roles.includes("admin") &&
-    !roles.includes("consultant") &&
+    !isAdmin &&
+    !isConsultant &&
     location.pathname !== "/client/onboarding"
   ) {
     return <Navigate to="/client/onboarding" replace />;
@@ -41,3 +53,4 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
 
   return <>{children}</>;
 }
+
