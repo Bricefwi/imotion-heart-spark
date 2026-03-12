@@ -107,13 +107,13 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
     return <Navigate to="/client/dashboard" replace />;
   }
 
-  // Redirect to onboarding if not completed (only for client routes, skip for admin/consultant)
+  // Redirect to onboarding if not completed (only for pure client routes)
+  const hasAnyStaffRole = hasRequiredRole || isAdmin || isConsultant || serverRoleCheck.allowed;
   if (
     profile &&
     !profile.onboarding_completed &&
     !requiredRole &&
-    !isAdmin &&
-    !isConsultant &&
+    !hasAnyStaffRole &&
     location.pathname !== "/client/onboarding"
   ) {
     return <Navigate to="/client/onboarding" replace />;
