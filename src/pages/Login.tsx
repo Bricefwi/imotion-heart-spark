@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { SEOHead } from "@/components/SEOHead";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
@@ -13,11 +13,17 @@ import { Loader2, Mail, Wand2 } from "lucide-react";
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<"password" | "magic">("password");
   const [googleLoading, setGoogleLoading] = useState(false);
+
+  const requestedPath = (location.state as { from?: string } | null)?.from;
+  const redirectPath = requestedPath && requestedPath.startsWith("/")
+    ? requestedPath
+    : "/client/dashboard";
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +32,7 @@ export default function Login() {
     if (error) {
       toast.error(error.message === "Invalid login credentials" ? "Email ou mot de passe incorrect." : error.message);
     } else {
-      navigate("/client/dashboard");
+      navigate(redirectPath, { replace: true });
     }
     setLoading(false);
   };
@@ -36,7 +42,7 @@ export default function Login() {
     setLoading(true);
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${window.location.origin}/client/dashboard` },
+      options: { emailRedirectTo: `${window.location.origin}${redirectPath}` },
     });
     if (error) {
       toast.error(error.message);
@@ -49,7 +55,7 @@ export default function Login() {
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
     const { error } = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+      redirect_uri: `${window.location.origin}${redirectPath}`,
     });
     if (error) {
       toast.error("Erreur lors de la connexion Google.");
@@ -156,3 +162,4 @@ export default function Login() {
     </div>
   );
 }
+

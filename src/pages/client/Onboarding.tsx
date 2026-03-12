@@ -112,7 +112,7 @@ export default function Onboarding() {
           onboarding_completed: true,
           onboarding_step: STEPS.length,
           preferences: {
-            ...(profile?.preferences || {}),
+            ...((profile?.preferences && typeof profile.preferences === "object" && !Array.isArray(profile.preferences)) ? profile.preferences : {}),
             social_linkedin: data.social_linkedin,
             social_instagram: data.social_instagram,
             social_facebook: data.social_facebook,
