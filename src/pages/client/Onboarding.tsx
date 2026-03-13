@@ -134,6 +134,7 @@ export default function Onboarding() {
       toast.success("Bienvenue sur IMOTION Creator Studio !");
       navigate("/client/dashboard");
     } catch (err) {
+      console.error("Onboarding save error:", err);
       toast.error("Erreur lors de la sauvegarde");
     } finally {
       setSaving(false);
