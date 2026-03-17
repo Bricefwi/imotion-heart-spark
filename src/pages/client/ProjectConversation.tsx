@@ -215,7 +215,10 @@ export default function ProjectConversation() {
                 )}
               >
                 {message.role !== "user" && (
-                  <Avatar className="h-8 w-8 shrink-0">
+                  <Avatar className="h-9 w-9 shrink-0 ring-2 ring-primary/10">
+                    {message.role === "assistant" ? (
+                      <AvatarImage src={marcAvatar} alt="Marc Delaunay" className="object-cover" />
+                    ) : null}
                     <AvatarFallback
                       className={cn(
                         "text-xs font-bold text-white",
@@ -224,7 +227,7 @@ export default function ProjectConversation() {
                           : "gradient-primary"
                       )}
                     >
-                      {message.role === "consultant" ? "C" : "IA"}
+                      {message.role === "consultant" ? "C" : "M"}
                     </AvatarFallback>
                   </Avatar>
                 )}
