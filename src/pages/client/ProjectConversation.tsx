@@ -233,10 +233,10 @@ export default function ProjectConversation() {
                 )}
                 <div>
                   {message.role !== "user" && (
-                    <p className="text-[11px] text-muted-foreground mb-1">
+                    <p className="text-[11px] text-muted-foreground mb-1 font-medium">
                       {message.role === "consultant"
-                        ? "Consultant IMOTION"
-                        : "Assistant IMOTION"}
+                        ? "Consultant Clarivi"
+                        : "Marc Delaunay · Consultant senior"}
                     </p>
                   )}
                   <div
