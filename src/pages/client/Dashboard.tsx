@@ -1,45 +1,52 @@
 import { useAuth } from "@/hooks/useAuth";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PhaseProgress } from "@/components/PhaseProgress";
 import { StatsCard } from "@/components/StatsCard";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
 import {
-  FolderKanban, FileText, MessageSquare, Clock, Plus,
-  ArrowRight, CheckCircle, AlertCircle, TrendingUp
+  FolderKanban, FileText, Euro, MessageSquare, Clock, Plus, ArrowRight,
+  FileDown, CheckCircle, Loader2, CalendarDays, TrendingUp, Shield,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { motion } from "framer-motion";
+import { toast } from "sonner";
+import { useState } from "react";
 
-const statusColors: Record<string, string> = {
-  draft: "bg-muted text-muted-foreground",
-  discovery_active: "gradient-primary text-primary-foreground border-0",
-  discovery_paused: "bg-amber-100 text-amber-700",
-  discovery_completed: "bg-blue-100 text-blue-700",
-  cdc_ready: "bg-emerald-100 text-emerald-700",
-  proposal_sent: "bg-violet-100 text-violet-700",
-  signed: "bg-emerald-100 text-emerald-700",
-};
+const PROJECT_MILESTONES = [
+  { key: "discovery", label: "Discovery", icon: MessageSquare },
+  { key: "cdc", label: "CDC", icon: FileText },
+  { key: "proposal", label: "Devis", icon: Euro },
+  { key: "development", label: "Développement", icon: FolderKanban },
+  { key: "delivery", label: "Livraison", icon: CheckCircle },
+];
 
-const statusLabels: Record<string, string> = {
-  draft: "Brouillon",
-  discovery_active: "En découverte",
-  discovery_paused: "En pause",
-  discovery_completed: "Découverte terminée",
-  cdc_ready: "CDC prêt",
-  proposal_sent: "Proposition envoyée",
-  signed: "Signé",
-};
+function getMilestoneStatus(projectStatus: string) {
+  const statusOrder = [
+    "draft", "discovery_active", "discovery_paused", "discovery_completed",
+    "cdc_ready", "cdc_generated",
+    "proposal_sent", "proposal_accepted", "signed",
+    "in_development",
+    "delivered", "archived",
+  ];
+  const idx = statusOrder.indexOf(projectStatus);
+  return {
+    discovery: idx >= 1 ? (idx >= 3 ? "done" : "active") : "pending",
+    cdc: idx >= 4 ? (idx >= 5 ? "done" : "active") : "pending",
+    proposal: idx >= 6 ? (idx >= 8 ? "done" : "active") : "pending",
+    development: idx >= 9 ? (idx >= 10 ? "done" : "active") : "pending",
+    delivery: idx >= 10 ? "done" : "pending",
+  } as Record<string, "done" | "active" | "pending">;
+}
 
 export default function ClientDashboard() {
   const { user, profile } = useAuth();
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
-  const { data: projects = [], isLoading: loadingProjects } = useQuery({
+  const { data: projects = [] } = useQuery({
     queryKey: ["client-projects", user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -53,23 +60,6 @@ export default function ClientDashboard() {
     enabled: !!user,
   });
 
-  const { data: documents = [] } = useQuery({
-    queryKey: ["client-docs-count", user?.id],
-    queryFn: async () => {
-      const { data: projs } = await supabase
-        .from("projects")
-        .select("id")
-        .eq("client_id", user!.id);
-      if (!projs?.length) return [];
-      const { data } = await supabase
-        .from("documents")
-        .select("id, status, requires_signature, signed_at")
-        .in("project_id", projs.map((p) => p.id));
-      return data || [];
-    },
-    enabled: !!user,
-  });
-
   const { data: recentActivities = [] } = useQuery({
     queryKey: ["client-activities", user?.id],
     queryFn: async () => {
@@ -78,19 +68,98 @@ export default function ClientDashboard() {
         .select("*")
         .eq("user_id", user!.id)
         .order("created_at", { ascending: false })
-        .limit(6);
+        .limit(5);
       return data || [];
     },
     enabled: !!user,
+  });
+
+  // Fetch recent conversations across all projects
+  const { data: recentConversations = [] } = useQuery({
+    queryKey: ["client-recent-conversations", user?.id],
+    queryFn: async () => {
+      const projectIds = projects.map((p) => p.id);
+      if (projectIds.length === 0) return [];
+      const { data, error } = await supabase
+        .from("conversations")
+        .select("*, project:projects!conversations_project_id_fkey(name, code, id)")
+        .in("project_id", projectIds)
+        .order("started_at", { ascending: false })
+        .limit(5);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user && projects.length > 0,
+  });
+
+  // Fetch recent documents
+  const { data: recentDocs = [] } = useQuery({
+    queryKey: ["client-recent-docs", user?.id],
+    queryFn: async () => {
+      const projectIds = projects.map((p) => p.id);
+      if (projectIds.length === 0) return [];
+      const { data, error } = await supabase
+        .from("documents")
+        .select("*")
+        .in("project_id", projectIds)
+        .order("created_at", { ascending: false })
+        .limit(4);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user && projects.length > 0,
   });
 
   const activeProjects = projects.filter(
     (p) => !["draft", "archived", "delivered", "lost"].includes(p.status)
   );
   const currentProject = activeProjects[0];
-  const otherProjects = projects.filter((p) => p.id !== currentProject?.id);
   const totalMessages = projects.reduce((sum, p) => sum + (p.total_messages || 0), 0);
-  const pendingSignatures = documents.filter((d) => d.requires_signature && !d.signed_at).length;
+  const avgProgress = activeProjects.length > 0
+    ? Math.round(activeProjects.reduce((sum, p) => sum + (p.overall_progress || 0), 0) / activeProjects.length)
+    : 0;
+
+  const typeLabels: Record<string, string> = {
+    cdc: "CDC", proposal: "Devis", contract: "Contrat", pricing: "Tarifs",
+    tech_recommendation: "Reco", invoice: "Facture", other: "Autre",
+  };
+
+  const handleDownloadPDF = async (doc: any) => {
+    if (downloadingId) return;
+    setDownloadingId(doc.id);
+    try {
+      if (doc.storage_path) {
+        const { data, error } = await supabase.storage.from("documents").download(doc.storage_path);
+        if (error) throw error;
+        const url = URL.createObjectURL(data);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${doc.name.replace(/\s+/g, "_")}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+      } else if (doc.description) {
+        const html2pdf = (await import("html2pdf.js")).default;
+        const container = document.createElement("div");
+        container.innerHTML = `<div style="font-family: Inter, sans-serif; padding: 2rem; max-width: 800px;">
+          <h1 style="font-size: 1.5rem; font-weight: 700; border-bottom: 3px solid #d32f2f; padding-bottom: 0.75rem; margin-bottom: 1.25rem;">${doc.name}</h1>
+          <div style="font-size: 0.875rem; line-height: 1.75; color: #333; white-space: pre-wrap;">${doc.description}</div>
+        </div>`;
+        await (html2pdf() as any).set({
+          margin: [20, 12, 20, 12],
+          filename: `${doc.name.replace(/\s+/g, "_")}.pdf`,
+          image: { type: "jpeg", quality: 0.95 },
+          html2canvas: { scale: 2, useCORS: true },
+          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        }).from(container).save();
+      } else {
+        toast.error("Aucun contenu disponible.");
+      }
+    } catch {
+      toast.error("Erreur lors du téléchargement.");
+    } finally {
+      setDownloadingId(null);
+    }
+  };
 
   const activityIcons: Record<string, typeof MessageSquare> = {
     message: MessageSquare,
@@ -98,155 +167,83 @@ export default function ClientDashboard() {
     project: FolderKanban,
   };
 
-  const firstName = profile?.full_name?.split(" ")[0] || "";
-
   return (
-    <div className="space-y-8 animate-fade-in">
-      {/* Welcome header */}
+    <div className="space-y-6 animate-fade-in">
+      {/* Welcome */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl md:text-3xl font-bold">
-            Bonjour {firstName} 👋
+            Bonjour {profile?.full_name?.split(" ")[0] || ""}
           </h1>
-          <p className="text-muted-foreground mt-1">
-            Voici un aperçu de vos projets et documents.
-          </p>
+          <p className="text-muted-foreground mt-1">Voici un aperçu de votre espace.</p>
         </div>
-        <Button asChild className="gradient-primary border-0 shadow-md">
+        <Button asChild className="gradient-primary border-0">
           <Link to="/client/projects/new">
             <Plus className="mr-2 h-4 w-4" /> Nouveau projet
           </Link>
         </Button>
       </div>
 
-      {/* Stats row */}
-      {loadingProjects ? (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((i) => (
-            <Card key={i} className="border-0 shadow-sm">
-              <CardContent className="p-5">
-                <Skeleton className="h-10 w-full" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <StatsCard
-            label="Projets actifs"
-            value={activeProjects.length}
-            icon={FolderKanban}
-            className="border-0"
-          />
-          <StatsCard
-            label="Messages échangés"
-            value={totalMessages}
-            icon={MessageSquare}
-            className="border-0"
-          />
-          <StatsCard
-            label="Documents"
-            value={documents.length}
-            icon={FileText}
-            className="border-0"
-          />
-          <StatsCard
-            label="Signatures en attente"
-            value={pendingSignatures}
-            icon={AlertCircle}
-            change={pendingSignatures > 0 ? "Action requise" : undefined}
-            changeType={pendingSignatures > 0 ? "down" : "neutral"}
-            className="border-0"
-          />
-        </div>
-      )}
+      {/* Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <StatsCard label="Projets actifs" value={activeProjects.length} icon={FolderKanban} />
+        <StatsCard label="Messages" value={totalMessages} icon={MessageSquare} />
+        <StatsCard label="Documents" value={recentDocs.length > 0 ? projects.length : 0} icon={FileText} />
+        <StatsCard label="Avancement" value={`${avgProgress}%`} icon={TrendingUp} />
+      </div>
 
-      {/* Main content: current project + activity */}
+      {/* Main grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Current project - 2 cols */}
+        {/* Left column */}
         <div className="lg:col-span-2 space-y-6">
-          {loadingProjects ? (
+          {/* Current project with phase progress */}
+          {currentProject ? (
             <Card className="border-0 shadow-sm">
-              <CardContent className="p-6">
-                <Skeleton className="h-40 w-full" />
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <Badge className="gradient-primary border-0 text-[11px]">En cours</Badge>
+                  <span className="text-xs text-muted-foreground">{currentProject.code}</span>
+                </div>
+                <CardTitle className="font-display text-xl">{currentProject.name}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <PhaseProgress
+                  currentPhase={currentProject.current_phase || 1}
+                  phaseProgress={0}
+                  compact
+                />
+                <div className="flex items-center gap-4 text-sm text-muted-foreground pt-2">
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-3.5 w-3.5" />
+                    {currentProject.last_activity_at
+                      ? formatDistanceToNow(new Date(currentProject.last_activity_at), { addSuffix: true, locale: fr })
+                      : "Pas encore d'activité"}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <MessageSquare className="h-3.5 w-3.5" /> {currentProject.total_messages || 0} messages
+                  </span>
+                </div>
               </CardContent>
+              <CardFooter className="gap-3 pt-0">
+                <Button asChild className="gradient-primary border-0">
+                  <Link to={`/client/projects/${currentProject.id}/conversation`}>
+                    <MessageSquare className="mr-2 h-4 w-4" /> Continuer avec Marc
+                  </Link>
+                </Button>
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/client/documents">
+                    <FileText className="mr-2 h-3.5 w-3.5" /> Documents
+                  </Link>
+                </Button>
+              </CardFooter>
             </Card>
-          ) : currentProject ? (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Card className="border-0 shadow-sm overflow-hidden">
-                <div className="h-1 gradient-primary" />
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between flex-wrap gap-2">
-                    <div className="flex items-center gap-2">
-                      <Badge className={statusColors[currentProject.status] || "bg-muted"}>
-                        {statusLabels[currentProject.status] || currentProject.status}
-                      </Badge>
-                      <span className="text-xs text-muted-foreground font-mono">
-                        {currentProject.code}
-                      </span>
-                    </div>
-                    {currentProject.last_activity_at && (
-                      <span className="text-xs text-muted-foreground flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {formatDistanceToNow(new Date(currentProject.last_activity_at), {
-                          addSuffix: true,
-                          locale: fr,
-                        })}
-                      </span>
-                    )}
-                  </div>
-                  <CardTitle className="font-display text-xl mt-2">
-                    {currentProject.name}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-5">
-                  {/* Phase progress - full version */}
-                  <PhaseProgress
-                    currentPhase={currentProject.current_phase || 1}
-                    phaseProgress={0}
-                  />
-
-                  {/* Quick stats */}
-                  <div className="flex items-center gap-6 text-sm text-muted-foreground pt-2 border-t">
-                    <span className="flex items-center gap-1.5">
-                      <MessageSquare className="h-4 w-4" />
-                      {currentProject.total_messages || 0} messages
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <FolderKanban className="h-4 w-4" />
-                      {currentProject.total_sessions || 0} sessions
-                    </span>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex flex-wrap gap-3">
-                    <Button asChild className="gradient-primary border-0">
-                      <Link to={`/client/projects/${currentProject.id}/conversation`}>
-                        <MessageSquare className="mr-2 h-4 w-4" /> Continuer avec Marc
-                      </Link>
-                    </Button>
-                    <Button variant="outline" asChild>
-                      <Link to="/client/documents">
-                        <FileText className="mr-2 h-4 w-4" /> Voir les documents
-                      </Link>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
           ) : (
             <Card className="border-0 shadow-sm">
-              <CardContent className="p-10 text-center">
-                <FolderKanban className="h-14 w-14 mx-auto text-muted-foreground/40 mb-4" />
-                <h3 className="font-display font-semibold text-lg mb-2">
-                  Aucun projet en cours
-                </h3>
-                <p className="text-muted-foreground text-sm mb-6 max-w-md mx-auto">
-                  Lancez votre premier projet pour démarrer une conversation avec Marc, notre IA spécialisée en découverte de projets digitaux.
+              <CardContent className="p-8 text-center">
+                <FolderKanban className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="font-display font-semibold text-lg mb-2">Aucun projet en cours</h3>
+                <p className="text-muted-foreground text-sm mb-4">
+                  Créez votre premier projet pour démarrer la conversation avec Marc.
                 </p>
                 <Button asChild className="gradient-primary border-0">
                   <Link to="/client/projects/new">
@@ -257,123 +254,209 @@ export default function ClientDashboard() {
             </Card>
           )}
 
-          {/* Other projects */}
-          {otherProjects.length > 0 && (
+          {/* Project milestones / pipeline */}
+          {currentProject && (
             <Card className="border-0 shadow-sm">
               <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="font-display text-base">Autres projets</CardTitle>
-                  <Button variant="ghost" size="sm" asChild>
-                    <Link to="/client/projects" className="text-xs">
-                      Voir tout <ArrowRight className="ml-1 h-3 w-3" />
-                    </Link>
-                  </Button>
-                </div>
+                <CardTitle className="font-display text-base">Suivi avancement</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                {otherProjects.slice(0, 3).map((project) => (
-                  <Link
-                    key={project.id}
-                    to={`/client/projects/${project.id}/conversation`}
-                    className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors group"
-                  >
-                    <div className="min-w-0">
-                      <p className="font-medium text-sm truncate group-hover:text-primary transition-colors">
-                        {project.name}
-                      </p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge
-                          variant="outline"
-                          className="text-[10px] px-1.5 py-0"
-                        >
-                          {statusLabels[project.status] || project.status}
-                        </Badge>
-                        <span className="text-xs text-muted-foreground">
-                          Phase {project.current_phase || 1}/7
-                        </span>
+              <CardContent>
+                <div className="flex items-center justify-between gap-2">
+                  {PROJECT_MILESTONES.map((milestone, idx) => {
+                    const statuses = getMilestoneStatus(currentProject.status);
+                    const status = statuses[milestone.key];
+                    const Icon = milestone.icon;
+                    return (
+                      <div key={milestone.key} className="flex items-center gap-2 flex-1">
+                        <div className="flex flex-col items-center gap-1.5 flex-1">
+                          <div
+                            className={`h-10 w-10 rounded-full flex items-center justify-center transition-all ${
+                              status === "done"
+                                ? "gradient-primary text-white"
+                                : status === "active"
+                                ? "bg-primary/15 text-primary ring-2 ring-primary/30 animate-pulse"
+                                : "bg-muted text-muted-foreground"
+                            }`}
+                          >
+                            {status === "done" ? (
+                              <CheckCircle className="h-5 w-5" />
+                            ) : (
+                              <Icon className="h-4 w-4" />
+                            )}
+                          </div>
+                          <span className={`text-[10px] font-medium text-center ${
+                            status === "done" ? "text-primary" : status === "active" ? "text-primary" : "text-muted-foreground"
+                          }`}>
+                            {milestone.label}
+                          </span>
+                        </div>
+                        {idx < PROJECT_MILESTONES.length - 1 && (
+                          <div className={`h-0.5 flex-1 -mt-5 ${
+                            status === "done" ? "bg-primary" : "bg-muted"
+                          }`} />
+                        )}
                       </div>
-                    </div>
-                    <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
-                  </Link>
-                ))}
+                    );
+                  })}
+                </div>
               </CardContent>
             </Card>
           )}
+
+          {/* Recent conversations with Marc */}
+          <Card className="border-0 shadow-sm">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="font-display text-base">Conversations avec Marc</CardTitle>
+                {currentProject && (
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to={`/client/projects/${currentProject.id}/conversation`}>
+                      Voir tout <ArrowRight className="ml-1 h-3 w-3" />
+                    </Link>
+                  </Button>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {recentConversations.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-4 text-center">
+                  Aucune conversation pour le moment.
+                </p>
+              ) : (
+                recentConversations.slice(0, 3).map((conv) => {
+                  const project = conv.project as any;
+                  return (
+                    <Link
+                      key={conv.id}
+                      to={`/client/projects/${conv.project_id}/conversation`}
+                      className="flex items-start gap-3 p-3 rounded-xl hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="h-8 w-8 rounded-lg gradient-primary flex items-center justify-center shrink-0">
+                        <MessageSquare className="h-4 w-4 text-white" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-medium truncate">{project?.name || "Projet"}</p>
+                          {conv.phase_start && (
+                            <Badge variant="outline" className="text-[10px] shrink-0">
+                              Phase {conv.phase_start}{conv.phase_end && conv.phase_end !== conv.phase_start ? `-${conv.phase_end}` : ""}
+                            </Badge>
+                          )}
+                        </div>
+                        {conv.ai_summary && (
+                          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                            {conv.ai_summary}
+                          </p>
+                        )}
+                        <p className="text-[10px] text-muted-foreground mt-1">
+                          <CalendarDays className="h-3 w-3 inline mr-0.5" />
+                          {conv.started_at
+                            ? formatDistanceToNow(new Date(conv.started_at), { addSuffix: true, locale: fr })
+                            : ""}
+                        </p>
+                      </div>
+                      <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0 mt-1" />
+                    </Link>
+                  );
+                })
+              )}
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Activity sidebar */}
+        {/* Right column */}
         <div className="space-y-6">
-          {/* Pending actions */}
-          {pendingSignatures > 0 && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-            >
-              <Card className="border-0 shadow-sm border-l-4 border-l-destructive">
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    <AlertCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-medium text-sm">
-                        {pendingSignatures} document{pendingSignatures > 1 ? "s" : ""} à signer
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        Des documents nécessitent votre signature
-                      </p>
-                      <Button variant="link" size="sm" asChild className="px-0 h-auto mt-1">
-                        <Link to="/client/documents">Voir les documents →</Link>
-                      </Button>
+          {/* Documents récents with download */}
+          <Card className="border-0 shadow-sm">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="font-display text-base">Documents récents</CardTitle>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link to="/client/documents">
+                    Tout voir <ArrowRight className="ml-1 h-3 w-3" />
+                  </Link>
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {recentDocs.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-4 text-center">
+                  Aucun document pour le moment.
+                </p>
+              ) : (
+                recentDocs.map((doc) => (
+                  <div key={doc.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                    <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                      <FileText className="h-4 w-4 text-primary" />
                     </div>
+                    <div className="flex-1 min-w-0">
+                      <Link to={`/client/documents/${doc.id}`} className="text-sm font-medium truncate block hover:underline">
+                        {doc.name}
+                      </Link>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <Badge variant="outline" className="text-[9px]">
+                          {typeLabels[doc.type] || doc.type}
+                        </Badge>
+                        <span className="text-[10px] text-muted-foreground">v{doc.version}</span>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 shrink-0"
+                      onClick={() => handleDownloadPDF(doc)}
+                      disabled={downloadingId === doc.id}
+                    >
+                      {downloadingId === doc.id ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <FileDown className="h-3.5 w-3.5 text-muted-foreground" />
+                      )}
+                    </Button>
                   </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
+                ))
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Security badge */}
+          <Card className="border-0 shadow-sm bg-green-50/50">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-green-100 flex items-center justify-center shrink-0">
+                <Shield className="h-5 w-5 text-green-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-green-800">Espace sécurisé</p>
+                <p className="text-[11px] text-green-600">Vos données sont protégées et isolées.</p>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Recent activity */}
           <Card className="border-0 shadow-sm">
             <CardHeader className="pb-3">
-              <CardTitle className="font-display text-base flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-primary" />
-                Activité récente
-              </CardTitle>
+              <CardTitle className="font-display text-base">Activité récente</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               {recentActivities.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-4 text-center">
-                  Aucune activité récente.
-                </p>
+                <p className="text-sm text-muted-foreground">Aucune activité récente.</p>
               ) : (
-                <div className="space-y-1">
-                  {recentActivities.map((activity, i) => {
-                    const Icon = activityIcons[activity.action] || MessageSquare;
-                    return (
-                      <motion.div
-                        key={activity.id}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: i * 0.05 }}
-                        className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted/30 transition-colors"
-                      >
-                        <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                          <Icon className="h-4 w-4 text-primary" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-sm leading-snug">
-                            {activity.description || activity.action}
-                          </p>
-                          <p className="text-[11px] text-muted-foreground mt-0.5">
-                            {activity.created_at &&
-                              formatDistanceToNow(new Date(activity.created_at), {
-                                addSuffix: true,
-                                locale: fr,
-                              })}
-                          </p>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                </div>
+                recentActivities.map((activity) => {
+                  const Icon = activityIcons[activity.action] || MessageSquare;
+                  return (
+                    <div key={activity.id} className="flex items-start gap-3">
+                      <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                        <Icon className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">{activity.description || activity.action}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatDistanceToNow(new Date(activity.created_at!), { addSuffix: true, locale: fr })}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })
               )}
             </CardContent>
           </Card>
