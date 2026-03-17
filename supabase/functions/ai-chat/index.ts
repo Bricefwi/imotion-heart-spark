@@ -51,13 +51,13 @@ function validateExtractedData(data: any, phase: number): ValidationResult {
 
   // Whitelist of allowed fields per phase
   const allowedFields: Record<number, string[]> = {
-    1: ["contact_info", "company_context", "trigger_event", "initial_mood", "company_name", "role", "sector", "team_size"],
-    2: ["problem_description", "pain_points", "impact", "previous_attempts", "desired_outcome", "current_process", "urgency"],
-    3: ["brand_adjectives", "positioning", "inspirations", "values", "tone_of_voice", "target_audience", "competitors"],
-    4: ["current_tools", "crm_status", "integrations_needed", "user_profiles", "tech_comfort_level", "hosting", "existing_systems"],
-    5: ["budget_range", "budget_min", "budget_max", "deadline", "deployment_preference", "constraints", "timeline", "resources"],
-    6: ["decision_maker", "stakeholders", "decision_style", "priority_level", "blocking_factors", "approval_process"],
-    7: ["summary_validation", "clarifications_needed", "next_steps", "client_questions", "final_notes"],
+    1: ["contact_info", "company_context", "trigger_event", "initial_mood", "company_name", "role", "sector", "team_size", "activity", "motivation"],
+    2: ["problem_description", "pain_points", "impact", "previous_attempts", "desired_outcome", "current_process", "urgency", "needs_crm", "needs_dashboard", "needs_ecommerce", "needs_cms", "needs_booking", "needs_chat", "needs_notifications", "needs_analytics", "functional_needs"],
+    3: ["brand_adjectives", "positioning", "inspirations", "values", "tone_of_voice", "target_audience", "competitors", "vision", "success_criteria", "innovative_ideas", "proposed_solutions"],
+    4: ["current_tools", "crm_status", "integrations_needed", "user_profiles", "tech_comfort_level", "hosting", "existing_systems", "domain_name", "has_domain", "has_hosting", "hosting_provider", "has_pro_emails", "email_provider", "needs_ssl", "needs_mobile_app", "mobile_first", "needs_multilingual", "languages", "needs_backoffice", "needs_control_tower", "needs_reporting", "needs_document_management", "needs_user_management", "user_roles_needed", "data_migration", "migration_source", "accessibility_needs"],
+    5: ["budget_range", "budget_min", "budget_max", "deadline", "deployment_preference", "constraints", "timeline", "resources", "budget_phased", "mvp_preferred", "security_requirements", "rgpd_compliance", "sensitive_data", "launch_date", "blocking_event"],
+    6: ["decision_maker", "stakeholders", "decision_style", "priority_level", "blocking_factors", "approval_process", "additional_features_proposed"],
+    7: ["summary_validation", "clarifications_needed", "next_steps", "client_questions", "final_notes", "coverage_percentage", "missing_info"],
   };
 
   const allowed = allowedFields[phase] || [];
