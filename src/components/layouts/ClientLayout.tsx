@@ -1,4 +1,4 @@
-import { Outlet, Link } from "react-router-dom";
+import { Outlet, Link, useLocation } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,9 +15,13 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, FolderKanban, FileText, User, LogOut, Home, Shield } from "lucide-react";
+import {
+  LayoutDashboard, FolderKanban, FileText, User,
+  LogOut, Home, Shield, MessageSquare
+} from "lucide-react";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
 
 const clientNav = [
   { title: "Dashboard", url: "/client/dashboard", icon: LayoutDashboard },
@@ -31,6 +35,7 @@ function ClientSidebar() {
   const collapsed = state === "collapsed";
   const { profile, roles, signOut } = useAuth();
   const isAdmin = roles.includes("admin") || roles.includes("super_admin");
+  const location = useLocation();
 
   return (
     <Sidebar collapsible="icon" className="border-r-0">
@@ -55,6 +60,15 @@ function ClientSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {!collapsed && <Separator className="mx-4 my-2" />}
+
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <NavLink
@@ -85,21 +99,32 @@ function ClientSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+      {/* User section */}
       <div className="mt-auto p-4 border-t border-sidebar-border">
         {!collapsed && (
           <div className="flex items-center gap-3 mb-3">
-            <Avatar className="h-8 w-8">
-              <AvatarFallback className="gradient-primary text-white text-xs">
-                {profile?.full_name?.charAt(0) || "U"}
+            <Avatar className="h-9 w-9">
+              <AvatarFallback className="gradient-primary text-white text-xs font-semibold">
+                {profile?.full_name?.charAt(0)?.toUpperCase() || "U"}
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0">
-              <p className="text-sm font-medium text-sidebar-foreground truncate">{profile?.full_name || "Utilisateur"}</p>
-              <p className="text-xs text-sidebar-foreground/50 truncate">{profile?.email}</p>
+              <p className="text-sm font-medium text-sidebar-foreground truncate">
+                {profile?.full_name || "Utilisateur"}
+              </p>
+              <p className="text-[11px] text-sidebar-foreground/50 truncate">
+                {profile?.email}
+              </p>
             </div>
           </div>
         )}
-        <Button variant="ghost" size="sm" onClick={signOut} className="w-full justify-start text-sidebar-foreground/60">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={signOut}
+          className="w-full justify-start text-sidebar-foreground/60 hover:text-destructive"
+        >
           <LogOut className="h-4 w-4 mr-2" /> {!collapsed && "Déconnexion"}
         </Button>
       </div>
@@ -116,21 +141,20 @@ export function ClientLayout() {
       <div className="min-h-screen flex w-full">
         <ClientSidebar />
         <div className="flex-1 flex flex-col">
-          <header className="h-14 flex items-center justify-between border-b px-4 bg-background">
+          <header className="h-14 flex items-center justify-between border-b px-4 bg-background sticky top-0 z-10">
             <SidebarTrigger />
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/">Site public</Link>
-              </Button>
               {isAdmin && (
                 <Button variant="ghost" size="sm" asChild>
-                  <Link to="/admin/dashboard">Administration</Link>
+                  <Link to="/admin/dashboard">
+                    <Shield className="h-4 w-4 mr-1" /> Admin
+                  </Link>
                 </Button>
               )}
               <NotificationCenter />
             </div>
           </header>
-          <main className="flex-1 p-6 bg-muted/30">
+          <main className="flex-1 p-4 sm:p-6 bg-muted/30">
             <Outlet />
           </main>
         </div>
