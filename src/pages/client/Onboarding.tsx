@@ -99,7 +99,8 @@ export default function Onboarding() {
     if (!user) return;
     setSaving(true);
     try {
-      const { error } = await supabase
+      // 1. Save profile data
+      const { error: profileError } = await supabase
         .from("profiles")
         .update({
           full_name: data.full_name,
@@ -130,11 +131,42 @@ export default function Onboarding() {
         })
         .eq("id", user.id);
 
-      if (error) throw error;
-      toast.success("Bienvenue sur IMOTION Creator Studio !");
-      navigate("/client/dashboard");
-    } catch (err) {
-      toast.error("Erreur lors de la sauvegarde");
+      if (profileError) throw profileError;
+
+      // 2. Auto-create a project and redirect to the AI conversation
+      const projectName = data.objectives_detail?.trim()
+        ? data.objectives_detail.slice(0, 60)
+        : data.objectives.length > 0
+          ? data.objectives[0]
+          : "Mon projet digital";
+
+      const { data: newProject, error: projectError } = await supabase
+        .from("projects")
+        .insert({
+          name: projectName,
+          client_id: user.id,
+          status: "discovery",
+          discovery_data: {
+            initial_description: data.objectives_detail || null,
+            objectives: data.objectives,
+            budget_range: data.budget_range,
+            timeline: data.timeline,
+            current_tools: data.current_tools,
+            competitors: data.competitors,
+            inspiration: data.inspiration,
+          },
+        })
+        .select("id")
+        .single();
+
+      if (projectError) throw projectError;
+
+      toast.success("Bienvenue ! Démarrons la création de votre cahier des charges.");
+      navigate(`/client/projects/${newProject.id}/conversation`);
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : "Erreur lors de la sauvegarde";
+      console.error("Onboarding finish error:", err);
+      toast.error(errMsg);
     } finally {
       setSaving(false);
     }
@@ -142,10 +174,14 @@ export default function Onboarding() {
 
   const saveStep = async () => {
     if (!user) return;
-    await supabase
-      .from("profiles")
-      .update({ onboarding_step: step + 1 })
-      .eq("id", user.id);
+    try {
+      await supabase
+        .from("profiles")
+        .update({ onboarding_step: step + 1 })
+        .eq("id", user.id);
+    } catch (err) {
+      console.warn("Failed to save step progress:", err);
+    }
   };
 
   const next = async () => {
@@ -406,7 +442,7 @@ export default function Onboarding() {
                 {step === STEPS.length - 1 ? (
                   <>
                     <Sparkles className="h-4 w-4" />
-                    {saving ? "Enregistrement…" : "Terminer"}
+                    {saving ? "Lancement…" : "Démarrer mon CDC"}
                   </>
                 ) : (
                   <>

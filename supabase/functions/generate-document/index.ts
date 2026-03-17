@@ -466,13 +466,13 @@ function formatConversationForPrompt(messages: any[]): string {
   if (!messages || messages.length === 0) return "Aucun échange enregistré.";
 
   const phaseNames: Record<number, string> = {
-    1: "Accueil & Qualification",
-    2: "Problématique & Enjeux Business",
-    3: "Vision, Cibles & Positionnement",
-    4: "Fonctionnalités & Parcours Utilisateur",
-    5: "Écosystème Technique & Intégrations",
-    6: "Budget, Délais & Décision",
-    7: "Synthèse Commerciale & Engagement",
+    1: "Présentation & Contexte",
+    2: "Objectifs & Cibles",
+    3: "Fonctionnalités & Contenu",
+    4: "Design & Identité visuelle",
+    5: "Technique & Intégrations",
+    6: "Budget & Planning",
+    7: "Synthèse & Validation",
   };
 
   const byPhase: Record<number, any[]> = {};
