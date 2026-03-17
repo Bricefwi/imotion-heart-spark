@@ -269,9 +269,10 @@ export default function ProjectConversation() {
             animate={{ opacity: 1 }}
             className="flex items-center gap-2.5"
           >
-            <Avatar className="h-8 w-8">
+            <Avatar className="h-9 w-9 ring-2 ring-primary/10">
+              <AvatarImage src={marcAvatar} alt="Marc Delaunay" className="object-cover" />
               <AvatarFallback className="gradient-primary text-xs font-bold text-white">
-                IA
+                M
               </AvatarFallback>
             </Avatar>
             <div className="bg-card border rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
