@@ -189,13 +189,14 @@ L'article doit faire environ 1200-1500 mots et apporter une vraie valeur au lect
           .eq("id", post.id);
 
         results.push({ success: true, title: article.title, slug: newPost.slug });
-      } catch (genError) {
+    } catch (genError: unknown) {
+        const errMsg = genError instanceof Error ? genError.message : String(genError);
         console.error("Generation error:", genError);
         await supabase
           .from("blog_editorial_calendar")
           .update({ status: "failed" })
           .eq("id", post.id);
-        results.push({ success: false, title: post.title, error: genError.message });
+        results.push({ success: false, title: post.title, error: errMsg });
       }
     }
 
