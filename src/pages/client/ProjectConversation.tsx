@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { PhaseProgress } from "@/components/PhaseProgress";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, Paperclip, Phone, ArrowLeft } from "lucide-react";
@@ -13,6 +13,7 @@ import { sendChatMessage, type ChatMessage } from "@/lib/ai-chat";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import { useQuery } from "@tanstack/react-query";
+import marcAvatar from "@/assets/avatar-marc-consultant.jpg";
 
 interface DisplayMessage {
   id: string;
