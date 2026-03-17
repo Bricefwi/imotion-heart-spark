@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { PhaseProgress } from "@/components/PhaseProgress";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, Paperclip, Phone, ArrowLeft } from "lucide-react";
@@ -13,6 +13,7 @@ import { sendChatMessage, type ChatMessage } from "@/lib/ai-chat";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import { useQuery } from "@tanstack/react-query";
+import marcAvatar from "@/assets/avatar-marc-consultant.jpg";
 
 interface DisplayMessage {
   id: string;
@@ -81,12 +82,12 @@ export default function ProjectConversation() {
             id: "welcome",
             role: "assistant",
             content:
-              "Bonjour, je suis l'assistant IMOTION Discovery. Je vais vous accompagner pour définir votre projet digital étape par étape.\n\nPour commencer, pouvez-vous me parler de votre projet ? Qu'est-ce qui vous amène aujourd'hui ?",
+              "Salut ! 👋 Moi c'est Marc, consultant senior chez Clarivi. J'ai accompagné pas mal de projets digitaux et je suis là pour comprendre ton besoin en profondeur.\n\nAvant de parler technique, parle-moi un peu de toi. C'est quoi ton métier au quotidien, et qu'est-ce qui t'amène aujourd'hui ?",
             createdAt: new Date(),
             suggestions: [
-              "Je veux refondre mon site web",
-              "Je cherche à créer une application mobile",
-              "J'ai besoin d'un outil interne",
+              "Je veux digitaliser mon activité",
+              "J'ai un projet en tête mais c'est encore flou",
+              "Je cherche à remplacer un outil existant",
             ],
           },
         ]);
@@ -214,7 +215,10 @@ export default function ProjectConversation() {
                 )}
               >
                 {message.role !== "user" && (
-                  <Avatar className="h-8 w-8 shrink-0">
+                  <Avatar className="h-9 w-9 shrink-0 ring-2 ring-primary/10">
+                    {message.role === "assistant" ? (
+                      <AvatarImage src={marcAvatar} alt="Marc Delaunay" className="object-cover" />
+                    ) : null}
                     <AvatarFallback
                       className={cn(
                         "text-xs font-bold text-white",
@@ -223,16 +227,16 @@ export default function ProjectConversation() {
                           : "gradient-primary"
                       )}
                     >
-                      {message.role === "consultant" ? "C" : "IA"}
+                      {message.role === "consultant" ? "C" : "M"}
                     </AvatarFallback>
                   </Avatar>
                 )}
                 <div>
                   {message.role !== "user" && (
-                    <p className="text-[11px] text-muted-foreground mb-1">
+                    <p className="text-[11px] text-muted-foreground mb-1 font-medium">
                       {message.role === "consultant"
-                        ? "Consultant IMOTION"
-                        : "Assistant IMOTION"}
+                        ? "Consultant Clarivi"
+                        : "Marc Delaunay · Consultant senior"}
                     </p>
                   )}
                   <div
@@ -265,9 +269,10 @@ export default function ProjectConversation() {
             animate={{ opacity: 1 }}
             className="flex items-center gap-2.5"
           >
-            <Avatar className="h-8 w-8">
+            <Avatar className="h-9 w-9 ring-2 ring-primary/10">
+              <AvatarImage src={marcAvatar} alt="Marc Delaunay" className="object-cover" />
               <AvatarFallback className="gradient-primary text-xs font-bold text-white">
-                IA
+                M
               </AvatarFallback>
             </Avatar>
             <div className="bg-card border rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
