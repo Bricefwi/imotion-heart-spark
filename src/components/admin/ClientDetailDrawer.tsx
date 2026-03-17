@@ -188,7 +188,7 @@ export function ClientDetailDrawer({ profileId, open, onOpenChange }: ClientDeta
     (p: any) => p.discovery_data && typeof p.discovery_data === "object" && Object.keys(p.discovery_data).length > 0
   );
 
-  const hasAddress = profile.address_street || profile.address_city || profile.address_postal_code;
+  const hasAddress = (profile as any).address_street || (profile as any).address_city || (profile as any).address_postal_code;
 
   const scoreColor =
     score >= 70 ? "text-green-600 dark:text-green-400" : score >= 40 ? "text-yellow-600 dark:text-yellow-400" : "text-red-500";
