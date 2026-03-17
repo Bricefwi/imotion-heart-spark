@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, PenLine, FileText, MessageSquare, Loader2, CheckCircle, Clock } from "lucide-react";
+import { ArrowLeft, PenLine, FileText, MessageSquare, Loader2, CheckCircle, Clock, FileDown } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useState } from "react";
@@ -157,6 +157,31 @@ export default function DocumentViewer() {
               <PenLine className="h-3.5 w-3.5 mr-1" /> Signer
             </Button>
           )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={async () => {
+              if (document.storage_path) {
+                const { data, error } = await supabase.storage
+                  .from("documents")
+                  .download(document.storage_path);
+                if (error) { toast.error("Erreur de téléchargement"); return; }
+                const url = URL.createObjectURL(data);
+                const a = window.document.createElement("a");
+                a.href = url;
+                a.download = `${document.name.replace(/\s+/g, "_")}.pdf`;
+                a.click();
+                URL.revokeObjectURL(url);
+              } else {
+                // Trigger the ProfessionalDocument export button
+                const exportBtn = window.document.querySelector('[data-pdf-export]') as HTMLButtonElement;
+                if (exportBtn) exportBtn.click();
+                else toast.info("Utilisez le bouton 'Exporter en PDF' dans le document ci-dessous.");
+              }
+            }}
+          >
+            <FileDown className="h-3.5 w-3.5 mr-1" /> Télécharger PDF
+          </Button>
         </div>
       </div>
 
