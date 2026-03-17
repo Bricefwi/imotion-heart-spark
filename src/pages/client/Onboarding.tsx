@@ -145,7 +145,7 @@ export default function Onboarding() {
         .insert({
           name: projectName,
           client_id: user.id,
-          status: "discovery",
+          status: "discovery_active",
           discovery_data: {
             initial_description: data.objectives_detail || null,
             objectives: data.objectives,
