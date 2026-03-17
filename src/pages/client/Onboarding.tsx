@@ -442,7 +442,7 @@ export default function Onboarding() {
                 {step === STEPS.length - 1 ? (
                   <>
                     <Sparkles className="h-4 w-4" />
-                    {saving ? "Enregistrement…" : "Terminer"}
+                    {saving ? "Lancement…" : "Démarrer mon CDC"}
                   </>
                 ) : (
                   <>
