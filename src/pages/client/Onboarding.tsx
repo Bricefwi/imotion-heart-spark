@@ -174,10 +174,14 @@ export default function Onboarding() {
 
   const saveStep = async () => {
     if (!user) return;
-    await supabase
-      .from("profiles")
-      .update({ onboarding_step: step + 1 })
-      .eq("id", user.id);
+    try {
+      await supabase
+        .from("profiles")
+        .update({ onboarding_step: step + 1 })
+        .eq("id", user.id);
+    } catch (err) {
+      console.warn("Failed to save step progress:", err);
+    }
   };
 
   const next = async () => {
