@@ -84,6 +84,31 @@ export default function ClientDocuments() {
 
   const pendingSignatures = rawDocuments.filter((d) => d.requires_signature && d.status !== "signed");
 
+  const handleDownload = async (doc: any) => {
+    try {
+      if (!doc.storage_path) {
+        toast.error("Aucun fichier disponible pour ce document.");
+        return;
+      }
+      const { data, error } = await supabase.storage
+        .from("documents")
+        .download(doc.storage_path);
+      if (error) throw error;
+
+      const url = URL.createObjectURL(data);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = doc.name.endsWith(".pdf") ? doc.name : `${doc.name}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast.success("Téléchargement lancé !");
+    } catch {
+      toast.error("Erreur lors du téléchargement.");
+    }
+  };
+
   const handleSign = async (signatureDataUrl: string) => {
     if (!signingDoc || !user) return;
     const { error } = await supabase
@@ -248,6 +273,14 @@ export default function ClientDocuments() {
                               <Link to={`/client/documents/${doc.id}`}>
                                 <Eye className="h-3.5 w-3.5 mr-1" /> Voir
                               </Link>
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 px-2 text-xs"
+                              onClick={() => handleDownload(doc)}
+                            >
+                              <Download className="h-3.5 w-3.5 mr-1" /> PDF
                             </Button>
                             {needsSignature && (
                               <Button
