@@ -206,9 +206,10 @@ L'article doit faire environ 1200-1500 mots et apporter une vraie valeur au lect
       results,
     }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
-  } catch (error) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : String(error);
     console.error("CRON Error:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: errMsg }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
