@@ -307,11 +307,11 @@ export function ClientDetailDrawer({ profileId, open, onOpenChange }: ClientDeta
                         <p className="text-xs text-muted-foreground mb-0.5">Adresse</p>
                         <p>
                           {[
-                            profile.address_street,
-                            [profile.address_postal_code, profile.address_city]
+                            (profile as any).address_street,
+                            [(profile as any).address_postal_code, (profile as any).address_city]
                               .filter(Boolean)
                               .join(" "),
-                            profile.address_country,
+                            (profile as any).address_country,
                           ]
                             .filter(Boolean)
                             .join(", ")}
