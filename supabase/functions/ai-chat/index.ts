@@ -621,7 +621,7 @@ serve(async (req) => {
         current_phase: newPhase,
         phase_progress: phaseProgressData,
         overall_progress: Math.min(overallProgress, 100),
-        status: project.status === "draft" ? "discovery_active" : project.status,
+        status: project.status === "draft" ? "discovery" : project.status,
       })
       .eq("id", projectId);
 
