@@ -82,12 +82,12 @@ export default function ProjectConversation() {
             id: "welcome",
             role: "assistant",
             content:
-              "Bonjour, je suis l'assistant IMOTION Discovery. Je vais vous accompagner pour définir votre projet digital étape par étape.\n\nPour commencer, pouvez-vous me parler de votre projet ? Qu'est-ce qui vous amène aujourd'hui ?",
+              "Salut ! 👋 Moi c'est Marc, consultant senior chez Clarivi. J'ai accompagné pas mal de projets digitaux et je suis là pour comprendre ton besoin en profondeur.\n\nAvant de parler technique, parle-moi un peu de toi. C'est quoi ton métier au quotidien, et qu'est-ce qui t'amène aujourd'hui ?",
             createdAt: new Date(),
             suggestions: [
-              "Je veux refondre mon site web",
-              "Je cherche à créer une application mobile",
-              "J'ai besoin d'un outil interne",
+              "Je veux digitaliser mon activité",
+              "J'ai un projet en tête mais c'est encore flou",
+              "Je cherche à remplacer un outil existant",
             ],
           },
         ]);
