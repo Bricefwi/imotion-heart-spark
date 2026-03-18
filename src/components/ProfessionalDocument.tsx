@@ -124,6 +124,7 @@ export function ProfessionalDocument({
       {/* Export button */}
       <div className="flex justify-end mb-4 print:hidden">
         <button
+          data-pdf-export
           onClick={handleExportPDF}
           disabled={exporting}
           className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-lg border border-border bg-background hover:bg-muted transition-colors disabled:opacity-50"
