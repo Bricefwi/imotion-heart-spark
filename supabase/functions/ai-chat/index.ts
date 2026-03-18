@@ -524,7 +524,7 @@ serve(async (req) => {
     // ── Get project & verify ownership ──
     const { data: project } = await supabase
       .from("projects")
-      .select("*")
+      .select("*, client:profiles!projects_client_id_fkey(id, email, full_name)")
       .eq("id", projectId)
       .single();
 
@@ -548,6 +548,7 @@ serve(async (req) => {
       }
     }
 
+    const client = project.client;
     const currentPhase = project.current_phase || 1;
     const discoveryData = project.discovery_data || {};
 
@@ -753,6 +754,49 @@ serve(async (req) => {
         project_id: projectId,
         link: `/consultant/projects/${projectId}`,
       });
+    }
+
+    // ── Post-conversation summary email on phase transition ──
+    if (readyForNextPhase && client?.email) {
+      const keyInsights: string[] = [];
+      const phaseData = updatedDiscoveryData[`phase_${currentPhase}`] || updatedDiscoveryData;
+      if (typeof phaseData === "object") {
+        for (const [k, v] of Object.entries(phaseData)) {
+          if (v && typeof v === "string" && v.length > 5) {
+            keyInsights.push(`${k.replace(/_/g, " ")}: ${v}`);
+          }
+          if (keyInsights.length >= 5) break;
+        }
+      }
+
+      const nextSteps: string[] = [];
+      if (newPhase < 7) {
+        nextSteps.push(`Poursuivre la conversation — Phase ${newPhase}: ${PHASE_LABELS[newPhase - 1]}`);
+        nextSteps.push("Préparez les éléments qui pourraient enrichir l'échange (visuels d'inspiration, documents existants...)");
+      } else {
+        nextSteps.push("Votre Cahier des Charges va être généré automatiquement");
+        nextSteps.push("Vous recevrez un email dès qu'il sera disponible");
+      }
+
+      try {
+        await supabase.functions.invoke("send-transactional-email", {
+          body: {
+            template: "conversation_summary",
+            to: client.email,
+            data: {
+              clientName: client.full_name || "Client",
+              projectName: project.name,
+              sessionNumber: project.total_sessions || 1,
+              phaseReached: `Phase ${currentPhase}: ${PHASE_LABELS[currentPhase - 1]}`,
+              keyInsights,
+              nextSteps,
+              dashboardUrl: `https://imotion-conseils.fr/client/projects/${projectId}/conversation`,
+            },
+          },
+        });
+      } catch (emailErr) {
+        console.error("Failed to send conversation summary email:", emailErr);
+      }
     }
 
     return new Response(
