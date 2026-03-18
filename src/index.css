@@ -121,4 +121,14 @@
     background: hsl(0 0% 100% / 0.8);
     border: 1px solid hsl(220 13% 91% / 0.5);
   }
+  }
+
+  /* RTL support for Arabic */
+  [dir="rtl"] .glass {
+    direction: rtl;
+  }
+
+  [dir="rtl"] .gradient-primary {
+    background: linear-gradient(-135deg, hsl(0, 68%, 51%), hsl(30, 100%, 49%));
+  }
 }
