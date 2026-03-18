@@ -33,7 +33,7 @@ export const RecoveryEmail = ({
         </Section>
         <Heading style={h1}>Réinitialisation du mot de passe</Heading>
         <Text style={text}>
-          Nous avons reçu une demande de réinitialisation de votre mot de passe pour votre compte Clarivi. Cliquez sur le bouton ci-dessous pour choisir un nouveau mot de passe.
+          Nous avons reçu une demande de réinitialisation de votre mot de passe pour votre compte IMOTION Creator Studio. Cliquez sur le bouton ci-dessous pour choisir un nouveau mot de passe.
         </Text>
         <Section style={buttonContainer}>
           <Button style={button} href={confirmationUrl}>
