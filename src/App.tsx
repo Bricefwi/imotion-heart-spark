@@ -21,6 +21,10 @@ import About from "@/pages/About";
 import Contact from "@/pages/Contact";
 import Legal from "@/pages/Legal";
 import Privacy from "@/pages/Privacy";
+import CGU from "@/pages/CGU";
+import CGV from "@/pages/CGV";
+import CookiesPage from "@/pages/Cookies";
+import FAQ from "@/pages/FAQ";
 import Blog from "@/pages/Blog";
 import BlogArticle from "@/pages/BlogArticle";
 
