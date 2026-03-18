@@ -548,6 +548,7 @@ serve(async (req) => {
       }
     }
 
+    const client = project.client;
     const currentPhase = project.current_phase || 1;
     const discoveryData = project.discovery_data || {};
 
