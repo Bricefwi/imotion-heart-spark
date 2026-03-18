@@ -38,7 +38,7 @@ export const EmailChangeEmail = ({
         </Section>
         <Heading style={h1}>Changement d'adresse email</Heading>
         <Text style={text}>
-          Vous avez demandé à modifier l'adresse email de votre compte Clarivi de{' '}
+          Vous avez demandé à modifier l'adresse email de votre compte IMOTION Creator Studio de{' '}
           <Link href={`mailto:${email}`} style={link}>{email}</Link>{' '}
           vers{' '}
           <Link href={`mailto:${newEmail}`} style={link}>{newEmail}</Link>.
