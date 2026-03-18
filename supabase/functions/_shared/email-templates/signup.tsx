@@ -30,7 +30,7 @@ export const SignupEmail = ({
 }: SignupEmailProps) => (
   <Html lang="fr" dir="ltr">
     <Head />
-    <Preview>Bienvenue chez Clarivi — confirmez votre adresse email</Preview>
+    <Preview>Bienvenue chez IMOTION Creator Studio — confirmez votre adresse email</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
