@@ -29,7 +29,7 @@ export const RecoveryEmail = ({
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
-          <Text style={logoText}>Clarivi</Text>
+          <Text style={logoText}>IMOTION Creator Studio</Text>
         </Section>
         <Heading style={h1}>Réinitialisation du mot de passe</Heading>
         <Text style={text}>
