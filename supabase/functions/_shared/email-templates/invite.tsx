@@ -38,7 +38,7 @@ export const InviteEmail = ({
         <Text style={text}>
           Vous avez été invité(e) à rejoindre{' '}
           <Link href={siteUrl} style={link}>
-            <strong>Clarivi</strong>
+            <strong>IMOTION Creator Studio</strong>
           </Link>
           . Cliquez sur le bouton ci-dessous pour accepter l'invitation et créer votre compte.
         </Text>
