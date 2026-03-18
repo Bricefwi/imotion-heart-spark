@@ -32,7 +32,7 @@ export const InviteEmail = ({
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
-          <Text style={logoText}>Clarivi</Text>
+          <Text style={logoText}>IMOTION Creator Studio</Text>
         </Section>
         <Heading style={h1}>Vous êtes invité(e) !</Heading>
         <Text style={text}>
