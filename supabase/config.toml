@@ -1,16 +1,15 @@
 project_id = "bqlktjmablipiwxnxisn"
 
-[functions.ai-chat]
-verify_jwt = false
-
-[functions.generate-blog-post]
-verify_jwt = false
-
-[functions.commercial-agent]
-verify_jwt = false
-
-[functions.generate-document]
-verify_jwt = false
-
-[functions.process-email-queue]
-verify_jwt = true
+[functions]
+  [functions.ai-chat]
+    verify_jwt = false
+  [functions.auth-email-hook]
+    verify_jwt = false
+  [functions.commercial-agent]
+    verify_jwt = false
+  [functions.generate-blog-post]
+    verify_jwt = false
+  [functions.generate-document]
+    verify_jwt = false
+  [functions.process-email-queue]
+    verify_jwt = true
