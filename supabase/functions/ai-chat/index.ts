@@ -524,7 +524,7 @@ serve(async (req) => {
     // ── Get project & verify ownership ──
     const { data: project } = await supabase
       .from("projects")
-      .select("*")
+      .select("*, client:profiles!projects_client_id_fkey(id, email, full_name)")
       .eq("id", projectId)
       .single();
 
