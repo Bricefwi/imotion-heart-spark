@@ -43,7 +43,7 @@ export const MagicLinkEmail = ({
         <Text style={footer}>
           Si vous n'avez pas demandé ce lien, vous pouvez ignorer cet email en toute sécurité.
         </Text>
-        <Text style={footerBrand}>© Clarivi — Votre partenaire digital</Text>
+        <Text style={footerBrand}>© IMOTION Creator Studio — Votre partenaire digital</Text>
       </Container>
     </Body>
   </Html>

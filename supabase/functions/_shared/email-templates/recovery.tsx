@@ -43,7 +43,7 @@ export const RecoveryEmail = ({
         <Text style={footer}>
           Si vous n'avez pas demandé cette réinitialisation, ignorez simplement cet email. Votre mot de passe ne sera pas modifié.
         </Text>
-        <Text style={footerBrand}>© Clarivi — Votre partenaire digital</Text>
+        <Text style={footerBrand}>© IMOTION Creator Studio — Votre partenaire digital</Text>
       </Container>
     </Body>
   </Html>

@@ -36,7 +36,7 @@ export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => 
         <Text style={footer}>
           Ce code expirera dans quelques minutes. Si vous n'avez pas fait cette demande, ignorez cet email.
         </Text>
-        <Text style={footerBrand}>© Clarivi — Votre partenaire digital</Text>
+        <Text style={footerBrand}>© IMOTION Creator Studio — Votre partenaire digital</Text>
       </Container>
     </Body>
   </Html>

@@ -54,7 +54,7 @@ export const EmailChangeEmail = ({
         <Text style={footer}>
           Si vous n'avez pas demandé ce changement, sécurisez votre compte immédiatement.
         </Text>
-        <Text style={footerBrand}>© Clarivi — Votre partenaire digital</Text>
+        <Text style={footerBrand}>© IMOTION Creator Studio — Votre partenaire digital</Text>
       </Container>
     </Body>
   </Html>
