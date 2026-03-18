@@ -24,7 +24,7 @@ export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => 
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
-          <Text style={logoText}>Clarivi</Text>
+          <Text style={logoText}>IMOTION Creator Studio</Text>
         </Section>
         <Heading style={h1}>Vérification de votre identité</Heading>
         <Text style={text}>
