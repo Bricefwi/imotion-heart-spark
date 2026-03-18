@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { Campaign, SupabaseError } from "@/types/admin";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -70,7 +71,7 @@ export function CampaignsTab() {
   });
 
   const createMutation = useMutation({
-    mutationFn: async (campaign: any) => {
+    mutationFn: async (campaign: Partial<Campaign>) => {
       const { error } = await supabase.from("email_campaigns").insert(campaign);
       if (error) throw error;
     },
@@ -80,7 +81,7 @@ export function CampaignsTab() {
       resetForm();
       setCreateOpen(false);
     },
-    onError: (err: any) => toast({ title: "Erreur", description: err.message, variant: "destructive" }),
+    onError: (err: SupabaseError) => toast({ title: "Erreur", description: err.message, variant: "destructive" }),
   });
 
   const deleteMutation = useMutation({
@@ -116,8 +117,8 @@ export function CampaignsTab() {
     });
   }
 
-  const totalSent = campaigns.reduce((s, c: any) => s + (c.total_sent || 0), 0);
-  const totalOpened = campaigns.reduce((s, c: any) => s + (c.total_opened || 0), 0);
+  const totalSent = campaigns.reduce((s, c: Campaign) => s + (c.total_sent || 0), 0);
+  const totalOpened = campaigns.reduce((s, c: Campaign) => s + (c.total_opened || 0), 0);
 
   return (
     <div className="space-y-4">
@@ -232,7 +233,7 @@ export function CampaignsTab() {
             </CardContent>
           </Card>
         ) : (
-          campaigns.map((campaign: any) => {
+          campaigns.map((campaign: Campaign) => {
             const statusInfo = STATUS_MAP[campaign.status] || STATUS_MAP.draft;
             const segmentLabel = SEGMENTS.find((s) => s.value === campaign.segment_filter?.segment)?.label || "Tous";
             return (

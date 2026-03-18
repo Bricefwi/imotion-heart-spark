@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, X, Send, Bot, User, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import ReactMarkdown from "react-markdown";
+import { SafeMarkdown } from "@/components/SafeMarkdown";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -224,7 +224,7 @@ export function FloatingChatAgent() {
                   >
                     {msg.role === "assistant" ? (
                       <div className="prose prose-sm max-w-none [&_p]:m-0 [&_ul]:mt-1 [&_ol]:mt-1 [&_a]:text-primary [&_a]:underline">
-                        <ReactMarkdown>{msg.content}</ReactMarkdown>
+                        <SafeMarkdown>{msg.content}</SafeMarkdown>
                       </div>
                     ) : (
                       msg.content

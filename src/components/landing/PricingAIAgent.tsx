@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Send, Bot, User, Sparkles, MessageCircle } from "lucide-react";
-import ReactMarkdown from "react-markdown";
+import { SafeMarkdown } from "@/components/SafeMarkdown";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -179,7 +179,7 @@ export function PricingAIAgent() {
                     }`}>
                       {msg.role === "assistant" ? (
                         <div className="prose prose-sm max-w-none [&_p]:m-0 [&_ul]:mt-1 [&_a]:text-primary [&_a]:underline">
-                          <ReactMarkdown>{msg.content}</ReactMarkdown>
+                          <SafeMarkdown>{msg.content}</SafeMarkdown>
                         </div>
                       ) : msg.content}
                     </div>

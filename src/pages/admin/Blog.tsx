@@ -23,6 +23,8 @@ import {
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
+import type { SupabaseError } from "@/types/admin";
+import type { Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 
 const CATEGORIES = [
   { value: "expression-besoin", label: "Expression du besoin", emoji: "💬" },
@@ -32,7 +34,7 @@ const CATEGORIES = [
   { value: "outils", label: "Outils pratiques", emoji: "🛠️" },
 ];
 
-const statusConfig: Record<string, { label: string; icon: any; className: string }> = {
+const statusConfig: Record<string, { label: string; icon: React.ComponentType<{ className?: string }>; className: string }> = {
   planned: { label: "Planifié", icon: Clock, className: "bg-blue-500/10 text-blue-600 border-blue-500/20" },
   generating: { label: "En cours", icon: Loader2, className: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20" },
   generated: { label: "Généré", icon: CheckCircle2, className: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" },
@@ -43,8 +45,8 @@ const statusConfig: Record<string, { label: string; icon: any; className: string
 export default function AdminBlog() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("articles");
-  const [editPost, setEditPost] = useState<any>(null);
-  const [editCalendar, setEditCalendar] = useState<any>(null);
+  const [editPost, setEditPost] = useState<Tables<"blog_posts"> | null>(null);
+  const [editCalendar, setEditCalendar] = useState<(Tables<"blog_editorial_calendar"> & { _isNew?: boolean }) | null>(null);
   const [calendarFilter, setCalendarFilter] = useState("all");
 
   // === Queries ===
@@ -87,7 +89,7 @@ export default function AdminBlog() {
   // === Mutations ===
   const togglePublishMutation = useMutation({
     mutationFn: async ({ id, is_published }: { id: string; is_published: boolean }) => {
-      const update: any = { is_published };
+      const update: Record<string, string | boolean> = { is_published };
       if (is_published && !posts.find(p => p.id === id)?.published_at) {
         update.published_at = new Date().toISOString();
       }
@@ -98,7 +100,7 @@ export default function AdminBlog() {
       queryClient.invalidateQueries({ queryKey: ["admin-blog-posts"] });
       toast.success("Statut mis à jour");
     },
-    onError: (e: any) => toast.error(e.message),
+    onError: (e: SupabaseError) => toast.error(e.message),
   });
 
   const deletePostMutation = useMutation({
@@ -110,11 +112,11 @@ export default function AdminBlog() {
       queryClient.invalidateQueries({ queryKey: ["admin-blog-posts"] });
       toast.success("Article supprimé");
     },
-    onError: (e: any) => toast.error(e.message),
+    onError: (e: SupabaseError) => toast.error(e.message),
   });
 
   const updatePostMutation = useMutation({
-    mutationFn: async (post: any) => {
+    mutationFn: async (post: Tables<"blog_posts">) => {
       const { id, ...data } = post;
       const { error } = await supabase.from("blog_posts").update(data).eq("id", id);
       if (error) throw error;
@@ -124,7 +126,7 @@ export default function AdminBlog() {
       toast.success("Article mis à jour");
       setEditPost(null);
     },
-    onError: (e: any) => toast.error(e.message),
+    onError: (e: SupabaseError) => toast.error(e.message),
   });
 
   const resetCalendarMutation = useMutation({
@@ -139,7 +141,7 @@ export default function AdminBlog() {
       queryClient.invalidateQueries({ queryKey: ["admin-blog-calendar"] });
       toast.success("Entrée réinitialisée");
     },
-    onError: (e: any) => toast.error(e.message),
+    onError: (e: SupabaseError) => toast.error(e.message),
   });
 
   const deleteCalendarMutation = useMutation({
@@ -151,11 +153,11 @@ export default function AdminBlog() {
       queryClient.invalidateQueries({ queryKey: ["admin-blog-calendar"] });
       toast.success("Entrée supprimée");
     },
-    onError: (e: any) => toast.error(e.message),
+    onError: (e: SupabaseError) => toast.error(e.message),
   });
 
   const addCalendarMutation = useMutation({
-    mutationFn: async (entry: any) => {
+    mutationFn: async (entry: TablesInsert<"blog_editorial_calendar">) => {
       const { error } = await supabase.from("blog_editorial_calendar").insert(entry);
       if (error) throw error;
     },
@@ -164,11 +166,11 @@ export default function AdminBlog() {
       toast.success("Entrée ajoutée au calendrier");
       setEditCalendar(null);
     },
-    onError: (e: any) => toast.error(e.message),
+    onError: (e: SupabaseError) => toast.error(e.message),
   });
 
   const updateCalendarMutation = useMutation({
-    mutationFn: async (entry: any) => {
+    mutationFn: async (entry: Tables<"blog_editorial_calendar"> & { _isNew?: boolean }) => {
       const { id, ...data } = entry;
       const { error } = await supabase.from("blog_editorial_calendar").update(data).eq("id", id);
       if (error) throw error;
@@ -178,7 +180,7 @@ export default function AdminBlog() {
       toast.success("Entrée mise à jour");
       setEditCalendar(null);
     },
-    onError: (e: any) => toast.error(e.message),
+    onError: (e: SupabaseError) => toast.error(e.message),
   });
 
   const triggerGenerationMutation = useMutation({
@@ -198,7 +200,7 @@ export default function AdminBlog() {
         toast.info(data?.message || "Aucun article à générer");
       }
     },
-    onError: (e: any) => toast.error(e.message || "Erreur de génération"),
+    onError: (e: SupabaseError) => toast.error(e.message || "Erreur de génération"),
   });
 
   // Stats
@@ -501,7 +503,7 @@ export default function AdminBlog() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {subscribers.map((sub: any) => (
+                  {subscribers.map((sub: { id: string; email: string; subscribed_at: string | null; is_active: boolean | null }) => (
                     <TableRow key={sub.id}>
                       <TableCell className="font-medium">{sub.email}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">

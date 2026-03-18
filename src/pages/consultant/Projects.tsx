@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { PhaseProgress } from "@/components/PhaseProgress";
+import type { Profile } from "@/types/admin";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -41,7 +42,7 @@ export default function ConsultantProjects() {
 
   const filtered = projects.filter((p) => {
     if (statusFilter !== "all" && p.status !== statusFilter) return false;
-    const client = p.client as any;
+    const client = p.client as Profile | undefined;
     const searchLower = search.toLowerCase();
     if (search && 
       !p.name.toLowerCase().includes(searchLower) && 
@@ -93,7 +94,7 @@ export default function ConsultantProjects() {
       ) : (
         <div className="grid gap-4">
           {filtered.map((project) => {
-            const client = project.client as any;
+            const client = project.client as Profile | undefined;
             return (
               <Card key={project.id} className="border-0 shadow-sm hover:shadow-md transition-shadow">
                 <CardContent className="p-5">

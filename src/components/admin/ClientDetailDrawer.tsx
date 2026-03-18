@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -21,6 +21,7 @@ import {
   Shield, Copy, ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
+import type { Profile, Project, Activity as ActivityType, GeneratedDocument } from "@/types/admin";
 
 interface ClientDetailDrawerProps {
   profileId: string | null;
@@ -28,7 +29,7 @@ interface ClientDetailDrawerProps {
   onOpenChange: (open: boolean) => void;
 }
 
-function computeScore(profile: any, projects: any[], messages: any[]): number {
+function computeScore(profile: Profile, projects: Project[], messages: { id: string }[]): number {
   let score = 0;
   if (profile?.company_name) score += 10;
   if (profile?.phone) score += 5;
@@ -36,7 +37,7 @@ function computeScore(profile: any, projects: any[], messages: any[]): number {
   if (profile?.industry) score += 5;
   if (profile?.onboarding_completed) score += 15;
   score += Math.min(projects.length * 10, 30);
-  const signed = projects.filter((p: any) => ["signed", "completed", "delivered"].includes(p.status));
+  const signed = projects.filter((p: Project) => ["signed", "completed", "delivered"].includes(p.status));
   score += signed.length * 10;
   score += Math.min(messages.length, 20);
   return Math.min(score, 100);
@@ -124,7 +125,7 @@ export function ClientDetailDrawer({ profileId, open, onOpenChange }: ClientDeta
     queryKey: ["client-messages-count", profileId],
     queryFn: async () => {
       if (!profileId || projects.length === 0) return [];
-      const projectIds = projects.map((p: any) => p.id);
+      const projectIds = projects.map((p: Project) => p.id);
       const { data } = await supabase
         .from("messages")
         .select("id, created_at, role, project_id")
@@ -140,7 +141,7 @@ export function ClientDetailDrawer({ profileId, open, onOpenChange }: ClientDeta
     queryKey: ["client-documents", profileId],
     queryFn: async () => {
       if (!profileId || projects.length === 0) return [];
-      const projectIds = projects.map((p: any) => p.id);
+      const projectIds = projects.map((p: Project) => p.id);
       const { data } = await supabase
         .from("documents")
         .select("*")
@@ -170,14 +171,14 @@ export function ClientDetailDrawer({ profileId, open, onOpenChange }: ClientDeta
 
   const score = computeScore(profile, projects, messages);
   const totalBudget = projects.reduce(
-    (s: number, p: any) => s + (p.contract_amount || p.proposal_amount || p.estimated_budget_max || 0),
+    (s: number, p: Project) => s + (p.contract_amount || p.proposal_amount || p.estimated_budget_max || 0),
     0
   );
   const activeProjects = projects.filter(
-    (p: any) => !["archived", "lost", "cancelled"].includes(p.status)
+    (p: Project) => !["archived", "lost", "cancelled"].includes(p.status)
   );
   const signedProjects = projects.filter(
-    (p: any) => ["signed", "completed", "delivered"].includes(p.status)
+    (p: Project) => ["signed", "completed", "delivered"].includes(p.status)
   );
   const daysSinceLastSeen = profile.last_seen_at
     ? Math.floor((Date.now() - new Date(profile.last_seen_at).getTime()) / 86400000)
@@ -185,10 +186,10 @@ export function ClientDetailDrawer({ profileId, open, onOpenChange }: ClientDeta
 
   // Extract discovery data from all projects
   const projectsWithDiscovery = projects.filter(
-    (p: any) => p.discovery_data && typeof p.discovery_data === "object" && Object.keys(p.discovery_data).length > 0
+    (p: Project) => p.discovery_data && typeof p.discovery_data === "object" && Object.keys(p.discovery_data as Record<string, unknown>).length > 0
   );
 
-  const hasAddress = (profile as any).address_street || (profile as any).address_city || (profile as any).address_postal_code;
+  const hasAddress = (profile as Profile).address_street || (profile as Profile).address_city || (profile as Profile).address_postal_code;
 
   const scoreColor =
     score >= 70 ? "text-green-600 dark:text-green-400" : score >= 40 ? "text-yellow-600 dark:text-yellow-400" : "text-red-500";
@@ -307,11 +308,11 @@ export function ClientDetailDrawer({ profileId, open, onOpenChange }: ClientDeta
                         <p className="text-xs text-muted-foreground mb-0.5">Adresse</p>
                         <p>
                           {[
-                            (profile as any).address_street,
-                            [(profile as any).address_postal_code, (profile as any).address_city]
+                            (profile as Profile).address_street,
+                            [(profile as Profile).address_postal_code, (profile as Profile).address_city]
                               .filter(Boolean)
                               .join(" "),
-                            (profile as any).address_country,
+                            (profile as Profile).address_country,
                           ]
                             .filter(Boolean)
                             .join(", ")}
@@ -381,7 +382,7 @@ export function ClientDetailDrawer({ profileId, open, onOpenChange }: ClientDeta
               {projects.length === 0 ? (
                 <EmptyState icon={FolderKanban} text="Aucun projet pour ce client." />
               ) : (
-                projects.map((project: any) => {
+                projects.map((project: Project) => {
                   const statusCfg = STATUS_LABELS[project.status] || STATUS_LABELS.draft;
                   const budget = project.contract_amount || project.proposal_amount || project.estimated_budget_max;
                   return (
@@ -460,8 +461,8 @@ export function ClientDetailDrawer({ profileId, open, onOpenChange }: ClientDeta
               {projectsWithDiscovery.length === 0 ? (
                 <EmptyState icon={Brain} text="Aucune donnee de discovery disponible." />
               ) : (
-                projectsWithDiscovery.map((project: any) => {
-                  const data = project.discovery_data as Record<string, any>;
+                projectsWithDiscovery.map((project: Project) => {
+                  const data = project.discovery_data as Record<string, unknown>;
                   const phases = Object.entries(data).sort(([a], [b]) => a.localeCompare(b));
 
                   return (
@@ -585,7 +586,7 @@ export function ClientDetailDrawer({ profileId, open, onOpenChange }: ClientDeta
                       { type: "facture", label: "Factures" },
                     ].map((dt) => {
                       const count = documents.filter(
-                        (d: any) => d.type === dt.type || d.type === dt.label.toLowerCase()
+                        (d: GeneratedDocument) => d.document_type === dt.type || d.document_type === dt.label.toLowerCase()
                       ).length;
                       if (count === 0) return null;
                       return (
@@ -596,7 +597,7 @@ export function ClientDetailDrawer({ profileId, open, onOpenChange }: ClientDeta
                     })}
                   </div>
 
-                  {documents.map((doc: any) => (
+                  {documents.map((doc: GeneratedDocument) => (
                     <div
                       key={doc.id}
                       className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/30 transition-colors"
@@ -640,7 +641,7 @@ export function ClientDetailDrawer({ profileId, open, onOpenChange }: ClientDeta
               ) : (
                 <div className="relative">
                   <div className="absolute left-[13px] top-0 bottom-0 w-px bg-border" />
-                  {activities.map((act: any) => (
+                  {activities.map((act: ActivityType) => (
                     <div key={act.id} className="flex gap-3 relative pb-4">
                       <div
                         className={`h-7 w-7 rounded-full flex items-center justify-center shrink-0 z-10 ${
@@ -698,7 +699,7 @@ function ContactRow({
   copyable,
   href,
 }: {
-  icon: any;
+  icon: React.ElementType;
   label: string;
   value: string;
   copyable?: boolean;
@@ -744,7 +745,7 @@ function InfoField({ label, value }: { label: string; value: string | null | und
   );
 }
 
-function EmptyState({ icon: Icon, text }: { icon: any; text: string }) {
+function EmptyState({ icon: Icon, text }: { icon: React.ElementType; text: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-10 text-muted-foreground">
       <Icon className="h-10 w-10 mb-2 opacity-30" />

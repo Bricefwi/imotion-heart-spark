@@ -13,6 +13,7 @@ import { useState } from "react";
 import { SignaturePad } from "@/components/SignaturePad";
 import { ProfessionalDocument } from "@/components/ProfessionalDocument";
 import { toast } from "sonner";
+import type { Profile } from "@/types/admin";
 
 const phaseNames: Record<number, string> = {
   1: "Présentation et Contexte",
@@ -129,7 +130,7 @@ export default function DocumentViewer() {
   const status = statusLabels[document.status || "draft"] || statusLabels.draft;
   const isSigned = document.status === "signed";
   const needsSignature = document.requires_signature && !isSigned;
-  const client = project?.client as any;
+  const client = project?.client as Profile | undefined;
 
   return (
     <div className="space-y-6 animate-fade-in">

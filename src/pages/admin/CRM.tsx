@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, type ComponentProps } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import type { Profile, Project, Activity as ActivityType, GeneratedDocument } from "@/types/admin";
 import { useAuth } from "@/hooks/useAuth";
+import { useDebounce } from "@/hooks/useDebounce";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -47,7 +49,7 @@ const PRIORITY_COLORS: Record<string, string> = {
   low: "bg-muted text-muted-foreground border-border",
 };
 
-function computeClientScore(profile: any, clientProjects: any[]): number {
+function computeClientScore(profile: Profile, clientProjects: Project[]): number {
   let score = 0;
   if (profile?.company_name) score += 10;
   if (profile?.phone) score += 5;
@@ -55,9 +57,9 @@ function computeClientScore(profile: any, clientProjects: any[]): number {
   if (profile?.industry) score += 5;
   if (profile?.onboarding_completed) score += 15;
   score += Math.min(clientProjects.length * 10, 30);
-  const signed = clientProjects.filter((p: any) => ["signed", "completed", "delivered"].includes(p.status));
+  const signed = clientProjects.filter((p: Project) => ["signed", "completed", "delivered"].includes(p.status));
   score += signed.length * 10;
-  const totalMsgs = clientProjects.reduce((s: number, p: any) => s + (p.total_messages || 0), 0);
+  const totalMsgs = clientProjects.reduce((s: number, p: Project & { total_messages?: number }) => s + (p.total_messages || 0), 0);
   score += Math.min(totalMsgs, 20);
   return Math.min(score, 100);
 }
@@ -65,6 +67,7 @@ function computeClientScore(profile: any, clientProjects: any[]): number {
 export default function AdminCRM() {
   const { user } = useAuth();
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 300);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [pipelineView, setPipelineView] = useState<"kanban" | "list">("kanban");
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
@@ -73,7 +76,7 @@ export default function AdminCRM() {
   const { data: profiles = [] } = useQuery({
     queryKey: ["crm-profiles"],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
+      const { data } = await supabase.from("profiles").select("*").order("created_at", { ascending: false }).limit(500);
       return data || [];
     },
     enabled: !!user,
@@ -124,12 +127,13 @@ export default function AdminCRM() {
   const conversionRate = projects.length > 0 ? Math.round((signedProjects.length / projects.length) * 100) : 0;
 
   const filteredProjects = projects.filter((p) => {
+    const s = debouncedSearch.toLowerCase();
     const matchSearch =
-      !search ||
-      p.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.code?.toLowerCase().includes(search.toLowerCase()) ||
-      (p.client as any)?.full_name?.toLowerCase().includes(search.toLowerCase()) ||
-      (p.client as any)?.company_name?.toLowerCase().includes(search.toLowerCase());
+      !s ||
+      p.name.toLowerCase().includes(s) ||
+      p.code?.toLowerCase().includes(s) ||
+      (p.client as Profile)?.full_name?.toLowerCase().includes(s) ||
+      (p.client as Profile)?.company_name?.toLowerCase().includes(s);
     const matchStatus = statusFilter === "all" || p.status === statusFilter;
     return matchSearch && matchStatus;
   });
@@ -256,7 +260,7 @@ export default function AdminCRM() {
           </div>
 
           {pipelineView === "kanban" ? (
-            <KanbanBoard projects={projects as any} onClientClick={openClientDetail} />
+            <KanbanBoard projects={projects as ComponentProps<typeof KanbanBoard>["projects"]} onClientClick={openClientDetail} />
           ) : (
             <div className="space-y-3">
               {filteredProjects.length === 0 ? (
@@ -265,7 +269,7 @@ export default function AdminCRM() {
                 </Card>
               ) : (
                 filteredProjects.map((project) => {
-                  const client = project.client as any;
+                  const client = project.client as Profile | null;
                   const statusCfg = STATUS_CONFIG[project.status] || STATUS_CONFIG.draft;
                   return (
                     <Card key={project.id} className="border-0 shadow-sm hover:shadow-md transition-shadow">
@@ -541,7 +545,7 @@ export default function AdminCRM() {
                         </td>
                         <td className="p-3"><Badge variant="outline" className="text-[10px]">{doc.type}</Badge></td>
                         <td className="p-3 text-muted-foreground text-xs">
-                          {(doc.project as any)?.name || "—"} <span className="opacity-50">{(doc.project as any)?.code}</span>
+                          {(doc.project as GeneratedDocument["project"])?.name || "—"} <span className="opacity-50">{(doc.project as GeneratedDocument["project"])?.code}</span>
                         </td>
                         <td className="p-3">
                           <Badge variant="outline" className={`text-[10px] ${doc.status === "final" || doc.status === "signed" ? "bg-primary/10 text-primary" : ""}`}>
@@ -596,7 +600,7 @@ export default function AdminCRM() {
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium">{act.description || act.action}</p>
                           <div className="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground">
-                            <span>{(act.profile as any)?.full_name || "Système"}</span>
+                            <span>{(act.profile as ActivityType["profile"])?.full_name || "Système"}</span>
                             <span>•</span>
                             <span>{act.created_at ? formatDistanceToNow(new Date(act.created_at), { addSuffix: true, locale: fr }) : "—"}</span>
                             {act.importance === "high" && (

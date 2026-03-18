@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ThemeProvider } from "next-themes";
 
 // Layouts
@@ -70,6 +71,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <ErrorBoundary>
         <BrowserRouter>
           <Routes>
             {/* Public pages with shared layout */}
@@ -137,6 +139,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
+        </ErrorBoundary>
       </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>

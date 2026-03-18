@@ -22,8 +22,8 @@ export async function sendEmail(params: SendEmailParams): Promise<{ success: boo
     }
 
     return { success: true };
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.error("Email sending error:", e);
-    return { success: false, error: e.message };
+    return { success: false, error: e instanceof Error ? e.message : "Unknown error" };
   }
 }

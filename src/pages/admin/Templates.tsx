@@ -15,6 +15,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import type { SupabaseError } from "@/types/admin";
+import type { Json } from "@/integrations/supabase/types";
 
 const TEMPLATE_TYPES = [
   { value: "cdc", label: "Cahier des Charges" },
@@ -75,7 +77,7 @@ export default function AdminTemplates() {
         is_active: form.is_active,
         is_default: form.is_default,
         tags: form.tags,
-        variables: form.variables as any,
+        variables: form.variables as unknown as Json,
         created_by: user?.id,
       };
 
@@ -92,7 +94,7 @@ export default function AdminTemplates() {
       toast.success(editId ? "Template mis à jour !" : "Template créé !");
       resetForm();
     },
-    onError: (e: any) => toast.error(e.message || "Erreur"),
+    onError: (e: SupabaseError) => toast.error(e.message || "Erreur"),
   });
 
   const deleteMutation = useMutation({
@@ -104,7 +106,7 @@ export default function AdminTemplates() {
       queryClient.invalidateQueries({ queryKey: ["admin-templates"] });
       toast.success("Template supprimé.");
     },
-    onError: (e: any) => toast.error(e.message || "Erreur"),
+    onError: (e: SupabaseError) => toast.error(e.message || "Erreur"),
   });
 
   const toggleActiveMutation = useMutation({
@@ -124,7 +126,7 @@ export default function AdminTemplates() {
     setTagInput("");
   };
 
-  const openEdit = (tpl: any) => {
+  const openEdit = (tpl: typeof templates[number]) => {
     setEditId(tpl.id);
     setForm({
       name: tpl.name,
@@ -140,7 +142,7 @@ export default function AdminTemplates() {
     setDialogOpen(true);
   };
 
-  const duplicateTemplate = (tpl: any) => {
+  const duplicateTemplate = (tpl: typeof templates[number]) => {
     setEditId(null);
     setForm({
       name: `${tpl.name} (copie)`,

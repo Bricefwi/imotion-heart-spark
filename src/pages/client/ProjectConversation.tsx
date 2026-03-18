@@ -11,7 +11,7 @@ import { Send, Paperclip, Phone, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { sendChatMessage, type ChatMessage } from "@/lib/ai-chat";
 import { toast } from "sonner";
-import ReactMarkdown from "react-markdown";
+import { SafeMarkdown } from "@/components/SafeMarkdown";
 import { useQuery } from "@tanstack/react-query";
 import marcAvatar from "@/assets/avatar-marc-consultant.jpg";
 
@@ -154,8 +154,8 @@ export default function ProjectConversation() {
       setCurrentPhase(response.phase_current);
       setOverallProgress(response.overall_progress);
       setPhaseProgress(response.phase_progress);
-    } catch (error: any) {
-      toast.error(error.message || "Erreur lors de l'envoi du message");
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Erreur lors de l'envoi du message");
       // Remove the user message on error
       setMessages((prev) => prev.filter((m) => m.id !== userMsg.id));
       setChatHistory(chatHistory);
@@ -251,7 +251,7 @@ export default function ProjectConversation() {
                   >
                     {message.role === "assistant" ? (
                       <div className="prose prose-sm max-w-none dark:prose-invert">
-                        <ReactMarkdown>{message.content}</ReactMarkdown>
+                        <SafeMarkdown>{message.content}</SafeMarkdown>
                       </div>
                     ) : (
                       message.content
