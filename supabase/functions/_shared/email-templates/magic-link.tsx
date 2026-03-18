@@ -25,7 +25,7 @@ export const MagicLinkEmail = ({
 }: MagicLinkEmailProps) => (
   <Html lang="fr" dir="ltr">
     <Head />
-    <Preview>Votre lien de connexion Clarivi</Preview>
+    <Preview>Votre lien de connexion IMOTION Creator Studio</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
