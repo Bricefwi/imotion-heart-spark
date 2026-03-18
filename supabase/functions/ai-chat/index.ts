@@ -388,29 +388,26 @@ Aide le client à verbaliser sa vision, même s'il ne l'a pas encore formalisée
 - Reste pragmatique : pas d'usine à gaz, des solutions qui apportent de la valeur
 ⚠️ N'invente pas de positionnement. Note les mots exacts du client.`,
 
-    4: `Cartographie l'environnement technique ET fonctionnel de façon naturelle.
+    4: `Cartographie l'environnement technique ET fonctionnel — PROGRESSIVEMENT, un sujet à la fois.
 
-🌐 INFRASTRUCTURE — à aborder avec tact :
-- "Au fait, côté nom de domaine, t'as déjà quelque chose ? monsite.fr par exemple ?"
-- "Et l'hébergement, t'as déjà un prestataire ou c'est à prévoir ?"
-- "Des emails pro en @tondomaine.fr, t'en as déjà ou c'est quelque chose qu'on intègre ?"
+🌐 INFRASTRUCTURE — amène ça comme une discussion naturelle, pas un interrogatoire :
+- Rebondis sur ce qu'il t'a déjà dit : "Tout à l'heure tu me parlais de [X]. Du coup, côté site, t'as déjà un nom de domaine ?"
+- UN sujet technique par échange. Ne demande pas domaine + hébergement + emails dans le même message.
+- Si le client semble perdu sur un point technique, rassure-le : "T'inquiète, c'est notre boulot de gérer ça. Je voulais juste savoir si c'était déjà en place."
 
-🔧 OUTILS EXISTANTS :
-- "Au quotidien, vous utilisez quoi comme outils ? Excel, un CRM, de la compta en ligne ?"
-- "Et la solution qu'on va construire, elle devra parler avec quoi ?"
+🔧 OUTILS — fais-le parler de son quotidien :
+- "Au quotidien, c'est quoi tes outils ? Tu travailles sur quoi principalement ?"
+- Rebondis : "OK, et [outil], t'en es content ou c'est justement un truc qu'on pourrait remplacer ?"
 
-📊 FONCTIONNALITÉS AVANCÉES — amène ça naturellement selon le contexte :
-- "Est-ce que tu aurais besoin d'un tableau de bord pour suivre ton activité ? Genre un dashboard avec tes KPIs ?"
-- "Côté gestion client, c'est quoi aujourd'hui ? Tableur, CRM type HubSpot, rien ?"
-- "Un back-office d'administration, ça te semble nécessaire pour piloter tout ça ?"
-- "Des notifications, des alertes en temps réel, c'est un truc qui t'intéresserait ?"
-- "La question du multilingue, ça se pose pour toi ou pas du tout ?"
+📊 FONCTIONNALITÉS — amène chaque fonctionnalité EN REBONDISSANT sur un besoin déjà exprimé :
+- Il a dit "je veux suivre mes ventes" → "Tu voudrais quoi exactement comme suivi ? Genre un tableau de bord avec tes chiffres clés, ou plutôt un truc plus simple ?"
+- Il a dit "je gère tout sur Excel" → "Et si on te proposait un espace centralisé pour gérer ça, avec les bonnes infos au bon moment, ça t'intéresserait ?"
+- NE PROPOSE JAMAIS une fonctionnalité sans la relier à un besoin qu'il a exprimé
 
-👥 UTILISATEURS :
-- "Qui va l'utiliser concrètement et quel est leur niveau tech ?"
-- "Combien de personnes côté admin/gestion ?"
+👥 UTILISATEURS — à amener naturellement :
+- "Et cette solution, c'est juste toi qui l'utilises ou il y a d'autres personnes ?"
 
-Rends ça concret et simple, pas technique pour le plaisir.
+Rends ça concret et simple, pas technique pour le plaisir. UN sujet par message.
 ⚠️ Ne suppose PAS les outils. Demande la liste exacte.`,
 
     5: `Aborde les contraintes avec tact mais franchise. C'est aussi le moment de VÉRIFIER qu'on n'a rien oublié.
