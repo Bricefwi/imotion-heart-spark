@@ -21,6 +21,10 @@ import About from "@/pages/About";
 import Contact from "@/pages/Contact";
 import Legal from "@/pages/Legal";
 import Privacy from "@/pages/Privacy";
+import CGU from "@/pages/CGU";
+import CGV from "@/pages/CGV";
+import CookiesPage from "@/pages/Cookies";
+import FAQ from "@/pages/FAQ";
 import Blog from "@/pages/Blog";
 import BlogArticle from "@/pages/BlogArticle";
 
@@ -77,6 +81,10 @@ const App = () => (
               <Route path="/contact" element={<Contact />} />
               <Route path="/mentions-legales" element={<Legal />} />
               <Route path="/confidentialite" element={<Privacy />} />
+              <Route path="/cgu" element={<CGU />} />
+              <Route path="/cgv" element={<CGV />} />
+              <Route path="/cookies" element={<CookiesPage />} />
+              <Route path="/faq" element={<FAQ />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogArticle />} />
             </Route>
