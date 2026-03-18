@@ -1,47 +1,47 @@
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import featureConversation from "@/assets/feature-conversation.png";
 import featureDocument from "@/assets/feature-document.png";
 import featureAnalytics from "@/assets/feature-analytics.png";
 
-const features = [
-  {
-    image: featureConversation,
-    badge: "Étape 1",
-    title: "Un accompagnement sur-mesure pour cerner vos ambitions",
-    description:
-      "Nos consultants vous guident a travers un echange approfondi en 7 phases structurees pour reveler votre vision, identifier vos enjeux et transformer vos idees en un plan d'action concret. Pas de jargon technique — juste une conversation qui fait avancer votre projet.",
-    highlights: ["7 phases de découverte", "Questions adaptatives", "Analyse en temps réel"],
-  },
-  {
-    image: featureDocument,
-    badge: "Étape 2",
-    title: "Cahier des charges sur-mesure",
-    description:
-      "À partir de votre conversation, un document professionnel est généré automatiquement : spécifications fonctionnelles, contraintes techniques et recommandations — prêt à partager avec vos équipes.",
-    highlights: ["Génération automatique", "Format professionnel", "Exportable en PDF"],
-  },
-  {
-    image: featureAnalytics,
-    badge: "Étape 3",
-    title: "Proposition claire et chiffrée",
-    description:
-      "Recevez une proposition technique détaillée avec estimation budgétaire, planning et options comparées. Prenez des décisions éclairées grâce à des données structurées.",
-    highlights: ["Budget estimé", "Planning prévisionnel", "Options comparées"],
-  },
-];
-
 export function FeaturesSection() {
+  const { t } = useTranslation();
+
+  const features = [
+    {
+      image: featureConversation,
+      badge: t("features.step1Badge"),
+      title: t("features.step1Title"),
+      description: t("features.step1Desc"),
+      highlights: [t("features.step1H1"), t("features.step1H2"), t("features.step1H3")],
+    },
+    {
+      image: featureDocument,
+      badge: t("features.step2Badge"),
+      title: t("features.step2Title"),
+      description: t("features.step2Desc"),
+      highlights: [t("features.step2H1"), t("features.step2H2"), t("features.step2H3")],
+    },
+    {
+      image: featureAnalytics,
+      badge: t("features.step3Badge"),
+      title: t("features.step3Title"),
+      description: t("features.step3Desc"),
+      highlights: [t("features.step3H1"), t("features.step3H2"), t("features.step3H3")],
+    },
+  ];
+
   return (
     <section id="features" className="py-20 md:py-28 overflow-hidden">
       <div className="container">
         <div className="text-center mb-20">
-          <Badge variant="outline" className="mb-4">Fonctionnalités</Badge>
+          <Badge variant="outline" className="mb-4">{t("features.badge")}</Badge>
           <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
-            Un processus en 3 étapes
+            {t("features.title")}
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
-            De l'idée au cahier des charges, notre IA vous guide à chaque étape.
+            {t("features.subtitle")}
           </p>
         </div>
 
@@ -51,10 +51,9 @@ export function FeaturesSection() {
 
             return (
               <div
-                key={feature.title}
+                key={i}
                 className={`flex flex-col ${isReversed ? "md:flex-row-reverse" : "md:flex-row"} items-center gap-12 md:gap-16 lg:gap-24`}
               >
-                {/* Illustration */}
                 <motion.div
                   initial={{ opacity: 0, x: isReversed ? 60 : -60 }}
                   whileInView={{ opacity: 1, x: 0 }}
@@ -62,7 +61,6 @@ export function FeaturesSection() {
                   transition={{ duration: 0.7, ease: "easeOut" }}
                   className="flex-1 flex justify-center relative"
                 >
-                  {/* Decorative blob */}
                   <div className="absolute inset-0 flex items-center justify-center -z-10">
                     <div
                       className={`w-64 h-64 md:w-80 md:h-80 rounded-full blur-3xl opacity-20 ${
@@ -79,7 +77,6 @@ export function FeaturesSection() {
                   />
                 </motion.div>
 
-                {/* Text */}
                 <motion.div
                   initial={{ opacity: 0, x: isReversed ? -40 : 40 }}
                   whileInView={{ opacity: 1, x: 0 }}

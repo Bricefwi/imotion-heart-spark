@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import statsWave from "@/assets/stats-wave.png";
 
 const fadeUp = {
@@ -9,16 +10,17 @@ const fadeUp = {
   }),
 };
 
-const stats = [
-  { value: "7", label: "Phases de découverte" },
-  { value: "~45 min", label: "Pour un CDC complet" },
-  { value: "100%", label: "Cadrage structuré" },
-];
-
 export function StatsSection() {
+  const { t } = useTranslation();
+
+  const stats = [
+    { value: "7", label: t("stats.phases") },
+    { value: "~45 min", label: t("stats.duration") },
+    { value: "100%", label: t("stats.structured") },
+  ];
+
   return (
     <section className="py-14 border-y bg-muted/30 relative overflow-hidden">
-      {/* Decorative wave */}
       <img
         src={statsWave}
         alt=""
@@ -29,7 +31,7 @@ export function StatsSection() {
         <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
           {stats.map((stat, i) => (
             <motion.div
-              key={stat.label}
+              key={i}
               initial="hidden" whileInView="visible" viewport={{ once: true }}
               variants={fadeUp} custom={i}
               className="text-center"

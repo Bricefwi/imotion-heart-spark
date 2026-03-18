@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import avatarMarie from "@/assets/avatar-marie.jpg";
 import avatarThomas from "@/assets/avatar-thomas.jpg";
 import avatarSophie from "@/assets/avatar-sophie.jpg";
@@ -14,44 +15,46 @@ const fadeUp = {
   }),
 };
 
-const testimonials = [
-  {
-    quote: "IMOTION a parfaitement compris notre besoin et nous a livré une solution sur-mesure en un temps record.",
-    name: "Marie Dupont",
-    role: "Directrice Marketing",
-    company: "TechVision",
-    avatar: avatarMarie,
-  },
-  {
-    quote: "Le processus de découverte est bluffant. En 45 minutes, nous avions un CDC complet et précis.",
-    name: "Thomas Martin",
-    role: "CEO",
-    company: "StartupFlow",
-    avatar: avatarThomas,
-  },
-  {
-    quote: "Un gain de temps considérable. La qualité des documents générés est impressionnante.",
-    name: "Sophie Bernard",
-    role: "Product Manager",
-    company: "DataCorp",
-    avatar: avatarSophie,
-  },
-];
-
 export function TestimonialsSection() {
+  const { t } = useTranslation();
+
+  const testimonials = [
+    {
+      quote: t("testimonials.quote1"),
+      name: "Marie Dupont",
+      role: "Directrice Marketing",
+      company: "TechVision",
+      avatar: avatarMarie,
+    },
+    {
+      quote: t("testimonials.quote2"),
+      name: "Thomas Martin",
+      role: "CEO",
+      company: "StartupFlow",
+      avatar: avatarThomas,
+    },
+    {
+      quote: t("testimonials.quote3"),
+      name: "Sophie Bernard",
+      role: "Product Manager",
+      company: "DataCorp",
+      avatar: avatarSophie,
+    },
+  ];
+
   return (
     <section className="py-20 bg-muted/30">
       <div className="container">
         <div className="text-center mb-16">
-          <Badge variant="outline" className="mb-4">Témoignages</Badge>
+          <Badge variant="outline" className="mb-4">{t("testimonials.badge")}</Badge>
           <h2 className="font-display text-3xl md:text-4xl font-bold">
-            Ils nous font confiance
+            {t("testimonials.title")}
           </h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {testimonials.map((t, i) => (
+          {testimonials.map((testi, i) => (
             <motion.div
-              key={t.name}
+              key={testi.name}
               initial="hidden" whileInView="visible" viewport={{ once: true }}
               variants={fadeUp} custom={i}
             >
@@ -62,16 +65,16 @@ export function TestimonialsSection() {
                       <Star key={j} className="h-4 w-4 fill-secondary text-secondary" />
                     ))}
                   </div>
-                  <p className="text-foreground/80 mb-6 leading-relaxed italic">"{t.quote}"</p>
+                  <p className="text-foreground/80 mb-6 leading-relaxed italic">"{testi.quote}"</p>
                   <div className="flex items-center gap-3">
                     <img
-                      src={t.avatar}
-                      alt={t.name}
+                      src={testi.avatar}
+                      alt={testi.name}
                       className="h-11 w-11 rounded-full object-cover ring-2 ring-primary/20"
                     />
                     <div>
-                      <p className="font-semibold text-sm">{t.name}</p>
-                      <p className="text-xs text-muted-foreground">{t.role}, {t.company}</p>
+                      <p className="font-semibold text-sm">{testi.name}</p>
+                      <p className="text-xs text-muted-foreground">{testi.role}, {testi.company}</p>
                     </div>
                   </div>
                 </CardContent>

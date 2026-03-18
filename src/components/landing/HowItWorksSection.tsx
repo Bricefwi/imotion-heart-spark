@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { FolderPlus, MessageSquare, FileText, Rocket } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import teamImg from "@/assets/team-collaboration.jpg";
 
 const fadeUp = {
@@ -11,29 +12,30 @@ const fadeUp = {
   }),
 };
 
-const steps = [
-  { icon: FolderPlus, number: "01", title: "Créez votre projet", description: "Décrivez votre idée en quelques mots et lancez la découverte." },
-  { icon: MessageSquare, number: "02", title: "Discutez avec notre IA", description: "Notre consultant IA vous pose les bonnes questions en 7 phases." },
-  { icon: FileText, number: "03", title: "Recevez votre CDC", description: "Un cahier des charges complet est généré automatiquement." },
-  { icon: Rocket, number: "04", title: "Lancez votre projet", description: "Validez la proposition et démarrez le développement." },
-];
-
 export function HowItWorksSection() {
+  const { t } = useTranslation();
+
+  const steps = [
+    { icon: FolderPlus, number: "01", title: t("howItWorks.step1Title"), description: t("howItWorks.step1Desc") },
+    { icon: MessageSquare, number: "02", title: t("howItWorks.step2Title"), description: t("howItWorks.step2Desc") },
+    { icon: FileText, number: "03", title: t("howItWorks.step3Title"), description: t("howItWorks.step3Desc") },
+    { icon: Rocket, number: "04", title: t("howItWorks.step4Title"), description: t("howItWorks.step4Desc") },
+  ];
+
   return (
     <section id="how-it-works" className="py-20 md:py-28 relative overflow-hidden">
-      {/* Background photo with overlay */}
       <div className="absolute inset-0 -z-10">
         <img src={teamImg} alt="" className="w-full h-full object-cover opacity-5" />
       </div>
 
       <div className="container">
         <div className="text-center mb-16">
-          <Badge variant="outline" className="mb-4">Comment ça marche</Badge>
+          <Badge variant="outline" className="mb-4">{t("howItWorks.badge")}</Badge>
           <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
-            De l'idée au projet en 4 étapes
+            {t("howItWorks.title")}
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
-            Un processus simple et efficace pour transformer votre vision en réalité digitale.
+            {t("howItWorks.subtitle")}
           </p>
         </div>
 
@@ -45,7 +47,6 @@ export function HowItWorksSection() {
               variants={fadeUp} custom={i}
               className="relative text-center group"
             >
-              {/* Connector line */}
               {i < steps.length - 1 && (
                 <div className="hidden lg:block absolute top-10 left-[calc(50%+2rem)] w-[calc(100%-4rem)] h-[2px] bg-gradient-to-r from-primary/30 to-secondary/30" />
               )}
