@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslation } from "react-i18next";
-import { Menu, X, LogOut } from "lucide-react";
+import { Menu, X, LogOut, ChevronDown } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -23,6 +23,15 @@ export function PublicLayout() {
     { label: t("nav.blog"), to: "/blog" },
     { label: t("nav.about"), to: "/a-propos" },
     { label: t("nav.contact"), to: "/contact" },
+    { label: t("nav.faq"), to: "/faq" },
+  ];
+
+  const legalLinks = [
+    { label: t("nav.legalNotice"), to: "/mentions-legales" },
+    { label: t("nav.cgu"), to: "/cgu" },
+    { label: t("nav.cgv"), to: "/cgv" },
+    { label: t("nav.privacy"), to: "/confidentialite" },
+    { label: t("nav.cookies"), to: "/cookies" },
   ];
 
   return (
@@ -35,7 +44,7 @@ export function PublicLayout() {
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-6">
             {navLinks.map((link) => (
               <Link
                 key={link.to}
@@ -45,6 +54,23 @@ export function PublicLayout() {
                 {link.label}
               </Link>
             ))}
+
+            {/* Légal dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors outline-none">
+                {t("nav.legal")}
+                <ChevronDown className="h-3.5 w-3.5" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-[180px]">
+                {legalLinks.map((link) => (
+                  <DropdownMenuItem key={link.to} asChild>
+                    <Link to={link.to} className="w-full">
+                      {link.label}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </nav>
 
           <div className="hidden md:flex items-center gap-3">
@@ -128,6 +154,20 @@ export function PublicLayout() {
                 {link.label}
               </Link>
             ))}
+            {/* Legal links on mobile */}
+            <div className="border-t pt-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">{t("nav.legal")}</p>
+              {legalLinks.map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className="block text-sm font-medium py-1.5 text-muted-foreground"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
             {user ? (
               <div className="space-y-2 pt-2 border-t">
                 <div className="flex items-center gap-3">
@@ -186,6 +226,7 @@ export function PublicLayout() {
                 <li><Link to="/fonctionnalites" className="hover:text-foreground transition-colors">{t("nav.features")}</Link></li>
                 <li><Link to="/tarifs" className="hover:text-foreground transition-colors">{t("nav.pricing")}</Link></li>
                 <li><Link to="/blog" className="hover:text-foreground transition-colors">{t("nav.blog")}</Link></li>
+                <li><Link to="/faq" className="hover:text-foreground transition-colors">{t("nav.faq")}</Link></li>
               </ul>
             </div>
             <div>
@@ -196,10 +237,13 @@ export function PublicLayout() {
               </ul>
             </div>
             <div>
-              <h4 className="font-display font-semibold mb-3">{t("footer.legal")}</h4>
+              <h4 className="font-display font-semibold mb-3">{t("nav.legal")}</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/mentions-legales" className="hover:text-foreground transition-colors">{t("footer.legalNotice")}</Link></li>
-                <li><Link to="/confidentialite" className="hover:text-foreground transition-colors">{t("footer.privacy")}</Link></li>
+                <li><Link to="/mentions-legales" className="hover:text-foreground transition-colors">{t("nav.legalNotice")}</Link></li>
+                <li><Link to="/cgu" className="hover:text-foreground transition-colors">{t("nav.cgu")}</Link></li>
+                <li><Link to="/cgv" className="hover:text-foreground transition-colors">{t("nav.cgv")}</Link></li>
+                <li><Link to="/confidentialite" className="hover:text-foreground transition-colors">{t("nav.privacy")}</Link></li>
+                <li><Link to="/cookies" className="hover:text-foreground transition-colors">{t("nav.cookies")}</Link></li>
               </ul>
             </div>
           </div>
