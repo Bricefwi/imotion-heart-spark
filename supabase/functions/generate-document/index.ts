@@ -355,6 +355,28 @@ INSTRUCTIONS :
       action: "document", description: `${docName} généré pour "${project.name}"`,
     });
 
+    // Send CDC email notification to client
+    if (docType === "cdc" && client?.email) {
+      const projectUrl = `https://imotion-conseils.fr/client/documents/${doc.id}`;
+      try {
+        await supabase.functions.invoke("send-transactional-email", {
+          body: {
+            template: "cdc_ready",
+            to: client.email,
+            data: {
+              clientName: client.full_name || "Client",
+              projectName: project.name,
+              documentUrl: projectUrl,
+            },
+          },
+        });
+        console.log("CDC email sent to", client.email);
+      } catch (emailErr) {
+        console.error("Failed to send CDC email:", emailErr);
+        // Non-blocking: don't fail document generation if email fails
+      }
+    }
+
     return new Response(JSON.stringify({ success: true, document_id: doc.id, content, estimate: estimate ? { final_price: estimate.final_price, duration: `${estimate.duration_weeks_min}-${estimate.duration_weeks_max} semaines` } : null }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
