@@ -2,6 +2,7 @@ import * as React from 'npm:react@18.3.1'
 import { renderAsync } from 'npm:@react-email/components@0.0.22'
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { CdcReadyEmail } from '../_shared/email-templates/cdc-ready.tsx'
+import { ConversationSummaryEmail } from '../_shared/email-templates/conversation-summary.tsx'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -22,6 +23,10 @@ const TEMPLATES: Record<string, {
   cdc_ready: {
     component: CdcReadyEmail,
     subject: (data) => `Votre Cahier des Charges pour ${data.projectName || 'votre projet'} est prêt !`,
+  },
+  conversation_summary: {
+    component: ConversationSummaryEmail,
+    subject: (data) => `Résumé de votre échange #${data.sessionNumber || 1} — ${data.projectName || 'Votre projet'}`,
   },
 }
 
