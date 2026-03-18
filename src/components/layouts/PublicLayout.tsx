@@ -1,26 +1,29 @@
 import { Outlet, Link } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { FloatingChatAgent } from "@/components/FloatingChatAgent";
+import { LanguageSelector } from "@/components/LanguageSelector";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
+import { useTranslation } from "react-i18next";
 import { Menu, X, LogOut } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 
-const navLinks = [
-  { label: "Fonctionnalités", to: "/fonctionnalites" },
-  { label: "Tarifs", to: "/tarifs" },
-  { label: "Blog", to: "/blog" },
-  { label: "À propos", to: "/a-propos" },
-  { label: "Contact", to: "/contact" },
-];
-
 export function PublicLayout() {
   const { user, profile, roles, signOut } = useAuth();
+  const { t } = useTranslation();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const navLinks = [
+    { label: t("nav.features"), to: "/fonctionnalites" },
+    { label: t("nav.pricing"), to: "/tarifs" },
+    { label: t("nav.blog"), to: "/blog" },
+    { label: t("nav.about"), to: "/a-propos" },
+    { label: t("nav.contact"), to: "/contact" },
+  ];
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -45,11 +48,12 @@ export function PublicLayout() {
           </nav>
 
           <div className="hidden md:flex items-center gap-3">
+            <LanguageSelector />
             {user ? (
               <div className="flex items-center gap-3">
                 <Button asChild variant="ghost" size="sm">
                   <Link to={roles.includes("admin") ? "/admin/dashboard" : roles.includes("consultant") ? "/consultant/dashboard" : "/client/dashboard"}>
-                    Mon espace
+                    {t("nav.mySpace")}
                   </Link>
                 </Button>
                 <DropdownMenu>
@@ -67,27 +71,25 @@ export function PublicLayout() {
                   <DropdownMenuContent align="end" className="w-52">
                     <DropdownMenuItem asChild>
                       <Link to="/client/dashboard" className="flex items-center gap-2">
-                        Mon espace
+                        {t("nav.mySpace")}
                       </Link>
                     </DropdownMenuItem>
                     {roles.includes("consultant") && (
                       <DropdownMenuItem asChild>
                         <Link to="/consultant/dashboard" className="flex items-center gap-2">
-                          Espace Consultant
+                          {t("nav.consultantSpace")}
                         </Link>
                       </DropdownMenuItem>
                     )}
                     {roles.includes("admin") && (
-                      <>
-                        <DropdownMenuItem asChild>
-                          <Link to="/admin/dashboard" className="flex items-center gap-2 text-primary font-medium">
-                            Administration
-                          </Link>
-                        </DropdownMenuItem>
-                      </>
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin/dashboard" className="flex items-center gap-2 text-primary font-medium">
+                          {t("nav.admin")}
+                        </Link>
+                      </DropdownMenuItem>
                     )}
                     <DropdownMenuItem onClick={signOut} className="text-destructive">
-                      <LogOut className="h-4 w-4 mr-2" /> Déconnexion
+                      <LogOut className="h-4 w-4 mr-2" /> {t("nav.logout")}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -95,19 +97,22 @@ export function PublicLayout() {
             ) : (
               <>
                 <Button variant="ghost" asChild>
-                  <Link to="/login">Se connecter</Link>
+                  <Link to="/login">{t("nav.login")}</Link>
                 </Button>
                 <Button asChild className="gradient-primary border-0 shadow-lg hover:shadow-xl transition-shadow">
-                  <Link to="/register">Démarrer gratuitement</Link>
+                  <Link to="/register">{t("nav.register")}</Link>
                 </Button>
               </>
             )}
           </div>
 
           {/* Mobile toggle */}
-          <button className="md:hidden" onClick={() => setMobileOpen(!mobileOpen)}>
-            {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
+          <div className="flex md:hidden items-center gap-2">
+            <LanguageSelector />
+            <button onClick={() => setMobileOpen(!mobileOpen)}>
+              {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile menu */}
@@ -133,26 +138,26 @@ export function PublicLayout() {
                   <span className="text-sm font-medium">{profile?.full_name || user.email}</span>
                 </div>
                 <Link to="/client/dashboard" className="block text-sm py-2 font-medium" onClick={() => setMobileOpen(false)}>
-                  Mon espace
+                  {t("nav.mySpace")}
                 </Link>
                 {roles.includes("consultant") && (
                   <Link to="/consultant/dashboard" className="block text-sm py-2 font-medium" onClick={() => setMobileOpen(false)}>
-                    Espace Consultant
+                    {t("nav.consultantSpace")}
                   </Link>
                 )}
                 {roles.includes("admin") && (
                   <Link to="/admin/dashboard" className="block text-sm py-2 font-medium text-primary" onClick={() => setMobileOpen(false)}>
-                    Administration
+                    {t("nav.admin")}
                   </Link>
                 )}
                 <button onClick={signOut} className="block text-sm py-2 text-destructive">
-                  Déconnexion
+                  {t("nav.logout")}
                 </button>
               </div>
             ) : (
               <div className="flex flex-col gap-2 pt-2">
-                <Button variant="outline" asChild><Link to="/login">Se connecter</Link></Button>
-                <Button asChild className="gradient-primary border-0"><Link to="/register">Démarrer</Link></Button>
+                <Button variant="outline" asChild><Link to="/login">{t("nav.login")}</Link></Button>
+                <Button asChild className="gradient-primary border-0"><Link to="/register">{t("nav.register")}</Link></Button>
               </div>
             )}
           </div>
@@ -172,34 +177,34 @@ export function PublicLayout() {
             <div className="space-y-3">
               <Logo size="sm" />
               <p className="text-sm text-muted-foreground">
-                Transformez votre vision en réalité digitale.
+                {t("footer.tagline")}
               </p>
             </div>
             <div>
-              <h4 className="font-display font-semibold mb-3">Produit</h4>
+              <h4 className="font-display font-semibold mb-3">{t("footer.product")}</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/fonctionnalites" className="hover:text-foreground transition-colors">Fonctionnalités</Link></li>
-                <li><Link to="/tarifs" className="hover:text-foreground transition-colors">Tarifs</Link></li>
-                <li><Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
+                <li><Link to="/fonctionnalites" className="hover:text-foreground transition-colors">{t("nav.features")}</Link></li>
+                <li><Link to="/tarifs" className="hover:text-foreground transition-colors">{t("nav.pricing")}</Link></li>
+                <li><Link to="/blog" className="hover:text-foreground transition-colors">{t("nav.blog")}</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-display font-semibold mb-3">Entreprise</h4>
+              <h4 className="font-display font-semibold mb-3">{t("footer.company")}</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/a-propos" className="hover:text-foreground transition-colors">À propos</Link></li>
-                <li><Link to="/contact" className="hover:text-foreground transition-colors">Contact</Link></li>
+                <li><Link to="/a-propos" className="hover:text-foreground transition-colors">{t("nav.about")}</Link></li>
+                <li><Link to="/contact" className="hover:text-foreground transition-colors">{t("nav.contact")}</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-display font-semibold mb-3">Légal</h4>
+              <h4 className="font-display font-semibold mb-3">{t("footer.legal")}</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/mentions-legales" className="hover:text-foreground transition-colors">Mentions légales</Link></li>
-                <li><Link to="/confidentialite" className="hover:text-foreground transition-colors">Politique de confidentialité</Link></li>
+                <li><Link to="/mentions-legales" className="hover:text-foreground transition-colors">{t("footer.legalNotice")}</Link></li>
+                <li><Link to="/confidentialite" className="hover:text-foreground transition-colors">{t("footer.privacy")}</Link></li>
               </ul>
             </div>
           </div>
           <div className="border-t mt-8 pt-6 text-center text-sm text-muted-foreground">
-            © {new Date().getFullYear()} IMOTION Creator Studio. Tous droits réservés.
+            © {new Date().getFullYear()} IMOTION Creator Studio. {t("footer.rights")}
           </div>
         </div>
       </footer>
