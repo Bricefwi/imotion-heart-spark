@@ -33,7 +33,7 @@ export const MagicLinkEmail = ({
         </Section>
         <Heading style={h1}>Connexion rapide</Heading>
         <Text style={text}>
-          Cliquez sur le bouton ci-dessous pour vous connecter à votre espace Clarivi. Ce lien expirera dans quelques minutes.
+          Cliquez sur le bouton ci-dessous pour vous connecter à votre espace IMOTION Creator Studio. Ce lien expirera dans quelques minutes.
         </Text>
         <Section style={buttonContainer}>
           <Button style={button} href={confirmationUrl}>
