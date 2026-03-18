@@ -34,7 +34,7 @@ export const SignupEmail = ({
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
-          <Text style={logoText}>Clarivi</Text>
+          <Text style={logoText}>IMOTION Creator Studio</Text>
         </Section>
         <Heading style={h1}>Bienvenue ! 🎉</Heading>
         <Text style={text}>
