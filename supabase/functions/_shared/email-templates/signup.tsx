@@ -30,17 +30,17 @@ export const SignupEmail = ({
 }: SignupEmailProps) => (
   <Html lang="fr" dir="ltr">
     <Head />
-    <Preview>Bienvenue chez Clarivi — confirmez votre adresse email</Preview>
+    <Preview>Bienvenue chez IMOTION Creator Studio — confirmez votre adresse email</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
-          <Text style={logoText}>Clarivi</Text>
+          <Text style={logoText}>IMOTION Creator Studio</Text>
         </Section>
         <Heading style={h1}>Bienvenue ! 🎉</Heading>
         <Text style={text}>
           Merci de nous rejoindre sur{' '}
           <Link href={siteUrl} style={link}>
-            <strong>Clarivi</strong>
+            <strong>IMOTION Creator Studio</strong>
           </Link>
           . Vous êtes à un clic de commencer à structurer votre projet digital.
         </Text>
@@ -59,7 +59,7 @@ export const SignupEmail = ({
         <Text style={footer}>
           Si vous n'avez pas créé de compte, vous pouvez ignorer cet email en toute sécurité.
         </Text>
-        <Text style={footerBrand}>© Clarivi — Votre partenaire digital</Text>
+        <Text style={footerBrand}>© IMOTION Creator Studio — Votre partenaire digital</Text>
       </Container>
     </Body>
   </Html>

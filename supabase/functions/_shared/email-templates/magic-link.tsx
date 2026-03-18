@@ -25,15 +25,15 @@ export const MagicLinkEmail = ({
 }: MagicLinkEmailProps) => (
   <Html lang="fr" dir="ltr">
     <Head />
-    <Preview>Votre lien de connexion Clarivi</Preview>
+    <Preview>Votre lien de connexion IMOTION Creator Studio</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
-          <Text style={logoText}>Clarivi</Text>
+          <Text style={logoText}>IMOTION Creator Studio</Text>
         </Section>
         <Heading style={h1}>Connexion rapide</Heading>
         <Text style={text}>
-          Cliquez sur le bouton ci-dessous pour vous connecter à votre espace Clarivi. Ce lien expirera dans quelques minutes.
+          Cliquez sur le bouton ci-dessous pour vous connecter à votre espace IMOTION Creator Studio. Ce lien expirera dans quelques minutes.
         </Text>
         <Section style={buttonContainer}>
           <Button style={button} href={confirmationUrl}>
@@ -43,7 +43,7 @@ export const MagicLinkEmail = ({
         <Text style={footer}>
           Si vous n'avez pas demandé ce lien, vous pouvez ignorer cet email en toute sécurité.
         </Text>
-        <Text style={footerBrand}>© Clarivi — Votre partenaire digital</Text>
+        <Text style={footerBrand}>© IMOTION Creator Studio — Votre partenaire digital</Text>
       </Container>
     </Body>
   </Html>

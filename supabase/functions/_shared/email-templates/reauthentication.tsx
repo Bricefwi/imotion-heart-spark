@@ -20,11 +20,11 @@ interface ReauthenticationEmailProps {
 export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => (
   <Html lang="fr" dir="ltr">
     <Head />
-    <Preview>Votre code de vérification Clarivi</Preview>
+    <Preview>Votre code de vérification IMOTION Creator Studio</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
-          <Text style={logoText}>Clarivi</Text>
+          <Text style={logoText}>IMOTION Creator Studio</Text>
         </Section>
         <Heading style={h1}>Vérification de votre identité</Heading>
         <Text style={text}>
@@ -36,7 +36,7 @@ export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => 
         <Text style={footer}>
           Ce code expirera dans quelques minutes. Si vous n'avez pas fait cette demande, ignorez cet email.
         </Text>
-        <Text style={footerBrand}>© Clarivi — Votre partenaire digital</Text>
+        <Text style={footerBrand}>© IMOTION Creator Studio — Votre partenaire digital</Text>
       </Container>
     </Body>
   </Html>

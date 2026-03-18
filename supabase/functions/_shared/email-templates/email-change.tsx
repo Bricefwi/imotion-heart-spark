@@ -34,11 +34,11 @@ export const EmailChangeEmail = ({
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
-          <Text style={logoText}>Clarivi</Text>
+          <Text style={logoText}>IMOTION Creator Studio</Text>
         </Section>
         <Heading style={h1}>Changement d'adresse email</Heading>
         <Text style={text}>
-          Vous avez demandé à modifier l'adresse email de votre compte Clarivi de{' '}
+          Vous avez demandé à modifier l'adresse email de votre compte IMOTION Creator Studio de{' '}
           <Link href={`mailto:${email}`} style={link}>{email}</Link>{' '}
           vers{' '}
           <Link href={`mailto:${newEmail}`} style={link}>{newEmail}</Link>.
@@ -54,7 +54,7 @@ export const EmailChangeEmail = ({
         <Text style={footer}>
           Si vous n'avez pas demandé ce changement, sécurisez votre compte immédiatement.
         </Text>
-        <Text style={footerBrand}>© Clarivi — Votre partenaire digital</Text>
+        <Text style={footerBrand}>© IMOTION Creator Studio — Votre partenaire digital</Text>
       </Container>
     </Body>
   </Html>

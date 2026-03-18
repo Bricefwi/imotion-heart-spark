@@ -28,17 +28,17 @@ export const InviteEmail = ({
 }: InviteEmailProps) => (
   <Html lang="fr" dir="ltr">
     <Head />
-    <Preview>Vous êtes invité(e) à rejoindre Clarivi</Preview>
+    <Preview>Vous êtes invité(e) à rejoindre IMOTION Creator Studio</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
-          <Text style={logoText}>Clarivi</Text>
+          <Text style={logoText}>IMOTION Creator Studio</Text>
         </Section>
         <Heading style={h1}>Vous êtes invité(e) !</Heading>
         <Text style={text}>
           Vous avez été invité(e) à rejoindre{' '}
           <Link href={siteUrl} style={link}>
-            <strong>Clarivi</strong>
+            <strong>IMOTION Creator Studio</strong>
           </Link>
           . Cliquez sur le bouton ci-dessous pour accepter l'invitation et créer votre compte.
         </Text>
@@ -50,7 +50,7 @@ export const InviteEmail = ({
         <Text style={footer}>
           Si vous n'attendiez pas cette invitation, vous pouvez ignorer cet email en toute sécurité.
         </Text>
-        <Text style={footerBrand}>© Clarivi — Votre partenaire digital</Text>
+        <Text style={footerBrand}>© IMOTION Creator Studio — Votre partenaire digital</Text>
       </Container>
     </Body>
   </Html>

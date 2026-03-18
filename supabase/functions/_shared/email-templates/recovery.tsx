@@ -25,15 +25,15 @@ export const RecoveryEmail = ({
 }: RecoveryEmailProps) => (
   <Html lang="fr" dir="ltr">
     <Head />
-    <Preview>Réinitialisez votre mot de passe Clarivi</Preview>
+    <Preview>Réinitialisez votre mot de passe IMOTION Creator Studio</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
-          <Text style={logoText}>Clarivi</Text>
+          <Text style={logoText}>IMOTION Creator Studio</Text>
         </Section>
         <Heading style={h1}>Réinitialisation du mot de passe</Heading>
         <Text style={text}>
-          Nous avons reçu une demande de réinitialisation de votre mot de passe pour votre compte Clarivi. Cliquez sur le bouton ci-dessous pour choisir un nouveau mot de passe.
+          Nous avons reçu une demande de réinitialisation de votre mot de passe pour votre compte IMOTION Creator Studio. Cliquez sur le bouton ci-dessous pour choisir un nouveau mot de passe.
         </Text>
         <Section style={buttonContainer}>
           <Button style={button} href={confirmationUrl}>
@@ -43,7 +43,7 @@ export const RecoveryEmail = ({
         <Text style={footer}>
           Si vous n'avez pas demandé cette réinitialisation, ignorez simplement cet email. Votre mot de passe ne sera pas modifié.
         </Text>
-        <Text style={footerBrand}>© Clarivi — Votre partenaire digital</Text>
+        <Text style={footerBrand}>© IMOTION Creator Studio — Votre partenaire digital</Text>
       </Container>
     </Body>
   </Html>
