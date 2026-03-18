@@ -81,6 +81,10 @@ const App = () => (
               <Route path="/contact" element={<Contact />} />
               <Route path="/mentions-legales" element={<Legal />} />
               <Route path="/confidentialite" element={<Privacy />} />
+              <Route path="/cgu" element={<CGU />} />
+              <Route path="/cgv" element={<CGV />} />
+              <Route path="/cookies" element={<CookiesPage />} />
+              <Route path="/faq" element={<FAQ />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogArticle />} />
             </Route>
