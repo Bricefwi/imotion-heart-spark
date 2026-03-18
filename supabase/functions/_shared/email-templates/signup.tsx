@@ -40,7 +40,7 @@ export const SignupEmail = ({
         <Text style={text}>
           Merci de nous rejoindre sur{' '}
           <Link href={siteUrl} style={link}>
-            <strong>Clarivi</strong>
+            <strong>IMOTION Creator Studio</strong>
           </Link>
           . Vous êtes à un clic de commencer à structurer votre projet digital.
         </Text>
