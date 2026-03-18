@@ -121,7 +121,6 @@
     background: hsl(0 0% 100% / 0.8);
     border: 1px solid hsl(220 13% 91% / 0.5);
   }
-  }
 
   /* RTL support for Arabic */
   [dir="rtl"] .glass {
