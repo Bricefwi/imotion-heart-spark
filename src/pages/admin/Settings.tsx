@@ -23,7 +23,7 @@ export default function AdminSettings() {
       const { data, error } = await supabase.from("settings").select("*");
       if (error) throw error;
       const map: Record<string, Record<string, unknown>> = {};
-      data?.forEach((s) => { map[s.key] = s.value; });
+      data?.forEach((s) => { map[s.key] = (typeof s.value === 'object' && s.value !== null && !Array.isArray(s.value)) ? s.value as Record<string, unknown> : {}; });
       return map;
     },
     enabled: !!user,
