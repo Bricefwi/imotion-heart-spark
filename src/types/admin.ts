@@ -43,7 +43,7 @@ export interface Project {
   current_phase: number | null;
   created_at: string;
   updated_at: string | null;
-  client?: Profile | null;
+  client?: Partial<Profile> | null;
   contract_amount?: number | null;
   proposal_amount?: number | null;
   total_messages?: number | null;

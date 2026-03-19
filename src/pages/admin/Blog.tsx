@@ -389,15 +389,18 @@ export default function AdminBlog() {
             <Button
               variant="outline" size="sm"
               onClick={() => setEditCalendar({
+                id: "",
+                created_at: "",
+                generated_post_id: "",
                 week_number: 0,
                 planned_date: "",
                 title: "",
                 category: "expression-besoin",
                 angle: "",
-                keywords: [],
+                keywords: [] as string[],
                 status: "planned",
                 _isNew: true,
-              })}
+              } as never)}
             >
               <Plus className="h-4 w-4 mr-1" /> Ajouter
             </Button>
