@@ -30,10 +30,10 @@ export default function AdminSettings() {
   });
 
   const updateSetting = useMutation({
-    mutationFn: async ({ key, value }: { key: string; value: string | boolean | number | Record<string, unknown> }) => {
+    mutationFn: async ({ key, value }: { key: string; value: Record<string, unknown> }) => {
       const { error } = await supabase
         .from("settings")
-        .update({ value, updated_by: user!.id })
+        .update({ value: value as unknown as Json, updated_by: user!.id })
         .eq("key", key);
       if (error) throw error;
     },
