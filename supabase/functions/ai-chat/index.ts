@@ -43,16 +43,16 @@ function isValidUUID(str: string): boolean {
 interface ValidationResult {
   isValid: boolean;
   issues: string[];
-  correctedData?: any;
+  correctedData?: Record<string, unknown>;
 }
 
 /**
  * Validates extracted_data against known field types and value ranges.
  * Removes any fields that look fabricated or out of scope.
  */
-function validateExtractedData(data: any, phase: number): ValidationResult {
+function validateExtractedData(data: Record<string, unknown>, phase: number): ValidationResult {
   const issues: string[] = [];
-  const corrected: any = {};
+  const corrected: Record<string, unknown> = {};
 
   if (!data || typeof data !== "object") {
     return { isValid: true, issues: [], correctedData: {} };
@@ -110,7 +110,7 @@ function validateExtractedData(data: any, phase: number): ValidationResult {
  */
 function validateMessage(message: string): { cleanMessage: string; flags: string[] } {
   const flags: string[] = [];
-  let cleanMessage = message;
+  const cleanMessage = message;
 
   // Pattern 1: Invented statistics ("95% des entreprises", "80% de réduction")
   const statsPattern = /\b(\d{1,3})%\s+(?:des?\s+)?(?:entreprises?|clients?|utilisateurs?|projets?|cas)/gi;
@@ -177,7 +177,7 @@ function validatePhaseTransition(
   readyForNextPhase: boolean,
   phaseProgress: number,
   messageCount: number,
-  extractedData: any
+  extractedData: Record<string, unknown>
 ): { shouldAdvance: boolean; adjustedProgress: number; reason?: string } {
   // Minimum messages per phase before allowing transition
   const minMessagesPerPhase: Record<number, number> = {
@@ -214,7 +214,7 @@ function validatePhaseTransition(
   return { shouldAdvance: readyForNextPhase, adjustedProgress };
 }
 
-function buildSystemPrompt(currentPhase: number, discoveryData: any, clientName?: string) {
+function buildSystemPrompt(currentPhase: number, discoveryData: Record<string, unknown>, clientName?: string) {
   const clientGreeting = clientName ? `, vous parlez avec ${clientName}` : "";
   return `Tu es Marc Delaunay, consultant technico-commercial senior chez Clarivi (anciennement IMOTION). Tu as 12 ans d'expérience dans le conseil digital et tu as accompagné +200 projets de transformation numérique.
 
@@ -521,7 +521,7 @@ serve(async (req) => {
     const systemPrompt = buildSystemPrompt(currentPhase, discoveryData);
     const aiMessages = [
       { role: "system", content: systemPrompt },
-      ...messages.map((m: any) => ({
+      ...messages.map((m: { role: string; content: string }) => ({
         role: m.role === "assistant" ? "assistant" : "user",
         content: sanitizeString(m.content, MAX_MESSAGE_LENGTH),
       })),
@@ -561,7 +561,7 @@ serve(async (req) => {
     const rawContent = aiResponse.choices?.[0]?.message?.content || "";
 
     // ── Parse AI JSON response ──
-    let parsed: any;
+    let parsed: Record<string, unknown>;
     try {
       const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
       parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : { message: rawContent, suggestions: [] };

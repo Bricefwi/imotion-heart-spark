@@ -189,9 +189,9 @@ INSTRUCTIONS :
       .single();
 
     // Try to fetch current estimate from pricing system
-    let estimate: any = null;
-    let pricingConfig: any = null;
-    let maintenancePlan: any = null;
+    let estimate: Record<string, unknown> | null = null;
+    let pricingConfig: Record<string, unknown> | null = null;
+    let maintenancePlan: Record<string, unknown> | null = null;
 
     const { data: currentEstimate } = await supabase
       .from("project_estimates")
@@ -533,7 +533,7 @@ REGLES JURIDIQUES ET PROFESSIONNELLES :
 
 // buildPromptFromTemplate is imported from ./helpers.ts
 
-function buildDocumentPrompt(type: string, project: any, client: any, discoveryData: any, conversationContext: string): string {
+function buildDocumentPrompt(type: string, project: Record<string, unknown>, client: Record<string, unknown> | null, discoveryData: Record<string, unknown>, conversationContext: string): string {
   const base = `
 ## INFORMATIONS PROJET
 - **Nom** : ${project.name} (Réf. ${project.code})
