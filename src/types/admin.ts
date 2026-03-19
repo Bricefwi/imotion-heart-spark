@@ -33,7 +33,6 @@ export interface Project {
   id: string;
   name: string;
   code: string | null;
-  description: string | null;
   status: string;
   priority: string | null;
   client_id: string;
@@ -41,7 +40,7 @@ export interface Project {
   discovery_data: Json | null;
   estimated_budget_min: number | null;
   estimated_budget_max: number | null;
-  current_phase: string | null;
+  current_phase: number | null;
   created_at: string;
   updated_at: string | null;
   client?: Profile | null;
@@ -52,6 +51,7 @@ export interface Project {
   overall_progress?: number | null;
   internal_notes?: string | null;
   tags?: string[] | null;
+  slug?: string | null;
 }
 
 /** Activity row with optional joined profile */
