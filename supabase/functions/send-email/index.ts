@@ -263,9 +263,7 @@ serve(async (req) => {
       console.warn("BREVO_API_KEY not set — logging email instead of sending");
       await supabase.from("email_send_log").insert({
         recipient_email: toEmail,
-        recipient_id: recipientId || null,
-        email_type: type,
-        subject,
+        template_name: type,
         status: "logged",
         metadata: { ...templateData, html_preview: html.substring(0, 500) },
       });
