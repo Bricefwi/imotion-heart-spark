@@ -294,13 +294,11 @@ serve(async (req) => {
     const emailResult = await emailResponse.json();
 
     // Log the email
-    await supabase.from("email_logs").insert({
+    await supabase.from("email_send_log").insert({
       recipient_email: toEmail,
-      recipient_id: recipientId || null,
-      email_type: type,
-      subject,
+      template_name: type,
       status: emailResponse.ok ? "sent" : "failed",
-      external_id: emailResult.messageId || null,
+      message_id: emailResult.messageId || null,
       metadata: { brevo_response: emailResult },
     });
 
