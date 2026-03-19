@@ -261,7 +261,7 @@ serve(async (req) => {
     const BREVO_API_KEY = Deno.env.get("BREVO_API_KEY");
     if (!BREVO_API_KEY) {
       console.warn("BREVO_API_KEY not set — logging email instead of sending");
-      await supabase.from("email_logs").insert({
+      await supabase.from("email_send_log").insert({
         recipient_email: toEmail,
         recipient_id: recipientId || null,
         email_type: type,
