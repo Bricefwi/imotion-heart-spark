@@ -571,13 +571,13 @@ serve(async (req) => {
 
     const aiMessageContent = parsed.message || rawContent;
     const suggestions = Array.isArray(parsed.suggestions) ? parsed.suggestions.slice(0, 5) : [];
-    const rawExtractedData = parsed.extracted_data && typeof parsed.extracted_data === "object" ? parsed.extracted_data : {};
-    const rawSentiment = ["positive", "neutral", "negative", "confused", "frustrated"].includes(parsed.sentiment) ? parsed.sentiment : "neutral";
+    const rawExtractedData: Record<string, unknown> = parsed.extracted_data && typeof parsed.extracted_data === "object" ? (parsed.extracted_data as Record<string, unknown>) : {};
+    const rawSentiment: string = typeof parsed.sentiment === "string" && ["positive", "neutral", "negative", "confused", "frustrated"].includes(parsed.sentiment) ? parsed.sentiment : "neutral";
     const intent = typeof parsed.intent === "string" ? parsed.intent.slice(0, 500) : null;
     const rawPhaseProgress = typeof parsed.phase_progress === "number" ? Math.min(Math.max(parsed.phase_progress, 0), 100) : 0;
     const rawReadyForNextPhase = parsed.ready_for_next_phase === true;
     const consultantAlert = typeof parsed.consultant_alert === "string" ? parsed.consultant_alert.slice(0, 500) : null;
-    const confidenceLevel = ["high", "medium", "low"].includes(parsed.confidence_level) ? parsed.confidence_level : "medium";
+    const confidenceLevel: string = typeof parsed.confidence_level === "string" && ["high", "medium", "low"].includes(parsed.confidence_level) ? parsed.confidence_level : "medium";
     const selfCheck = typeof parsed.self_check === "string" ? parsed.self_check.slice(0, 500) : null;
 
     // ══════════════════════════════════════════

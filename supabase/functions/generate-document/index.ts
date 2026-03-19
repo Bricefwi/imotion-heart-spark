@@ -203,7 +203,7 @@ INSTRUCTIONS :
     if (currentEstimate) {
       estimate = currentEstimate;
       
-      if (estimate.project_type_code) {
+      if (estimate?.project_type_code) {
         const { data: pc } = await supabase
           .from("pricing_config")
           .select("*")
@@ -212,7 +212,7 @@ INSTRUCTIONS :
         pricingConfig = pc;
       }
       
-      if (estimate.recommended_maintenance_code) {
+      if (estimate?.recommended_maintenance_code) {
         const { data: mp } = await supabase
           .from("pricing_maintenance")
           .select("*")
@@ -229,23 +229,24 @@ INSTRUCTIONS :
     // Build pricing context if estimate exists
     let pricingContext = "";
     if (estimate) {
-      const buildTotal = estimate.final_price;
+      const buildTotal: number = estimate.final_price ?? 0;
       const tvaAmount = Math.round(buildTotal * 0.20);
       const buildTotalTTC = buildTotal + tvaAmount;
+      const fmtNum = (n: number | null | undefined) => (n ?? 0).toLocaleString();
       
       pricingContext = `
 ## DONNÉES TARIFAIRES (du système de pricing)
 - **Type de projet** : ${pricingConfig?.name || estimate.project_type_code}
-- **Prix de base** : ${estimate.base_price?.toLocaleString('fr-FR')}€
+- **Prix de base** : ${fmtNum(estimate.base_price)}€
 - **Options sélectionnées** : ${JSON.stringify(estimate.selected_options)}
-- **Total options** : ${estimate.options_total?.toLocaleString('fr-FR')}€
-- **Prix final HT** : ${estimate.final_price?.toLocaleString('fr-FR')}€
-- **TVA (20%)** : ${tvaAmount.toLocaleString('fr-FR')}€
-- **Prix final TTC** : ${buildTotalTTC.toLocaleString('fr-FR')}€
+- **Total options** : ${fmtNum(estimate.options_total)}€
+- **Prix final HT** : ${fmtNum(estimate.final_price)}€
+- **TVA (20%)** : ${tvaAmount.toLocaleString()}€
+- **Prix final TTC** : ${buildTotalTTC.toLocaleString()}€
 - **Durée estimée** : ${estimate.duration_weeks_min}-${estimate.duration_weeks_max} semaines
 - **Complexité** : ${estimate.complexity_score}/5
 - **Forfait maintenance recommandé** : ${maintenancePlan?.name || 'Non défini'} (${maintenancePlan?.monthly_price || 0}€/mois)
-- **Fourchette type** : ${pricingConfig?.price_range_min?.toLocaleString('fr-FR')}€ - ${pricingConfig?.price_range_max?.toLocaleString('fr-FR') || 'Sur devis'}€
+- **Fourchette type** : ${fmtNum(pricingConfig?.price_range_min)}€ - ${pricingConfig?.price_range_max?.toLocaleString() || 'Sur devis'}€
 - **Échelonnement** : Acompte 30% (${Math.round(buildTotal * 0.30)}€), Maquettes 20% (${Math.round(buildTotal * 0.20)}€), Recette 35% (${Math.round(buildTotal * 0.35)}€), Production 15% (${Math.round(buildTotal * 0.15)}€)
 `;
     }

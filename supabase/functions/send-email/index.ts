@@ -191,8 +191,8 @@ serve(async (req) => {
         .from("user_roles")
         .select("role")
         .eq("user_id", callerUserId);
-      const userRoles = (roles || []).map((r: Record<string, unknown>) => r.role);
-      const hasPermission = userRoles.some((role: string) =>
+      const userRoles = (roles || []).map((r: Record<string, unknown>) => String(r.role));
+      const hasPermission = userRoles.some((role) =>
         ["admin", "super_admin", "consultant"].includes(role)
       );
       if (!hasPermission) {

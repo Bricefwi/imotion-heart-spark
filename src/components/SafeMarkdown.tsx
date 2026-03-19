@@ -26,8 +26,10 @@ export function SafeMarkdown({ children, className, components }: SafeMarkdownPr
   });
 
   return (
-    <ReactMarkdown className={className} components={components}>
-      {sanitized}
-    </ReactMarkdown>
+    <div className={className}>
+      <ReactMarkdown components={components}>
+        {sanitized}
+      </ReactMarkdown>
+    </div>
   );
 }

@@ -109,19 +109,23 @@ export interface AutomationLog {
   executed_at: string;
 }
 
-/** Campaign */
+/** Campaign — matches email_campaigns table */
 export interface Campaign {
   id: string;
   name: string;
   subject: string;
-  body: string;
+  content: string;
   status: string;
   scheduled_at: string | null;
-  sent_count: number | null;
-  open_count: number | null;
-  click_count: number | null;
+  sent_at: string | null;
+  segment_filter: Record<string, unknown>;
+  total_recipients: number | null;
+  total_sent: number | null;
+  total_opened: number | null;
+  total_clicked: number | null;
   created_at: string;
-  updated_at: string | null;
+  created_by: string | null;
+  updated_at: string;
 }
 
 /** Supabase error type for mutation callbacks */
