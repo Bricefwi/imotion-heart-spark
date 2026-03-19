@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { isRateLimited } from "@/lib/rate-limit";
 
 export interface ChatMessage {
   role: "user" | "assistant";
@@ -21,6 +22,11 @@ export async function sendChatMessage(
   projectId: string,
   conversationId?: string
 ): Promise<AIChatResponse> {
+  // Rate limit: max 20 AI messages per minute per project
+  if (isRateLimited(`ai-chat:${projectId}`, { maxCalls: 20, windowMs: 60_000 })) {
+    throw new Error("Trop de messages envoyés. Veuillez patienter quelques instants.");
+  }
+
   const { data, error } = await supabase.functions.invoke("ai-chat", {
     body: { messages, projectId, conversationId },
   });

@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ProfessionalDocument } from "@/components/ProfessionalDocument";
+import type { Profile } from "@/types/admin";
 
 interface Section {
   id: string;
@@ -173,8 +174,8 @@ export default function ConsultantDocumentEditor() {
         prev.map((s) => (s.id === section.id ? { ...s, content: newContent } : s))
       );
       toast.success(`Section "${section.title}" régénérée`);
-    } catch (err: any) {
-      toast.error(err.message || "Erreur lors de la régénération");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Erreur lors de la régénération");
     } finally {
       setRegeneratingSection(null);
     }
@@ -199,8 +200,8 @@ export default function ConsultantDocumentEditor() {
       queryClient.invalidateQueries({ queryKey: ["consultant-document", documentId] });
       queryClient.invalidateQueries({ queryKey: ["project-documents"] });
       toast.success("Document sauvegardé");
-    } catch (err: any) {
-      toast.error(err.message || "Erreur lors de la sauvegarde");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Erreur lors de la sauvegarde");
     } finally {
       setSaving(false);
     }
@@ -223,7 +224,7 @@ export default function ConsultantDocumentEditor() {
     );
   }
 
-  const client = project?.client as any;
+  const client = project?.client as Profile | undefined;
   const fullMarkdown = sectionsToMarkdown(sections);
 
   return (

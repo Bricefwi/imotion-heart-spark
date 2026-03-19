@@ -219,11 +219,10 @@ serve(async (req) => {
 
     const { subject, html } = getEmailTemplate(type, templateData);
 
-    // Send via Resend API
-    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-    if (!RESEND_API_KEY) {
-      console.warn("RESEND_API_KEY not set — logging email instead of sending");
-      // Log for dev/testing
+    // Send via Brevo (ex-Sendinblue) API
+    const BREVO_API_KEY = Deno.env.get("BREVO_API_KEY");
+    if (!BREVO_API_KEY) {
+      console.warn("BREVO_API_KEY not set — logging email instead of sending");
       await supabase.from("email_logs").insert({
         recipient_email: toEmail,
         recipient_id: recipientId || null,
@@ -237,20 +236,22 @@ serve(async (req) => {
       });
     }
 
-    const fromDomain = Deno.env.get("EMAIL_FROM_DOMAIN") || "imotion-studio.fr";
-    const fromEmail = `IMOTION Studio <noreply@${fromDomain}>`;
+    const fromDomain = Deno.env.get("EMAIL_FROM_DOMAIN") || "imotion-conseils.fr";
+    const fromEmail = `noreply@${fromDomain}`;
+    const fromName = "IMOTION Creator Studio";
 
-    const emailResponse = await fetch("https://api.resend.com/emails", {
+    const emailResponse = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${RESEND_API_KEY}`,
+        "api-key": BREVO_API_KEY,
         "Content-Type": "application/json",
+        "Accept": "application/json",
       },
       body: JSON.stringify({
-        from: fromEmail,
-        to: [toEmail],
+        sender: { name: fromName, email: fromEmail },
+        to: [{ email: toEmail, name: recipientName || undefined }],
         subject,
-        html,
+        htmlContent: html,
       }),
     });
 
@@ -263,18 +264,18 @@ serve(async (req) => {
       email_type: type,
       subject,
       status: emailResponse.ok ? "sent" : "failed",
-      external_id: emailResult.id || null,
-      metadata: { resend_response: emailResult },
+      external_id: emailResult.messageId || null,
+      metadata: { brevo_response: emailResult },
     });
 
     if (!emailResponse.ok) {
-      console.error("Resend error:", emailResult);
+      console.error("Brevo error:", emailResult);
       return new Response(JSON.stringify({ error: "Email sending failed", details: emailResult }), {
         status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    return new Response(JSON.stringify({ success: true, emailId: emailResult.id }), {
+    return new Response(JSON.stringify({ success: true, messageId: emailResult.messageId }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {

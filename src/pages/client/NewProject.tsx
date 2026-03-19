@@ -48,8 +48,8 @@ export default function NewProject() {
 
       toast.success("Projet créé avec succès !");
       navigate(`/client/projects/${data.id}/conversation`);
-    } catch (error: any) {
-      toast.error(error.message || "Erreur lors de la création du projet");
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Erreur lors de la création du projet");
     } finally {
       setLoading(false);
     }

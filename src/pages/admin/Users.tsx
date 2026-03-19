@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import type { SupabaseError } from "@/types/admin";
+import { logAuditEvent } from "@/lib/audit-log";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import {
@@ -78,14 +80,21 @@ export default function AdminUsers() {
       // Delete existing roles
       await supabase.from("user_roles").delete().eq("user_id", userId);
       // Insert new role
-      const { error } = await supabase.from("user_roles").insert({ user_id: userId, role: newRole as any });
+      const { error } = await supabase.from("user_roles").insert({ user_id: userId, role: newRole as "admin" | "consultant" | "client" | "super_admin" });
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
+      logAuditEvent({
+        action: "user_role_changed",
+        description: `Rôle changé en "${variables.newRole}" pour l'utilisateur ${variables.userId}`,
+        userId: user?.id,
+        importance: "high",
+        metadata: { targetUserId: variables.userId, newRole: variables.newRole },
+      });
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       toast.success("Rôle mis à jour");
     },
-    onError: (error: any) => toast.error(error.message),
+    onError: (error: SupabaseError) => toast.error(error.message),
   });
 
   const filtered = usersWithRoles.filter((u) => {

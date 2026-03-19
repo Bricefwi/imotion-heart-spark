@@ -18,9 +18,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
-import ReactMarkdown from "react-markdown";
+import { SafeMarkdown } from "@/components/SafeMarkdown";
 import { PhaseProgress } from "@/components/PhaseProgress";
 import { cn } from "@/lib/utils";
+import type { Profile, SupabaseError } from "@/types/admin";
 
 const phaseLabels = [
   "Accueil & Mise en confiance",
@@ -140,7 +141,7 @@ export default function ConsultantProjectDetail() {
       queryClient.invalidateQueries({ queryKey: ["consultant-project", id] });
       toast.success("Projet mis à jour");
     },
-    onError: (error: any) => toast.error(error.message),
+    onError: (error: SupabaseError) => toast.error(error.message),
   });
 
   // Send consultant message
@@ -159,7 +160,7 @@ export default function ConsultantProjectDetail() {
       setConsultantMessage("");
       toast.success("Message envoyé");
     },
-    onError: (error: any) => toast.error(error.message),
+    onError: (error: SupabaseError) => toast.error(error.message),
   });
 
   // Save notes
@@ -172,7 +173,7 @@ export default function ConsultantProjectDetail() {
       if (error) throw error;
     },
     onSuccess: () => toast.success("Notes sauvegardées"),
-    onError: (error: any) => toast.error(error.message),
+    onError: (error: SupabaseError) => toast.error(error.message),
   });
 
   // Streaming document generation
@@ -241,8 +242,8 @@ export default function ConsultantProjectDetail() {
         docType === "contract_fr" ? "Contrat généré !" :
         "Document généré !"
       );
-    } catch (err: any) {
-      toast.error(err.message || "Erreur lors de la génération");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Erreur lors de la génération");
     } finally {
       setIsGenerating(false);
       setGeneratingType(null);
@@ -268,7 +269,7 @@ export default function ConsultantProjectDetail() {
     );
   }
 
-  const client = project.client as any;
+  const client = project.client as Profile | undefined;
   const status = statusLabels[project.status] || statusLabels.draft;
   const discoveryData = (project.discovery_data || {}) as Record<string, any>;
 
@@ -393,7 +394,7 @@ export default function ConsultantProjectDetail() {
                             >
                               {msg.role === "assistant" ? (
                                 <div className="prose prose-sm max-w-none dark:prose-invert">
-                                  <ReactMarkdown>{msg.content}</ReactMarkdown>
+                                  <SafeMarkdown>{msg.content}</SafeMarkdown>
                                 </div>
                               ) : (
                                 msg.content
@@ -658,7 +659,7 @@ export default function ConsultantProjectDetail() {
                         </div>
                       </CardHeader>
                       <CardContent className="prose prose-sm max-w-none max-h-[500px] overflow-y-auto">
-                        <ReactMarkdown>{streamingContent}</ReactMarkdown>
+                        <SafeMarkdown>{streamingContent}</SafeMarkdown>
                       </CardContent>
                     </Card>
                   )}

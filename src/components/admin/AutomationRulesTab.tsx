@@ -19,6 +19,7 @@ import {
   Zap, Mail, Clock, UserPlus, AlertTriangle, CheckCircle2,
   Plus, Pencil, Trash2, Play, BarChart3, Send,
 } from "lucide-react";
+import type { AutomationLog, SupabaseError } from "@/types/admin";
 
 const TRIGGER_EVENTS = [
   { value: "user_registered", label: "Inscription utilisateur", icon: UserPlus, description: "Quand un nouveau client s'inscrit" },
@@ -37,9 +38,9 @@ interface AutomationRule {
   description: string | null;
   type: string;
   trigger_event: string;
-  trigger_config: any;
+  trigger_config: Record<string, string | number | boolean>;
   action_type: string;
-  action_config: any;
+  action_config: Record<string, string | number | boolean>;
   is_active: boolean;
   last_triggered_at: string | null;
   trigger_count: number;
@@ -87,7 +88,7 @@ export function AutomationRulesTab() {
   });
 
   const createMutation = useMutation({
-    mutationFn: async (rule: any) => {
+    mutationFn: async (rule: Omit<AutomationRule, "id" | "is_active" | "last_triggered_at" | "trigger_count" | "created_at"> & { created_by?: string }) => {
       const { error } = await supabase.from("automation_rules").insert(rule);
       if (error) throw error;
     },
@@ -97,11 +98,11 @@ export function AutomationRulesTab() {
       resetForm();
       setCreateOpen(false);
     },
-    onError: (err: any) => toast({ title: "Erreur", description: err.message, variant: "destructive" }),
+    onError: (err: SupabaseError) => toast({ title: "Erreur", description: err.message, variant: "destructive" }),
   });
 
   const updateMutation = useMutation({
-    mutationFn: async ({ id, ...updates }: any) => {
+    mutationFn: async ({ id, ...updates }: { id: string; [key: string]: unknown }) => {
       const { error } = await supabase.from("automation_rules").update(updates).eq("id", id);
       if (error) throw error;
     },
@@ -111,7 +112,7 @@ export function AutomationRulesTab() {
       setEditRule(null);
       resetForm();
     },
-    onError: (err: any) => toast({ title: "Erreur", description: err.message, variant: "destructive" }),
+    onError: (err: SupabaseError) => toast({ title: "Erreur", description: err.message, variant: "destructive" }),
   });
 
   const deleteMutation = useMutation({
@@ -123,7 +124,7 @@ export function AutomationRulesTab() {
       queryClient.invalidateQueries({ queryKey: ["automation-rules"] });
       toast({ title: "Supprimé" });
     },
-    onError: (err: any) => toast({ title: "Erreur", description: err.message, variant: "destructive" }),
+    onError: (err: SupabaseError) => toast({ title: "Erreur", description: err.message, variant: "destructive" }),
   });
 
   const toggleMutation = useMutation({
@@ -149,8 +150,8 @@ export function AutomationRulesTab() {
     setFormName(rule.name);
     setFormDescription(rule.description || "");
     setFormTrigger(rule.trigger_event);
-    setFormSubject((rule.action_config as any)?.subject || "");
-    setFormBody((rule.action_config as any)?.body || "");
+    setFormSubject(rule.action_config?.subject?.toString() || "");
+    setFormBody(rule.action_config?.body?.toString() || "");
     setCreateOpen(true);
   }
 
@@ -335,7 +336,7 @@ export function AutomationRulesTab() {
                             <Zap className="h-3 w-3" /> {triggerInfo?.label || rule.trigger_event}
                           </span>
                           <span className="flex items-center gap-1">
-                            <Mail className="h-3 w-3" /> {(rule.action_config as any)?.subject || "Email"}
+                            <Mail className="h-3 w-3" /> {rule.action_config?.subject?.toString() || "Email"}
                           </span>
                           <span className="flex items-center gap-1">
                             <BarChart3 className="h-3 w-3" /> {rule.trigger_count} exécutions
@@ -375,7 +376,7 @@ export function AutomationRulesTab() {
             <CardTitle className="font-display text-base">Historique d'exécution</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            {logs.map((log: any) => (
+            {logs.map((log: AutomationLog) => (
               <div key={log.id} className="flex items-center justify-between py-2 border-b last:border-0 text-sm">
                 <div className="flex items-center gap-2">
                   <div className={`h-2 w-2 rounded-full ${log.status === "success" ? "bg-green-500" : log.status === "error" ? "bg-destructive" : "bg-yellow-500"}`} />

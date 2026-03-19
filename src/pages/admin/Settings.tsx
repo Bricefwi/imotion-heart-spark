@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import type { SupabaseError } from "@/types/admin";
+import { logAuditEvent } from "@/lib/audit-log";
 
 export default function AdminSettings() {
   const { user } = useAuth();
@@ -20,7 +22,7 @@ export default function AdminSettings() {
     queryFn: async () => {
       const { data, error } = await supabase.from("settings").select("*");
       if (error) throw error;
-      const map: Record<string, any> = {};
+      const map: Record<string, Record<string, unknown>> = {};
       data?.forEach((s) => { map[s.key] = s.value; });
       return map;
     },
@@ -28,25 +30,32 @@ export default function AdminSettings() {
   });
 
   const updateSetting = useMutation({
-    mutationFn: async ({ key, value }: { key: string; value: any }) => {
+    mutationFn: async ({ key, value }: { key: string; value: string | boolean | number | Record<string, unknown> }) => {
       const { error } = await supabase
         .from("settings")
         .update({ value, updated_by: user!.id })
         .eq("key", key);
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
+      logAuditEvent({
+        action: "settings_changed",
+        description: `Paramètre "${variables.key}" modifié`,
+        userId: user?.id,
+        importance: "high",
+        metadata: { key: variables.key },
+      });
       queryClient.invalidateQueries({ queryKey: ["admin-settings"] });
       toast.success("Paramètre sauvegardé");
     },
-    onError: (error: any) => toast.error(error.message),
+    onError: (error: SupabaseError) => toast.error(error.message),
   });
 
   // Local state for forms
-  const [company, setCompany] = useState<any>({});
-  const [aiConfig, setAiConfig] = useState<any>({});
-  const [pricing, setPricing] = useState<any>({});
-  const [notifConfig, setNotifConfig] = useState<any>({});
+  const [company, setCompany] = useState<Record<string, unknown>>({});
+  const [aiConfig, setAiConfig] = useState<Record<string, unknown>>({});
+  const [pricing, setPricing] = useState<Record<string, unknown>>({});
+  const [notifConfig, setNotifConfig] = useState<Record<string, unknown>>({});
 
   useEffect(() => {
     if (settings.company) setCompany(settings.company);

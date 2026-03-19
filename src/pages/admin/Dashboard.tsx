@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
+import type { Activity as ActivityType } from "@/types/admin";
 
 export default function AdminDashboard() {
   const { user } = useAuth();
@@ -16,7 +17,7 @@ export default function AdminDashboard() {
   const { data: profiles = [] } = useQuery({
     queryKey: ["admin-profiles"],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("id, full_name, email, created_at");
+      const { data } = await supabase.from("profiles").select("id, full_name, email, created_at").limit(500);
       return data || [];
     },
     enabled: !!user,
@@ -25,7 +26,7 @@ export default function AdminDashboard() {
   const { data: projects = [] } = useQuery({
     queryKey: ["admin-projects"],
     queryFn: async () => {
-      const { data } = await supabase.from("projects").select("*").order("created_at", { ascending: false });
+      const { data } = await supabase.from("projects").select("*").order("created_at", { ascending: false }).limit(200);
       return data || [];
     },
     enabled: !!user,
@@ -105,7 +106,7 @@ export default function AdminDashboard() {
                   <div>
                     <p className="text-sm">{activity.description || activity.action}</p>
                     <p className="text-xs text-muted-foreground">
-                      {(activity.profile as any)?.full_name || "Système"} · {activity.created_at && formatDistanceToNow(new Date(activity.created_at), { addSuffix: true, locale: fr })}
+                      {(activity as unknown as ActivityType).profile?.full_name || "Système"} · {activity.created_at && formatDistanceToNow(new Date(activity.created_at), { addSuffix: true, locale: fr })}
                     </p>
                   </div>
                 </div>
