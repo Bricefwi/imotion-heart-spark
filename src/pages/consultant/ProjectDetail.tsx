@@ -235,12 +235,13 @@ export default function ConsultantProjectDetail() {
 
       queryClient.invalidateQueries({ queryKey: ["project-documents", id] });
       toast.success(
-        docType === "cdc" ? "CDC généré !" :
-        docType === "proposal" ? "Proposition générée !" :
-        docType === "tech_recommendation" ? "Recommandation technique générée !" :
-        docType === "pricing" ? "Proposition tarifaire générée !" :
-        docType === "contract_fr" ? "Contrat généré !" :
-        "Document généré !"
+        docType === "cdc" ? "CDC genere !" :
+        docType === "proposal" ? "Proposition generee !" :
+        docType === "tech_recommendation" ? "Recommandation technique generee !" :
+        docType === "pricing" ? "Proposition tarifaire generee !" :
+        docType === "contract_fr" ? "Contrat genere !" :
+        docType === "pv_reception" ? "PV de reception genere !" :
+        "Document genere !"
       );
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Erreur lors de la génération");
@@ -556,6 +557,10 @@ export default function ConsultantProjectDetail() {
                           {isGenerating && generatingType === "proposal" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <FileText className="h-4 w-4 mr-2" />}
                           Proposition
                         </Button>
+                        <Button variant="outline" onClick={() => generateDocument("pv_reception")} disabled={isGenerating}>
+                          {isGenerating && generatingType === "pv_reception" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <FileText className="h-4 w-4 mr-2" />}
+                          PV Reception
+                        </Button>
                       </div>
                     </div>
                   ) : (
@@ -843,6 +848,15 @@ export default function ConsultantProjectDetail() {
                 disabled={isGenerating}
               >
                 <FileText className="h-3.5 w-3.5 mr-2" />Contrat
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-start text-xs"
+                onClick={() => generateDocument("pv_reception")}
+                disabled={isGenerating}
+              >
+                <FileText className="h-3.5 w-3.5 mr-2" />PV de Reception
               </Button>
               <Button
                 variant="outline"

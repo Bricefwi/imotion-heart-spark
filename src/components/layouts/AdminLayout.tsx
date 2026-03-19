@@ -333,6 +333,7 @@ const breadcrumbLabels: Record<string, string> = {
   "settings": "Paramètres",
   "integrations": "Intégrations",
   "logs": "Logs",
+  "projects": "Projets",
 };
 
 function BreadcrumbNavigation() {

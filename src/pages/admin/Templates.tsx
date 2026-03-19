@@ -22,6 +22,9 @@ const TEMPLATE_TYPES = [
   { value: "cdc", label: "Cahier des Charges" },
   { value: "proposal", label: "Proposition Commerciale" },
   { value: "contract", label: "Contrat" },
+  { value: "pv_reception", label: "PV de Reception" },
+  { value: "tech_recommendation", label: "Reco Technique & Prompt" },
+  { value: "pricing", label: "Devis / Tarification" },
   { value: "email", label: "Email" },
   { value: "system_prompt", label: "System Prompt IA" },
 ];
