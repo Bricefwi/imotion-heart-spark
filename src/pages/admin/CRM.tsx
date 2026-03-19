@@ -335,7 +335,7 @@ export default function AdminCRM() {
                           </div>
 
                           <Button variant="ghost" size="sm" asChild className="shrink-0">
-                            <Link to={`/consultant/projects/${project.id}`}>
+                            <Link to={`/admin/projects/${project.id}`}>
                               <Eye className="h-4 w-4 mr-1" /> Voir
                             </Link>
                           </Button>

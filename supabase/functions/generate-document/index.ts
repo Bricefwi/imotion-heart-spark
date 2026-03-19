@@ -366,7 +366,7 @@ INSTRUCTIONS :
       description: `Généré automatiquement le ${new Date().toLocaleDateString("fr-FR")}`,
       storage_path: `${projectId}/${docType}_${Date.now()}.md`,
       status: "draft", created_by: userData.user.id,
-      requires_signature: docType === "contract" || docType === "contract_fr" || docType === "proposal" || docType === "pricing",
+      requires_signature: docType === "contract" || docType === "contract_fr" || docType === "proposal" || docType === "pricing" || docType === "pv_reception",
     }).select("id").single();
 
     if (docErr) throw docErr;
@@ -386,7 +386,7 @@ INSTRUCTIONS :
     }
 
     const statusMap: Record<string, string> = {
-      cdc: "cdc_draft", proposal: "proposal_sent", contract: "contract_pending",
+      cdc: "cdc_draft", proposal: "proposal_sent", contract: "contract_pending", pv_reception: "delivered",
     };
     if (statusMap[docType]) {
       await supabase.from("projects").update({ status: statusMap[docType] }).eq("id", projectId);
@@ -510,6 +510,20 @@ REGLES JURIDIQUES :
 - Clause penale conforme a l'article 1231-5 du Code civil
 - Redige en francais juridique precis mais lisible
 - NE JAMAIS utiliser d'emojis`,
+
+    pv_reception: `Tu es un directeur de projet digital senior et juriste chez IMOTION Creator Studio. Tu rediges des Proces-Verbaux de Reception conformes au droit francais, exhaustifs et juridiquement opposables.
+
+REGLES JURIDIQUES ET PROFESSIONNELLES :
+- Conforme aux articles 1792 et suivants du Code civil (reception des travaux)
+- Conforme a la loi pour la Confiance dans l'Economie Numerique (LCEN)
+- Conforme au RGPD pour la partie donnees personnelles
+- Reference obligatoire au Cahier des Charges et au Contrat associes
+- Chaque livrable doit etre verifie point par point selon le CDC
+- La conformite doit etre attestee par des tests documentables
+- Le PV doit etre signe par les deux parties pour etre opposable
+- Redige en francais juridique precis mais lisible
+- NE JAMAIS utiliser d'emojis
+- Le prestataire est "IMOTION Creator Studio" (SAS)`,
   };
 
   return prompts[type] || `Tu es un expert en redaction de documents professionnels pour IMOTION Creator Studio, agence digitale premium. Tu generes des documents structures et prets a l'envoi en Markdown. Redige en francais impeccable. NE JAMAIS utiliser d'emojis.`;
@@ -1097,6 +1111,210 @@ INSTRUCTIONS JURIDIQUES :
 - Le contrat doit être PROTECTEUR pour le prestataire (IMOTION Creator Studio) tout en étant ÉQUILIBRÉ
 - Les clauses abusives au sens du Code de la consommation doivent être évitées
 - Adapte le contenu aux spécificités du projet (montants, délais, livrables)`;
+  }
+
+  if (type === "pv_reception") {
+    return `Genere un Proces-Verbal de Reception COMPLET, detaille et conforme au droit francais, en croisant le Cahier des Charges, le Contrat et les livrables effectivement produits :
+
+${base}
+
+## STRUCTURE OBLIGATOIRE DU PV DE RECEPTION (Template IMOTION Creator Studio V2)
+
+# PROCES-VERBAL DE RECEPTION
+
+**N. [Numero auto-genere]**
+
+---
+
+## ENTRE LES SOUSSIGNES
+
+**IMOTION Creator Studio**, Societe par Actions Simplifiee (SAS)
+- Siege social : 123 Avenue de l'Innovation, 75008 Paris
+- SIRET : XXX XXX XXX 000XX | RCS Paris B XXX XXX XXX
+- Representee par son representant legal dument habilite
+- Ci-apres denommee "Le Prestataire"
+
+ET
+
+**[Entreprise client]**, [Forme juridique]
+- Representee par [Nom], en qualite de [Fonction]
+- Ci-apres denommee "Le Client"
+
+---
+
+## ARTICLE 1 - OBJET DU PRESENT PROCES-VERBAL
+
+Le present Proces-Verbal a pour objet de constater la reception des travaux realises dans le cadre du projet :
+- **Nom du projet** : [Nom]
+- **Reference CDC** : [Ref]
+- **Reference Contrat** : [Ref]
+- **Date de demarrage** : [Date]
+- **Date de livraison** : [Date]
+
+## ARTICLE 2 - RAPPEL DU PERIMETRE CONTRACTUEL
+
+Reprendre les livrables definis dans le CDC et le Contrat :
+| N. | Livrable contractuel | Reference CDC | Priorite |
+|---|---|---|---|
+
+## ARTICLE 3 - VERIFICATION DE CONFORMITE AU CAHIER DES CHARGES
+
+Pour CHAQUE section du CDC, verifier la conformite :
+
+### 3.1 Fonctionnalites Essentielles (Must Have)
+| N. | Fonctionnalite (CDC) | Statut | Conforme | Observations |
+|---|---|---|---|---|
+Pour chaque fonctionnalite listee dans le CDC section 6.1
+
+### 3.2 Fonctionnalites Souhaitees (Should Have)
+| N. | Fonctionnalite (CDC) | Statut | Conforme | Observations |
+|---|---|---|---|---|
+
+### 3.3 Fonctionnalites Optionnelles (Nice to Have)
+| N. | Fonctionnalite (CDC) | Statut | Conforme | Observations |
+|---|---|---|---|---|
+
+### 3.4 Specifications Techniques
+| Exigence (CDC section 7) | Niveau attendu | Niveau constate | Conforme |
+|---|---|---|---|
+| Performance | < 3s | [A mesurer] | [Oui/Non] |
+| Disponibilite | 99.5% | [A mesurer] | [Oui/Non] |
+| Responsive | Mobile/Tablette/Desktop | [A verifier] | [Oui/Non] |
+| Accessibilite | WCAG 2.1 AA | [A verifier] | [Oui/Non] |
+| SEO | Lighthouse > 80 | [A mesurer] | [Oui/Non] |
+
+### 3.5 Integrations
+| Integration prevue (CDC) | Operationnelle | Tests realises | Conforme |
+|---|---|---|---|
+
+## ARTICLE 4 - TESTS ET RECETTE
+
+### 4.1 Tests Fonctionnels
+| Scenario de test | Resultat attendu | Resultat obtenu | Statut |
+|---|---|---|---|
+
+### 4.2 Tests de Performance
+| Metrique | Objectif | Resultat | Statut |
+|---|---|---|---|
+
+### 4.3 Tests de Securite
+| Verification | Resultat | Statut |
+|---|---|---|
+| HTTPS actif | | |
+| Injection SQL | | |
+| XSS | | |
+| CSRF | | |
+| Donnees personnelles (RGPD) | | |
+
+### 4.4 Tests Multi-Navigateurs
+| Navigateur | Version | Resultat |
+|---|---|---|
+| Chrome | Derniere | |
+| Firefox | Derniere | |
+| Safari | Derniere | |
+| Edge | Derniere | |
+
+## ARTICLE 5 - OUTILS ET STACK TECHNIQUE DEPLOYES
+
+Lister les outils effectivement utilises et leur conformite avec la recommandation technique :
+| Couche | Outil recommande | Outil deploye | Conforme |
+|---|---|---|---|
+
+## ARTICLE 6 - RESERVES
+
+### 6.1 Reserves majeures (bloquantes)
+| N. | Description | Impact | Delai de correction |
+|---|---|---|---|
+
+### 6.2 Reserves mineures (non bloquantes)
+| N. | Description | Impact | Delai de correction |
+|---|---|---|---|
+
+### 6.3 Points d'amelioration (hors perimetre)
+| N. | Description | Phase ulterieure suggeree |
+|---|---|---|
+
+## ARTICLE 7 - DECISION DE RECEPTION
+
+En consequence de ce qui precede, les Parties conviennent :
+
+- [ ] **Reception totale sans reserve** : Le Client declare recevoir la totalite des travaux conformement au Cahier des Charges et au Contrat
+- [ ] **Reception partielle avec reserves** : Le Client declare recevoir les travaux sous reserve de la correction des anomalies listees a l'Article 6
+- [ ] **Refus de reception** : Le Client refuse la reception pour les motifs exposes ci-dessus
+
+### Conditions de la reception avec reserves :
+- Delai de correction des reserves majeures : [X] jours ouvres
+- Delai de correction des reserves mineures : [X] jours ouvres
+- Un nouveau PV de levee des reserves sera etabli apres corrections
+
+## ARTICLE 8 - EFFETS DE LA RECEPTION
+
+La reception emporte les effets suivants (conformement au Contrat article 10) :
+1. **Transfert de propriete** : Les droits sur les developpements specifiques sont transferes au Client (sous reserve du paiement integral)
+2. **Declenchement de la garantie** : La periode de garantie de 3 mois demarre a compter de la date du present PV
+3. **Facturation** : La reception declenche la facturation du solde prevu a l'echeancier contractuel
+4. **Responsabilite** : A compter de la reception, le Client devient responsable de l'utilisation de la solution
+
+## ARTICLE 9 - DOCUMENTATION LIVREE
+
+| Document | Format | Remis | Date |
+|---|---|---|---|
+| Code source | Repository Git | [Oui/Non] | |
+| Documentation technique | PDF/Markdown | [Oui/Non] | |
+| Guide utilisateur | PDF | [Oui/Non] | |
+| Acces et identifiants | Document securise | [Oui/Non] | |
+| Sauvegardes | Export BDD | [Oui/Non] | |
+
+## ARTICLE 10 - SUIVI POST-RECEPTION
+
+### 10.1 Garantie
+- Duree : 3 mois a compter du present PV
+- Perimetre : Correction des anomalies de conformite au CDC
+- Delais de correction : Bloquant 48h, Majeur 5 jours, Mineur 10 jours
+- Contact support : support@imotion-studio.com
+
+### 10.2 Maintenance (si contractualisee)
+- Forfait : [Nom du forfait]
+- Tarif : [X] euros/mois HT
+- SLA : [X]% de disponibilite garantie
+- Demarrage : A l'issue de la periode de garantie
+
+## ARTICLE 11 - DISPOSITIONS FINALES
+
+Le present Proces-Verbal est etabli en deux exemplaires originaux.
+Il fait partie integrante des documents contractuels du projet.
+
+Tout litige relatif au present PV sera regi par les dispositions du Contrat de prestation (article 14 - Loi applicable et litiges).
+
+---
+
+## SIGNATURES
+
+Fait a _________________, le [Date]
+
+| | Pour le Prestataire | Pour le Client |
+|---|---|---|
+| Societe | IMOTION Creator Studio | [Entreprise client] |
+| Nom | _________________ | [Nom client] |
+| Qualite | Directeur de projet | [Fonction] |
+| Date | _________________ | _________________ |
+| Signature | *(precede de "Lu et approuve")* | *(precede de "Lu et approuve")* |
+
+---
+
+Proces-Verbal genere par IMOTION Creator Studio le [date]
+IMOTION Creator Studio | SAS au capital de 10 000 euros | 123 Avenue de l'Innovation, 75008 Paris | www.imotion-studio.com
+
+---
+
+INSTRUCTIONS :
+- CHAQUE livrable du CDC doit etre verifie individuellement
+- Les criteres de conformite doivent etre objectifs et mesurables
+- Les reserves doivent etre classees par gravite avec delais de correction
+- Le PV doit etre juridiquement opposable (signatures, dates, references)
+- Croiser systematiquement avec le Contrat pour les effets juridiques
+- Inclure les donnees reelles du projet (outils, budget, delais)
+- NE JAMAIS utiliser d'emojis`;
   }
 
   if (type === "devis") {

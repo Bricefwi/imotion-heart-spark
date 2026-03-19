@@ -20,6 +20,7 @@ export function getDocName(type: string, projectName: string): string {
     tech_recommendation: "Recommandation Technique & Prompt",
     pricing: "Proposition Tarifaire Détaillée",
     contract_fr: "Contrat de Prestation (Droit Français)",
+    pv_reception: "Proces-Verbal de Reception",
   };
   return `${names[type] || type} - ${projectName}`;
 }
