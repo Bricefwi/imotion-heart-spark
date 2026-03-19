@@ -71,8 +71,8 @@ export function CampaignsTab() {
   });
 
   const createMutation = useMutation({
-    mutationFn: async (campaign: Partial<Campaign>) => {
-      const { error } = await supabase.from("email_campaigns").insert(campaign);
+    mutationFn: async (campaign: Record<string, unknown>) => {
+      const { error } = await supabase.from("email_campaigns").insert(campaign as never);
       if (error) throw error;
     },
     onSuccess: () => {
