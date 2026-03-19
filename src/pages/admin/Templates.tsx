@@ -140,7 +140,7 @@ export default function AdminTemplates() {
       is_active: tpl.is_active,
       is_default: tpl.is_default,
       tags: tpl.tags || [],
-      variables: tpl.variables || [],
+      variables: (Array.isArray(tpl.variables) ? tpl.variables : []) as { name: string; description: string; default_value: string; }[],
     });
     setDialogOpen(true);
   };
