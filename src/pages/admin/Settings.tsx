@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import type { Json } from "@/integrations/supabase/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,17 +24,17 @@ export default function AdminSettings() {
       const { data, error } = await supabase.from("settings").select("*");
       if (error) throw error;
       const map: Record<string, Record<string, unknown>> = {};
-      data?.forEach((s) => { map[s.key] = s.value; });
+      data?.forEach((s) => { map[s.key] = (typeof s.value === 'object' && s.value !== null && !Array.isArray(s.value)) ? s.value as Record<string, unknown> : {}; });
       return map;
     },
     enabled: !!user,
   });
 
   const updateSetting = useMutation({
-    mutationFn: async ({ key, value }: { key: string; value: string | boolean | number | Record<string, unknown> }) => {
+    mutationFn: async ({ key, value }: { key: string; value: Record<string, unknown> }) => {
       const { error } = await supabase
         .from("settings")
-        .update({ value, updated_by: user!.id })
+        .update({ value: value as unknown as Json, updated_by: user!.id })
         .eq("key", key);
       if (error) throw error;
     },
@@ -52,10 +53,14 @@ export default function AdminSettings() {
   });
 
   // Local state for forms
-  const [company, setCompany] = useState<Record<string, unknown>>({});
-  const [aiConfig, setAiConfig] = useState<Record<string, unknown>>({});
-  const [pricing, setPricing] = useState<Record<string, unknown>>({});
-  const [notifConfig, setNotifConfig] = useState<Record<string, unknown>>({});
+  // deno-lint-ignore no-explicit-any
+  const [company, setCompany] = useState<Record<string, any>>({});
+  // deno-lint-ignore no-explicit-any
+  const [aiConfig, setAiConfig] = useState<Record<string, any>>({});
+  // deno-lint-ignore no-explicit-any
+  const [pricing, setPricing] = useState<Record<string, any>>({});
+  // deno-lint-ignore no-explicit-any
+  const [notifConfig, setNotifConfig] = useState<Record<string, any>>({});
 
   useEffect(() => {
     if (settings.company) setCompany(settings.company);
@@ -97,7 +102,7 @@ export default function AdminSettings() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Nom commercial</Label>
-                  <Input value={company.name || ""} onChange={(e) => setCompany({ ...company, name: e.target.value })} />
+                  <Input value={String(company.name || "")} onChange={(e) => setCompany({ ...company, name: e.target.value })} />
                 </div>
                 <div className="space-y-2">
                   <Label>Raison sociale</Label>

@@ -33,7 +33,6 @@ export interface Project {
   id: string;
   name: string;
   code: string | null;
-  description: string | null;
   status: string;
   priority: string | null;
   client_id: string;
@@ -41,10 +40,10 @@ export interface Project {
   discovery_data: Json | null;
   estimated_budget_min: number | null;
   estimated_budget_max: number | null;
-  current_phase: string | null;
+  current_phase: number | null;
   created_at: string;
   updated_at: string | null;
-  client?: Profile | null;
+  client?: Partial<Profile> | null;
   contract_amount?: number | null;
   proposal_amount?: number | null;
   total_messages?: number | null;
@@ -52,6 +51,7 @@ export interface Project {
   overall_progress?: number | null;
   internal_notes?: string | null;
   tags?: string[] | null;
+  slug?: string | null;
 }
 
 /** Activity row with optional joined profile */
@@ -109,19 +109,23 @@ export interface AutomationLog {
   executed_at: string;
 }
 
-/** Campaign */
+/** Campaign — matches email_campaigns table */
 export interface Campaign {
   id: string;
   name: string;
   subject: string;
-  body: string;
+  content: string;
   status: string;
   scheduled_at: string | null;
-  sent_count: number | null;
-  open_count: number | null;
-  click_count: number | null;
+  sent_at: string | null;
+  segment_filter: Json;
+  total_recipients: number | null;
+  total_sent: number | null;
+  total_opened: number | null;
+  total_clicked: number | null;
   created_at: string;
-  updated_at: string | null;
+  created_by: string | null;
+  updated_at: string;
 }
 
 /** Supabase error type for mutation callbacks */
