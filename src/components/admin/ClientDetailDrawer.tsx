@@ -597,8 +597,7 @@ export function ClientDetailDrawer({ profileId, open, onOpenChange }: ClientDeta
                     })}
                   </div>
 
-                  {documents.map((doc) => {
-                    const d = doc as Record<string, unknown>;
+                  {documents.map((doc) => (
                     <div
                       key={doc.id}
                       className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/30 transition-colors"
