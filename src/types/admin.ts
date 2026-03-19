@@ -118,7 +118,7 @@ export interface Campaign {
   status: string;
   scheduled_at: string | null;
   sent_at: string | null;
-  segment_filter: Record<string, unknown>;
+  segment_filter: Json;
   total_recipients: number | null;
   total_sent: number | null;
   total_opened: number | null;

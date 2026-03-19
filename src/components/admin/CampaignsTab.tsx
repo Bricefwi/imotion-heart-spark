@@ -233,9 +233,10 @@ export function CampaignsTab() {
             </CardContent>
           </Card>
         ) : (
-          campaigns.map((campaign: Campaign) => {
-            const statusInfo = STATUS_MAP[campaign.status] || STATUS_MAP.draft;
-            const segmentLabel = SEGMENTS.find((s) => s.value === campaign.segment_filter?.segment)?.label || "Tous";
+          campaigns.map((campaign) => {
+            const c = campaign as unknown as Campaign;
+            const statusInfo = STATUS_MAP[c.status] || STATUS_MAP.draft;
+            const segmentLabel = SEGMENTS.find((s) => s.value === (c.segment_filter as Record<string, unknown>)?.segment)?.label || "Tous";
             return (
               <Card key={campaign.id} className="border-0 shadow-sm hover:shadow-md transition-shadow">
                 <CardContent className="p-4">
