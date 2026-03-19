@@ -58,16 +58,20 @@
   },
   "howItWorks": {
     "badge": "Comment ça marche",
-    "title": "De l'idée au projet en 4 étapes",
-    "subtitle": "Un processus simple et efficace pour transformer votre vision en réalité digitale.",
+    "title": "De l'idée au projet en 6 étapes",
+    "subtitle": "Un processus complet et structuré, de la découverte à la livraison finale.",
     "step1Title": "Créez votre projet",
     "step1Desc": "Décrivez votre idée en quelques mots et lancez la découverte.",
-    "step2Title": "Discutez avec notre IA",
+    "step2Title": "Discutez avec Marc",
     "step2Desc": "Notre consultant IA vous pose les bonnes questions en 7 phases.",
     "step3Title": "Recevez votre CDC",
     "step3Desc": "Un cahier des charges complet est généré automatiquement.",
-    "step4Title": "Lancez votre projet",
-    "step4Desc": "Validez la proposition et démarrez le développement."
+    "step4Title": "Devis & Contrat",
+    "step4Desc": "Recevez votre devis détaillé et signez le contrat en ligne.",
+    "step5Title": "Développement",
+    "step5Desc": "Votre projet est développé avec suivi en temps réel.",
+    "step6Title": "PV de Réception",
+    "step6Desc": "Vérification, tests et signature du procès-verbal de livraison."
   },
   "testimonials": {
     "badge": "Témoignages",

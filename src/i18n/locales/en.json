@@ -58,16 +58,20 @@
   },
   "howItWorks": {
     "badge": "How it works",
-    "title": "From idea to project in 4 steps",
-    "subtitle": "A simple and efficient process to turn your vision into digital reality.",
+    "title": "From idea to project in 6 steps",
+    "subtitle": "A complete and structured process, from discovery to final delivery.",
     "step1Title": "Create your project",
     "step1Desc": "Describe your idea in a few words and start the discovery.",
-    "step2Title": "Chat with our AI",
+    "step2Title": "Chat with Marc",
     "step2Desc": "Our AI consultant asks you the right questions in 7 phases.",
     "step3Title": "Get your specifications",
     "step3Desc": "A complete project specification is automatically generated.",
-    "step4Title": "Launch your project",
-    "step4Desc": "Validate the proposal and start development."
+    "step4Title": "Quote & Contract",
+    "step4Desc": "Receive your detailed quote and sign the contract online.",
+    "step5Title": "Development",
+    "step5Desc": "Your project is built with real-time progress tracking.",
+    "step6Title": "Acceptance Report",
+    "step6Desc": "Verification, testing and signing of the delivery acceptance report."
   },
   "testimonials": {
     "badge": "Testimonials",

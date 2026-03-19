@@ -184,6 +184,28 @@ serve(async (req) => {
       callerUserId = userData?.user?.id || null;
     }
 
+    // Role check: only admins, consultants, or service_role can send emails
+    const isServiceRole = authHeader?.includes(supabaseServiceKey);
+    if (!isServiceRole && callerUserId) {
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", callerUserId);
+      const userRoles = (roles || []).map((r: Record<string, unknown>) => r.role);
+      const hasPermission = userRoles.some((role: string) =>
+        ["admin", "super_admin", "consultant"].includes(role)
+      );
+      if (!hasPermission) {
+        return new Response(JSON.stringify({ error: "Forbidden: insufficient role" }), {
+          status: 403, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
+        });
+      }
+    } else if (!isServiceRole && !callerUserId) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
+      });
+    }
+
     // Resolve recipient email
     let toEmail = recipientEmail;
     let recipientName = metadata.name || "";

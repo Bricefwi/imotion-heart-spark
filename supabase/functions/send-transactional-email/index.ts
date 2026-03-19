@@ -1,5 +1,5 @@
 import * as React from 'npm:react@18.3.1'
-import { renderAsync } from 'npm:@react-email/components@0.0.31'
+import { renderAsync } from 'npm:@react-email/components@0.0.22'
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { CdcReadyEmail } from '../_shared/email-templates/cdc-ready.tsx'
 import { ConversationSummaryEmail } from '../_shared/email-templates/conversation-summary.tsx'
@@ -55,7 +55,7 @@ Deno.serve(async (req) => {
     })
   }
 
-  // Auth: only service_role or authenticated users with valid JWT
+  // Auth: only service_role or authenticated staff (admin/consultant)
   const authHeader = req.headers.get('Authorization')
   if (!authHeader?.startsWith('Bearer ')) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -65,6 +65,36 @@ Deno.serve(async (req) => {
   }
 
   const supabase = createClient(supabaseUrl, supabaseServiceKey)
+
+  // Role check: only admins, consultants, or service_role can send emails
+  const isServiceRole = authHeader.includes(supabaseServiceKey)
+  if (!isServiceRole) {
+    const anonClient = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!, {
+      global: { headers: { Authorization: authHeader } },
+    })
+    const { data: userData } = await anonClient.auth.getUser()
+    const callerId = userData?.user?.id
+    if (!callerId) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' },
+      })
+    }
+    const { data: roles } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', callerId)
+    const userRoles = (roles || []).map((r: Record<string, unknown>) => r.role)
+    const hasPermission = userRoles.some((role: unknown) =>
+      ['admin', 'super_admin', 'consultant'].includes(role as string)
+    )
+    if (!hasPermission) {
+      return new Response(JSON.stringify({ error: 'Forbidden: insufficient role' }), {
+        status: 403,
+        headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' },
+      })
+    }
+  }
 
   let body: Record<string, unknown>
   try {

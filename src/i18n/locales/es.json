@@ -58,16 +58,20 @@
   },
   "howItWorks": {
     "badge": "Cómo funciona",
-    "title": "De la idea al proyecto en 4 pasos",
-    "subtitle": "Un proceso simple y eficaz para transformar tu visión en realidad digital.",
+    "title": "De la idea al proyecto en 6 pasos",
+    "subtitle": "Un proceso completo y estructurado, desde el descubrimiento hasta la entrega final.",
     "step1Title": "Crea tu proyecto",
     "step1Desc": "Describe tu idea en pocas palabras y lanza el descubrimiento.",
-    "step2Title": "Habla con nuestra IA",
+    "step2Title": "Habla con Marc",
     "step2Desc": "Nuestro consultor IA te hace las preguntas correctas en 7 fases.",
     "step3Title": "Recibe tu pliego",
     "step3Desc": "Se genera automáticamente un pliego de condiciones completo.",
-    "step4Title": "Lanza tu proyecto",
-    "step4Desc": "Valida la propuesta y comienza el desarrollo."
+    "step4Title": "Presupuesto y Contrato",
+    "step4Desc": "Recibe tu presupuesto detallado y firma el contrato en línea.",
+    "step5Title": "Desarrollo",
+    "step5Desc": "Tu proyecto se desarrolla con seguimiento en tiempo real.",
+    "step6Title": "Acta de Recepción",
+    "step6Desc": "Verificación, pruebas y firma del acta de entrega."
   },
   "testimonials": {
     "badge": "Testimonios",

@@ -58,16 +58,20 @@
   },
   "howItWorks": {
     "badge": "So funktioniert es",
-    "title": "Von der Idee zum Projekt in 4 Schritten",
-    "subtitle": "Ein einfacher und effizienter Prozess zur Umsetzung Ihrer Vision in digitale Realität.",
+    "title": "Von der Idee zum Projekt in 6 Schritten",
+    "subtitle": "Ein vollständiger und strukturierter Prozess, von der Entdeckung bis zur Endlieferung.",
     "step1Title": "Erstellen Sie Ihr Projekt",
     "step1Desc": "Beschreiben Sie Ihre Idee in wenigen Worten und starten Sie die Entdeckung.",
-    "step2Title": "Sprechen Sie mit unserer KI",
+    "step2Title": "Sprechen Sie mit Marc",
     "step2Desc": "Unser KI-Berater stellt Ihnen in 7 Phasen die richtigen Fragen.",
     "step3Title": "Erhalten Sie Ihr Pflichtenheft",
     "step3Desc": "Ein vollständiges Pflichtenheft wird automatisch erstellt.",
-    "step4Title": "Starten Sie Ihr Projekt",
-    "step4Desc": "Bestätigen Sie den Vorschlag und starten Sie die Entwicklung."
+    "step4Title": "Angebot & Vertrag",
+    "step4Desc": "Erhalten Sie Ihr detailliertes Angebot und unterzeichnen Sie den Vertrag online.",
+    "step5Title": "Entwicklung",
+    "step5Desc": "Ihr Projekt wird mit Echtzeit-Fortschrittsverfolgung entwickelt.",
+    "step6Title": "Abnahmeprotokoll",
+    "step6Desc": "Überprüfung, Tests und Unterzeichnung des Abnahmeprotokolls."
   },
   "testimonials": {
     "badge": "Referenzen",
