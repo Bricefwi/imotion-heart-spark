@@ -34,27 +34,23 @@ serve(async (req) => {
       const userClient = createClient(supabaseUrl, anonKey, {
         global: { headers: { Authorization: authHeader || "" } },
       });
-      const { data: claims, error: claimsErr } = await userClient.auth.getClaims(
-        (authHeader || "").replace("Bearer ", "")
-      );
-      if (claimsErr) {
+      const { data: userData, error: authErr } = await userClient.auth.getUser();
+      if (authErr || !userData?.user) {
         return new Response(JSON.stringify({ error: "Unauthorized" }), {
           status: 401, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
         });
       }
       // Check admin role
-      const userId = claims?.claims?.sub;
-      if (userId) {
-        const { data: roles } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", userId)
-          .in("role", ["admin", "super_admin"]);
-        if (!roles || roles.length === 0) {
-          return new Response(JSON.stringify({ error: "Admin only" }), {
-            status: 403, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
-          });
-        }
+      const userId = userData.user.id;
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .in("role", ["admin", "super_admin"]);
+      if (!roles || roles.length === 0) {
+        return new Response(JSON.stringify({ error: "Admin only" }), {
+          status: 403, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
+        });
       }
     }
 
