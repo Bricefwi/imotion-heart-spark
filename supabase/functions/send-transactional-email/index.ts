@@ -4,10 +4,19 @@ import { createClient } from 'npm:@supabase/supabase-js@2'
 import { CdcReadyEmail } from '../_shared/email-templates/cdc-ready.tsx'
 import { ConversationSummaryEmail } from '../_shared/email-templates/conversation-summary.tsx'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers':
-    'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
+const ALLOWED_ORIGINS = [
+  "https://imotion-conseils.fr",
+  "https://www.imotion-conseils.fr",
+  "https://imotion-heart-spark.lovable.app",
+];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("Origin") || "";
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  };
 }
 
 const SITE_NAME = 'Clarivi'
@@ -32,7 +41,7 @@ const TEMPLATES: Record<string, {
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+    return new Response(null, { headers: getCorsHeaders(req) })
   }
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!
@@ -42,7 +51,7 @@ Deno.serve(async (req) => {
   if (!apiKey || !supabaseUrl || !supabaseServiceKey) {
     return new Response(JSON.stringify({ error: 'Server configuration error' }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' },
     })
   }
 
@@ -51,7 +60,7 @@ Deno.serve(async (req) => {
   if (!authHeader?.startsWith('Bearer ')) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' },
     })
   }
 
@@ -63,7 +72,7 @@ Deno.serve(async (req) => {
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
       status: 400,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' },
     })
   }
 
@@ -72,15 +81,23 @@ Deno.serve(async (req) => {
   if (!template || !to) {
     return new Response(JSON.stringify({ error: 'Missing template or to' }), {
       status: 400,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' },
     })
+  }
+
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!EMAIL_REGEX.test(to)) {
+    return new Response(JSON.stringify({ error: "Invalid email format" }), {
+      status: 400,
+      headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
+    });
   }
 
   const tmpl = TEMPLATES[template]
   if (!tmpl) {
     return new Response(JSON.stringify({ error: `Unknown template: ${template}` }), {
       status: 400,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' },
     })
   }
 
@@ -94,7 +111,7 @@ Deno.serve(async (req) => {
   if (suppressed) {
     return new Response(JSON.stringify({ skipped: true, reason: 'suppressed' }), {
       status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' },
     })
   }
 
@@ -144,7 +161,7 @@ Deno.serve(async (req) => {
     })
     return new Response(JSON.stringify({ error: 'Failed to enqueue email' }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' },
     })
   }
 
@@ -152,6 +169,6 @@ Deno.serve(async (req) => {
 
   return new Response(JSON.stringify({ success: true, messageId }), {
     status: 200,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' },
   })
 })

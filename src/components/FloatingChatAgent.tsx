@@ -205,7 +205,7 @@ export function FloatingChatAgent() {
             {/* Messages */}
             <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
               {messages.map((msg, i) => (
-                <div key={i} className={`flex gap-2.5 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
+                <div key={`${msg.role}-${i}`} className={`flex gap-2.5 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
                   <div
                     className={`shrink-0 h-7 w-7 rounded-full flex items-center justify-center text-xs ${
                       msg.role === "assistant"

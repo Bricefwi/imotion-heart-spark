@@ -1,11 +1,20 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
+const ALLOWED_ORIGINS = [
+  "https://imotion-conseils.fr",
+  "https://www.imotion-conseils.fr",
+  "https://imotion-heart-spark.lovable.app",
+];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("Origin") || "";
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  };
+}
 
 type EmailType = "account_confirmation" | "conversation_summary" | "cdc_final" | "document_ready" | "phase_completed";
 
@@ -146,7 +155,7 @@ function getEmailTemplate(type: EmailType, data: Record<string, any>): { subject
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: getCorsHeaders(req) });
   }
 
   try {
@@ -155,7 +164,7 @@ serve(async (req) => {
 
     if (!type) {
       return new Response(JSON.stringify({ error: "Missing email type" }), {
-        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
       });
     }
 
@@ -193,7 +202,14 @@ serve(async (req) => {
 
     if (!toEmail) {
       return new Response(JSON.stringify({ error: "No recipient email found" }), {
-        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
+      });
+    }
+
+    const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!EMAIL_REGEX.test(toEmail)) {
+      return new Response(JSON.stringify({ error: "Invalid email format" }), {
+        status: 400, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
       });
     }
 
@@ -232,7 +248,7 @@ serve(async (req) => {
         metadata: { ...templateData, html_preview: html.substring(0, 500) },
       });
       return new Response(JSON.stringify({ success: true, mode: "logged" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
       });
     }
 
@@ -271,17 +287,17 @@ serve(async (req) => {
     if (!emailResponse.ok) {
       console.error("Brevo error:", emailResult);
       return new Response(JSON.stringify({ error: "Email sending failed", details: emailResult }), {
-        status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 502, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
       });
     }
 
     return new Response(JSON.stringify({ success: true, messageId: emailResult.messageId }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
     });
   } catch (e) {
     console.error("send-email error:", e);
     return new Response(JSON.stringify({ error: "Internal server error" }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
     });
   }
 });

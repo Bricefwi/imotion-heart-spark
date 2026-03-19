@@ -251,7 +251,7 @@ export default function DocumentViewer() {
                 </div>
                 <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
                   {msgs.map((m, i) => (
-                    <div key={i} className={`flex gap-2 ${m.role === "user" ? "justify-end" : ""}`}>
+                    <div key={`${m.role}-${i}`} className={`flex gap-2 ${m.role === "user" ? "justify-end" : ""}`}>
                       <div className={`rounded-xl px-3 py-2 text-xs leading-relaxed max-w-[85%] ${
                         m.role === "user"
                           ? "gradient-primary text-white rounded-br-sm"

@@ -26,7 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-const ICON_MAP: Record<string, React.ComponentType<any>> = {
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Globe, ShoppingCart, Smartphone, Building2,
 };
 
@@ -203,9 +203,9 @@ export function PricingSection() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-              {buildPlans.map((project: any) => {
+              {buildPlans.map((project) => {
                 const IconComp = ICON_MAP[project.icon] || Globe;
-                const features: string[] = Array.isArray(project.default_features) ? project.default_features : [];
+                const features: string[] = Array.isArray(project.default_features) ? (project.default_features as string[]) : [];
                 const isPopular = project.is_popular;
 
                 return (
@@ -321,8 +321,8 @@ export function PricingSection() {
                   { icon: TrendingUp, title: "Sprints agiles", desc: "Suivi temps réel" },
                   { icon: Shield, title: "Garantie 3 mois", desc: "Corrections incluses" },
                   { icon: Headphones, title: "Formation", desc: "Prise en main" },
-                ].map((item, idx) => (
-                  <div key={idx} className="text-center">
+                ].map((item) => (
+                  <div key={item.title} className="text-center">
                     <div className="w-12 h-12 rounded-full bg-background shadow-sm flex items-center justify-center mx-auto mb-3">
                       <item.icon className="w-6 h-6 text-primary" />
                     </div>
@@ -344,8 +344,8 @@ export function PricingSection() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-              {runPlans.map((plan: any) => {
-                const features: string[] = Array.isArray(plan.features) ? plan.features : [];
+              {runPlans.map((plan) => {
+                const features: string[] = Array.isArray(plan.features) ? (plan.features as string[]) : [];
                 const isHighlighted = plan.is_highlighted;
 
                 return (
@@ -383,8 +383,8 @@ export function PricingSection() {
                     </div>
 
                     <ul className="space-y-3 mb-6">
-                      {features.map((feature: string, idx: number) => (
-                        <li key={idx} className="flex items-center gap-3 text-sm">
+                      {features.map((feature: string) => (
+                        <li key={feature} className="flex items-center gap-3 text-sm">
                           <Check className="w-4 h-4 shrink-0 text-primary" />
                           <span>{feature}</span>
                         </li>

@@ -2,18 +2,18 @@ project_id = "npmkzqxoxobfqdqpnsgf"
 
 [functions]
   [functions.ai-chat]
-    verify_jwt = false
+    verify_jwt = true
   [functions.auth-email-hook]
     verify_jwt = false
   [functions.commercial-agent]
-    verify_jwt = false
+    verify_jwt = true
   [functions.generate-blog-post]
-    verify_jwt = false
+    verify_jwt = true
   [functions.generate-document]
-    verify_jwt = false
+    verify_jwt = true
   [functions.process-email-queue]
     verify_jwt = true
   [functions.send-email]
-    verify_jwt = false
+    verify_jwt = true
   [functions.send-transactional-email]
-    verify_jwt = false
+    verify_jwt = true

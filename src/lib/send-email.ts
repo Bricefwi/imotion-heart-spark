@@ -7,7 +7,7 @@ interface SendEmailParams {
   recipientId?: string;
   recipientEmail?: string;
   projectId?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export async function sendEmail(params: SendEmailParams): Promise<{ success: boolean; error?: string }> {

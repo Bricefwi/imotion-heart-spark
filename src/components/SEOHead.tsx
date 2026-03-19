@@ -21,7 +21,7 @@ export function SEOHead({
   image,
   noindex = false,
   jsonLd,
-}: SEOHeadProps) {
+}: SEOHeadProps): null {
   const fullTitle = title.includes("IMOTION") ? title : `${title} | IMOTION Creator Studio`;
   const fullCanonical = canonical ? `${BASE_URL}${canonical}` : undefined;
   const ogImage = image || DEFAULT_IMAGE;
@@ -99,7 +99,7 @@ export const organizationSchema = {
   logo: `${BASE_URL}/favicon.png`,
   description: "Plateforme IA qui transforme vos idées en projets digitaux concrets via une conversation guidée.",
   contactPoint: { "@type": "ContactPoint", contactType: "customer service", availableLanguage: "French" },
-  sameAs: [],
+  sameAs: [] as string[],
 };
 
 export const websiteSchema = {

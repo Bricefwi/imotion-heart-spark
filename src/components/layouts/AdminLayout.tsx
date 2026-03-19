@@ -71,6 +71,15 @@ function useRecentNotifications() {
   });
 }
 
+const isInternalUrl = (url: string) => {
+  try {
+    const parsed = new URL(url, window.location.origin);
+    return parsed.origin === window.location.origin;
+  } catch {
+    return false;
+  }
+};
+
 function NotificationDropdown({ unreadCount }: { unreadCount: number }) {
   const [open, setOpen] = useState(false);
   const { data: notifications = [] } = useRecentNotifications();
@@ -162,7 +171,7 @@ function NotificationDropdown({ unreadCount }: { unreadCount: number }) {
                   }`}
                   onClick={() => {
                     if (!notif.is_read) markAsRead.mutate(notif.id);
-                    if (notif.link) {
+                    if (notif.link && isInternalUrl(notif.link)) {
                       setOpen(false);
                       window.location.href = notif.link;
                     }

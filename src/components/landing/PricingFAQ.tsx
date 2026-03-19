@@ -84,7 +84,7 @@ export function PricingFAQ() {
         <Accordion type="single" collapsible className="space-y-3">
           {faqs.map((faq, i) => (
               <AccordionItem
-                key={i}
+                key={faq.question}
                 value={`faq-${i}`}
                 className="bg-background border border-border/50 rounded-xl px-6 data-[state=open]:shadow-md transition-shadow"
               >

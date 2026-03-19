@@ -124,7 +124,7 @@ export default function ClientDashboard() {
     tech_recommendation: "Reco", invoice: "Facture", other: "Autre",
   };
 
-  const handleDownloadPDF = async (doc: any) => {
+  const handleDownloadPDF = async (doc: { id: string; name: string; storage_path: string; description: string | null }) => {
     if (downloadingId) return;
     setDownloadingId(doc.id);
     try {
@@ -144,7 +144,7 @@ export default function ClientDashboard() {
           <h1 style="font-size: 1.5rem; font-weight: 700; border-bottom: 3px solid #d32f2f; padding-bottom: 0.75rem; margin-bottom: 1.25rem;">${doc.name}</h1>
           <div style="font-size: 0.875rem; line-height: 1.75; color: #333; white-space: pre-wrap;">${doc.description}</div>
         </div>`;
-        await (html2pdf() as any).set({
+        await (html2pdf() as unknown as { set: (opt: unknown) => { from: (el: HTMLElement) => { save: () => Promise<void> } } }).set({
           margin: [20, 12, 20, 12],
           filename: `${doc.name.replace(/\s+/g, "_")}.pdf`,
           image: { type: "jpeg", quality: 0.95 },
@@ -324,7 +324,7 @@ export default function ClientDashboard() {
                 </p>
               ) : (
                 recentConversations.slice(0, 3).map((conv) => {
-                  const project = conv.project as any;
+                  const project = conv.project as { name?: string; code?: string; id?: string } | null;
                   return (
                     <Link
                       key={conv.id}

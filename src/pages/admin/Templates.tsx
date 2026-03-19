@@ -398,7 +398,7 @@ export default function AdminTemplates() {
                 </Button>
               </div>
               {form.variables.map((v, i) => (
-                <div key={i} className="grid grid-cols-3 gap-2">
+                <div key={`var-${i}-${v.name}`} className="grid grid-cols-3 gap-2">
                   <Input
                     placeholder="Nom"
                     value={v.name}

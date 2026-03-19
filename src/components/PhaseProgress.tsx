@@ -40,9 +40,9 @@ export function PhaseProgress({
           <span className="text-muted-foreground">{Math.round(progressPercent)}%</span>
         </div>
         <div className="flex gap-1">
-          {phaseNames.map((_, i) => (
+          {phaseNames.map((phaseName, i) => (
             <div
-              key={i}
+              key={phaseName}
               className={cn(
                 "h-1.5 flex-1 rounded-full transition-colors",
                 i + 1 < currentPhase
@@ -74,7 +74,7 @@ export function PhaseProgress({
             const isCompleted = i < currentPhase - 1;
             const isCurrent = i === currentPhase - 1;
             return (
-              <div key={i} className="flex flex-col items-center">
+              <div key={`phase-${i + 1}`} className="flex flex-col items-center">
                 <motion.div
                   className={cn(
                     "h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-colors",
