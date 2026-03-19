@@ -586,7 +586,7 @@ export function ClientDetailDrawer({ profileId, open, onOpenChange }: ClientDeta
                       { type: "facture", label: "Factures" },
                     ].map((dt) => {
                       const count = documents.filter(
-                        (d: GeneratedDocument) => d.document_type === dt.type || d.document_type === dt.label.toLowerCase()
+                        (d) => (d as Record<string, unknown>).type === dt.type || (d as Record<string, unknown>).type === dt.label.toLowerCase()
                       ).length;
                       if (count === 0) return null;
                       return (
@@ -597,7 +597,8 @@ export function ClientDetailDrawer({ profileId, open, onOpenChange }: ClientDeta
                     })}
                   </div>
 
-                  {documents.map((doc: GeneratedDocument) => (
+                  {documents.map((doc) => {
+                    const d = doc as Record<string, unknown>;
                     <div
                       key={doc.id}
                       className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/30 transition-colors"
