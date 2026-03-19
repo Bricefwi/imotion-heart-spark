@@ -108,19 +108,8 @@ export default function AdminProjectDetail() {
     enabled: !!id,
   });
 
-  const { data: projectTools = [] } = useQuery({
-    queryKey: ["admin-project-tools", id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("project_tools")
-        .select("*")
-        .eq("project_id", id!)
-        .order("category");
-      if (error) return [];
-      return data || [];
-    },
-    enabled: !!id,
-  });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const projectTools: any[] = [];
 
   const { data: estimate } = useQuery({
     queryKey: ["admin-project-estimate", id],
