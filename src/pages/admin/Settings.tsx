@@ -53,10 +53,14 @@ export default function AdminSettings() {
   });
 
   // Local state for forms
-  const [company, setCompany] = useState<Record<string, unknown>>({});
-  const [aiConfig, setAiConfig] = useState<Record<string, unknown>>({});
-  const [pricing, setPricing] = useState<Record<string, unknown>>({});
-  const [notifConfig, setNotifConfig] = useState<Record<string, unknown>>({});
+  // deno-lint-ignore no-explicit-any
+  const [company, setCompany] = useState<Record<string, any>>({});
+  // deno-lint-ignore no-explicit-any
+  const [aiConfig, setAiConfig] = useState<Record<string, any>>({});
+  // deno-lint-ignore no-explicit-any
+  const [pricing, setPricing] = useState<Record<string, any>>({});
+  // deno-lint-ignore no-explicit-any
+  const [notifConfig, setNotifConfig] = useState<Record<string, any>>({});
 
   useEffect(() => {
     if (settings.company) setCompany(settings.company);
