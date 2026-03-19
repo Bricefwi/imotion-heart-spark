@@ -95,7 +95,7 @@ export function AuthPhotoCarousel() {
         <div className="flex gap-2 mt-8">
           {slides.map((_, i) => (
             <button
-              key={i}
+              key={`dot-${i}`}
               onClick={() => setCurrent(i)}
               className={`h-1.5 rounded-full transition-all duration-500 ${
                 i === current ? "w-8 bg-white" : "w-3 bg-white/30 hover:bg-white/50"

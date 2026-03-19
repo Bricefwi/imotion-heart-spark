@@ -12,7 +12,7 @@ export interface AIChatResponse {
   phase_current: number;
   phase_progress: number;
   overall_progress: number;
-  extracted_data: any;
+  extracted_data: Record<string, unknown>;
   sentiment: string;
   ready_for_next_phase: boolean;
 }

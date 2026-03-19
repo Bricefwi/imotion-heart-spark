@@ -1,13 +1,23 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+const ALLOWED_ORIGINS = [
+  "https://imotion-conseils.fr",
+  "https://www.imotion-conseils.fr",
+  "https://imotion-heart-spark.lovable.app",
+];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("Origin") || "";
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  };
+}
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method === "OPTIONS") return new Response(null, { headers: getCorsHeaders(req) });
 
   try {
     // Auth: accept either CRON_SECRET or admin JWT
@@ -29,7 +39,7 @@ serve(async (req) => {
       );
       if (claimsErr) {
         return new Response(JSON.stringify({ error: "Unauthorized" }), {
-          status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 401, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
         });
       }
       // Check admin role
@@ -42,7 +52,7 @@ serve(async (req) => {
           .in("role", ["admin", "super_admin"]);
         if (!roles || roles.length === 0) {
           return new Response(JSON.stringify({ error: "Admin only" }), {
-            status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 403, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
           });
         }
       }
@@ -61,7 +71,7 @@ serve(async (req) => {
     if (error) throw error;
     if (!pendingPosts || pendingPosts.length === 0) {
       return new Response(JSON.stringify({ message: "Aucun article à générer", generated: 0, results: [] }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
       });
     }
 
@@ -204,12 +214,12 @@ L'article doit faire environ 1200-1500 mots et apporter une vraie valeur au lect
       generated: results.filter((r) => r.success).length,
       failed: results.filter((r) => !r.success).length,
       results,
-    }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }), { headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } });
 
   } catch (error: unknown) {
     console.error("CRON Error:", error);
     return new Response(JSON.stringify({ error: "An internal error occurred during blog post generation." }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
     });
   }
 });

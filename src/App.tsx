@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -7,60 +8,61 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ThemeProvider } from "next-themes";
+import { CookieConsent } from "@/components/CookieConsent";
 
-// Layouts
+// Layouts (static imports - used as wrappers)
 import { PublicLayout } from "@/components/layouts/PublicLayout";
 import { ClientLayout } from "@/components/layouts/ClientLayout";
 import { ConsultantLayout } from "@/components/layouts/ConsultantLayout";
 import { AdminLayout } from "@/components/layouts/AdminLayout";
 
-// Public pages
-import Index from "@/pages/Index";
-import Features from "@/pages/Features";
-import Pricing from "@/pages/Pricing";
-import About from "@/pages/About";
-import Contact from "@/pages/Contact";
-import Legal from "@/pages/Legal";
-import Privacy from "@/pages/Privacy";
-import CGU from "@/pages/CGU";
-import CGV from "@/pages/CGV";
-import CookiesPage from "@/pages/Cookies";
-import FAQ from "@/pages/FAQ";
-import Blog from "@/pages/Blog";
-import BlogArticle from "@/pages/BlogArticle";
+// Public pages (lazy)
+const Index = lazy(() => import("@/pages/Index"));
+const Features = lazy(() => import("@/pages/Features"));
+const Pricing = lazy(() => import("@/pages/Pricing"));
+const About = lazy(() => import("@/pages/About"));
+const Contact = lazy(() => import("@/pages/Contact"));
+const Legal = lazy(() => import("@/pages/Legal"));
+const Privacy = lazy(() => import("@/pages/Privacy"));
+const CGU = lazy(() => import("@/pages/CGU"));
+const CGV = lazy(() => import("@/pages/CGV"));
+const CookiesPage = lazy(() => import("@/pages/Cookies"));
+const FAQ = lazy(() => import("@/pages/FAQ"));
+const Blog = lazy(() => import("@/pages/Blog"));
+const BlogArticle = lazy(() => import("@/pages/BlogArticle"));
 
-// Auth pages
-import Login from "@/pages/Login";
-import Register from "@/pages/Register";
-import ForgotPassword from "@/pages/ForgotPassword";
-import ResetPassword from "@/pages/ResetPassword";
-import NotFound from "@/pages/NotFound";
-import Onboarding from "@/pages/client/Onboarding";
+// Auth pages (lazy)
+const Login = lazy(() => import("@/pages/Login"));
+const Register = lazy(() => import("@/pages/Register"));
+const ForgotPassword = lazy(() => import("@/pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
+const NotFound = lazy(() => import("@/pages/NotFound"));
+const Onboarding = lazy(() => import("@/pages/client/Onboarding"));
 
-// Client pages
-import ClientDashboard from "@/pages/client/Dashboard";
-import ClientProjects from "@/pages/client/Projects";
-import ProjectConversation from "@/pages/client/ProjectConversation";
-import ClientDocuments from "@/pages/client/Documents";
-import DocumentViewer from "@/pages/client/DocumentViewer";
-import NewProject from "@/pages/client/NewProject";
-import ClientProfile from "@/pages/client/Profile";
+// Client pages (lazy)
+const ClientDashboard = lazy(() => import("@/pages/client/Dashboard"));
+const ClientProjects = lazy(() => import("@/pages/client/Projects"));
+const ProjectConversation = lazy(() => import("@/pages/client/ProjectConversation"));
+const ClientDocuments = lazy(() => import("@/pages/client/Documents"));
+const DocumentViewer = lazy(() => import("@/pages/client/DocumentViewer"));
+const NewProject = lazy(() => import("@/pages/client/NewProject"));
+const ClientProfile = lazy(() => import("@/pages/client/Profile"));
 
-// Consultant pages
-import ConsultantDashboard from "@/pages/consultant/Dashboard";
-import ConsultantProjects from "@/pages/consultant/Projects";
-import ConsultantProjectDetail from "@/pages/consultant/ProjectDetail";
-import ConsultantAnalytics from "@/pages/consultant/Analytics";
-import ConsultantDocumentEditor from "@/pages/consultant/DocumentEditor";
+// Consultant pages (lazy)
+const ConsultantDashboard = lazy(() => import("@/pages/consultant/Dashboard"));
+const ConsultantProjects = lazy(() => import("@/pages/consultant/Projects"));
+const ConsultantProjectDetail = lazy(() => import("@/pages/consultant/ProjectDetail"));
+const ConsultantAnalytics = lazy(() => import("@/pages/consultant/Analytics"));
+const ConsultantDocumentEditor = lazy(() => import("@/pages/consultant/DocumentEditor"));
 
-// Admin pages
-import AdminDashboard from "@/pages/admin/Dashboard";
-import AdminUsers from "@/pages/admin/Users";
-import AdminSettings from "@/pages/admin/Settings";
-import AdminTemplates from "@/pages/admin/Templates";
-import AdminBlog from "@/pages/admin/Blog";
-import AdminCRM from "@/pages/admin/CRM";
-import AdminAnalytics from "@/pages/admin/Analytics";
+// Admin pages (lazy)
+const AdminDashboard = lazy(() => import("@/pages/admin/Dashboard"));
+const AdminUsers = lazy(() => import("@/pages/admin/Users"));
+const AdminSettings = lazy(() => import("@/pages/admin/Settings"));
+const AdminTemplates = lazy(() => import("@/pages/admin/Templates"));
+const AdminBlog = lazy(() => import("@/pages/admin/Blog"));
+const AdminCRM = lazy(() => import("@/pages/admin/CRM"));
+const AdminAnalytics = lazy(() => import("@/pages/admin/Analytics"));
 
 const queryClient = new QueryClient();
 
@@ -73,6 +75,7 @@ const App = () => (
         <Sonner />
         <ErrorBoundary>
         <BrowserRouter>
+          <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
           <Routes>
             {/* Public pages with shared layout */}
             <Route element={<PublicLayout />}>
@@ -138,8 +141,10 @@ const App = () => (
 
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </Suspense>
         </BrowserRouter>
         </ErrorBoundary>
+        <CookieConsent />
       </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>
@@ -147,4 +152,3 @@ const App = () => (
 );
 
 export default App;
-

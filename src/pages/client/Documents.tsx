@@ -38,7 +38,7 @@ const statusLabels: Record<string, { label: string; variant: "default" | "second
 export default function ClientDocuments() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [signingDoc, setSigningDoc] = useState<any>(null);
+  const [signingDoc, setSigningDoc] = useState<{ id: string; name: string } | null>(null);
 
   const { data: documents = [], isLoading } = useQuery({
     queryKey: ["client-documents", user?.id],
@@ -64,7 +64,7 @@ export default function ClientDocuments() {
 
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
-  const handleDownloadPDF = async (doc: any) => {
+  const handleDownloadPDF = async (doc: { id: string; name: string; storage_path: string; description: string | null }) => {
     if (downloadingId) return;
     setDownloadingId(doc.id);
     try {
@@ -95,7 +95,7 @@ export default function ClientDocuments() {
           html2canvas: { scale: 2, useCORS: true },
           jsPDF: { unit: "mm", format: "a4", orientation: "portrait" as const },
         };
-        await (html2pdf() as any).set(opt).from(container).save();
+        await (html2pdf() as unknown as { set: (opt: unknown) => { from: (el: HTMLElement) => { save: () => Promise<void> } } }).set(opt).from(container).save();
       } else {
         toast.error("Aucun contenu disponible pour ce document.");
       }

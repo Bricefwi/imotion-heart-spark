@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import type { Json } from "@/integrations/supabase/types";
 
 type AuditAction =
   | "user_role_changed"
@@ -25,7 +26,7 @@ interface AuditLogEntry {
   userId?: string;
   projectId?: string;
   importance?: "low" | "medium" | "high" | "critical";
-  metadata?: Record<string, unknown>;
+  metadata?: Record<string, Json | undefined>;
 }
 
 /**

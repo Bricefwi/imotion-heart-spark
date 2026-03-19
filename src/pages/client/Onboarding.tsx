@@ -81,9 +81,9 @@ export default function Onboarding() {
     additional_notes: "",
   });
 
-  const update = (field: string, value: any) => setData((d) => ({ ...d, [field]: value }));
-  const toggleArray = (field: string, value: string) => {
-    const arr = (data as any)[field] as string[];
+  const update = <K extends keyof typeof data>(field: K, value: (typeof data)[K]) => setData((d) => ({ ...d, [field]: value }));
+  const toggleArray = (field: "objectives" | "current_tools", value: string) => {
+    const arr = data[field];
     update(field, arr.includes(value) ? arr.filter((v) => v !== value) : [...arr, value]);
   };
 
@@ -391,7 +391,7 @@ export default function Onboarding() {
           const active = i === step;
           return (
             <button
-              key={i}
+              key={s.label}
               onClick={() => i <= step && setStep(i)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                 active ? "bg-primary text-primary-foreground" : done ? "bg-primary/10 text-primary" : "text-muted-foreground"

@@ -119,7 +119,7 @@ export default function ConsultantDashboard() {
                         {project.name}
                       </Link>
                       <Badge
-                        variant={priorityColors[project.priority || "medium"] as any}
+                        variant={priorityColors[project.priority || "medium"] as "default" | "secondary" | "destructive" | "outline"}
                         className="text-[10px] shrink-0"
                       >
                         {project.priority || "medium"}

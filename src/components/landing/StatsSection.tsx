@@ -31,7 +31,7 @@ export function StatsSection() {
         <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
           {stats.map((stat, i) => (
             <motion.div
-              key={i}
+              key={stat.label}
               initial="hidden" whileInView="visible" viewport={{ once: true }}
               variants={fadeUp} custom={i}
               className="text-center"

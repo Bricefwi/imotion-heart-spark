@@ -27,6 +27,15 @@ const typeIcons: Record<string, typeof Bell> = {
   consultant_intervention: AlertTriangle,
 };
 
+const isInternalUrl = (url: string) => {
+  try {
+    const parsed = new URL(url, window.location.origin);
+    return parsed.origin === window.location.origin;
+  } catch {
+    return false;
+  }
+};
+
 export function NotificationCenter() {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -130,7 +139,7 @@ export function NotificationCenter() {
                   )}
                   onClick={() => {
                     if (!notif.is_read) markAsRead(notif.id);
-                    if (notif.link) window.location.href = notif.link;
+                    if (notif.link && isInternalUrl(notif.link)) window.location.href = notif.link;
                   }}
                 >
                   <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">

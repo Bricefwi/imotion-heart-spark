@@ -47,14 +47,14 @@ export default function Contact() {
   const onSubmit = async (data: ContactForm) => {
     setLoading(true);
     try {
-      const { error } = await supabase.from("contact_messages" as any).insert({
+      const { error } = await supabase.from("contact_messages").insert({
         name: data.name,
         email: data.email,
         phone: data.phone || null,
         company: data.company || null,
         subject: data.subject,
         message: data.message,
-      } as any);
+      });
       if (error) throw error;
       setSubmitted(true);
       toast.success("Message envoyé avec succès !");

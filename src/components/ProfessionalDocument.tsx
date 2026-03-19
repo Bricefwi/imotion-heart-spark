@@ -79,10 +79,31 @@ export function ProfessionalDocument({
         pagebreak: { mode: ["avoid-all", "css", "legacy"] },
       };
 
-      const worker = (html2pdf() as any).set(opt).from(element);
+      interface PdfDoc {
+        internal: {
+          getNumberOfPages: () => number;
+          pageSize: { getWidth: () => number; getHeight: () => number };
+        };
+        setPage: (n: number) => void;
+        setDrawColor: (r: number, g: number, b: number) => void;
+        setLineWidth: (w: number) => void;
+        line: (x1: number, y1: number, x2: number, y2: number) => void;
+        setFontSize: (s: number) => void;
+        setTextColor: (r: number, g: number, b: number) => void;
+        text: (t: string, x: number, y: number, opts?: { align?: string }) => void;
+        save: () => void;
+      }
+      type Html2PdfWorker = {
+        set: (opt: unknown) => Html2PdfWorker;
+        from: (el: HTMLElement) => Html2PdfWorker;
+        toPdf: () => Html2PdfWorker;
+        get: (type: string) => Html2PdfWorker;
+        then: (cb: (pdf: PdfDoc) => void) => Promise<void>;
+      };
+      const worker = (html2pdf() as unknown as Html2PdfWorker).set(opt).from(element);
 
       // Generate PDF then add headers/footers on each page
-      await worker.toPdf().get("pdf").then((pdf: any) => {
+      await worker.toPdf().get("pdf").then((pdf: PdfDoc) => {
         const totalPages = pdf.internal.getNumberOfPages();
         const pageWidth = pdf.internal.pageSize.getWidth();
         const pageHeight = pdf.internal.pageSize.getHeight();
@@ -205,9 +226,9 @@ export function ProfessionalDocument({
               Sommaire
             </h2>
             <div style={{ columns: toc.length > 12 ? 2 : 1, columnGap: "2rem" }}>
-              {toc.map((entry, i) => (
+              {toc.map((entry) => (
                 <div
-                  key={i}
+                  key={entry.id}
                   style={{
                     display: "flex",
                     alignItems: "baseline",

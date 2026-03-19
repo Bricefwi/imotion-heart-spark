@@ -49,7 +49,7 @@ export function HeroSection() {
               <div className="flex items-baseline justify-center lg:justify-start gap-0 flex-wrap">
                 {brandName.split("").map((letter, i) => (
                   <motion.span
-                    key={i}
+                    key={`${letter}-${i}`}
                     initial="hidden"
                     animate="visible"
                     variants={letterVariants}

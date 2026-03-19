@@ -51,7 +51,7 @@ export function FeaturesSection() {
 
             return (
               <div
-                key={i}
+                key={feature.badge}
                 className={`flex flex-col ${isReversed ? "md:flex-row-reverse" : "md:flex-row"} items-center gap-12 md:gap-16 lg:gap-24`}
               >
                 <motion.div

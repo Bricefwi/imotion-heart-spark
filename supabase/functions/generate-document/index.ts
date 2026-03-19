@@ -2,15 +2,24 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getDocName, formatConversationForPrompt, buildPromptFromTemplate } from "./helpers.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+const ALLOWED_ORIGINS = [
+  "https://imotion-conseils.fr",
+  "https://www.imotion-conseils.fr",
+  "https://imotion-heart-spark.lovable.app",
+];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("Origin") || "";
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  };
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: getCorsHeaders(req) });
   }
 
   try {
@@ -29,7 +38,7 @@ serve(async (req) => {
     }
     if (projectId && typeof projectId !== "string") {
       return new Response(JSON.stringify({ error: "Invalid projectId" }), {
-        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
       });
     }
 
@@ -39,7 +48,7 @@ serve(async (req) => {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
       });
     }
 
@@ -52,7 +61,7 @@ serve(async (req) => {
     const { data: userData, error: authError } = await anonClient.auth.getUser();
     if (authError || !userData?.user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
       });
     }
 
@@ -65,7 +74,7 @@ serve(async (req) => {
 
     if (projErr || !project) {
       return new Response(JSON.stringify({ error: "Project not found" }), {
-        status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 404, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
       });
     }
 
@@ -79,7 +88,7 @@ serve(async (req) => {
     const isAdminOrConsultant = roles.some((r: string) => ["admin", "super_admin", "consultant"].includes(r));
     if (project.client_id !== userId && !isAdminOrConsultant) {
       return new Response(JSON.stringify({ error: "Forbidden: you do not have access to this project" }), {
-        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 403, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
       });
     }
 
@@ -148,7 +157,7 @@ INSTRUCTIONS :
       const newContent = sectionAiResult.choices?.[0]?.message?.content || "";
 
       return new Response(JSON.stringify({ success: true, content: newContent }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
       });
     }
 
@@ -270,7 +279,7 @@ INSTRUCTIONS :
         console.error("AI stream error:", response.status, t);
         if (response.status === 429) {
           return new Response(JSON.stringify({ error: "Trop de requêtes, réessayez dans quelques instants." }), {
-            status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 429, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
           });
         }
         throw new Error("AI generation failed");
@@ -328,7 +337,7 @@ INSTRUCTIONS :
       });
 
       return new Response(readable, {
-        headers: { ...corsHeaders, "Content-Type": "text/event-stream", "Cache-Control": "no-cache", Connection: "keep-alive" },
+        headers: { ...getCorsHeaders(req), "Content-Type": "text/event-stream", "Cache-Control": "no-cache", Connection: "keep-alive" },
       });
     }
 
@@ -342,7 +351,7 @@ INSTRUCTIONS :
       console.error("AI error:", response.status, t);
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: "Trop de requêtes, réessayez dans quelques instants." }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 429, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
         });
       }
       throw new Error("AI generation failed");
@@ -411,13 +420,13 @@ INSTRUCTIONS :
     }
 
     return new Response(JSON.stringify({ success: true, document_id: doc.id, content, estimate: estimate ? { final_price: estimate.final_price, duration: `${estimate.duration_weeks_min}-${estimate.duration_weeks_max} semaines` } : null }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
     });
   } catch (e) {
     console.error("generate-document error:", e);
     // Never expose internal error details to clients
     return new Response(JSON.stringify({ error: "An internal error occurred while generating the document. Please try again later." }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
     });
   }
 });

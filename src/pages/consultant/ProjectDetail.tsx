@@ -130,7 +130,7 @@ export default function ConsultantProjectDetail() {
 
   // Update project mutation
   const updateProject = useMutation({
-    mutationFn: async (updates: Record<string, any>) => {
+    mutationFn: async (updates: Record<string, string | number | boolean | null>) => {
       const { error } = await supabase
         .from("projects")
         .update(updates)
@@ -271,7 +271,7 @@ export default function ConsultantProjectDetail() {
 
   const client = project.client as Profile | undefined;
   const status = statusLabels[project.status] || statusLabels.draft;
-  const discoveryData = (project.discovery_data || {}) as Record<string, any>;
+  const discoveryData = (project.discovery_data || {}) as Record<string, Record<string, unknown>>;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -453,7 +453,7 @@ export default function ConsultantProjectDetail() {
                       const phaseNum = i + 1;
                       const isCompleted = phaseNum < (project.current_phase || 1);
                       const isCurrent = phaseNum === (project.current_phase || 1);
-                      const phaseData = discoveryData[`phase${phaseNum}`] || {};
+                      const phaseData: Record<string, unknown> = discoveryData[`phase${phaseNum}`] || {};
                       const dataKeys = Object.keys(phaseData).filter(k => phaseData[k] != null && phaseData[k] !== "");
 
                       return (

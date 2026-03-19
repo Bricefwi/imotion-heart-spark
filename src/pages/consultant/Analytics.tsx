@@ -135,8 +135,8 @@ export default function ConsultantAnalytics() {
             <ResponsiveContainer width="100%" height={280}>
               <PieChart>
                 <Pie data={pipelineData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={3} dataKey="value" label={({ name, value }) => `${name} (${value})`}>
-                  {pipelineData.map((entry, i) => (
-                    <Cell key={i} fill={entry.color} />
+                  {pipelineData.map((entry) => (
+                    <Cell key={entry.name} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip />

@@ -169,8 +169,8 @@ export default function AdminAnalytics() {
             <ResponsiveContainer width="100%" height={280}>
               <PieChart>
                 <Pie data={pipelineDistribution} cx="50%" cy="50%" innerRadius={55} outerRadius={95} paddingAngle={3} dataKey="value" label={({ name, value }) => `${name} (${value})`}>
-                  {pipelineDistribution.map((entry, i) => (
-                    <Cell key={i} fill={entry.color} />
+                  {pipelineDistribution.map((entry) => (
+                    <Cell key={entry.name} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip />
