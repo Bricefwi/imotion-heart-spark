@@ -23,11 +23,11 @@ interface EmailPayload {
   recipientId?: string;
   recipientEmail?: string;
   projectId?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 // Email templates
-function getEmailTemplate(type: EmailType, data: Record<string, any>): { subject: string; html: string } {
+function getEmailTemplate(type: EmailType, data: Record<string, unknown>): { subject: string; html: string } {
   const brandColor = "#d32f2f";
   const accentColor = "#f57c00";
 
@@ -214,7 +214,7 @@ serve(async (req) => {
     }
 
     // Fetch project info if needed
-    let projectData: any = null;
+    let projectData: Record<string, unknown> | null = null;
     if (projectId) {
       const { data } = await supabase.from("projects").select("*").eq("id", projectId).single();
       projectData = data;

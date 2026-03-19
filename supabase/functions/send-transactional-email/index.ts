@@ -26,8 +26,8 @@ const SITE_URL = 'https://imotion-conseils.fr'
 
 // Template registry — add new transactional email templates here
 const TEMPLATES: Record<string, {
-  component: React.ComponentType<any>
-  subject: (data: any) => string
+  component: React.ComponentType<Record<string, unknown>>
+  subject: (data: Record<string, unknown>) => string
 }> = {
   cdc_ready: {
     component: CdcReadyEmail,
@@ -66,7 +66,7 @@ Deno.serve(async (req) => {
 
   const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-  let body: any
+  let body: Record<string, unknown>
   try {
     body = await req.json()
   } catch {
