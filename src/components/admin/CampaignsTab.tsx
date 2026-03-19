@@ -117,8 +117,8 @@ export function CampaignsTab() {
     });
   }
 
-  const totalSent = campaigns.reduce((s, c: Campaign) => s + (c.total_sent || 0), 0);
-  const totalOpened = campaigns.reduce((s, c: Campaign) => s + (c.total_opened || 0), 0);
+  const totalSent = campaigns.reduce((s: number, c) => s + ((c as Record<string, unknown>).total_sent as number || 0), 0);
+  const totalOpened = campaigns.reduce((s: number, c) => s + ((c as Record<string, unknown>).total_opened as number || 0), 0);
 
   return (
     <div className="space-y-4">
