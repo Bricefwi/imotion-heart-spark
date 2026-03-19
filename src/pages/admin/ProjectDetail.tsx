@@ -232,7 +232,7 @@ export default function AdminProjectDetail() {
   // Group tools by category
   const toolsByCategory: Record<string, typeof projectTools> = {};
   for (const tool of projectTools) {
-    const cat = tool.category || "other";
+    const cat = (tool as Record<string, unknown>).category as string || "other";
     if (!toolsByCategory[cat]) toolsByCategory[cat] = [];
     toolsByCategory[cat].push(tool);
   }

@@ -156,7 +156,7 @@ export default function AdminTemplates() {
       is_active: false,
       is_default: false,
       tags: tpl.tags || [],
-      variables: tpl.variables || [],
+      variables: (Array.isArray(tpl.variables) ? tpl.variables : []) as { name: string; description: string; default_value: string; }[],
     });
     setDialogOpen(true);
   };
