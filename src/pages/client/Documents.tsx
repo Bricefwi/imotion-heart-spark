@@ -1,4 +1,5 @@
 import { useState } from "react";
+import DOMPurify from "dompurify";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -84,9 +85,11 @@ export default function ClientDocuments() {
         // Generate PDF from content using html2pdf
         const html2pdf = (await import("html2pdf.js")).default;
         const container = document.createElement("div");
+        const sanitizedName = DOMPurify.sanitize(doc.name);
+        const sanitizedDesc = DOMPurify.sanitize(doc.description ?? "");
         container.innerHTML = `<div style="font-family: Inter, sans-serif; padding: 2rem; max-width: 800px;">
-          <h1 style="font-size: 1.5rem; font-weight: 700; border-bottom: 3px solid #d32f2f; padding-bottom: 0.75rem; margin-bottom: 1.25rem;">${doc.name}</h1>
-          <div style="font-size: 0.875rem; line-height: 1.75; color: #333; white-space: pre-wrap;">${doc.description}</div>
+          <h1 style="font-size: 1.5rem; font-weight: 700; border-bottom: 3px solid #d32f2f; padding-bottom: 0.75rem; margin-bottom: 1.25rem;">${sanitizedName}</h1>
+          <div style="font-size: 0.875rem; line-height: 1.75; color: #333; white-space: pre-wrap;">${sanitizedDesc}</div>
         </div>`;
         const opt = {
           margin: [20, 12, 20, 12] as [number, number, number, number],
