@@ -80,7 +80,7 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
 
     void verify();
     return () => { active = false; };
-  }, [user?.id, requiredRole, hasRequiredRole]);
+  }, [user?.id, requiredRole]);
 
   // 1. Wait for auth context to finish loading
   if (loading) {
