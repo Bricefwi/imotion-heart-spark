@@ -48,8 +48,8 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
   useEffect(() => {
     let active = true;
 
-    // If no required role, or local check already passed, skip server check
-    if (!user || !requiredRole || hasRequiredRole) {
+    // If no required role or no user, skip server check
+    if (!user || !requiredRole) {
       setServerCheck({ checked: true, allowed: false });
       return;
     }

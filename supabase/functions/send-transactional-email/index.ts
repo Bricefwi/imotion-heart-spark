@@ -67,7 +67,17 @@ Deno.serve(async (req) => {
   const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
   // Role check: only admins, consultants, or service_role can send emails
-  const isServiceRole = authHeader.includes(supabaseServiceKey)
+  // Parse JWT claims to check role instead of substring matching the service key
+  function parseJwtClaims(token: string) {
+    const parts = token.split('.');
+    if (parts.length < 2) return null;
+    try {
+      return JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+    } catch { return null; }
+  }
+  const bearerToken = authHeader.replace('Bearer ', '').trim();
+  const jwtClaims = parseJwtClaims(bearerToken);
+  const isServiceRole = jwtClaims?.role === 'service_role';
   if (!isServiceRole) {
     const anonClient = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!, {
       global: { headers: { Authorization: authHeader } },

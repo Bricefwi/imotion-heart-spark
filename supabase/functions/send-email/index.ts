@@ -185,7 +185,17 @@ serve(async (req) => {
     }
 
     // Role check: only admins, consultants, or service_role can send emails
-    const isServiceRole = authHeader?.includes(supabaseServiceKey);
+    // Parse JWT claims to check role instead of substring matching the service key
+    function parseJwtClaims(token: string) {
+      const parts = token.split('.');
+      if (parts.length < 2) return null;
+      try {
+        return JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+      } catch { return null; }
+    }
+    const bearerToken = authHeader?.replace('Bearer ', '').trim() || '';
+    const claims = parseJwtClaims(bearerToken);
+    const isServiceRole = claims?.role === 'service_role';
     if (!isServiceRole && callerUserId) {
       const { data: roles } = await supabase
         .from("user_roles")
