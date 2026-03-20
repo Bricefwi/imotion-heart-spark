@@ -10,18 +10,23 @@ export function CTASection() {
   return (
     <section className="py-20 md:py-28">
       <div className="container">
-        <div className="gradient-primary rounded-3xl p-10 md:p-16 text-primary-foreground relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent)]" />
+        <div className="relative rounded-3xl p-10 md:p-16 overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
+          {/* Gradient orbs */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-secondary/15 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.06),transparent)]" />
+          {/* Grid pattern */}
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:48px_48px]" />
 
           <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div className="text-center lg:text-left">
-              <h2 className="font-display text-3xl md:text-5xl font-extrabold mb-4">
+              <h2 className="text-3xl md:text-5xl font-extrabold mb-4 tracking-tight">
                 {t("cta.title")}
               </h2>
-              <p className="text-primary-foreground/80 text-lg mb-8 max-w-xl">
+              <p className="text-white/50 text-lg mb-8 max-w-xl leading-relaxed">
                 {t("cta.subtitle")}
               </p>
-              <Button asChild size="lg" variant="secondary" className="bg-background text-primary hover:bg-background/90 text-base h-12 px-8">
+              <Button asChild size="lg" className="bg-white text-slate-900 hover:bg-white/90 text-base h-13 px-8 shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-300 border-0">
                 <Link to="/register">
                   {t("cta.button")} <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
