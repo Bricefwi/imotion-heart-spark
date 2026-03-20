@@ -59,7 +59,7 @@ export default function DocumentViewer() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("projects")
-        .select("*, client:profiles!projects_client_id_fkey(full_name, company_name)")
+        .select("id, name, code, slug, status, current_phase, overall_progress, client_id, consultant_id, created_at, updated_at, client:profiles!projects_client_id_fkey(full_name, company_name)")
         .eq("id", document!.project_id)
         .single();
       if (error) throw error;
