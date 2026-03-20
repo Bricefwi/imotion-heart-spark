@@ -1,8 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SEOHead } from "@/components/SEOHead";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +11,8 @@ import { AuthPhotoCarousel } from "@/components/AuthPhotoCarousel";
 import { toast } from "sonner";
 import { Loader2, ShieldCheck, X, Check } from "lucide-react";
 import { z } from "zod";
+import { useAuth } from "@/hooks/useAuth";
+import { startGoogleOAuth } from "@/lib/google-auth";
 
 const passwordSchema = z
   .string()
@@ -72,6 +73,7 @@ function PasswordStrength({ password }: { password: string }) {
 
 export default function Register() {
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -84,6 +86,11 @@ export default function Register() {
     setForm({ ...form, [key]: value });
     setErrors((prev) => ({ ...prev, [key]: "" }));
   };
+
+  useEffect(() => {
+    if (authLoading || !user) return;
+    navigate("/client/dashboard", { replace: true });
+  }, [authLoading, navigate, user]);
 
   const validateStep1 = () => {
     const newErrors: Record<string, string> = {};
@@ -128,12 +135,13 @@ export default function Register() {
   };
 
   const handleGoogleSignUp = async () => {
-    setGoogleLoading(true);
-    const { error } = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-    });
-    if (error) {
-      toast.error("Erreur lors de l'inscription Google.");
+    try {
+      setGoogleLoading(true);
+      await startGoogleOAuth({
+        authPagePath: `/login?next=${encodeURIComponent("/client/dashboard")}`,
+      });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Erreur lors de l'inscription Google.");
       setGoogleLoading(false);
     }
   };
