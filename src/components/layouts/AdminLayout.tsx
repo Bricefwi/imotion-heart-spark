@@ -118,9 +118,9 @@ function NotificationDropdown({ unreadCount }: { unreadCount: number }) {
   });
 
   const typeStyles: Record<string, string> = {
-    info: "bg-blue-500/10 text-blue-600",
-    success: "bg-emerald-500/10 text-emerald-600",
-    warning: "bg-amber-500/10 text-amber-600",
+    info: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+    success: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+    warning: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
     error: "bg-destructive/10 text-destructive",
     document: "bg-primary/10 text-primary",
     project: "bg-secondary/10 text-secondary",
@@ -129,17 +129,17 @@ function NotificationDropdown({ unreadCount }: { unreadCount: number }) {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-lg text-muted-foreground hover:text-foreground">
+        <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-[var(--radius-md)] text-muted-foreground hover:text-foreground">
           <Bell className="h-4 w-4" />
           {unreadCount > 0 && (
-            <span className="absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground animate-pulse">
+            <span className="absolute -top-0.5 -right-0.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground shadow-glow animate-pulse-dot">
               {unreadCount > 99 ? "99+" : unreadCount}
             </span>
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-96 p-0" align="end" sideOffset={8}>
-        <div className="flex items-center justify-between px-4 py-3 border-b">
+      <PopoverContent className="w-96 p-0 rounded-[var(--radius-lg)] shadow-xl border-border/50" align="end" sideOffset={8}>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
           <h3 className="font-semibold text-sm">Notifications</h3>
           {unreadCount > 0 && (
             <Button
@@ -162,12 +162,12 @@ function NotificationDropdown({ unreadCount }: { unreadCount: number }) {
               <p className="text-sm">Aucune notification</p>
             </div>
           ) : (
-            <div className="divide-y">
+            <div className="divide-y divide-border/40">
               {notifications.map((notif) => (
                 <div
                   key={notif.id}
-                  className={`flex items-start gap-3 px-4 py-3 transition-colors hover:bg-muted/50 cursor-pointer ${
-                    !notif.is_read ? "bg-primary/5" : ""
+                  className={`flex items-start gap-3 px-4 py-3 transition-colors duration-150 hover:bg-muted/50 cursor-pointer ${
+                    !notif.is_read ? "bg-primary/[0.03]" : ""
                   }`}
                   onClick={() => {
                     if (!notif.is_read) markAsRead.mutate(notif.id);
@@ -186,13 +186,13 @@ function NotificationDropdown({ unreadCount }: { unreadCount: number }) {
                         {notif.title}
                       </p>
                       {!notif.is_read && (
-                        <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary" />
+                        <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary animate-pulse-dot" />
                       )}
                     </div>
                     {notif.body && (
                       <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{notif.body}</p>
                     )}
-                    <p className="text-[11px] text-muted-foreground/60 mt-1">
+                    <p className="text-[11px] text-muted-foreground/50 mt-1">
                       {notif.created_at
                         ? formatDistanceToNow(new Date(notif.created_at), { addSuffix: true, locale: fr })
                         : ""}
@@ -235,27 +235,29 @@ function AdminSidebar() {
   const { data: unreadCount = 0 } = useUnreadNotifications();
 
   return (
-    <Sidebar collapsible="icon" className="border-r-0">
-      <div className="p-4">
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border/50">
+      {/* Logo with premium spacing */}
+      <div className="px-4 py-5">
         <Logo size="sm" showText={!collapsed} />
       </div>
-      <SidebarContent>
+
+      <SidebarContent className="px-2">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-sidebar-foreground/40 uppercase text-[10px] tracking-wider">
-            {!collapsed && <><Shield className="inline h-3 w-3 mr-1" />Administration</>}
+          <SidebarGroupLabel className="text-sidebar-foreground/30 uppercase text-[10px] tracking-[0.1em] px-3 mb-1">
+            {!collapsed && <><Shield className="inline h-3 w-3 mr-1.5 opacity-50" />Administration</>}
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-0.5">
               {adminNav.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200"
-                      activeClassName="bg-primary/15 text-sidebar-primary font-semibold shadow-[inset_3px_0_0_0_hsl(var(--sidebar-primary))] !text-sidebar-primary"
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-all duration-200"
+                      activeClassName="!bg-[hsl(var(--sidebar-primary)/0.12)] !text-[hsl(var(--sidebar-primary))] font-semibold shadow-[inset_3px_0_0_0_hsl(var(--sidebar-primary))]"
                     >
-                      <item.icon className="h-5 w-5 shrink-0" />
-                      {!collapsed && <span>{item.title}</span>}
+                      <item.icon className="h-[18px] w-[18px] shrink-0" />
+                      {!collapsed && <span className="text-[13px]">{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -266,24 +268,24 @@ function AdminSidebar() {
 
         {/* Quick links */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-sidebar-foreground/40 uppercase text-[10px] tracking-wider">
+          <SidebarGroupLabel className="text-sidebar-foreground/30 uppercase text-[10px] tracking-[0.1em] px-3 mb-1">
             {!collapsed && "Navigation"}
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-0.5">
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/" className="flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
-                    <Globe className="h-5 w-5 shrink-0" />
-                    {!collapsed && <span>Voir le site</span>}
+                  <Link to="/" className="flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] text-sidebar-foreground/50 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-all duration-200">
+                    <Globe className="h-[18px] w-[18px] shrink-0" />
+                    {!collapsed && <span className="text-[13px]">Voir le site</span>}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/client/dashboard" className="flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
-                    <ExternalLink className="h-5 w-5 shrink-0" />
-                    {!collapsed && <span>Espace client</span>}
+                  <Link to="/client/dashboard" className="flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] text-sidebar-foreground/50 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-all duration-200">
+                    <ExternalLink className="h-[18px] w-[18px] shrink-0" />
+                    {!collapsed && <span className="text-[13px]">Espace client</span>}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -291,29 +293,31 @@ function AdminSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <div className="mt-auto p-4 border-t border-sidebar-border">
+
+      {/* User footer */}
+      <div className="mt-auto p-4 border-t border-sidebar-border/50">
         {!collapsed && (
           <div className="flex items-center gap-3 mb-3">
             <div className="relative">
-              <Avatar className="h-8 w-8">
+              <Avatar className="h-9 w-9 ring-2 ring-sidebar-primary/20 ring-offset-2 ring-offset-sidebar">
                 <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.full_name || ""} />
-                <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-xs font-semibold">
                   {profile?.full_name?.charAt(0) || "A"}
                 </AvatarFallback>
               </Avatar>
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">
+                <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground shadow-sm">
                   {unreadCount > 99 ? "99+" : unreadCount}
                 </span>
               )}
             </div>
             <div className="min-w-0">
               <p className="text-sm font-medium text-sidebar-foreground truncate">{profile?.full_name || "Admin"}</p>
-              <p className="text-xs text-sidebar-foreground/50">Administrateur</p>
+              <p className="text-[11px] text-sidebar-foreground/40">Administrateur</p>
             </div>
           </div>
         )}
-        <Button variant="ghost" size="sm" onClick={signOut} className="w-full justify-start text-sidebar-foreground/60">
+        <Button variant="ghost" size="sm" onClick={signOut} className="w-full justify-start text-sidebar-foreground/50 hover:text-red-400 hover:bg-red-500/10 rounded-[var(--radius-md)] transition-all duration-200">
           <LogOut className="h-4 w-4 mr-2" /> {!collapsed && "Déconnexion"}
         </Button>
       </div>
@@ -362,16 +366,16 @@ function BreadcrumbNavigation() {
 
   return (
     <Breadcrumb>
-      <BreadcrumbList>
+      <BreadcrumbList className="text-[13px]">
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
-            <Link to="/admin/dashboard" className="flex items-center gap-1">
+            <Link to="/admin/dashboard" className="flex items-center gap-1.5 text-muted-foreground/60 hover:text-foreground transition-colors duration-150">
               <Home className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Admin</span>
             </Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
-        {breadcrumbItems.length > 0 && <BreadcrumbSeparator />}
+        {breadcrumbItems.length > 0 && <BreadcrumbSeparator className="text-muted-foreground/30" />}
         {breadcrumbItems.map((item, index) => (
           <BreadcrumbItem key={item.path}>
             {item.isLast ? (
@@ -381,9 +385,9 @@ function BreadcrumbNavigation() {
             ) : (
               <>
                 <BreadcrumbLink asChild>
-                  <Link to={item.path}>{item.label}</Link>
+                  <Link to={item.path} className="text-muted-foreground/60 hover:text-foreground transition-colors duration-150">{item.label}</Link>
                 </BreadcrumbLink>
-                {index < breadcrumbItems.length - 1 && <BreadcrumbSeparator />}
+                {index < breadcrumbItems.length - 1 && <BreadcrumbSeparator className="text-muted-foreground/30" />}
               </>
             )}
           </BreadcrumbItem>
@@ -402,8 +406,9 @@ export function AdminLayout() {
       <div className="min-h-screen flex w-full">
         <AdminSidebar />
         <div className="flex-1 flex flex-col">
-          <header className="h-14 flex items-center gap-4 border-b px-4 bg-background">
-            <SidebarTrigger />
+          {/* Premium Header — 64px, backdrop-blur on scroll */}
+          <header className="h-16 flex items-center gap-4 border-b border-border/40 px-5 bg-background/80 backdrop-blur-xl sticky top-0 z-10 transition-all duration-200">
+            <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
 
             {/* Breadcrumb contextuel */}
             <div className="hidden sm:flex items-center">
@@ -416,19 +421,19 @@ export function AdminLayout() {
                 <NavLink
                   key={item.url}
                   to={item.url}
-                  className="whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted transition-all duration-200"
-                  activeClassName="bg-primary/10 text-primary font-semibold shadow-sm"
+                  className="whitespace-nowrap rounded-[var(--radius-md)] px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted transition-all duration-200"
+                  activeClassName="bg-primary/10 text-primary font-semibold"
                 >
                   {item.title}
                 </NavLink>
               ))}
             </div>
 
-            <div className="ml-auto flex items-center gap-2">
+            <div className="ml-auto flex items-center gap-1.5">
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 rounded-lg text-muted-foreground hover:text-foreground"
+                className="h-9 w-9 rounded-[var(--radius-md)] text-muted-foreground hover:text-foreground"
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               >
                 <Sun className="h-4 w-4 rotate-0 scale-100 transition-transform dark:-rotate-90 dark:scale-0" />
@@ -436,7 +441,7 @@ export function AdminLayout() {
                 <span className="sr-only">Basculer le theme</span>
               </Button>
               <NotificationDropdown unreadCount={unreadCount} />
-              <Button asChild variant="outline" size="sm" className="shrink-0 gap-2 rounded-lg border-primary/20 text-primary hover:bg-primary/10 hover:text-primary">
+              <Button asChild variant="outline" size="sm" className="shrink-0 gap-2 rounded-[var(--radius-md)] border-primary/15 text-primary hover:bg-primary/8 hover:text-primary hover:border-primary/25 transition-all duration-200">
                 <Link to="/">
                   <Globe className="h-3.5 w-3.5" />
                   <span className="hidden sm:inline">Retour au site</span>
@@ -444,12 +449,15 @@ export function AdminLayout() {
               </Button>
             </div>
           </header>
-          <main className="flex-1 p-6 bg-muted/30">
-            <Outlet />
+
+          {/* Main content with page transition */}
+          <main className="flex-1 p-6 bg-muted/20">
+            <div className="page-enter">
+              <Outlet />
+            </div>
           </main>
         </div>
       </div>
     </SidebarProvider>
   );
 }
-
