@@ -50,13 +50,33 @@ export default function AdminDashboard() {
   const totalPipeline = projects.reduce((sum, p) => sum + (p.estimated_budget_max || 0), 0);
   const totalMessages = projects.reduce((sum, p) => sum + (p.total_messages || 0), 0);
 
+  const statusColors: Record<string, string> = {
+    draft: "muted",
+    discovery_active: "info",
+    discovery_completed: "info",
+    cdc_ready: "warning",
+    cdc_generated: "warning",
+    proposal_sent: "warning",
+    proposal_accepted: "success",
+    signed: "success",
+    in_development: "default",
+    delivered: "success",
+    archived: "muted",
+  };
+
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="font-display text-2xl md:text-3xl font-bold">Administration</h1>
-        <p className="text-muted-foreground text-sm mt-1">Vue d'ensemble du système</p>
+    <div className="space-y-8">
+      {/* Hero header with gradient glow */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8 text-white">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-secondary/10" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
+        <div className="relative z-10">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Administration</h1>
+          <p className="text-white/60 mt-2 text-sm max-w-md">Vue d'ensemble du système et pilotage de la plateforme.</p>
+        </div>
       </div>
 
+      {/* Stats grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCard label="Utilisateurs" value={profiles.length} icon={Users} />
         <StatsCard label="Projets actifs" value={activeProjects.length} icon={FolderKanban} />
@@ -66,24 +86,43 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent projects */}
-        <Card className="border-0 shadow-sm">
-          <CardHeader className="flex-row items-center justify-between pb-3">
-            <CardTitle className="font-display text-base">Projets récents</CardTitle>
-            <Button variant="ghost" size="sm" asChild>
+        <Card className="border border-border/40 shadow-sm overflow-hidden">
+          <CardHeader className="flex-row items-center justify-between pb-3 bg-gradient-to-r from-muted/40 to-transparent">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                <FolderKanban className="h-3.5 w-3.5 text-primary" />
+              </div>
+              Projets récents
+            </CardTitle>
+            <Button variant="ghost" size="sm" asChild className="text-xs">
               <Link to="/consultant/projects">Voir tous</Link>
             </Button>
           </CardHeader>
-          <CardContent className="space-y-3">
-            {projects.slice(0, 5).map((project) => (
-              <div key={project.id} className="flex items-center justify-between py-2 border-b last:border-0">
-                <div>
-                  <p className="text-sm font-medium">{project.name}</p>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-xs text-muted-foreground">{project.code}</span>
-                    <Badge variant="outline" className="text-[10px]">{project.status}</Badge>
+          <CardContent className="space-y-1 p-3">
+            {projects.slice(0, 5).map((project, i) => (
+              <div
+                key={project.id}
+                className="flex items-center justify-between p-3 rounded-xl hover:bg-muted/40 transition-all duration-200 group"
+                style={{ animationDelay: `${i * 50}ms` }}
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-200">
+                    <span className="text-xs font-bold text-primary">{project.name?.charAt(0) || "P"}</span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium truncate">{project.name}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-[11px] text-muted-foreground font-mono">{project.code}</span>
+                      <Badge
+                        variant={(statusColors[project.status] as "default" | "success" | "warning" | "info" | "muted" | "destructive") || "outline"}
+                        className="text-[10px] h-5"
+                      >
+                        {project.status}
+                      </Badge>
+                    </div>
                   </div>
                 </div>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-[11px] text-muted-foreground/60 shrink-0 ml-2">
                   {project.created_at && formatDistanceToNow(new Date(project.created_at), { addSuffix: true, locale: fr })}
                 </span>
               </div>
@@ -92,21 +131,36 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Activity feed */}
-        <Card className="border-0 shadow-sm">
-          <CardHeader className="pb-3">
-            <CardTitle className="font-display text-base">Activité récente</CardTitle>
+        <Card className="border border-border/40 shadow-sm overflow-hidden">
+          <CardHeader className="pb-3 bg-gradient-to-r from-muted/40 to-transparent">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <div className="h-7 w-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                <Activity className="h-3.5 w-3.5 text-blue-500" />
+              </div>
+              Activité récente
+            </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="space-y-1 p-3">
             {recentActivities.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Aucune activité.</p>
+              <p className="text-sm text-muted-foreground py-8 text-center">Aucune activité.</p>
             ) : (
-              recentActivities.map((activity) => (
-                <div key={activity.id} className="flex items-start gap-3 py-1">
-                  <div className="h-2 w-2 rounded-full bg-primary mt-2 shrink-0" />
-                  <div>
-                    <p className="text-sm">{activity.description || activity.action}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {(activity as unknown as ActivityType).profile?.full_name || "Système"} · {activity.created_at && formatDistanceToNow(new Date(activity.created_at), { addSuffix: true, locale: fr })}
+              recentActivities.map((activity, i) => (
+                <div
+                  key={activity.id}
+                  className="flex items-start gap-3 p-3 rounded-xl hover:bg-muted/40 transition-all duration-200"
+                  style={{ animationDelay: `${i * 50}ms` }}
+                >
+                  <div className="relative mt-0.5">
+                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center">
+                      <div className="h-2 w-2 rounded-full bg-primary" />
+                    </div>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm leading-snug">{activity.description || activity.action}</p>
+                    <p className="text-[11px] text-muted-foreground/60 mt-1">
+                      <span className="font-medium text-muted-foreground/80">{(activity as unknown as ActivityType).profile?.full_name || "Système"}</span>
+                      {" · "}
+                      {activity.created_at && formatDistanceToNow(new Date(activity.created_at), { addSuffix: true, locale: fr })}
                     </p>
                   </div>
                 </div>

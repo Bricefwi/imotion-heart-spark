@@ -20,24 +20,24 @@ export function StatsSection() {
   ];
 
   return (
-    <section className="py-14 border-y bg-muted/30 relative overflow-hidden">
+    <section className="py-16 border-y border-border/30 bg-gradient-to-b from-muted/40 to-background relative overflow-hidden">
       <img
         src={statsWave}
         alt=""
-        className="absolute inset-0 w-full h-full object-cover opacity-[0.06] pointer-events-none"
+        className="absolute inset-0 w-full h-full object-cover opacity-[0.04] pointer-events-none"
       />
 
       <div className="container relative">
-        <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
+        <div className="grid grid-cols-3 gap-8 max-w-3xl mx-auto">
           {stats.map((stat, i) => (
             <motion.div
               key={stat.label}
               initial="hidden" whileInView="visible" viewport={{ once: true }}
               variants={fadeUp} custom={i}
-              className="text-center"
+              className="text-center group"
             >
-              <div className="font-display text-3xl md:text-4xl font-extrabold gradient-text">{stat.value}</div>
-              <div className="text-sm text-muted-foreground mt-1">{stat.label}</div>
+              <div className="text-4xl md:text-5xl font-black gradient-text tracking-tight">{stat.value}</div>
+              <div className="text-sm text-muted-foreground/60 mt-2 font-medium">{stat.label}</div>
             </motion.div>
           ))}
         </div>

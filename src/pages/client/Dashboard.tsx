@@ -172,19 +172,24 @@ export default function ClientDashboard() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Welcome */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="font-display text-2xl md:text-3xl font-bold">
-            Bonjour {profile?.full_name?.split(" ")[0] || ""}
-          </h1>
-          <p className="text-muted-foreground mt-1">Voici un aperçu de votre espace.</p>
+      {/* Welcome hero */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 sm:p-8 text-white">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-secondary/10" />
+        <div className="absolute top-0 right-0 w-72 h-72 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-secondary/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+              Bonjour {profile?.full_name?.split(" ")[0] || ""}
+            </h1>
+            <p className="text-white/50 mt-1 text-sm">Voici un aperçu de votre espace.</p>
+          </div>
+          <Button asChild className="bg-white text-slate-900 hover:bg-white/90 shadow-lg hover:shadow-xl transition-all duration-300 border-0">
+            <Link to="/client/projects/new">
+              <Plus className="mr-2 h-4 w-4" /> Nouveau projet
+            </Link>
+          </Button>
         </div>
-        <Button asChild className="gradient-primary border-0">
-          <Link to="/client/projects/new">
-            <Plus className="mr-2 h-4 w-4" /> Nouveau projet
-          </Link>
-        </Button>
       </div>
 
       {/* Stats */}
@@ -201,13 +206,13 @@ export default function ClientDashboard() {
         <div className="lg:col-span-2 space-y-6">
           {/* Current project with phase progress */}
           {currentProject ? (
-            <Card className="border-0 shadow-sm">
-              <CardHeader className="pb-3">
+            <Card className="border border-border/40 shadow-sm overflow-hidden">
+              <CardHeader className="pb-3 bg-gradient-to-r from-primary/[0.04] to-transparent">
                 <div className="flex items-center justify-between">
-                  <Badge className="gradient-primary border-0 text-[11px]">En cours</Badge>
-                  <span className="text-xs text-muted-foreground">{currentProject.code}</span>
+                  <Badge className="gradient-primary border-0 text-[11px] shadow-sm">En cours</Badge>
+                  <span className="text-xs text-muted-foreground font-mono">{currentProject.code}</span>
                 </div>
-                <CardTitle className="font-display text-xl">{currentProject.name}</CardTitle>
+                <CardTitle className="text-xl font-bold tracking-tight">{currentProject.name}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <PhaseProgress
@@ -241,7 +246,7 @@ export default function ClientDashboard() {
               </CardFooter>
             </Card>
           ) : (
-            <Card className="border-0 shadow-sm">
+            <Card className="border border-border/40 shadow-sm">
               <CardContent className="p-8 text-center">
                 <FolderKanban className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                 <h3 className="font-display font-semibold text-lg mb-2">Aucun projet en cours</h3>
@@ -259,7 +264,7 @@ export default function ClientDashboard() {
 
           {/* Project milestones / pipeline */}
           {currentProject && (
-            <Card className="border-0 shadow-sm">
+            <Card className="border border-border/40 shadow-sm">
               <CardHeader className="pb-3">
                 <CardTitle className="font-display text-base">Suivi avancement</CardTitle>
               </CardHeader>
@@ -307,7 +312,7 @@ export default function ClientDashboard() {
           )}
 
           {/* Recent conversations with Marc */}
-          <Card className="border-0 shadow-sm">
+          <Card className="border border-border/40 shadow-sm">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="font-display text-base">Conversations avec Marc</CardTitle>
@@ -370,7 +375,7 @@ export default function ClientDashboard() {
         {/* Right column */}
         <div className="space-y-6">
           {/* Documents récents with download */}
-          <Card className="border-0 shadow-sm">
+          <Card className="border border-border/40 shadow-sm">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="font-display text-base">Documents récents</CardTitle>
@@ -436,7 +441,7 @@ export default function ClientDashboard() {
           </Card>
 
           {/* Recent activity */}
-          <Card className="border-0 shadow-sm">
+          <Card className="border border-border/40 shadow-sm">
             <CardHeader className="pb-3">
               <CardTitle className="font-display text-base">Activité récente</CardTitle>
             </CardHeader>
