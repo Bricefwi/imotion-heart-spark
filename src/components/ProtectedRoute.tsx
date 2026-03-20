@@ -48,8 +48,8 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
   useEffect(() => {
     let active = true;
 
-    // If no required role, or local check already passed, skip server check
-    if (!user || !requiredRole || hasRequiredRole) {
+    // If no required role or no user, skip server check
+    if (!user || !requiredRole) {
       setServerCheck({ checked: true, allowed: false });
       return;
     }
@@ -80,7 +80,7 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
 
     void verify();
     return () => { active = false; };
-  }, [user?.id, requiredRole, hasRequiredRole]);
+  }, [user?.id, requiredRole]);
 
   // 1. Wait for auth context to finish loading
   if (loading) {
