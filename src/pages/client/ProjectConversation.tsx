@@ -42,7 +42,7 @@ export default function ProjectConversation() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("projects")
-        .select("*")
+        .select("id, name, code, slug, status, current_phase, overall_progress, phase_progress, client_id, created_at, updated_at")
         .eq("id", projectId!)
         .single();
       if (error) throw error;

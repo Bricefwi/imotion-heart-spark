@@ -52,7 +52,7 @@ export default function ClientDashboard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("projects")
-        .select("*")
+        .select("id, name, code, slug, status, current_phase, overall_progress, phase_progress, client_id, consultant_id, created_at, updated_at, last_activity_at, total_messages, total_sessions, total_conversation_time, discovery_data, estimated_budget_min, estimated_budget_max, proposal_amount, contract_amount, currency, priority, tags, qualification_score, qualification_flags, desired_deadline, estimated_start_date, estimated_end_date, completed_at, signed_at")
         .eq("client_id", user!.id)
         .order("last_activity_at", { ascending: false, nullsFirst: false });
       if (error) throw error;

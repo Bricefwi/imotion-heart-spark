@@ -44,7 +44,7 @@ export default function ClientProjects() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("projects")
-        .select("*")
+        .select("id, name, code, slug, status, current_phase, overall_progress, phase_progress, client_id, created_at, updated_at, last_activity_at, total_messages, total_sessions, priority, tags")
         .eq("client_id", user!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
