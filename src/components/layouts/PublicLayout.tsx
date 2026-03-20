@@ -36,20 +36,20 @@ export function PublicLayout() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="sticky top-0 z-50 glass">
+      {/* Premium Header — glass effect, 64px, backdrop-blur */}
+      <header className="sticky top-0 z-50 glass border-b border-border/30">
         <div className="container flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center">
             <Logo size="md" />
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                className="px-3 py-2 text-sm font-medium text-muted-foreground/80 hover:text-foreground rounded-[var(--radius-md)] hover:bg-muted/50 transition-all duration-200"
               >
                 {link.label}
               </Link>
@@ -57,13 +57,13 @@ export function PublicLayout() {
 
             {/* Légal dropdown */}
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors outline-none">
+              <DropdownMenuTrigger className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-muted-foreground/80 hover:text-foreground rounded-[var(--radius-md)] hover:bg-muted/50 transition-all duration-200 outline-none">
                 {t("nav.legal")}
                 <ChevronDown className="h-3.5 w-3.5" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="min-w-[180px]">
+              <DropdownMenuContent align="end" className="min-w-[180px] rounded-[var(--radius-lg)] shadow-lg border-border/50">
                 {legalLinks.map((link) => (
-                  <DropdownMenuItem key={link.to} asChild>
+                  <DropdownMenuItem key={link.to} asChild className="rounded-[var(--radius-sm)]">
                     <Link to={link.to} className="w-full">
                       {link.label}
                     </Link>
@@ -73,48 +73,48 @@ export function PublicLayout() {
             </DropdownMenu>
           </nav>
 
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-2">
             <LanguageSelector />
             {user ? (
-              <div className="flex items-center gap-3">
-                <Button asChild variant="ghost" size="sm">
+              <div className="flex items-center gap-2">
+                <Button asChild variant="ghost" size="sm" className="rounded-[var(--radius-md)]">
                   <Link to={roles.includes("admin") ? "/admin/dashboard" : roles.includes("consultant") ? "/consultant/dashboard" : "/client/dashboard"}>
                     {t("nav.mySpace")}
                   </Link>
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="flex items-center gap-2 rounded-full hover:ring-2 hover:ring-primary/20 transition-all">
-                      <Avatar className="h-9 w-9 border-2 border-primary/20">
+                    <button className="flex items-center gap-2 rounded-full hover:ring-2 hover:ring-primary/20 transition-all duration-200 p-0.5">
+                      <Avatar className="h-9 w-9 ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
                         <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.full_name || ""} />
-                        <AvatarFallback className="gradient-primary text-white text-xs font-bold">
+                        <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-xs font-bold">
                           {(profile?.full_name || user.email || "U").charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <span className="text-sm font-medium max-w-[120px] truncate">{profile?.full_name || user.email}</span>
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-52">
-                    <DropdownMenuItem asChild>
+                  <DropdownMenuContent align="end" className="w-52 rounded-[var(--radius-lg)] shadow-lg border-border/50">
+                    <DropdownMenuItem asChild className="rounded-[var(--radius-sm)]">
                       <Link to="/client/dashboard" className="flex items-center gap-2">
                         {t("nav.mySpace")}
                       </Link>
                     </DropdownMenuItem>
                     {roles.includes("consultant") && (
-                      <DropdownMenuItem asChild>
+                      <DropdownMenuItem asChild className="rounded-[var(--radius-sm)]">
                         <Link to="/consultant/dashboard" className="flex items-center gap-2">
                           {t("nav.consultantSpace")}
                         </Link>
                       </DropdownMenuItem>
                     )}
                     {roles.includes("admin") && (
-                      <DropdownMenuItem asChild>
+                      <DropdownMenuItem asChild className="rounded-[var(--radius-sm)]">
                         <Link to="/admin/dashboard" className="flex items-center gap-2 text-primary font-medium">
                           {t("nav.admin")}
                         </Link>
                       </DropdownMenuItem>
                     )}
-                    <DropdownMenuItem onClick={signOut} className="text-destructive">
+                    <DropdownMenuItem onClick={signOut} className="text-destructive rounded-[var(--radius-sm)]">
                       <LogOut className="h-4 w-4 mr-2" /> {t("nav.logout")}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -122,10 +122,10 @@ export function PublicLayout() {
               </div>
             ) : (
               <>
-                <Button variant="ghost" asChild>
+                <Button variant="ghost" asChild className="rounded-[var(--radius-md)]">
                   <Link to="/login">{t("nav.login")}</Link>
                 </Button>
-                <Button asChild className="gradient-primary border-0 shadow-lg hover:shadow-xl transition-shadow">
+                <Button asChild className="gradient-primary border-0 shadow-glow hover:shadow-glow-lg transition-all duration-300">
                   <Link to="/register">{t("nav.register")}</Link>
                 </Button>
               </>
@@ -135,33 +135,33 @@ export function PublicLayout() {
           {/* Mobile toggle */}
           <div className="flex md:hidden items-center gap-2">
             <LanguageSelector />
-            <button onClick={() => setMobileOpen(!mobileOpen)}>
-              {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2 rounded-[var(--radius-md)] hover:bg-muted/50 transition-colors">
+              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
 
         {/* Mobile menu */}
         {mobileOpen && (
-          <div className="md:hidden border-t bg-background p-4 space-y-3 animate-fade-in">
+          <div className="md:hidden border-t border-border/30 bg-background/95 backdrop-blur-xl p-4 space-y-1 animate-fade-in">
             {navLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
-                className="block text-sm font-medium py-2"
+                className="block text-sm font-medium py-2.5 px-3 rounded-[var(--radius-md)] hover:bg-muted/50 transition-colors"
                 onClick={() => setMobileOpen(false)}
               >
                 {link.label}
               </Link>
             ))}
             {/* Legal links on mobile */}
-            <div className="border-t pt-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">{t("nav.legal")}</p>
+            <div className="border-t border-border/30 pt-3 mt-2">
+              <p className="section-header px-3 mb-2">{t("nav.legal")}</p>
               {legalLinks.map((link) => (
                 <Link
                   key={link.to}
                   to={link.to}
-                  className="block text-sm font-medium py-1.5 text-muted-foreground"
+                  className="block text-sm font-medium py-2 px-3 rounded-[var(--radius-md)] text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
                   onClick={() => setMobileOpen(false)}
                 >
                   {link.label}
@@ -169,34 +169,34 @@ export function PublicLayout() {
               ))}
             </div>
             {user ? (
-              <div className="space-y-2 pt-2 border-t">
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-8 w-8">
+              <div className="space-y-1 pt-3 border-t border-border/30">
+                <div className="flex items-center gap-3 px-3 py-2">
+                  <Avatar className="h-8 w-8 ring-2 ring-primary/20">
                     <AvatarImage src={profile?.avatar_url || undefined} />
-                    <AvatarFallback className="gradient-primary text-white text-xs">{(profile?.full_name || "U").charAt(0)}</AvatarFallback>
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-xs">{(profile?.full_name || "U").charAt(0)}</AvatarFallback>
                   </Avatar>
                   <span className="text-sm font-medium">{profile?.full_name || user.email}</span>
                 </div>
-                <Link to="/client/dashboard" className="block text-sm py-2 font-medium" onClick={() => setMobileOpen(false)}>
+                <Link to="/client/dashboard" className="block text-sm py-2.5 px-3 rounded-[var(--radius-md)] font-medium hover:bg-muted/50" onClick={() => setMobileOpen(false)}>
                   {t("nav.mySpace")}
                 </Link>
                 {roles.includes("consultant") && (
-                  <Link to="/consultant/dashboard" className="block text-sm py-2 font-medium" onClick={() => setMobileOpen(false)}>
+                  <Link to="/consultant/dashboard" className="block text-sm py-2.5 px-3 rounded-[var(--radius-md)] font-medium hover:bg-muted/50" onClick={() => setMobileOpen(false)}>
                     {t("nav.consultantSpace")}
                   </Link>
                 )}
                 {roles.includes("admin") && (
-                  <Link to="/admin/dashboard" className="block text-sm py-2 font-medium text-primary" onClick={() => setMobileOpen(false)}>
+                  <Link to="/admin/dashboard" className="block text-sm py-2.5 px-3 rounded-[var(--radius-md)] font-medium text-primary hover:bg-primary/5" onClick={() => setMobileOpen(false)}>
                     {t("nav.admin")}
                   </Link>
                 )}
-                <button onClick={signOut} className="block text-sm py-2 text-destructive">
+                <button onClick={signOut} className="block w-full text-left text-sm py-2.5 px-3 rounded-[var(--radius-md)] text-destructive hover:bg-destructive/5">
                   {t("nav.logout")}
                 </button>
               </div>
             ) : (
-              <div className="flex flex-col gap-2 pt-2">
-                <Button variant="outline" asChild><Link to="/login">{t("nav.login")}</Link></Button>
+              <div className="flex flex-col gap-2 pt-3 px-3">
+                <Button variant="outline" asChild className="rounded-[var(--radius-md)]"><Link to="/login">{t("nav.login")}</Link></Button>
                 <Button asChild className="gradient-primary border-0"><Link to="/register">{t("nav.register")}</Link></Button>
               </div>
             )}
@@ -210,44 +210,44 @@ export function PublicLayout() {
 
       <FloatingChatAgent />
 
-      {/* Footer */}
-      <footer className="border-t bg-muted/30">
-        <div className="container py-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="space-y-3">
+      {/* Premium Footer */}
+      <footer className="border-t border-border/30 bg-muted/20">
+        <div className="container py-14">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+            <div className="space-y-4">
               <Logo size="sm" />
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground/70 leading-relaxed">
                 {t("footer.tagline")}
               </p>
             </div>
             <div>
-              <h4 className="font-display font-semibold mb-3">{t("footer.product")}</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/fonctionnalites" className="hover:text-foreground transition-colors">{t("nav.features")}</Link></li>
-                <li><Link to="/tarifs" className="hover:text-foreground transition-colors">{t("nav.pricing")}</Link></li>
-                <li><Link to="/blog" className="hover:text-foreground transition-colors">{t("nav.blog")}</Link></li>
-                <li><Link to="/faq" className="hover:text-foreground transition-colors">{t("nav.faq")}</Link></li>
+              <h4 className="font-semibold text-sm mb-4">{t("footer.product")}</h4>
+              <ul className="space-y-2.5 text-sm text-muted-foreground/70">
+                <li><Link to="/fonctionnalites" className="hover:text-foreground transition-colors duration-150">{t("nav.features")}</Link></li>
+                <li><Link to="/tarifs" className="hover:text-foreground transition-colors duration-150">{t("nav.pricing")}</Link></li>
+                <li><Link to="/blog" className="hover:text-foreground transition-colors duration-150">{t("nav.blog")}</Link></li>
+                <li><Link to="/faq" className="hover:text-foreground transition-colors duration-150">{t("nav.faq")}</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-display font-semibold mb-3">{t("footer.company")}</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/a-propos" className="hover:text-foreground transition-colors">{t("nav.about")}</Link></li>
-                <li><Link to="/contact" className="hover:text-foreground transition-colors">{t("nav.contact")}</Link></li>
+              <h4 className="font-semibold text-sm mb-4">{t("footer.company")}</h4>
+              <ul className="space-y-2.5 text-sm text-muted-foreground/70">
+                <li><Link to="/a-propos" className="hover:text-foreground transition-colors duration-150">{t("nav.about")}</Link></li>
+                <li><Link to="/contact" className="hover:text-foreground transition-colors duration-150">{t("nav.contact")}</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-display font-semibold mb-3">{t("nav.legal")}</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/mentions-legales" className="hover:text-foreground transition-colors">{t("nav.legalNotice")}</Link></li>
-                <li><Link to="/cgu" className="hover:text-foreground transition-colors">{t("nav.cgu")}</Link></li>
-                <li><Link to="/cgv" className="hover:text-foreground transition-colors">{t("nav.cgv")}</Link></li>
-                <li><Link to="/confidentialite" className="hover:text-foreground transition-colors">{t("nav.privacy")}</Link></li>
-                <li><Link to="/cookies" className="hover:text-foreground transition-colors">{t("nav.cookies")}</Link></li>
+              <h4 className="font-semibold text-sm mb-4">{t("nav.legal")}</h4>
+              <ul className="space-y-2.5 text-sm text-muted-foreground/70">
+                <li><Link to="/mentions-legales" className="hover:text-foreground transition-colors duration-150">{t("nav.legalNotice")}</Link></li>
+                <li><Link to="/cgu" className="hover:text-foreground transition-colors duration-150">{t("nav.cgu")}</Link></li>
+                <li><Link to="/cgv" className="hover:text-foreground transition-colors duration-150">{t("nav.cgv")}</Link></li>
+                <li><Link to="/confidentialite" className="hover:text-foreground transition-colors duration-150">{t("nav.privacy")}</Link></li>
+                <li><Link to="/cookies" className="hover:text-foreground transition-colors duration-150">{t("nav.cookies")}</Link></li>
               </ul>
             </div>
           </div>
-          <div className="border-t mt-8 pt-6 text-center text-sm text-muted-foreground">
+          <div className="border-t border-border/30 mt-10 pt-6 text-center text-sm text-muted-foreground/50">
             © {new Date().getFullYear()} IMOTION Creator Studio. {t("footer.rights")}
           </div>
         </div>

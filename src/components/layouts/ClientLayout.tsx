@@ -38,24 +38,24 @@ function ClientSidebar() {
   const location = useLocation();
 
   return (
-    <Sidebar collapsible="icon" className="border-r-0">
-      <div className="p-4">
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border/50">
+      <div className="px-4 py-5">
         <Logo size="sm" showText={!collapsed} />
       </div>
-      <SidebarContent>
+      <SidebarContent className="px-2">
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-0.5">
               {clientNav.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
-                      className="flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
-                      activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-all duration-200"
+                      activeClassName="!bg-[hsl(var(--sidebar-primary)/0.12)] !text-[hsl(var(--sidebar-primary))] font-semibold shadow-[inset_3px_0_0_0_hsl(var(--sidebar-primary))]"
                     >
-                      <item.icon className="h-5 w-5 shrink-0" />
-                      {!collapsed && <span>{item.title}</span>}
+                      <item.icon className="h-[18px] w-[18px] shrink-0" />
+                      {!collapsed && <span className="text-[13px]">{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -64,20 +64,20 @@ function ClientSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {!collapsed && <Separator className="mx-4 my-2" />}
+        {!collapsed && <Separator className="mx-3 my-2 bg-sidebar-border/40" />}
 
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-0.5">
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <NavLink
                     to="/"
-                    className="flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
-                    activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] text-sidebar-foreground/50 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-all duration-200"
+                    activeClassName="!bg-[hsl(var(--sidebar-primary)/0.12)] !text-[hsl(var(--sidebar-primary))] font-semibold"
                   >
-                    <Home className="h-5 w-5 shrink-0" />
-                    {!collapsed && <span>Site public</span>}
+                    <Home className="h-[18px] w-[18px] shrink-0" />
+                    {!collapsed && <span className="text-[13px]">Site public</span>}
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -86,11 +86,11 @@ function ClientSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink
                       to="/admin/dashboard"
-                      className="flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
-                      activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] text-sidebar-foreground/50 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-all duration-200"
+                      activeClassName="!bg-[hsl(var(--sidebar-primary)/0.12)] !text-[hsl(var(--sidebar-primary))] font-semibold"
                     >
-                      <Shield className="h-5 w-5 shrink-0" />
-                      {!collapsed && <span>Administration</span>}
+                      <Shield className="h-[18px] w-[18px] shrink-0" />
+                      {!collapsed && <span className="text-[13px]">Administration</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -101,11 +101,11 @@ function ClientSidebar() {
       </SidebarContent>
 
       {/* User section */}
-      <div className="mt-auto p-4 border-t border-sidebar-border">
+      <div className="mt-auto p-4 border-t border-sidebar-border/50">
         {!collapsed && (
           <div className="flex items-center gap-3 mb-3">
-            <Avatar className="h-9 w-9">
-              <AvatarFallback className="gradient-primary text-white text-xs font-semibold">
+            <Avatar className="h-9 w-9 ring-2 ring-sidebar-primary/20 ring-offset-2 ring-offset-sidebar">
+              <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-xs font-semibold">
                 {profile?.full_name?.charAt(0)?.toUpperCase() || "U"}
               </AvatarFallback>
             </Avatar>
@@ -113,7 +113,7 @@ function ClientSidebar() {
               <p className="text-sm font-medium text-sidebar-foreground truncate">
                 {profile?.full_name || "Utilisateur"}
               </p>
-              <p className="text-[11px] text-sidebar-foreground/50 truncate">
+              <p className="text-[11px] text-sidebar-foreground/40 truncate">
                 {profile?.email}
               </p>
             </div>
@@ -123,7 +123,7 @@ function ClientSidebar() {
           variant="ghost"
           size="sm"
           onClick={signOut}
-          className="w-full justify-start text-sidebar-foreground/60 hover:text-destructive"
+          className="w-full justify-start text-sidebar-foreground/50 hover:text-red-400 hover:bg-red-500/10 rounded-[var(--radius-md)] transition-all duration-200"
         >
           <LogOut className="h-4 w-4 mr-2" /> {!collapsed && "Déconnexion"}
         </Button>
@@ -141,21 +141,23 @@ export function ClientLayout() {
       <div className="min-h-screen flex w-full">
         <ClientSidebar />
         <div className="flex-1 flex flex-col">
-          <header className="h-14 flex items-center justify-between border-b px-4 bg-background sticky top-0 z-10">
-            <SidebarTrigger />
-            <div className="flex items-center gap-2">
+          <header className="h-16 flex items-center justify-between border-b border-border/40 px-5 bg-background/80 backdrop-blur-xl sticky top-0 z-10 transition-all duration-200">
+            <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
+            <div className="flex items-center gap-1.5">
               {isAdmin && (
-                <Button variant="ghost" size="sm" asChild>
+                <Button variant="ghost" size="sm" asChild className="rounded-[var(--radius-md)] text-muted-foreground hover:text-foreground">
                   <Link to="/admin/dashboard">
-                    <Shield className="h-4 w-4 mr-1" /> Admin
+                    <Shield className="h-4 w-4 mr-1.5" /> Admin
                   </Link>
                 </Button>
               )}
               <NotificationCenter />
             </div>
           </header>
-          <main className="flex-1 p-4 sm:p-6 bg-muted/30">
-            <Outlet />
+          <main className="flex-1 p-4 sm:p-6 bg-muted/20">
+            <div className="page-enter">
+              <Outlet />
+            </div>
           </main>
         </div>
       </div>
