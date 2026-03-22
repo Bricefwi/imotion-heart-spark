@@ -418,7 +418,7 @@ Si le client corrige ou ajoute quelque chose d'important, note-le et ajuste la s
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: getCorsHeaders(req) });
+    return new Response(null, { status: 204, headers: getCorsHeaders(req) });
   }
 
   try {
