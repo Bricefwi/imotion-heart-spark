@@ -54,7 +54,7 @@ const TOOLS = [
 ];
 
 export default function Onboarding() {
-  const { user, profile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -167,6 +167,9 @@ export default function Onboarding() {
         .single();
 
       if (projectError) throw projectError;
+
+      // Refresh profile in auth context so ProtectedRoute sees onboarding_completed: true
+      await refreshProfile();
 
       confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
       toast.success("Bienvenue ! Démarrons la création de votre cahier des charges.");

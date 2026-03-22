@@ -452,7 +452,7 @@ REGLES DE REDACTION :
 - Format Markdown structure avec titres hierarchiques (# ## ### ####)
 - NE JAMAIS utiliser d'emojis
 - Le prestataire est "IMOTION Creator Studio" (pas "IMOTION Conseil")
-- Site web : www.clarivi.io`,
+- Site web : www.imotion-conseils.fr`,
 
     devis: `Tu es le directeur commercial senior d'IMOTION Creator Studio, agence digitale premium specialisee en solutions no-code et IA. Tu rediges des devis detailles, professionnels, competitifs et conformes au droit commercial francais.
 

@@ -30,6 +30,7 @@ interface AuthContextType {
   roles: AppRole[];
   loading: boolean;
   signOut: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -39,6 +40,7 @@ const AuthContext = createContext<AuthContextType>({
   roles: [],
   loading: true,
   signOut: async () => {},
+  refreshProfile: async () => {},
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -176,6 +178,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [user?.id]);
 
+  const refreshProfile = async () => {
+    if (!user) return;
+    try {
+      const { data } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (data) setProfile(data);
+    } catch (err) {
+      console.warn("[useAuth] refreshProfile error:", err);
+    }
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
@@ -186,7 +202,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, profile, roles, loading, signOut }}>
+    <AuthContext.Provider value={{ user, session, profile, roles, loading, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

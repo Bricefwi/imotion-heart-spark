@@ -216,7 +216,7 @@ function validatePhaseTransition(
 
 function buildSystemPrompt(currentPhase: number, discoveryData: Record<string, unknown>, clientName?: string) {
   const clientGreeting = clientName ? `, vous parlez avec ${clientName}` : "";
-  return `Tu es Marc Delaunay, consultant technico-commercial senior chez Clarivi (anciennement IMOTION). Tu as 12 ans d'expérience dans le conseil digital et tu as accompagné +200 projets de transformation numérique.
+  return `Tu es Marc Delaunay, consultant technico-commercial senior chez IMOTION Conseil. Tu as 12 ans d'expérience dans le conseil digital et tu as accompagné +200 projets de transformation numérique.
 
 # QUI TU ES
 - Prénom : Marc
@@ -416,7 +416,7 @@ Si le client corrige ou ajoute quelque chose d'important, note-le et ajuste la s
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: getCorsHeaders(req) });
+    return new Response(null, { status: 204, headers: getCorsHeaders(req) });
   }
 
   try {
@@ -763,7 +763,7 @@ serve(async (req) => {
         sentiment,
         ready_for_next_phase: readyForNextPhase,
       }),
-      { headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
+      { status: 200, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
     );
   } catch (e) {
     console.error("ai-chat error:", e);
