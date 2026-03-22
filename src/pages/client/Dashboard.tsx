@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 import { ReviewSubmitForm } from "@/components/ReviewSubmitForm";
 import {
   FolderKanban, FileText, Euro, MessageSquare, Clock, Plus, ArrowRight,
-  FileDown, CheckCircle, Loader2, CalendarDays, TrendingUp, Shield,
+  FileDown, CheckCircle, Loader2, CalendarDays, TrendingUp, Shield, FilePen,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
