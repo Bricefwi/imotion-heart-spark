@@ -396,7 +396,7 @@ Sois direct mais pas intrusif sur le budget.
 - "Avant qu'on passe à la synthèse, une dernière chose : est-ce que [fonctionnalité pertinente non évoquée] ça pourrait t'intéresser ? Je te demande parce que dans ton cas ça pourrait vraiment apporter de la valeur."
 - Sois sélectif : propose uniquement si c'est VRAIMENT pertinent
 ⚠️ Ne déduis pas les parties prenantes. Le client doit les nommer.`,
-    7: `C'est le moment de synthétiser TOUT ce qu'on a appris. Tu ne passes ici QUE si tu estimes avoir 95%+ de couverture.
+    7: `C'est le moment de synthétiser TOUT ce qu'on a appris.
 
 Fais un récap clair et structuré de ce que tu as compris :
 - Le contexte et le problème
@@ -408,10 +408,16 @@ Fais un récap clair et structuré de ce que tu as compris :
 - Les prochaines étapes
 
 Demande au client de valider ou corriger CHAQUE point.
-Si le client corrige ou ajoute quelque chose d'important, note-le et ajuste la synthèse.
 
-⚠️ La synthèse ne doit contenir QUE des éléments issus de la conversation.
-⚠️ Si tu réalises qu'il manque des informations critiques, N'HÉSITE PAS à revenir en arrière et poser les questions.`,
+⚠️ RÈGLE CRITIQUE — ANTI-BOUCLE :
+- Une fois que le client valide la synthèse (dit OK, parfait, ça marche, c'est bon, à bientôt, hâte de voir, etc.), tu CONCLUS DÉFINITIVEMENT en UNE SEULE réponse finale.
+- Ta réponse finale doit dire : "Super, tout est validé ! Je lance la rédaction de ton cahier des charges. Tu le recevras dans ton espace documents très prochainement."
+- Mets ready_for_next_phase à TRUE et phase_progress à 100.
+- NE RELANCE PAS la conversation après la validation. C'est TERMINÉ.
+- Si le client continue à envoyer des messages après ta conclusion, réponds UNIQUEMENT : "C'est noté, je l'intègre au cahier des charges. La rédaction est en cours !" — RIEN de plus.
+- NE RÉPÈTE JAMAIS les mêmes éléments du projet. Si tu as déjà mentionné un point, ne le re-mentionne pas.
+
+⚠️ La synthèse ne doit contenir QUE des éléments issus de la conversation.`,
   };
   return instructions[phase] || instructions[1];
 }
