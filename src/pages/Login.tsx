@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { SEOHead } from "@/components/SEOHead";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -92,18 +93,26 @@ export default function Login() {
       // Store redirect path for after OAuth callback
       window.sessionStorage.setItem("google-oauth-redirect-path", redirectPath);
 
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-          queryParams: { prompt: "select_account" },
-        },
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: `${window.location.origin}/auth/callback`,
+        extraParams: { prompt: "select_account" },
       });
-      if (error) {
-        console.error("[Login] Google OAuth error:", error.message);
-        toast.error(error.message || "Erreur lors de la connexion Google.");
-        setGoogleLoading(false);
+
+      if (result.redirected) {
+        // User was redirected to Google — nothing more to do here
+        return;
       }
+
+      if (result.error) {
+        console.error("[Login] Google OAuth error:", result.error);
+        toast.error(result.error.message || "Erreur lors de la connexion Google.");
+        setGoogleLoading(false);
+        return;
+      }
+
+      // Session was set by the Lovable broker (popup flow)
+      const target = await getSmartRedirect(undefined, redirectPath);
+      navigate(target, { replace: true });
     } catch {
       toast.error("Erreur lors de la connexion Google.");
       setGoogleLoading(false);
