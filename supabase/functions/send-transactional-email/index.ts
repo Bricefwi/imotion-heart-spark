@@ -3,6 +3,11 @@ import { renderAsync } from 'npm:@react-email/render@1.0.5'
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { CdcReadyEmail } from '../_shared/email-templates/cdc-ready.tsx'
 import { ConversationSummaryEmail } from '../_shared/email-templates/conversation-summary.tsx'
+import { DiscoveryCompleteEmail } from '../_shared/email-templates/discovery-complete.tsx'
+import { ProposalSentEmail } from '../_shared/email-templates/proposal-sent.tsx'
+import { ContractSignedEmail } from '../_shared/email-templates/contract-signed.tsx'
+import { DevelopmentStartedEmail } from '../_shared/email-templates/development-started.tsx'
+import { ProjectDeliveredEmail } from '../_shared/email-templates/project-delivered.tsx'
 
 const ALLOWED_ORIGINS = [
   "https://imotion-conseils.fr",
@@ -36,6 +41,26 @@ const TEMPLATES: Record<string, {
   conversation_summary: {
     component: ConversationSummaryEmail,
     subject: (data) => `Résumé de votre échange #${data.sessionNumber || 1} — ${data.projectName || 'Votre projet'}`,
+  },
+  discovery_complete: {
+    component: DiscoveryCompleteEmail,
+    subject: (data) => `Phase Discovery terminée — ${data.projectName || 'Votre projet'}`,
+  },
+  proposal_sent: {
+    component: ProposalSentEmail,
+    subject: (data) => `Votre devis pour ${data.projectName || 'votre projet'} est disponible`,
+  },
+  contract_signed: {
+    component: ContractSignedEmail,
+    subject: (data) => `Contrat signé — ${data.projectName || 'Votre projet'} est lancé !`,
+  },
+  development_started: {
+    component: DevelopmentStartedEmail,
+    subject: (data) => `Le développement de ${data.projectName || 'votre projet'} a démarré 🚀`,
+  },
+  project_delivered: {
+    component: ProjectDeliveredEmail,
+    subject: (data) => `${data.projectName || 'Votre projet'} a été livré — Félicitations ! 🎉`,
   },
 }
 
