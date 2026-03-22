@@ -12,7 +12,6 @@ import { toast } from "sonner";
 import { Loader2, ShieldCheck, X, Check } from "lucide-react";
 import { z } from "zod";
 import { useAuth } from "@/hooks/useAuth";
-import { startGoogleOAuth } from "@/lib/google-auth";
 
 const passwordSchema = z
   .string()
@@ -137,26 +136,23 @@ export default function Register() {
   const handleGoogleSignUp = async () => {
     setGoogleLoading(true);
     try {
-      // Primary: Lovable OAuth broker
-      await startGoogleOAuth({ redirectPath: "/client/dashboard" });
-    } catch (error) {
-      console.warn("[Register] Lovable OAuth failed, trying Supabase native:", error);
-      // Fallback: Supabase native Google OAuth
-      try {
-        const { error: sbError } = await supabase.auth.signInWithOAuth({
-          provider: "google",
-          options: {
-            redirectTo: `${window.location.origin}/auth/callback`,
-          },
-        });
-        if (sbError) {
-          toast.error(error instanceof Error ? error.message : "Erreur lors de l'inscription Google.");
-          setGoogleLoading(false);
-        }
-      } catch {
-        toast.error("Erreur lors de l'inscription Google.");
+      window.sessionStorage.setItem("google-oauth-redirect-path", "/client/dashboard");
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: { prompt: "select_account" },
+        },
+      });
+      if (error) {
+        console.error("[Register] Google OAuth error:", error.message);
+        toast.error(error.message || "Erreur lors de l'inscription Google.");
         setGoogleLoading(false);
       }
+    } catch {
+      toast.error("Erreur lors de l'inscription Google.");
+      setGoogleLoading(false);
     }
   };
 
