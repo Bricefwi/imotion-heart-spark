@@ -9,7 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import {
   ArrowLeft, FileText, MessageSquare, Loader2, CheckCircle, Eye,
   Wrench, ClipboardCheck, BookOpen, Scale, Cpu, Download, AlertTriangle,
-  Clock, ShieldCheck, PenLine, Mail,
+  Clock, ShieldCheck, PenLine, Mail, Sparkles, BrainCircuit,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -232,6 +232,8 @@ export default function AdminProjectDetail() {
 
   const cdcDocs = docsByType.cdc || [];
   const techRecoDocs = docsByType.tech_recommendation || [];
+  const conseilDocs = docsByType.conseil_technique || [];
+  const buildPromptsDocs = docsByType.build_prompts || [];
   const contractDocs = [...(docsByType.contract || []), ...(docsByType.contrat || []), ...(docsByType.contract_fr || [])];
   const pvDocs = docsByType.pv_reception || [];
   const proposalDocs = [...(docsByType.proposal || []), ...(docsByType.pricing || []), ...(docsByType.devis || [])];
@@ -262,14 +264,16 @@ export default function AdminProjectDetail() {
       </Card>
 
       {/* Pipeline overview cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
         {[
           { label: "CDC", count: cdcDocs.length, icon: BookOpen, color: "text-blue-600", type: "cdc" },
+          { label: "Conseil Tech", count: conseilDocs.length, icon: BrainCircuit, color: "text-cyan-600", type: "conseil_technique" },
+          { label: "Prompts Build", count: buildPromptsDocs.length, icon: Sparkles, color: "text-violet-600", type: "build_prompts" },
           { label: "Reco & Prompt", count: techRecoDocs.length, icon: Cpu, color: "text-purple-600", type: "tech_recommendation" },
-          { label: "Outils", count: projectTools.length, icon: Wrench, color: "text-orange-600", type: null },
           { label: "Devis", count: proposalDocs.length, icon: FileText, color: "text-amber-600", type: "pricing" },
           { label: "Contrat", count: contractDocs.length, icon: Scale, color: "text-green-600", type: "contract_fr" },
           { label: "PV Reception", count: pvDocs.length, icon: ClipboardCheck, color: "text-emerald-600", type: "pv_reception" },
+          { label: "Outils", count: projectTools.length, icon: Wrench, color: "text-orange-600", type: null },
         ].map((item) => (
           <Card key={item.label} className="border-0 shadow-sm">
             <CardContent className="p-3 text-center">
@@ -307,9 +311,17 @@ export default function AdminProjectDetail() {
             <BookOpen className="h-3.5 w-3.5 mr-1" />
             CDC ({cdcDocs.length})
           </TabsTrigger>
+          <TabsTrigger value="conseil">
+            <BrainCircuit className="h-3.5 w-3.5 mr-1" />
+            Conseil ({conseilDocs.length})
+          </TabsTrigger>
+          <TabsTrigger value="prompts">
+            <Sparkles className="h-3.5 w-3.5 mr-1" />
+            Prompts ({buildPromptsDocs.length})
+          </TabsTrigger>
           <TabsTrigger value="tech">
             <Cpu className="h-3.5 w-3.5 mr-1" />
-            Prompt & Outils
+            Reco legacy
           </TabsTrigger>
           <TabsTrigger value="contract">
             <Scale className="h-3.5 w-3.5 mr-1" />
@@ -317,7 +329,7 @@ export default function AdminProjectDetail() {
           </TabsTrigger>
           <TabsTrigger value="pv">
             <ClipboardCheck className="h-3.5 w-3.5 mr-1" />
-            PV Reception ({pvDocs.length})
+            PV ({pvDocs.length})
           </TabsTrigger>
           <TabsTrigger value="all-docs">
             <FileText className="h-3.5 w-3.5 mr-1" />
@@ -470,7 +482,32 @@ export default function AdminProjectDetail() {
           />
         </TabsContent>
 
-        {/* TECH & TOOLS TAB */}
+        {/* CONSEIL TECHNIQUE TAB */}
+        <TabsContent value="conseil">
+          <DocumentSection
+            title="Conseil Technique — Livrable Stratégique"
+            docs={conseilDocs}
+            docType="conseil_technique"
+            isGenerating={isGenerating}
+            generatingType={generatingType}
+            onGenerate={generateDocument}
+            emptyMessage="Le conseil technique recommande la stack, l'architecture, le planning et les ressources nécessaires au projet."
+          />
+        </TabsContent>
+
+        {/* PROMPTS DE BUILD TAB */}
+        <TabsContent value="prompts">
+          <DocumentSection
+            title="Prompts de Build — Guide IA"
+            docs={buildPromptsDocs}
+            docType="build_prompts"
+            isGenerating={isGenerating}
+            generatingType={generatingType}
+            onGenerate={generateDocument}
+            emptyMessage="Les prompts de build génèrent des instructions détaillées pour Claude Opus, Lovable ou Cursor afin de construire le projet."
+          />
+        </TabsContent>
+
         <TabsContent value="tech">
           <div className="space-y-6">
             {/* Tech recommendation documents */}
