@@ -767,6 +767,8 @@ serve(async (req) => {
       }
     }
 
+    const isDiscoveryComplete = readyForNextPhase && currentPhase === 7;
+
     return new Response(
       JSON.stringify({
         message: aiMessageContent,
@@ -777,6 +779,7 @@ serve(async (req) => {
         extracted_data: extractedData,
         sentiment,
         ready_for_next_phase: readyForNextPhase,
+        discovery_complete: isDiscoveryComplete,
       }),
       { status: 200, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
     );
