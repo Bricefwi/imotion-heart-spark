@@ -649,7 +649,7 @@ serve(async (req) => {
       confidence_score: confidenceLevel === "high" ? 0.9 : confidenceLevel === "medium" ? 0.7 : 0.4,
       is_flagged: messageValidation.flags.length > 0 || dataValidation.issues.length > 0,
       flagged_reason: [...messageValidation.flags, ...dataValidation.issues].join("; ") || null,
-      model_used: "openai/gpt-5",
+      model_used: "google/gemini-3-flash-preview",
       tokens_input: aiResponse.usage?.prompt_tokens || 0,
       tokens_output: aiResponse.usage?.completion_tokens || 0,
     });
