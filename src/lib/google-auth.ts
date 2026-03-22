@@ -30,7 +30,7 @@ export async function startGoogleOAuth({
   prompt = "select_account",
 }: StartGoogleOAuthOptions): Promise<void> {
   const safeRedirectPath = sanitizeRedirectPath(redirectPath);
-  const redirectUri = `${window.location.origin}/login`;
+  const redirectUri = `${window.location.origin}/auth/callback`;
 
   window.sessionStorage.setItem(GOOGLE_REDIRECT_STORAGE_KEY, safeRedirectPath);
 
