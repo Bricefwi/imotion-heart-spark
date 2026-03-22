@@ -117,7 +117,7 @@ export default function ClientProfile() {
           </div>
           <div className="space-y-2">
             <Label>Téléphone</Label>
-            <Input placeholder="+33 6 12 34 56 78" value={form.phone} onChange={(e) => update("phone", e.target.value)} />
+            <Input placeholder="06 00 00 00 00" value={form.phone} onChange={(e) => update("phone", e.target.value)} />
           </div>
           <div className="space-y-2">
             <Label>Site web</Label>

@@ -204,12 +204,12 @@ export default function Register() {
             <>
               <div className="space-y-2">
                 <Label>Nom complet</Label>
-                <Input placeholder="Jean Dupont" value={form.fullName} onChange={(e) => update("fullName", e.target.value)} required />
+                <Input placeholder="Votre nom complet" value={form.fullName} onChange={(e) => update("fullName", e.target.value)} required />
                 {errors.fullName && <p className="text-xs text-destructive">{errors.fullName}</p>}
               </div>
               <div className="space-y-2">
                 <Label>Email professionnel</Label>
-                <Input type="email" placeholder="jean@entreprise.com" value={form.email} onChange={(e) => update("email", e.target.value)} required />
+                <Input type="email" placeholder="votre@email.com" value={form.email} onChange={(e) => update("email", e.target.value)} required />
                 {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
               </div>
               <div className="space-y-2">

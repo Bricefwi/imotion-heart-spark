@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Shield, Loader2, MoreHorizontal } from "lucide-react";
+import { Search, Shield, Loader2, MoreHorizontal, Phone, Globe, Building2, CheckCircle2, Clock } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -142,48 +142,79 @@ export default function AdminUsers() {
           {filtered.map((userItem) => {
             const mainRole = userItem.roles[0] || "client";
             return (
-              <Card key={userItem.id} className="border-0 shadow-sm">
-                <CardContent className="p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-4 min-w-0">
-                    <Avatar className="h-10 w-10 shrink-0">
-                      <AvatarFallback className={`text-sm font-bold ${mainRole === "admin" || mainRole === "super_admin" ? "gradient-primary text-white" : mainRole === "consultant" ? "bg-secondary text-secondary-foreground" : "bg-muted"}`}>
-                        {(userItem.full_name || userItem.email).charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p className="font-medium text-sm truncate">{userItem.full_name || "Sans nom"}</p>
-                        <Badge variant={roleColors[mainRole] || "secondary"} className="text-[10px]">
-                          {mainRole === "admin" && <Shield className="h-2.5 w-2.5 mr-0.5" />}
-                          {roleLabels[mainRole] || mainRole}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5 flex-wrap">
-                        <span className="truncate">{userItem.email}</span>
-                        {userItem.company_name && <span>{userItem.company_name}</span>}
-                        <span>{userItem.projectCount} projets</span>
-                        {userItem.last_seen_at && (
-                          <span>{formatDistanceToNow(new Date(userItem.last_seen_at), { addSuffix: true, locale: fr })}</span>
-                        )}
+              <Card key={userItem.id} className="border-0 shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-4 min-w-0 flex-1">
+                      <Avatar className="h-11 w-11 shrink-0 mt-0.5">
+                        <AvatarFallback className={`text-sm font-bold ${mainRole === "admin" || mainRole === "super_admin" ? "gradient-primary text-white" : mainRole === "consultant" ? "bg-secondary text-secondary-foreground" : "bg-muted"}`}>
+                          {(userItem.full_name || userItem.email).charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="font-medium text-sm truncate">{userItem.full_name || "Sans nom"}</p>
+                          <Badge variant={roleColors[mainRole] || "secondary"} className="text-[10px]">
+                            {mainRole === "admin" && <Shield className="h-2.5 w-2.5 mr-0.5" />}
+                            {roleLabels[mainRole] || mainRole}
+                          </Badge>
+                          {userItem.onboarding_completed ? (
+                            <Badge variant="outline" className="text-[10px] text-emerald-600 border-emerald-200 bg-emerald-50">
+                              <CheckCircle2 className="h-2.5 w-2.5 mr-0.5" /> Onboardé
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-[10px] text-amber-600 border-amber-200 bg-amber-50">
+                              <Clock className="h-2.5 w-2.5 mr-0.5" /> En cours
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-0.5 truncate">{userItem.email}</p>
+                        <div className="flex items-center gap-4 mt-2 flex-wrap">
+                          {userItem.company_name && (
+                            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <Building2 className="h-3 w-3" /> {userItem.company_name}
+                              {userItem.company_role && <span className="text-muted-foreground/60">· {userItem.company_role}</span>}
+                            </span>
+                          )}
+                          {userItem.phone && (
+                            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <Phone className="h-3 w-3" /> {userItem.phone}
+                            </span>
+                          )}
+                          {userItem.website && (
+                            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <Globe className="h-3 w-3" /> {userItem.website}
+                            </span>
+                          )}
+                          {userItem.industry && (
+                            <Badge variant="outline" className="text-[10px]">{userItem.industry}</Badge>
+                          )}
+                          <span className="text-xs text-muted-foreground">{userItem.projectCount} projet{userItem.projectCount !== 1 ? "s" : ""}</span>
+                          {userItem.last_seen_at && (
+                            <span className="text-[10px] text-muted-foreground/60">
+                              Vu {formatDistanceToNow(new Date(userItem.last_seen_at), { addSuffix: true, locale: fr })}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="shrink-0"><MoreHorizontal className="h-4 w-4" /></Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => changeRole.mutate({ userId: userItem.id, newRole: "client" })}>
+                          Définir Client
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => changeRole.mutate({ userId: userItem.id, newRole: "consultant" })}>
+                          Définir Consultant
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => changeRole.mutate({ userId: userItem.id, newRole: "admin" })}>
+                          Définir Admin
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => changeRole.mutate({ userId: userItem.id, newRole: "client" })}>
-                        Définir Client
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => changeRole.mutate({ userId: userItem.id, newRole: "consultant" })}>
-                        Définir Consultant
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => changeRole.mutate({ userId: userItem.id, newRole: "admin" })}>
-                        Définir Admin
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
                 </CardContent>
               </Card>
             );

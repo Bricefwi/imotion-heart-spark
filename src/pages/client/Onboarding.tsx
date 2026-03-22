@@ -226,11 +226,11 @@ export default function Onboarding() {
             <div className="space-y-4">
               <div>
                 <Label htmlFor="full_name">Nom complet *</Label>
-                <Input id="full_name" value={data.full_name} onChange={(e) => update("full_name", e.target.value)} placeholder="Jean Dupont" className="mt-1.5" />
+                <Input id="full_name" value={data.full_name} onChange={(e) => update("full_name", e.target.value)} placeholder="Votre nom complet" className="mt-1.5" />
               </div>
               <div>
                 <Label htmlFor="phone">Téléphone</Label>
-                <Input id="phone" value={data.phone} onChange={(e) => update("phone", e.target.value)} placeholder="+33 6 12 34 56 78" className="mt-1.5" />
+                <Input id="phone" value={data.phone} onChange={(e) => update("phone", e.target.value)} placeholder="06 00 00 00 00" className="mt-1.5" />
               </div>
             </div>
           </div>

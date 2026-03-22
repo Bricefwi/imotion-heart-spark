@@ -247,7 +247,7 @@ const sidebarGroups: SidebarGroupDef[] = [
     label: "Système",
     items: [
       { title: "Paramètres", url: "/admin/settings", icon: Settings },
-      { title: "Intégrations", url: "/admin/integrations", icon: Plug, badge: "SOON" },
+      { title: "Intégrations", url: "/admin/integrations", icon: Plug },
     ],
   },
 ];

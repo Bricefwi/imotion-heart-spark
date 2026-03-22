@@ -537,159 +537,81 @@ export default function AdminDashboard() {
         </Card>
       </div>
 
-      {/* Bottom row — Client list + Reviews + Activity */}
+      {/* Bottom row — Documents + Activity feed */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Client list */}
+        {/* Documents overview */}
         <Card className="lg:col-span-2 border border-border/40 shadow-sm overflow-hidden">
           <CardHeader className="flex-row items-center justify-between pb-3 bg-gradient-to-r from-muted/40 to-transparent">
             <CardTitle className="text-base font-semibold flex items-center gap-2">
-              <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Users className="h-3.5 w-3.5 text-primary" />
+              <div className="h-7 w-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                <FileText className="h-3.5 w-3.5 text-blue-500" />
               </div>
-              Clients ({profiles.length})
+              Documents récents
             </CardTitle>
-            <div className="relative w-48">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-              <Input
-                value={clientSearch}
-                onChange={(e) => setClientSearch(e.target.value)}
-                placeholder="Rechercher..."
-                className="h-8 pl-8 text-xs"
-              />
-            </div>
+            <Badge variant="outline" className="text-[10px]">{documents.length} total</Badge>
           </CardHeader>
-          <CardContent className="p-0">
-            <div className="max-h-[350px] overflow-y-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-muted/30 sticky top-0">
-                  <tr className="text-left text-xs text-muted-foreground">
-                    <th className="px-4 py-2.5 font-medium">Client</th>
-                    <th className="px-4 py-2.5 font-medium hidden md:table-cell">Entreprise</th>
-                    <th className="px-4 py-2.5 font-medium hidden lg:table-cell">Secteur</th>
-                    <th className="px-4 py-2.5 font-medium">Statut</th>
-                    <th className="px-4 py-2.5 font-medium hidden md:table-cell">Inscrit</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredClients.slice(0, 15).map((client) => (
-                    <tr key={client.id} className="border-t border-border/20 hover:bg-muted/20 transition-colors">
-                      <td className="px-4 py-3">
-                        <p className="font-medium text-sm">{client.full_name || "—"}</p>
-                        <p className="text-xs text-muted-foreground">{client.email}</p>
-                      </td>
-                      <td className="px-4 py-3 hidden md:table-cell text-muted-foreground text-xs">{client.company_name || "—"}</td>
-                      <td className="px-4 py-3 hidden lg:table-cell">
-                        {client.industry && <Badge variant="muted" className="text-[10px]">{client.industry}</Badge>}
-                      </td>
-                      <td className="px-4 py-3">
-                        <Badge variant={client.onboarding_completed ? "success" : "warning"} className="text-[10px]">
-                          {client.onboarding_completed ? "Actif" : "Onboarding"}
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-3 hidden md:table-cell text-xs text-muted-foreground">
-                        {client.created_at && format(new Date(client.created_at), "dd/MM/yy", { locale: fr })}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {filteredClients.length === 0 && (
-                <p className="text-sm text-muted-foreground py-8 text-center">Aucun client trouvé.</p>
-              )}
+          <CardContent className="p-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+              {[
+                { label: "CDC", count: documents.filter(d => d.doc_type === "cdc").length, color: "bg-primary/10 text-primary" },
+                { label: "Propositions", count: documents.filter(d => d.doc_type === "proposal").length, color: "bg-secondary/10 text-secondary" },
+                { label: "Devis", count: documents.filter(d => d.doc_type === "quote").length, color: "bg-emerald-500/10 text-emerald-600" },
+                { label: "Autres", count: documents.filter(d => !["cdc", "proposal", "quote"].includes(d.doc_type)).length, color: "bg-muted text-muted-foreground" },
+              ].map((docType) => (
+                <div key={docType.label} className="text-center p-3 rounded-xl bg-muted/30">
+                  <p className="text-2xl font-bold">{docType.count}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{docType.label}</p>
+                </div>
+              ))}
             </div>
+            {documents.length > 0 && (
+              <div className="space-y-1">
+                <p className="text-xs font-semibold text-muted-foreground mb-2">Derniers générés</p>
+                {documents.slice(0, 5).map((doc) => (
+                  <div key={doc.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/30 transition-all">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-[10px] uppercase">{doc.doc_type}</Badge>
+                    </div>
+                    <span className="text-[10px] text-muted-foreground">
+                      {doc.created_at && format(new Date(doc.created_at), "dd MMM yyyy", { locale: fr })}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        {/* Review moderation + Activity feed */}
-        <div className="space-y-6">
-          {/* Reviews */}
-          <Card className="border border-border/40 shadow-sm overflow-hidden">
-            <CardHeader className="flex-row items-center justify-between pb-3 bg-gradient-to-r from-muted/40 to-transparent">
-              <CardTitle className="text-base font-semibold flex items-center gap-2">
-                <div className="h-7 w-7 rounded-lg bg-secondary/10 flex items-center justify-center">
-                  <Star className="h-3.5 w-3.5 text-secondary" />
-                </div>
-                Avis clients
-              </CardTitle>
-              {pendingReviewCount > 0 && (
-                <Badge variant="warning" className="text-[10px]">{pendingReviewCount} en attente</Badge>
-              )}
-            </CardHeader>
-            <CardContent className="space-y-3 p-3 max-h-[250px] overflow-y-auto">
-              {pendingReviews.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-6 text-center">Aucun avis.</p>
-              ) : (
-                pendingReviews.slice(0, 5).map((review) => (
-                  <div
-                    key={review.id}
-                    className={`p-3 rounded-xl border transition-all ${
-                      review.status === "pending"
-                        ? "border-secondary/30 bg-secondary/5"
-                        : review.status === "approved"
-                        ? "border-green-200 bg-green-50/50"
-                        : "border-red-200 bg-red-50/50 opacity-60"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-medium text-xs">{review.reviewer_name}</span>
-                      <div className="flex gap-0.5">
-                        {[1, 2, 3, 4, 5].map((s) => (
-                          <Star key={s} className={`h-2.5 w-2.5 ${s <= review.rating ? "fill-secondary text-secondary" : "text-muted-foreground/20"}`} />
-                        ))}
-                      </div>
-                    </div>
-                    <p className="text-[11px] text-muted-foreground leading-relaxed mb-2 line-clamp-2">"{review.review_text}"</p>
-                    {review.status === "pending" ? (
-                      <div className="flex gap-1.5">
-                        <Button size="sm" variant="ghost" className="h-6 px-2 text-[10px] text-green-600 hover:bg-green-50" onClick={() => moderateReview.mutate({ reviewId: review.id, action: "approved" })}>
-                          <CheckCircle2 className="h-3 w-3 mr-1" /> Approuver
-                        </Button>
-                        <Button size="sm" variant="ghost" className="h-6 px-2 text-[10px] text-red-500 hover:bg-red-50" onClick={() => moderateReview.mutate({ reviewId: review.id, action: "rejected" })}>
-                          <XCircle className="h-3 w-3 mr-1" /> Rejeter
-                        </Button>
-                      </div>
-                    ) : (
-                      <Badge variant={review.status === "approved" ? "success" : "destructive"} className="text-[10px]">
-                        {review.status === "approved" ? "Publié" : "Rejeté"}
-                      </Badge>
-                    )}
+        {/* Activity feed */}
+        <Card className="border border-border/40 shadow-sm overflow-hidden">
+          <CardHeader className="pb-3 bg-gradient-to-r from-muted/40 to-transparent">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <div className="h-7 w-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                <Activity className="h-3.5 w-3.5 text-blue-500" />
+              </div>
+              Activité récente
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-1 p-3 max-h-[350px] overflow-y-auto">
+            {recentActivities.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-6 text-center">Aucune activité.</p>
+            ) : (
+              recentActivities.slice(0, 8).map((activity) => (
+                <div key={activity.id} className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted/40 transition-all">
+                  <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5 shrink-0">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary" />
                   </div>
-                ))
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Activity feed */}
-          <Card className="border border-border/40 shadow-sm overflow-hidden">
-            <CardHeader className="pb-3 bg-gradient-to-r from-muted/40 to-transparent">
-              <CardTitle className="text-base font-semibold flex items-center gap-2">
-                <div className="h-7 w-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                  <Activity className="h-3.5 w-3.5 text-blue-500" />
-                </div>
-                Activité récente
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-1 p-3 max-h-[200px] overflow-y-auto">
-              {recentActivities.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-6 text-center">Aucune activité.</p>
-              ) : (
-                recentActivities.slice(0, 5).map((activity) => (
-                  <div key={activity.id} className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted/40 transition-all">
-                    <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5 shrink-0">
-                      <div className="h-1.5 w-1.5 rounded-full bg-primary" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs leading-snug">{activity.description || activity.action}</p>
-                      <p className="text-[10px] text-muted-foreground/60 mt-0.5">
-                        {(activity as unknown as ActivityType).profile?.full_name || "Système"} · {activity.created_at && formatDistanceToNow(new Date(activity.created_at), { addSuffix: true, locale: fr })}
-                      </p>
-                    </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs leading-snug">{activity.description || activity.action}</p>
+                    <p className="text-[10px] text-muted-foreground/60 mt-0.5">
+                      {(activity as unknown as ActivityType).profile?.full_name || "Système"} · {activity.created_at && formatDistanceToNow(new Date(activity.created_at), { addSuffix: true, locale: fr })}
+                    </p>
                   </div>
-                ))
-              )}
-            </CardContent>
-          </Card>
-        </div>
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
