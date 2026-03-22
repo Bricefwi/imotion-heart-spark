@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { sendMilestoneEmail } from "@/lib/milestone-emails";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -149,6 +150,17 @@ export function KanbanBoard({ projects, onClientClick }: KanbanBoardProps) {
 
       toast.success(`Projet déplacé vers "${KANBAN_COLUMNS.find((c) => c.status === newStatus)?.label}"`);
       queryClient.invalidateQueries({ queryKey: ["crm-projects"] });
+
+      // Send milestone email notification to client
+      if (project.client?.id) {
+        sendMilestoneEmail({
+          projectId: project.id,
+          projectName: project.name,
+          projectCode: project.code || "",
+          clientId: project.client.id,
+          newStatus,
+        });
+      }
     } catch (error: unknown) {
       queryClient.invalidateQueries({ queryKey: ["crm-projects"] });
       const msg = error instanceof Error ? error.message : "Erreur lors du déplacement";
