@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { consumePendingGoogleRedirect } from "@/lib/google-auth";
 import { Loader2 } from "lucide-react";
 
 /**
@@ -93,27 +94,38 @@ export default function AuthCallback() {
     };
 
     async function redirectByRole() {
+      // Check if there's a stored redirect path from startGoogleOAuth
+      const pendingRedirect = consumePendingGoogleRedirect();
+
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) {
-        navigate("/client/dashboard", { replace: true });
+        navigate(pendingRedirect || "/client/dashboard", { replace: true });
         return;
       }
 
+      const fallback = pendingRedirect || "/client/dashboard";
       const userId = session.user.id;
-      const { data } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId);
 
-      const roles = data?.map((r) => r.role) ?? [];
+      // Only do smart redirect if the target is a generic dashboard
+      if (fallback === "/client/dashboard" || fallback === "/") {
+        const { data } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", userId);
 
-      if (roles.includes("admin") || roles.includes("super_admin")) {
-        navigate("/admin/dashboard", { replace: true });
-      } else if (roles.includes("consultant")) {
-        navigate("/consultant/dashboard", { replace: true });
-      } else {
-        navigate("/client/dashboard", { replace: true });
+        const roles = data?.map((r) => r.role) ?? [];
+
+        if (roles.includes("admin") || roles.includes("super_admin")) {
+          navigate("/admin/dashboard", { replace: true });
+          return;
+        }
+        if (roles.includes("consultant")) {
+          navigate("/consultant/dashboard", { replace: true });
+          return;
+        }
       }
+
+      navigate(fallback, { replace: true });
     }
 
     void handle();
