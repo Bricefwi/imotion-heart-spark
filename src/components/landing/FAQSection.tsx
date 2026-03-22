@@ -93,7 +93,7 @@ export function FAQSection() {
           </p>
         </motion.div>
 
-        <div className="max-w-3xl mx-auto" ref={animateParent}>
+        <div className="max-w-3xl mx-auto">
           {faqs.map((faq, i) => (
             <FAQItem key={i} question={faq.question} answer={faq.answer} index={i} />
           ))}
