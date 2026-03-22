@@ -482,7 +482,32 @@ export default function AdminProjectDetail() {
           />
         </TabsContent>
 
-        {/* TECH & TOOLS TAB */}
+        {/* CONSEIL TECHNIQUE TAB */}
+        <TabsContent value="conseil">
+          <DocumentSection
+            title="Conseil Technique — Livrable Stratégique"
+            docs={conseilDocs}
+            docType="conseil_technique"
+            isGenerating={isGenerating}
+            generatingType={generatingType}
+            onGenerate={generateDocument}
+            emptyMessage="Le conseil technique recommande la stack, l'architecture, le planning et les ressources nécessaires au projet."
+          />
+        </TabsContent>
+
+        {/* PROMPTS DE BUILD TAB */}
+        <TabsContent value="prompts">
+          <DocumentSection
+            title="Prompts de Build — Guide IA"
+            docs={buildPromptsDocs}
+            docType="build_prompts"
+            isGenerating={isGenerating}
+            generatingType={generatingType}
+            onGenerate={generateDocument}
+            emptyMessage="Les prompts de build génèrent des instructions détaillées pour Claude Opus, Lovable ou Cursor afin de construire le projet."
+          />
+        </TabsContent>
+
         <TabsContent value="tech">
           <div className="space-y-6">
             {/* Tech recommendation documents */}
