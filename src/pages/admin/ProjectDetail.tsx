@@ -647,6 +647,11 @@ export default function AdminProjectDetail() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* EMAILS TAB */}
+        <TabsContent value="emails">
+          <EmailHistoryTab clientEmail={client?.email} projectCode={project.code} />
+        </TabsContent>
       </Tabs>
 
       {/* Streaming preview */}
