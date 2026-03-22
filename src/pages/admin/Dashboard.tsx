@@ -117,7 +117,7 @@ export default function AdminDashboard() {
   // ── KPIs ──
 
   const activeProjects = projects.filter(p => !["archived", "delivered", "lost"].includes(p.status));
-  const cdcGenerated = documents.filter(d => d.doc_type === "cdc").length;
+  const cdcGenerated = documents.filter((d: { type: string }) => d.type === "cdc").length;
   const totalPipeline = projects.reduce((sum, p) => sum + (p.estimated_budget_max || 0), 0);
   const totalMessages = projects.reduce((sum, p) => sum + (p.total_messages || 0), 0);
   const onboardedClients = profiles.filter(p => p.onboarding_completed).length;
