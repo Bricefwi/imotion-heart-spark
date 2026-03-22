@@ -15,7 +15,7 @@ export const CdcReadyEmail = ({
   clientName = 'Client',
   projectName = 'Votre projet',
   documentUrl = '#',
-  siteName = 'Clarivi',
+  siteName = 'IMOTION Creator Studio',
   siteUrl = 'https://imotion-conseils.fr',
 }: CdcReadyEmailProps) => (
   <Html>
@@ -29,7 +29,7 @@ export const CdcReadyEmail = ({
       <Container style={container}>
         {/* Header */}
         <Section style={header}>
-          <Text style={logoText}>Clarivi</Text>
+          <Text style={logoText}>IMOTION Creator Studio</Text>
         </Section>
 
         {/* Hero */}
