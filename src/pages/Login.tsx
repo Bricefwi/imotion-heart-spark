@@ -65,7 +65,6 @@ export default function Login() {
     if (error) {
       toast.error(error.message === "Invalid login credentials" ? "Email ou mot de passe incorrect." : error.message);
     } else {
-      // Check roles to redirect admin/consultant to their dashboard
       const target = await getSmartRedirect(data.user?.id, redirectPath);
       navigate(target, { replace: true });
     }
@@ -88,14 +87,28 @@ export default function Login() {
   };
 
   const handleGoogleLogin = async () => {
+    setGoogleLoading(true);
     try {
-      setGoogleLoading(true);
-      await startGoogleOAuth({
-        redirectPath,
-      });
+      // Primary: Lovable OAuth broker
+      await startGoogleOAuth({ redirectPath });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Erreur lors de la connexion Google.");
-      setGoogleLoading(false);
+      console.warn("[Login] Lovable OAuth failed, trying Supabase native:", error);
+      // Fallback: Supabase native Google OAuth
+      try {
+        const { error: sbError } = await supabase.auth.signInWithOAuth({
+          provider: "google",
+          options: {
+            redirectTo: `${window.location.origin}/auth/callback`,
+          },
+        });
+        if (sbError) {
+          toast.error(error instanceof Error ? error.message : "Erreur lors de la connexion Google.");
+          setGoogleLoading(false);
+        }
+      } catch {
+        toast.error("Erreur lors de la connexion Google.");
+        setGoogleLoading(false);
+      }
     }
   };
 
