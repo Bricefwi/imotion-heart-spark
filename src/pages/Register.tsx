@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { Loader2, ShieldCheck, X, Check } from "lucide-react";
 import { z } from "zod";
 import { useAuth } from "@/hooks/useAuth";
+import { startGoogleOAuth } from "@/lib/google-auth";
 
 const passwordSchema = z
   .string()
@@ -136,21 +137,12 @@ export default function Register() {
   const handleGoogleSignUp = async () => {
     setGoogleLoading(true);
     try {
-      window.sessionStorage.setItem("google-oauth-redirect-path", "/client/dashboard");
-
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-          queryParams: { prompt: "select_account" },
-        },
+      await startGoogleOAuth({
+        redirectPath: "/client/dashboard",
+        prompt: "select_account",
       });
-      if (error) {
-        console.error("[Register] Google OAuth error:", error.message);
-        toast.error(error.message || "Erreur lors de l'inscription Google.");
-        setGoogleLoading(false);
-      }
-    } catch {
+    } catch (error) {
+      console.error("[Register] Google OAuth error:", error);
       toast.error("Erreur lors de l'inscription Google.");
       setGoogleLoading(false);
     }
