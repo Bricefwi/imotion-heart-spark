@@ -676,6 +676,13 @@ serve(async (req) => {
       newPhase = currentPhase + 1;
       phaseProgressData[String(currentPhase)] = { completed: true, progress: 100 };
       phaseProgressData[String(newPhase)] = { ...(phaseProgressData[String(newPhase)] || {}), progress: 0, completed: false };
+    } else if (readyForNextPhase && currentPhase === 7) {
+      // Phase 7 validated — mark discovery as complete
+      phaseProgressData[String(7)] = { completed: true, progress: 100 };
+      await supabase
+        .from("projects")
+        .update({ status: "discovery_complete" })
+        .eq("id", projectId);
     } else {
       phaseProgressData[String(currentPhase)] = {
         ...(phaseProgressData[String(currentPhase)] || {}),
