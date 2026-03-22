@@ -5,14 +5,12 @@ import { consumePendingGoogleRedirect } from "@/lib/google-auth";
 import { Loader2 } from "lucide-react";
 
 /**
- * Handles the OAuth callback after a full-page redirect (non-iframe flow).
+ * Handles the OAuth callback after a full-page redirect.
  *
- * The Lovable OAuth broker or Supabase may redirect here with:
- *   - Hash fragments: #access_token=...&refresh_token=...
- *   - Query params:   ?code=...  (PKCE flow)
- *
- * This page extracts tokens / code, sets the session, and redirects
- * to the appropriate dashboard.
+ * Supabase PKCE flow redirects here with ?code=... in query params.
+ * The Supabase client SDK automatically detects the code and exchanges it
+ * via onAuthStateChange. We listen for the SIGNED_IN event as the primary
+ * mechanism, with a manual exchangeCodeForSession as fallback.
  */
 export default function AuthCallback() {
   const navigate = useNavigate();
@@ -22,9 +20,23 @@ export default function AuthCallback() {
     if (processed.current) return;
     processed.current = true;
 
+    console.info("[AuthCallback] URL:", window.location.href);
+
+    // Listen for auth state changes — the SDK may auto-exchange the PKCE code
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.info("[AuthCallback] Auth event:", event, "session:", !!session);
+        if (event === "SIGNED_IN" && session) {
+          window.history.replaceState(null, "", window.location.pathname);
+          await redirectByRole();
+        }
+      }
+    );
+
+    // Also try manual handling as a fallback
     const handle = async () => {
       try {
-        // 1. Check for hash fragment tokens (implicit / Lovable broker flow)
+        // 1. Check for hash fragment tokens (implicit flow)
         const hash = window.location.hash.substring(1);
         const hashParams = new URLSearchParams(hash);
         const accessToken = hashParams.get("access_token");
@@ -37,10 +49,9 @@ export default function AuthCallback() {
           });
           if (error) {
             console.error("[AuthCallback] setSession error:", error.message);
-            navigate("/login", { replace: true, state: { error: "session_failed" } });
+            navigate("/login", { replace: true });
             return;
           }
-          // Clean up URL
           window.history.replaceState(null, "", window.location.pathname);
           await redirectByRole();
           return;
@@ -51,16 +62,13 @@ export default function AuthCallback() {
         const code = url.searchParams.get("code");
 
         if (code) {
-          // Supabase client auto-handles PKCE code exchange via onAuthStateChange.
-          // We wait a moment for the session to be established.
+          console.info("[AuthCallback] Found PKCE code, exchanging...");
           const { data, error } = await supabase.auth.exchangeCodeForSession(code);
           if (error) {
             console.error("[AuthCallback] code exchange error:", error.message);
-            navigate("/login", { replace: true, state: { error: "code_exchange_failed" } });
-            return;
-          }
-          if (data.session) {
-            // Clean up URL
+            // Don't redirect immediately — the onAuthStateChange listener
+            // might still pick up the session from a parallel exchange
+          } else if (data.session) {
             window.history.replaceState(null, "", window.location.pathname);
             await redirectByRole();
             return;
@@ -72,20 +80,31 @@ export default function AuthCallback() {
         if (error) {
           const desc = url.searchParams.get("error_description") || hashParams.get("error_description") || error;
           console.error("[AuthCallback] OAuth error:", desc);
-          navigate("/login", { replace: true, state: { error: "oauth_error", message: desc } });
+          navigate("/login", { replace: true });
           return;
         }
 
-        // 4. No tokens and no code — check if session already exists
-        //    (Supabase auto-detected tokens before this component mounted)
+        // 4. Check if session already exists (SDK may have auto-handled)
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
+          console.info("[AuthCallback] Session already exists");
           await redirectByRole();
           return;
         }
 
-        // 5. Nothing worked — redirect to login
-        console.warn("[AuthCallback] No tokens, code, or session found");
+        // 5. Wait up to 5 seconds for the onAuthStateChange listener to fire
+        //    (the SDK may still be processing the code exchange)
+        console.info("[AuthCallback] Waiting for auth state change...");
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+
+        // Final check
+        const { data: { session: finalSession } } = await supabase.auth.getSession();
+        if (finalSession) {
+          await redirectByRole();
+          return;
+        }
+
+        console.warn("[AuthCallback] No session after all attempts");
         navigate("/login", { replace: true });
       } catch (err) {
         console.error("[AuthCallback] Unexpected error:", err);
@@ -94,7 +113,6 @@ export default function AuthCallback() {
     };
 
     async function redirectByRole() {
-      // Check if there's a stored redirect path from startGoogleOAuth
       const pendingRedirect = consumePendingGoogleRedirect();
 
       const { data: { session } } = await supabase.auth.getSession();
@@ -106,7 +124,6 @@ export default function AuthCallback() {
       const fallback = pendingRedirect || "/client/dashboard";
       const userId = session.user.id;
 
-      // Only do smart redirect if the target is a generic dashboard
       if (fallback === "/client/dashboard" || fallback === "/") {
         const { data } = await supabase
           .from("user_roles")
@@ -129,6 +146,10 @@ export default function AuthCallback() {
     }
 
     void handle();
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   return (

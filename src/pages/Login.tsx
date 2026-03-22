@@ -10,7 +10,7 @@ import { AuthPhotoCarousel } from "@/components/AuthPhotoCarousel";
 import { toast } from "sonner";
 import { Loader2, Mail, Wand2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { consumePendingGoogleRedirect, startGoogleOAuth } from "@/lib/google-auth";
+import { consumePendingGoogleRedirect } from "@/lib/google-auth";
 
 const getSmartRedirect = async (userId: string | undefined, fallback: string): Promise<string> => {
   if (!userId || (fallback !== "/client/dashboard" && fallback !== "/")) return fallback;
@@ -89,26 +89,24 @@ export default function Login() {
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
     try {
-      // Primary: Lovable OAuth broker
-      await startGoogleOAuth({ redirectPath });
-    } catch (error) {
-      console.warn("[Login] Lovable OAuth failed, trying Supabase native:", error);
-      // Fallback: Supabase native Google OAuth
-      try {
-        const { error: sbError } = await supabase.auth.signInWithOAuth({
-          provider: "google",
-          options: {
-            redirectTo: `${window.location.origin}/auth/callback`,
-          },
-        });
-        if (sbError) {
-          toast.error(error instanceof Error ? error.message : "Erreur lors de la connexion Google.");
-          setGoogleLoading(false);
-        }
-      } catch {
-        toast.error("Erreur lors de la connexion Google.");
+      // Store redirect path for after OAuth callback
+      window.sessionStorage.setItem("google-oauth-redirect-path", redirectPath);
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: { prompt: "select_account" },
+        },
+      });
+      if (error) {
+        console.error("[Login] Google OAuth error:", error.message);
+        toast.error(error.message || "Erreur lors de la connexion Google.");
         setGoogleLoading(false);
       }
+    } catch {
+      toast.error("Erreur lors de la connexion Google.");
+      setGoogleLoading(false);
     }
   };
 
