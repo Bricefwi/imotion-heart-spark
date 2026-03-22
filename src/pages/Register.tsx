@@ -138,7 +138,7 @@ export default function Register() {
     try {
       setGoogleLoading(true);
       await startGoogleOAuth({
-        authPagePath: `/login?next=${encodeURIComponent("/client/dashboard")}`,
+        redirectPath: "/client/dashboard",
       });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Erreur lors de l'inscription Google.");

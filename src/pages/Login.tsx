@@ -10,7 +10,7 @@ import { AuthPhotoCarousel } from "@/components/AuthPhotoCarousel";
 import { toast } from "sonner";
 import { Loader2, Mail, Wand2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { startGoogleOAuth } from "@/lib/google-auth";
+import { consumePendingGoogleRedirect, startGoogleOAuth } from "@/lib/google-auth";
 
 const getSmartRedirect = async (userId: string | undefined, fallback: string): Promise<string> => {
   if (!userId || (fallback !== "/client/dashboard" && fallback !== "/")) return fallback;
@@ -30,6 +30,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<"password" | "magic">("password");
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [pendingGoogleRedirect] = useState<string | null>(() => consumePendingGoogleRedirect());
 
   const requestedPath = (location.state as { from?: string } | null)?.from;
   const queryNext = new URLSearchParams(location.search).get("next");
@@ -37,6 +38,8 @@ export default function Login() {
     ? queryNext
     : requestedPath && requestedPath.startsWith("/")
       ? requestedPath
+      : pendingGoogleRedirect && pendingGoogleRedirect.startsWith("/")
+        ? pendingGoogleRedirect
       : "/client/dashboard";
 
   useEffect(() => {
@@ -88,7 +91,7 @@ export default function Login() {
     try {
       setGoogleLoading(true);
       await startGoogleOAuth({
-        authPagePath: `/login?next=${encodeURIComponent(redirectPath)}`,
+        redirectPath,
       });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Erreur lors de la connexion Google.");
