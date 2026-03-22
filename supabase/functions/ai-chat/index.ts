@@ -707,6 +707,7 @@ serve(async (req) => {
     }
 
     let newPhase = currentPhase;
+    let newStatus = project.status === "draft" ? "discovery_active" : project.status;
     const phaseProgressData = project.phase_progress || {};
     if (readyForNextPhase && currentPhase < 7) {
       newPhase = currentPhase + 1;
@@ -715,10 +716,7 @@ serve(async (req) => {
     } else if (readyForNextPhase && currentPhase === 7) {
       // Phase 7 validated — mark discovery as complete
       phaseProgressData[String(7)] = { completed: true, progress: 100 };
-      await supabase
-        .from("projects")
-        .update({ status: "discovery_complete" })
-        .eq("id", projectId);
+      newStatus = "discovery_complete";
     } else {
       phaseProgressData[String(currentPhase)] = {
         ...(phaseProgressData[String(currentPhase)] || {}),
@@ -736,7 +734,7 @@ serve(async (req) => {
         current_phase: newPhase,
         phase_progress: phaseProgressData,
         overall_progress: Math.min(overallProgress, 100),
-        status: project.status === "draft" ? "discovery_active" : project.status,
+        status: newStatus,
       })
       .eq("id", projectId);
 
