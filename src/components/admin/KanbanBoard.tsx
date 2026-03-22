@@ -150,6 +150,15 @@ export function KanbanBoard({ projects, onClientClick }: KanbanBoardProps) {
 
       toast.success(`Projet déplacé vers "${KANBAN_COLUMNS.find((c) => c.status === newStatus)?.label}"`);
       queryClient.invalidateQueries({ queryKey: ["crm-projects"] });
+
+      // Send milestone email notification to client
+      sendMilestoneEmail({
+        projectId: project.id,
+        projectName: project.name,
+        projectCode: (project as Record<string, unknown>).code as string || "",
+        clientId: project.client_id,
+        newStatus,
+      });
     } catch (error: unknown) {
       queryClient.invalidateQueries({ queryKey: ["crm-projects"] });
       const msg = error instanceof Error ? error.message : "Erreur lors du déplacement";
