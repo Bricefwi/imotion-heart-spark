@@ -23,7 +23,7 @@ export const ConversationSummaryEmail = ({
   keyInsights = [],
   nextSteps = [],
   dashboardUrl = '#',
-  siteName = 'Clarivi',
+  siteName = 'IMOTION Creator Studio',
   siteUrl = 'https://imotion-conseils.fr',
 }: ConversationSummaryEmailProps) => (
   <Html>
