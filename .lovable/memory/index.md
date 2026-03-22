@@ -1,3 +1,6 @@
+# Memory: index.md
+Updated: now
+
 IMOTION Creator Studio design system, architecture, and project constraints
 
 ## Design System
@@ -6,27 +9,15 @@ IMOTION Creator Studio design system, architecture, and project constraints
 - Gradient: 135deg red→orange
 - Fonts: Inter (body), Plus Jakarta Sans (headings/display)
 - Border radius: 1rem (16px)
-
-## App Name
-- IMOTION Creator Studio (renamed from Discovery Pro)
+- Logo: gradient square with "IM" text (will be replaced with uploaded logo)
 
 ## Architecture
 - 4 roles: client, consultant, admin, super_admin (stored in user_roles table)
 - 4 layouts: Public, Client, Consultant, Admin
 - 7-phase AI conversation system
-- Database: profiles, user_roles, projects, conversations, messages, documents, notifications, activities, templates, settings, blog_posts, blog_editorial_calendar
-
-## Page Structure (Public)
-- `/` Home (Hero + Stats + PhotoStrip + CTA)
-- `/fonctionnalites` Features + HowItWorks + CTA
-- `/tarifs` Pricing + Testimonials + CTA
-- `/a-propos` About page
-- `/blog` Blog listing, `/blog/:slug` article
-- `/mentions-legales` Legal
-- `/confidentialite` Privacy
-- `/login`, `/register`, `/forgot-password`, `/reset-password`
+- Database: profiles, user_roles, projects, conversations, messages, documents, notifications, activities, templates, settings
 
 ## Backend
 - Lovable Cloud enabled
-- AI model: openai/gpt-5 (via Lovable AI gateway) — for ai-chat + generate-document
+- AI model: google/gemini-3-flash-preview (via Lovable AI gateway) — switched from gpt-5 for speed
 - Realtime enabled for messages and notifications tables
