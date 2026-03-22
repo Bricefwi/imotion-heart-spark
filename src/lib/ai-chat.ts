@@ -15,6 +15,7 @@ export interface AIChatResponse {
   extracted_data: Record<string, unknown>;
   sentiment: string;
   ready_for_next_phase: boolean;
+  discovery_complete?: boolean;
 }
 
 export async function sendChatMessage(
