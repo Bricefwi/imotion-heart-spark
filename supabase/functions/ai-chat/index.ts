@@ -503,7 +503,7 @@ serve(async (req) => {
     }
 
     // ── If discovery is already complete, don't continue the conversation ──
-    if (project.status === "discovery_complete") {
+    if (project.status === "discovery_completed") {
       return new Response(
         JSON.stringify({
           message: "C'est noté ! Ton cahier des charges est en cours de préparation. Tu peux le retrouver dans ton espace Documents dès qu'il sera prêt. 📄",
