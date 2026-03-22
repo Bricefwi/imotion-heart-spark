@@ -50,7 +50,7 @@ export default function CGU() {
           <section>
             <h2 className="font-display text-xl font-semibold mb-3">4. Création et gestion du Compte</h2>
             <p className="text-muted-foreground leading-relaxed">
-              Chaque Utilisateur est responsable de la confidentialité de ses identifiants de connexion. Toute activité effectuée depuis son Compte est réputée effectuée par lui. En cas d'utilisation non autorisée, l'Utilisateur doit en informer immédiatement IMOTION Conseil à l'adresse contact@imotion.io.
+              Chaque Utilisateur est responsable de la confidentialité de ses identifiants de connexion. Toute activité effectuée depuis son Compte est réputée effectuée par lui. En cas d'utilisation non autorisée, l'Utilisateur doit en informer immédiatement IMOTION Conseil à l'adresse contact@imotion-conseils.fr.
             </p>
             <p className="text-muted-foreground leading-relaxed mt-3">
               L'Utilisateur peut supprimer son Compte à tout moment depuis les paramètres de son espace personnel ou en contactant le support. La suppression entraîne l'effacement irréversible de l'ensemble des données associées, conformément au droit à l'effacement prévu par l'article 17 du RGPD.

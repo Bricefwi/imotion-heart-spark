@@ -27,7 +27,7 @@ export default function Privacy() {
             <ul className="text-muted-foreground leading-relaxed list-none pl-0 space-y-1 mt-3">
               <li><strong>IMOTION Conseil</strong> — SAS en cours d'immatriculation</li>
               <li>Siège social : [Adresse à compléter]</li>
-              <li>Email du DPO : contact@imotion.io</li>
+              <li>Email du DPO : contact@imotion-conseils.fr</li>
             </ul>
           </section>
 
@@ -173,7 +173,7 @@ export default function Privacy() {
               <li><strong>Directives post-mortem :</strong> conformément à l'article 85 de la loi Informatique et Libertés, vous pouvez définir des directives relatives au sort de vos données après votre décès.</li>
             </ul>
             <p className="text-muted-foreground leading-relaxed mt-4">
-              <strong>Pour exercer vos droits :</strong> envoyez un email à <a href="mailto:contact@imotion.io" className="text-primary underline hover:no-underline">contact@imotion.io</a> avec une copie d'une pièce d'identité. Nous nous engageons à répondre dans un délai d'un mois, conformément à l'article 12 du RGPD.
+              <strong>Pour exercer vos droits :</strong> envoyez un email à <a href="mailto:contact@imotion-conseils.fr" className="text-primary underline hover:no-underline">contact@imotion-conseils.fr</a> avec une copie d'une pièce d'identité. Nous nous engageons à répondre dans un délai d'un mois, conformément à l'article 12 du RGPD.
             </p>
             <p className="text-muted-foreground leading-relaxed mt-3">
               <strong>Réclamation :</strong> Vous pouvez introduire une réclamation auprès de la Commission Nationale de l'Informatique et des Libertés (CNIL) — <a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer" className="text-primary underline hover:no-underline">www.cnil.fr</a> — 3 Place de Fontenoy, TSA 80715, 75334 Paris Cedex 07.
@@ -250,7 +250,7 @@ export default function Privacy() {
               Pour toute question relative à la protection de vos données personnelles :
             </p>
             <ul className="text-muted-foreground leading-relaxed list-none pl-0 space-y-1 mt-3">
-              <li><strong>Email :</strong> <a href="mailto:contact@imotion.io" className="text-primary underline hover:no-underline">contact@imotion.io</a></li>
+              <li><strong>Email :</strong> <a href="mailto:contact@imotion-conseils.fr" className="text-primary underline hover:no-underline">contact@imotion-conseils.fr</a></li>
               <li><strong>Courrier :</strong> IMOTION Conseil — [Adresse à compléter]</li>
             </ul>
           </section>

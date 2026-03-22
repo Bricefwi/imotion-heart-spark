@@ -1272,7 +1272,7 @@ La reception emporte les effets suivants (conformement au Contrat article 10) :
 - Duree : 3 mois a compter du present PV
 - Perimetre : Correction des anomalies de conformite au CDC
 - Delais de correction : Bloquant 48h, Majeur 5 jours, Mineur 10 jours
-- Contact support : support@imotion-studio.com
+- Contact support : contact@imotion-conseils.fr
 
 ### 10.2 Maintenance (si contractualisee)
 - Forfait : [Nom du forfait]
@@ -1340,7 +1340,7 @@ ${base}
 | 123 Avenue de l'Innovation, 75008 Paris | [Fonction] |
 | SIRET: XXX XXX XXX 000XX | [Adresse client] |
 | TVA: FR XX XXX XXX XXX | [Email client] |
-| contact@imotion-studio.com | [Telephone client] |
+| contact@imotion-conseils.fr | [Telephone client] |
 
 **OBJET DU DEVIS** : [Nom du projet] - Type : [Type de projet]
 
@@ -1696,7 +1696,7 @@ Aucune partie ne sera responsable en cas de force majeure au sens de l'article 1
 9.2. Les sommes versees restent acquises au Prestataire.
 
 ### Article 10 - Protection des donnees
-Conformement au RGPD. Contact : contact@imotion-studio.com
+Conformement au RGPD. Contact : contact@imotion-conseils.fr
 
 ### Article 11 - Droit applicable et juridiction
 Droit francais. Competence exclusive des tribunaux de Paris.

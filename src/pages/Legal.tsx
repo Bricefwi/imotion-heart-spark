@@ -31,7 +31,7 @@ export default function Legal() {
               <li><strong>RCS / SIRET :</strong> En cours d'immatriculation</li>
               <li><strong>Numéro TVA intracommunautaire :</strong> En cours d'attribution</li>
               <li><strong>Directeur de la publication :</strong> [Nom du représentant légal à compléter]</li>
-              <li><strong>Email :</strong> contact@imotion.io</li>
+              <li><strong>Email :</strong> contact@imotion-conseils.fr</li>
               <li><strong>Téléphone :</strong> [À compléter]</li>
             </ul>
             <p className="text-muted-foreground leading-relaxed mt-3 text-sm italic">
@@ -111,7 +111,7 @@ export default function Legal() {
               Le traitement des données personnelles collectées via le Site est soumis au Règlement (UE) 2016/679 du 27 avril 2016 (RGPD) et à la loi n° 78-17 du 6 janvier 1978 modifiée (Loi Informatique et Libertés). Pour plus de détails, consultez notre <a href="/confidentialite" className="text-primary underline hover:no-underline">Politique de confidentialité</a>.
             </p>
             <p className="text-muted-foreground leading-relaxed mt-3">
-              <strong>Délégué à la protection des données (DPO) :</strong> contact@imotion.io
+              <strong>Délégué à la protection des données (DPO) :</strong> contact@imotion-conseils.fr
             </p>
           </section>
 

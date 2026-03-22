@@ -101,7 +101,7 @@ export default function CGV() {
               <strong>Exception :</strong> conformément à l'article L.221-28 du Code de la consommation, le droit de rétractation ne s'applique pas à la fourniture de contenu numérique non fourni sur un support matériel dont l'exécution a commencé avec l'accord préalable et exprès du consommateur et pour lequel il a renoncé à son droit de rétractation.
             </p>
             <p className="text-muted-foreground leading-relaxed mt-3">
-              Pour exercer le droit de rétractation, le Client doit adresser sa demande par email à contact@imotion.io ou par courrier postal au siège social d'IMOTION Conseil. Le remboursement sera effectué dans les 14 jours suivant la réception de la demande.
+              Pour exercer le droit de rétractation, le Client doit adresser sa demande par email à contact@imotion-conseils.fr ou par courrier postal au siège social d'IMOTION Conseil. Le remboursement sera effectué dans les 14 jours suivant la réception de la demande.
             </p>
           </section>
 
