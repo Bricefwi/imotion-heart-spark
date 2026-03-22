@@ -199,18 +199,43 @@ export default function ProjectConversation() {
           return;
         }
 
-        const { error } = await supabase.functions.invoke("generate-document", {
+        const { data, error } = await supabase.functions.invoke("generate-document", {
           body: { projectId, type: "cdc" },
           headers: { Authorization: `Bearer ${session.access_token}` },
         });
 
         if (error) throw error;
+        if (data?.error && typeof data.error === "string") {
+          throw new Error(data.error);
+        }
 
         toast.success("🎉 Votre Cahier des Charges a été généré avec succès !");
         setCdcScheduled(0);
         queryClient.invalidateQueries({ queryKey: ["project", projectId] });
-      } catch (err) {
+      } catch (err: unknown) {
         console.error("CDC generation error:", err);
+
+        if (
+          typeof err === "object" &&
+          err !== null &&
+          "context" in err &&
+          err.context instanceof Response
+        ) {
+          try {
+            const payload = await err.context.clone().json() as { error?: string };
+            toast.error(payload.error || "Erreur lors de la génération du CDC. Réessayez.");
+            return;
+          } catch {
+            try {
+              const text = await err.context.clone().text();
+              toast.error(text || "Erreur lors de la génération du CDC. Réessayez.");
+              return;
+            } catch {
+              // fallback below
+            }
+          }
+        }
+
         toast.error(err instanceof Error ? err.message : "Erreur lors de la génération du CDC. Réessayez.");
       } finally {
         setCdcGenerating(false);
