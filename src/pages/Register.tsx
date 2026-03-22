@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { SEOHead } from "@/components/SEOHead";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
+import { startGoogleOAuth } from "@/lib/google-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -137,28 +137,12 @@ export default function Register() {
   const handleGoogleSignUp = async () => {
     setGoogleLoading(true);
     try {
-      window.sessionStorage.setItem("google-oauth-redirect-path", "/client/dashboard");
-
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: `${window.location.origin}/auth/callback`,
-        extraParams: { prompt: "select_account" },
+      await startGoogleOAuth({
+        redirectPath: "/client/dashboard",
+        prompt: "select_account",
       });
-
-      if (result.redirected) {
-        // User was redirected to Google — nothing more to do here
-        return;
-      }
-
-      if (result.error) {
-        console.error("[Register] Google OAuth error:", result.error);
-        toast.error(result.error.message || "Erreur lors de l'inscription Google.");
-        setGoogleLoading(false);
-        return;
-      }
-
-      // Session was set by the Lovable broker (popup flow)
-      navigate("/client/dashboard", { replace: true });
-    } catch {
+    } catch (error) {
+      console.error("[Register] Google OAuth error:", error);
       toast.error("Erreur lors de l'inscription Google.");
       setGoogleLoading(false);
     }
