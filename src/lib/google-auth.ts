@@ -1,15 +1,38 @@
 import { lovable } from "@/integrations/lovable/index";
 
+const GOOGLE_REDIRECT_STORAGE_KEY = "google-oauth-redirect-path";
+
 type StartGoogleOAuthOptions = {
-  authPagePath: string;
+  redirectPath: string;
   prompt?: "none" | "consent" | "select_account";
 };
 
+const sanitizeRedirectPath = (value: string | null | undefined): string => {
+  if (!value || !value.startsWith("/") || value.startsWith("//")) {
+    return "/client/dashboard";
+  }
+
+  return value;
+};
+
+export function consumePendingGoogleRedirect(): string | null {
+  const storedValue = window.sessionStorage.getItem(GOOGLE_REDIRECT_STORAGE_KEY);
+
+  if (storedValue) {
+    window.sessionStorage.removeItem(GOOGLE_REDIRECT_STORAGE_KEY);
+  }
+
+  return storedValue ? sanitizeRedirectPath(storedValue) : null;
+}
+
 export async function startGoogleOAuth({
-  authPagePath,
+  redirectPath,
   prompt = "select_account",
 }: StartGoogleOAuthOptions): Promise<void> {
-  const redirectUri = `${window.location.origin}${authPagePath}`;
+  const safeRedirectPath = sanitizeRedirectPath(redirectPath);
+  const redirectUri = `${window.location.origin}/login`;
+
+  window.sessionStorage.setItem(GOOGLE_REDIRECT_STORAGE_KEY, safeRedirectPath);
 
   const result = await lovable.auth.signInWithOAuth("google", {
     redirect_uri: redirectUri,
