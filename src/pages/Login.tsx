@@ -102,7 +102,8 @@ export default function Login() {
           },
         });
         if (sbError) {
-          toast.error(error instanceof Error ? error.message : "Erreur lors de la connexion Google.");
+          console.error("[Login] Supabase OAuth error:", sbError.message);
+          toast.error(sbError.message || "Erreur lors de la connexion Google.");
           setGoogleLoading(false);
         }
       } catch {

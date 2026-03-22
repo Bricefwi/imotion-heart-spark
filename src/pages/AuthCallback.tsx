@@ -24,6 +24,10 @@ export default function AuthCallback() {
 
     const handle = async () => {
       try {
+        console.info("[AuthCallback] URL:", window.location.href);
+        console.info("[AuthCallback] Hash:", window.location.hash);
+        console.info("[AuthCallback] Search:", window.location.search);
+
         // 1. Check for hash fragment tokens (implicit / Lovable broker flow)
         const hash = window.location.hash.substring(1);
         const hashParams = new URLSearchParams(hash);
