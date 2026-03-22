@@ -529,7 +529,7 @@ serve(async (req) => {
       })),
     ];
 
-    // ── Call Lovable AI ──
+    // ── Call Lovable AI (fast model for responsiveness) ──
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -537,7 +537,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "openai/gpt-5",
+        model: "google/gemini-3-flash-preview",
         messages: aiMessages,
         stream: false,
       }),
