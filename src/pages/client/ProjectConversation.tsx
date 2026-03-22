@@ -62,9 +62,9 @@ export default function ProjectConversation() {
     enabled: !!projectId,
   });
 
-  // Check if project is already discovery_complete
+  // Check if project is already discovery_completed
   useEffect(() => {
-    if (project?.status === "discovery_complete") {
+    if (project?.status === "discovery_completed" || project?.status === "discovery_complete") {
       setDiscoveryComplete(true);
     }
   }, [project]);
