@@ -235,7 +235,7 @@ export default function ProjectConversation() {
                   {message.role !== "user" && (
                     <p className="text-[11px] text-muted-foreground mb-1 font-medium">
                       {message.role === "consultant"
-                        ? "Consultant Clarivi"
+                        ? "Consultant IMOTION"
                         : "Marc Delaunay · Consultant senior"}
                     </p>
                   )}

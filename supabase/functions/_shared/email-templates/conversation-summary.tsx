@@ -37,7 +37,7 @@ export const ConversationSummaryEmail = ({
       <Container style={container}>
         {/* Header */}
         <Section style={header}>
-          <Text style={logoText}>Clarivi</Text>
+          <Text style={logoText}>IMOTION Creator Studio</Text>
         </Section>
 
         {/* Hero */}
