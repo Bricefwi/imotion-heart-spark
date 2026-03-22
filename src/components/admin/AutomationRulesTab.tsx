@@ -77,7 +77,7 @@ export function AutomationRulesTab() {
   const queryClient = useQueryClient();
   const [createOpen, setCreateOpen] = useState(false);
   const [editRule, setEditRule] = useState<AutomationRule | null>(null);
-  const [animateParent] = useAutoAnimate();
+  
 
   // Form state
   const [formName, setFormName] = useState("");
