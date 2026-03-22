@@ -96,8 +96,9 @@ export default function AdminDashboard() {
 
   const moderateReview = useMutation({
     mutationFn: async ({ reviewId, action }: { reviewId: string; action: "approved" | "rejected" }) => {
-      const { error } = await supabase
-        .from("client_reviews" as string)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (supabase as any)
+        .from("client_reviews")
         .update({
           status: action,
           reviewed_by: user?.id,
