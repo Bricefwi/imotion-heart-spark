@@ -311,9 +311,17 @@ export default function AdminProjectDetail() {
             <BookOpen className="h-3.5 w-3.5 mr-1" />
             CDC ({cdcDocs.length})
           </TabsTrigger>
+          <TabsTrigger value="conseil">
+            <BrainCircuit className="h-3.5 w-3.5 mr-1" />
+            Conseil ({conseilDocs.length})
+          </TabsTrigger>
+          <TabsTrigger value="prompts">
+            <Sparkles className="h-3.5 w-3.5 mr-1" />
+            Prompts ({buildPromptsDocs.length})
+          </TabsTrigger>
           <TabsTrigger value="tech">
             <Cpu className="h-3.5 w-3.5 mr-1" />
-            Prompt & Outils
+            Reco legacy
           </TabsTrigger>
           <TabsTrigger value="contract">
             <Scale className="h-3.5 w-3.5 mr-1" />
@@ -321,7 +329,7 @@ export default function AdminProjectDetail() {
           </TabsTrigger>
           <TabsTrigger value="pv">
             <ClipboardCheck className="h-3.5 w-3.5 mr-1" />
-            PV Reception ({pvDocs.length})
+            PV ({pvDocs.length})
           </TabsTrigger>
           <TabsTrigger value="all-docs">
             <FileText className="h-3.5 w-3.5 mr-1" />
