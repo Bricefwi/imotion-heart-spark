@@ -1,6 +1,9 @@
 import { HeroSection } from "@/components/landing/HeroSection";
+import { TrustBar } from "@/components/landing/TrustBar";
 import { StatsSection } from "@/components/landing/StatsSection";
+import { HomeHowItWorks } from "@/components/landing/HomeHowItWorks";
 import { MiniPreviewCards } from "@/components/landing/MiniPreviewCards";
+import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { CTASection } from "@/components/landing/CTASection";
 import { SEOHead, organizationSchema, websiteSchema, softwareSchema } from "@/components/SEOHead";
 
@@ -14,8 +17,11 @@ export default function Index() {
         jsonLd={[organizationSchema, websiteSchema, softwareSchema]}
       />
       <HeroSection />
+      <TrustBar />
       <StatsSection />
+      <HomeHowItWorks />
       <MiniPreviewCards />
+      <TestimonialsSection />
       <CTASection />
     </div>
   );

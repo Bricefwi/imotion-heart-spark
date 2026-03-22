@@ -53,13 +53,13 @@ export default function AdminSettings() {
   });
 
   // Local state for forms
-  // deno-lint-ignore no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [company, setCompany] = useState<Record<string, any>>({});
-  // deno-lint-ignore no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [aiConfig, setAiConfig] = useState<Record<string, any>>({});
-  // deno-lint-ignore no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [pricing, setPricing] = useState<Record<string, any>>({});
-  // deno-lint-ignore no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [notifConfig, setNotifConfig] = useState<Record<string, any>>({});
 
   useEffect(() => {

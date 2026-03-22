@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { SEOHead } from "@/components/SEOHead";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { startGoogleOAuth } from "@/lib/google-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,7 +13,6 @@ import { toast } from "sonner";
 import { Loader2, ShieldCheck, X, Check } from "lucide-react";
 import { z } from "zod";
 import { useAuth } from "@/hooks/useAuth";
-import { startGoogleOAuth } from "@/lib/google-auth";
 
 const passwordSchema = z
   .string()
