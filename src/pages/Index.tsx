@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import Lenis from "lenis";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { TrustBar } from "@/components/landing/TrustBar";
 import { StatsSection } from "@/components/landing/StatsSection";
@@ -9,16 +8,34 @@ import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { FAQSection } from "@/components/landing/FAQSection";
 import { CTASection } from "@/components/landing/CTASection";
 import { SEOHead, organizationSchema, websiteSchema, softwareSchema, faqSchema } from "@/components/SEOHead";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export default function Index() {
   useEffect(() => {
-    const lenis = new Lenis({ duration: 1.2, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
+    let lenis: { raf: (time: number) => void; destroy: () => void } | null = null;
+    let rafId: number | null = null;
+
+    try {
+      // Dynamic import to avoid SSR/build issues
+      import("lenis").then((mod) => {
+        const Lenis = mod.default;
+        lenis = new Lenis({ duration: 1.2, easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+        function raf(time: number) {
+          lenis?.raf(time);
+          rafId = requestAnimationFrame(raf);
+        }
+        rafId = requestAnimationFrame(raf);
+      }).catch((err) => {
+        console.warn("Lenis smooth scroll not available:", err);
+      });
+    } catch (err) {
+      console.warn("Lenis init error:", err);
     }
-    requestAnimationFrame(raf);
-    return () => lenis.destroy();
+
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      lenis?.destroy();
+    };
   }, []);
 
   return (
@@ -29,13 +46,17 @@ export default function Index() {
         canonical="/"
         jsonLd={[organizationSchema, websiteSchema, softwareSchema, faqSchema]}
       />
-      <HeroSection />
+      <ErrorBoundary>
+        <HeroSection />
+      </ErrorBoundary>
       <TrustBar />
       <StatsSection />
       <HomeHowItWorks />
       <MiniPreviewCards />
       <TestimonialsSection />
-      <FAQSection />
+      <ErrorBoundary>
+        <FAQSection />
+      </ErrorBoundary>
       <CTASection />
     </div>
   );
