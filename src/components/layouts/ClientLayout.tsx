@@ -39,9 +39,9 @@ function ClientSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border/50">
-      <div className="px-4 py-5">
+      <Link to="/" className="block px-4 py-5">
         <Logo size="sm" showText={!collapsed} />
-      </div>
+      </Link>
       <SidebarContent className="px-2">
         <SidebarGroup>
           <SidebarGroupContent>
