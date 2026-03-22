@@ -17,3 +17,5 @@ project_id = "npmkzqxoxobfqdqpnsgf"
     verify_jwt = true
   [functions.send-transactional-email]
     verify_jwt = true
+  [functions.process-scheduled-cdc]
+    verify_jwt = false
