@@ -83,7 +83,8 @@ interface ClientData {
 }
 
 interface TemplateData {
-  content: string;
+  content?: string;
+  template_content?: string;
 }
 
 export function buildPromptFromTemplate(
@@ -93,10 +94,11 @@ export function buildPromptFromTemplate(
   discoveryData: Record<string, unknown>,
   conversationContext: string
 ): string {
-  let content = template.content;
+  let content = template.content || template.template_content || "";
   const prefs: Record<string, unknown> = (client?.preferences && typeof client.preferences === "object" && !Array.isArray(client.preferences))
     ? client.preferences
     : {};
+  const documentDate = new Date().toLocaleDateString("fr-FR");
   const vars: Record<string, string> = {
     project_name: project.name,
     project_code: project.code || "",
@@ -119,6 +121,23 @@ export function buildPromptFromTemplate(
     internal_notes: project.internal_notes || "Aucune",
     discovery_data: JSON.stringify(discoveryData, null, 2),
     conversation_context: conversationContext,
+    "project.name": project.name,
+    "project.code": project.code || "",
+    "project.current_phase": `${project.current_phase}/7`,
+    "project.qualification_score": `${project.qualification_score || "N/A"}/5`,
+    "project.estimated_budget_min": String(project.estimated_budget_min || "?"),
+    "project.estimated_budget_max": String(project.estimated_budget_max || "?"),
+    "project.desired_deadline": project.desired_deadline || "Non définie",
+    "project.internal_notes": project.internal_notes || "Aucune",
+    "client.full_name": client?.full_name || "N/A",
+    "client.company_name": client?.company_name || "N/A",
+    "client.company_role": client?.company_role || "Non renseignée",
+    "client.company_size": client?.company_size || "Non renseignée",
+    "client.industry": client?.industry || "Non spécifié",
+    "client.phone": client?.phone || "Non renseigné",
+    "client.email": client?.email || "N/A",
+    "client.website": client?.website || "Aucun",
+    "document.date": documentDate,
   };
   for (const [key, value] of Object.entries(vars)) {
     content = content.replace(new RegExp(`\\{\\{${key}\\}\\}`, "g"), value);

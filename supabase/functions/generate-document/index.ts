@@ -244,8 +244,9 @@ INSTRUCTIONS :
 `;
     }
 
-    const prompt = template
-      ? buildPromptFromTemplate(template, project, client, discoveryData, conversationContext)
+    const activeTemplate = pricingTemplate ?? template;
+    const prompt = activeTemplate
+      ? buildPromptFromTemplate(activeTemplate, project, client, discoveryData, conversationContext + pricingContext)
       : buildDocumentPrompt(docType, project, client, discoveryData, conversationContext + pricingContext);
 
     // Common AI call setup
@@ -274,6 +275,11 @@ INSTRUCTIONS :
         if (response.status === 429) {
           return new Response(JSON.stringify({ error: "Trop de requêtes, réessayez dans quelques instants." }), {
             status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        if (response.status === 402) {
+          return new Response(JSON.stringify({ error: "Le service IA est temporairement indisponible pour cause de crédits ou de facturation. Réessayez plus tard." }), {
+            status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
         }
         throw new Error("AI generation failed");
@@ -348,6 +354,11 @@ INSTRUCTIONS :
           status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+      if (response.status === 402) {
+        return new Response(JSON.stringify({ error: "Le service IA est temporairement indisponible pour cause de crédits ou de facturation. Réessayez plus tard." }), {
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       throw new Error("AI generation failed");
     }
 
@@ -419,7 +430,7 @@ INSTRUCTIONS :
   } catch (e) {
     console.error("generate-document error:", e);
     // Never expose internal error details to clients
-    return new Response(JSON.stringify({ error: "An internal error occurred while generating the document. Please try again later." }), {
+    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "An internal error occurred while generating the document. Please try again later." }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }

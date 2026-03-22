@@ -199,7 +199,7 @@ export default function ProjectConversation() {
           return;
         }
 
-        const { data, error } = await supabase.functions.invoke("generate-document", {
+        const { error } = await supabase.functions.invoke("generate-document", {
           body: { projectId, type: "cdc" },
           headers: { Authorization: `Bearer ${session.access_token}` },
         });
@@ -211,7 +211,7 @@ export default function ProjectConversation() {
         queryClient.invalidateQueries({ queryKey: ["project", projectId] });
       } catch (err) {
         console.error("CDC generation error:", err);
-        toast.error("Erreur lors de la génération du CDC. Réessayez.");
+        toast.error(err instanceof Error ? err.message : "Erreur lors de la génération du CDC. Réessayez.");
       } finally {
         setCdcGenerating(false);
       }
