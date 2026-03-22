@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { sendMilestoneEmail } from "@/lib/milestone-emails";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
