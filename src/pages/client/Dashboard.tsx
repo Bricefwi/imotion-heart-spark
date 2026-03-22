@@ -22,6 +22,7 @@ const PROJECT_MILESTONES = [
   { key: "discovery", label: "Discovery", icon: MessageSquare },
   { key: "cdc", label: "CDC", icon: FileText },
   { key: "proposal", label: "Devis", icon: Euro },
+  { key: "contract", label: "Contrat", icon: FilePen },
   { key: "development", label: "Développement", icon: FolderKanban },
   { key: "delivery", label: "Livraison", icon: CheckCircle },
 ];
@@ -30,7 +31,8 @@ function getMilestoneStatus(projectStatus: string) {
   const statusOrder = [
     "draft", "discovery_active", "discovery_paused", "discovery_completed",
     "cdc_ready", "cdc_generated",
-    "proposal_sent", "proposal_accepted", "signed",
+    "proposal_sent", "proposal_accepted",
+    "signed",
     "in_development",
     "delivered", "archived",
   ];
@@ -38,7 +40,8 @@ function getMilestoneStatus(projectStatus: string) {
   return {
     discovery: idx >= 1 ? (idx >= 3 ? "done" : "active") : "pending",
     cdc: idx >= 4 ? (idx >= 5 ? "done" : "active") : "pending",
-    proposal: idx >= 6 ? (idx >= 8 ? "done" : "active") : "pending",
+    proposal: idx >= 6 ? (idx >= 7 ? "done" : "active") : "pending",
+    contract: idx >= 7 ? (idx >= 8 ? "done" : "active") : "pending",
     development: idx >= 9 ? (idx >= 10 ? "done" : "active") : "pending",
     delivery: idx >= 10 ? "done" : "pending",
   } as Record<string, "done" | "active" | "pending">;
