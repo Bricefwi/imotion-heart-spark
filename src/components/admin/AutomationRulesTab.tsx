@@ -21,7 +21,6 @@ import {
   FileText, RefreshCw, Star, Calendar,
 } from "lucide-react";
 import type { AutomationLog, SupabaseError } from "@/types/admin";
-import type { AutomationLog, SupabaseError } from "@/types/admin";
 
 const TRIGGER_EVENTS = [
   { value: "user_registered", label: "Inscription utilisateur", icon: UserPlus, description: "Quand un nouveau client s'inscrit" },
