@@ -51,7 +51,7 @@ export default function AdminDashboard() {
   const { data: documents = [] } = useQuery({
     queryKey: ["admin-documents-count"],
     queryFn: async () => {
-      const { data } = await supabase.from("documents").select("id, doc_type, created_at").limit(1000);
+      const { data } = await supabase.from("documents").select("id, type, created_at").limit(1000);
       return data || [];
     },
     enabled: !!user,

@@ -189,9 +189,12 @@ INSTRUCTIONS :
       .single();
 
     // Try to fetch current estimate from pricing system
-    let estimate: Record<string, unknown> | null = null;
-    let pricingConfig: Record<string, unknown> | null = null;
-    let maintenancePlan: Record<string, unknown> | null = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let estimate: any = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let pricingConfig: any = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let maintenancePlan: any = null;
 
     const { data: currentEstimate } = await supabase
       .from("project_estimates")
