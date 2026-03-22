@@ -232,6 +232,8 @@ export default function AdminProjectDetail() {
 
   const cdcDocs = docsByType.cdc || [];
   const techRecoDocs = docsByType.tech_recommendation || [];
+  const conseilDocs = docsByType.conseil_technique || [];
+  const buildPromptsDocs = docsByType.build_prompts || [];
   const contractDocs = [...(docsByType.contract || []), ...(docsByType.contrat || []), ...(docsByType.contract_fr || [])];
   const pvDocs = docsByType.pv_reception || [];
   const proposalDocs = [...(docsByType.proposal || []), ...(docsByType.pricing || []), ...(docsByType.devis || [])];
