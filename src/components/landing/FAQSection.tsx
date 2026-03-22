@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
