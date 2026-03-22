@@ -9,7 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import {
   ArrowLeft, FileText, MessageSquare, Loader2, CheckCircle, Eye,
   Wrench, ClipboardCheck, BookOpen, Scale, Cpu, Download, AlertTriangle,
-  Clock, ShieldCheck, PenLine,
+  Clock, ShieldCheck, PenLine, Mail,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
