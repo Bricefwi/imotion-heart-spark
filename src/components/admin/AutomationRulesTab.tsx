@@ -20,7 +20,7 @@ import {
   Plus, Pencil, Trash2, Play, BarChart3, Send,
   FileText, RefreshCw, Star, Calendar,
 } from "lucide-react";
-import { useAutoAnimate } from "@formkit/auto-animate/react";
+import type { AutomationLog, SupabaseError } from "@/types/admin";
 import type { AutomationLog, SupabaseError } from "@/types/admin";
 
 const TRIGGER_EVENTS = [
