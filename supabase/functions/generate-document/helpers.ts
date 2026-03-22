@@ -71,7 +71,13 @@ interface ProjectData {
 interface ClientData {
   full_name?: string;
   company_name?: string;
+  company_role?: string;
+  company_size?: string;
   industry?: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+  preferences?: Record<string, unknown> | null;
 }
 
 interface TemplateData {
@@ -86,16 +92,28 @@ export function buildPromptFromTemplate(
   conversationContext: string
 ): string {
   let content = template.content;
+  const prefs: Record<string, unknown> = (client?.preferences && typeof client.preferences === "object" && !Array.isArray(client.preferences))
+    ? client.preferences
+    : {};
   const vars: Record<string, string> = {
     project_name: project.name,
     project_code: project.code || "",
     client_name: client?.full_name || "N/A",
     client_company: client?.company_name || "N/A",
+    client_role: client?.company_role || "Non renseignée",
+    client_size: client?.company_size || "Non renseignée",
     client_industry: client?.industry || "Non spécifié",
+    client_phone: client?.phone || "Non renseigné",
+    client_email: client?.email || "N/A",
+    client_website: client?.website || "Aucun",
+    social_linkedin: String(prefs.social_linkedin || discoveryData.social_linkedin || "Non renseigné"),
+    social_instagram: String(prefs.social_instagram || discoveryData.social_instagram || "Non renseigné"),
+    social_facebook: String(prefs.social_facebook || discoveryData.social_facebook || "Non renseigné"),
     current_phase: `${project.current_phase}/7`,
     qualification_score: `${project.qualification_score || "N/A"}/5`,
     budget_min: String(project.estimated_budget_min || "?"),
     budget_max: String(project.estimated_budget_max || "?"),
+    desired_deadline: project.desired_deadline || "Non définie",
     internal_notes: project.internal_notes || "Aucune",
     discovery_data: JSON.stringify(discoveryData, null, 2),
     conversation_context: conversationContext,

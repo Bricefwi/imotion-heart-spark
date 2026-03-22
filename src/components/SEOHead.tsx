@@ -98,7 +98,7 @@ export const organizationSchema = {
   url: BASE_URL,
   logo: `${BASE_URL}/favicon.png`,
   description: "Plateforme IA qui transforme vos idées en projets digitaux concrets via une conversation guidée.",
-  contactPoint: { "@type": "ContactPoint", contactType: "customer service", availableLanguage: "French" },
+  contactPoint: { "@type": "ContactPoint", contactType: "customer service", email: "contact@imotion-conseils.fr", availableLanguage: "French" },
   sameAs: [] as string[],
 };
 
@@ -124,6 +124,33 @@ export const softwareSchema = {
     "Génération automatique de CDC",
     "Estimation budgétaire",
     "Export PDF professionnel",
+  ],
+};
+
+export const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: [
+    {
+      "@type": "Question",
+      name: "Comment fonctionne la génération du cahier des charges ?",
+      acceptedAnswer: { "@type": "Answer", text: "Notre consultant IA vous guide à travers une conversation structurée en 7 phases. Il pose des questions précises sur votre projet et génère automatiquement un cahier des charges professionnel." }
+    },
+    {
+      "@type": "Question",
+      name: "Est-ce vraiment gratuit ?",
+      acceptedAnswer: { "@type": "Answer", text: "Oui, la génération du cahier des charges est 100% gratuite, sans engagement et sans carte bancaire. La réalisation de votre projet démarre à partir de 5 000€." }
+    },
+    {
+      "@type": "Question",
+      name: "Combien de temps faut-il pour générer un CDC ?",
+      acceptedAnswer: { "@type": "Answer", text: "En moyenne, une session de découverte complète prend environ 45 minutes. Votre progression est sauvegardée automatiquement." }
+    },
+    {
+      "@type": "Question",
+      name: "Mes données sont-elles sécurisées ?",
+      acceptedAnswer: { "@type": "Answer", text: "Vos données sont hébergées en Union européenne conformément au RGPD. L'accès est protégé par Row Level Security." }
+    },
   ],
 };
 

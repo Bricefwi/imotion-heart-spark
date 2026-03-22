@@ -18,7 +18,9 @@ import { fr } from "date-fns/locale";
 import {
   Zap, Mail, Clock, UserPlus, AlertTriangle, CheckCircle2,
   Plus, Pencil, Trash2, Play, BarChart3, Send,
+  FileText, RefreshCw, Star, Calendar,
 } from "lucide-react";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 import type { AutomationLog, SupabaseError } from "@/types/admin";
 
 const TRIGGER_EVENTS = [
@@ -30,6 +32,28 @@ const TRIGGER_EVENTS = [
   { value: "project_created", label: "Projet créé", icon: Zap, description: "Quand un client crée un nouveau projet" },
   { value: "document_ready", label: "Document prêt", icon: Mail, description: "Quand un document est finalisé" },
   { value: "project_signed", label: "Projet signé", icon: CheckCircle2, description: "Quand un projet passe en statut signé" },
+  { value: "onboarding_incomplete_48h", label: "Onboarding incomplet 48h", icon: Clock, description: "Client n'a pas terminé l'onboarding après 48h" },
+  { value: "cdc_generated", label: "CDC généré", icon: FileText, description: "Un Cahier des Charges vient d'être généré" },
+  { value: "status_changed", label: "Statut modifié", icon: RefreshCw, description: "Le statut d'un projet a changé" },
+  { value: "review_submitted", label: "Avis soumis", icon: Star, description: "Un client a soumis un avis" },
+  { value: "weekly_digest", label: "Résumé hebdomadaire", icon: Calendar, description: "Envoi automatique du résumé chaque lundi" },
+];
+
+const ACTION_TYPES = [
+  { value: "send_email", label: "Envoi d'email" },
+  { value: "notify_admin", label: "Notification in-app admin" },
+  { value: "update_status", label: "Mise à jour automatique du statut" },
+  { value: "slack_webhook", label: "Webhook externe (Slack, etc.)" },
+];
+
+const QUICK_TEMPLATES = [
+  { name: "Email de bienvenue", trigger: "user_registered", actionType: "send_email", subject: "Bienvenue chez IMOTION Creator Studio !", body: "Bonjour {{nom}},\n\nBienvenue sur IMOTION Creator Studio ! Nous sommes ravis de vous accompagner dans votre projet digital.\n\nPour commencer, complétez votre profil et lancez votre premier projet.\n\nL'équipe IMOTION", icon: UserPlus, color: "bg-blue-500/10 text-blue-600" },
+  { name: "Relance onboarding", trigger: "onboarding_incomplete_48h", actionType: "send_email", subject: "Finalisez votre inscription — {{entreprise}}", body: "Bonjour {{nom}},\n\nVous n'avez pas encore finalisé votre onboarding. Complétez votre profil en quelques minutes pour débloquer votre premier cahier des charges gratuit !\n\nÀ très vite,\nL'équipe IMOTION", icon: Clock, color: "bg-amber-500/10 text-amber-600" },
+  { name: "Alerte CDC prêt", trigger: "cdc_generated", actionType: "notify_admin", subject: "", body: "Un nouveau CDC a été généré pour le projet {{projet}}. Vérifiez-le avant l'envoi au client.", icon: FileText, color: "bg-primary/10 text-primary" },
+  { name: "Notification statut", trigger: "status_changed", actionType: "send_email", subject: "Votre projet évolue — {{projet}}", body: "Bonjour {{nom}},\n\nLe statut de votre projet {{projet}} a été mis à jour. Connectez-vous pour suivre l'avancement.\n\nCordialement,\nIMOTION Creator Studio", icon: RefreshCw, color: "bg-green-500/10 text-green-600" },
+  { name: "Rappel inactivité", trigger: "inactivity_7d", actionType: "send_email", subject: "Votre projet vous attend — {{entreprise}}", body: "Bonjour {{nom}},\n\nNous avons remarqué que vous n'avez pas été actif depuis quelques jours. Votre projet {{projet}} attend votre retour !\n\nBesoin d'aide ? Contactez-nous à contact@imotion-conseils.fr\n\nL'équipe IMOTION", icon: AlertTriangle, color: "bg-secondary/10 text-secondary" },
+  { name: "Alerte nouvel avis", trigger: "review_submitted", actionType: "notify_admin", subject: "", body: "Un client a soumis un nouvel avis. Consultez-le dans le panneau de modération.", icon: Star, color: "bg-yellow-500/10 text-yellow-600" },
+  { name: "Archivage auto 90j", trigger: "inactivity_30d", actionType: "update_status", subject: "", body: "archived", icon: Clock, color: "bg-muted text-muted-foreground" },
 ];
 
 interface AutomationRule {
@@ -53,6 +77,7 @@ export function AutomationRulesTab() {
   const queryClient = useQueryClient();
   const [createOpen, setCreateOpen] = useState(false);
   const [editRule, setEditRule] = useState<AutomationRule | null>(null);
+  const [animateParent] = useAutoAnimate();
 
   // Form state
   const [formName, setFormName] = useState("");
@@ -60,6 +85,7 @@ export function AutomationRulesTab() {
   const [formTrigger, setFormTrigger] = useState("");
   const [formSubject, setFormSubject] = useState("");
   const [formBody, setFormBody] = useState("");
+  const [formActionType, setFormActionType] = useState("send_email");
 
   const { data: rules = [], isLoading } = useQuery({
     queryKey: ["automation-rules"],
@@ -143,6 +169,7 @@ export function AutomationRulesTab() {
     setFormTrigger("");
     setFormSubject("");
     setFormBody("");
+    setFormActionType("send_email");
   }
 
   function openEdit(rule: AutomationRule) {
@@ -152,6 +179,18 @@ export function AutomationRulesTab() {
     setFormTrigger(rule.trigger_event);
     setFormSubject(rule.action_config?.subject?.toString() || "");
     setFormBody(rule.action_config?.body?.toString() || "");
+    setFormActionType(rule.action_type || "send_email");
+    setCreateOpen(true);
+  }
+
+  function applyTemplate(template: typeof QUICK_TEMPLATES[number]) {
+    setEditRule(null);
+    setFormName(template.name);
+    setFormDescription("");
+    setFormTrigger(template.trigger);
+    setFormActionType(template.actionType);
+    setFormSubject(template.subject);
+    setFormBody(template.body);
     setCreateOpen(true);
   }
 
@@ -161,14 +200,26 @@ export function AutomationRulesTab() {
       return;
     }
 
+    const actionConfig: Record<string, string> = {};
+    if (formActionType === "send_email") {
+      actionConfig.subject = formSubject;
+      actionConfig.body = formBody;
+    } else if (formActionType === "notify_admin") {
+      actionConfig.message = formBody;
+    } else if (formActionType === "update_status") {
+      actionConfig.new_status = formBody;
+    } else if (formActionType === "slack_webhook") {
+      actionConfig.webhook_url = formBody;
+    }
+
     const payload = {
       name: formName,
       description: formDescription || null,
-      type: "email",
+      type: formActionType === "send_email" ? "email" : formActionType,
       trigger_event: formTrigger,
       trigger_config: {},
-      action_type: "send_email",
-      action_config: { subject: formSubject, body: formBody },
+      action_type: formActionType,
+      action_config: actionConfig,
       created_by: user?.id,
     };
 
@@ -275,21 +326,68 @@ export function AutomationRulesTab() {
                   </p>
                 )}
               </div>
+              <div className="space-y-2">
+                <Label>Type d'action *</Label>
+                <Select value={formActionType} onValueChange={setFormActionType}>
+                  <SelectTrigger><SelectValue placeholder="Choisir un type d'action" /></SelectTrigger>
+                  <SelectContent>
+                    {ACTION_TYPES.map((a) => (
+                      <SelectItem key={a.value} value={a.value}>{a.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <Separator />
-              <div className="space-y-2">
-                <Label>Sujet de l'email</Label>
-                <Input value={formSubject} onChange={(e) => setFormSubject(e.target.value)} placeholder="Bienvenue chez Clarivi !" />
-              </div>
-              <div className="space-y-2">
-                <Label>Corps du message</Label>
-                <Textarea
-                  value={formBody}
-                  onChange={(e) => setFormBody(e.target.value)}
-                  placeholder="Bonjour {{nom}}, bienvenue sur notre plateforme…"
-                  rows={5}
-                />
-                <p className="text-[10px] text-muted-foreground">Variables: {"{{nom}}, {{email}}, {{entreprise}}, {{projet}}"}</p>
-              </div>
+              {formActionType === "send_email" && (
+                <>
+                  <div className="space-y-2">
+                    <Label>Sujet de l'email</Label>
+                    <Input value={formSubject} onChange={(e) => setFormSubject(e.target.value)} placeholder="Bienvenue chez IMOTION Creator Studio !" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Corps du message</Label>
+                    <Textarea
+                      value={formBody}
+                      onChange={(e) => setFormBody(e.target.value)}
+                      placeholder="Bonjour {{nom}}, bienvenue sur notre plateforme…"
+                      rows={5}
+                    />
+                    <p className="text-[10px] text-muted-foreground">Variables: {"{{nom}}, {{email}}, {{entreprise}}, {{projet}}"}</p>
+                  </div>
+                </>
+              )}
+              {formActionType === "notify_admin" && (
+                <div className="space-y-2">
+                  <Label>Message de notification</Label>
+                  <Textarea
+                    value={formBody}
+                    onChange={(e) => setFormBody(e.target.value)}
+                    placeholder="Message à afficher dans les notifications admin…"
+                    rows={4}
+                  />
+                  <p className="text-[10px] text-muted-foreground">Variables: {"{{nom}}, {{email}}, {{entreprise}}, {{projet}}"}</p>
+                </div>
+              )}
+              {formActionType === "update_status" && (
+                <div className="space-y-2">
+                  <Label>Nouveau statut</Label>
+                  <Input
+                    value={formBody}
+                    onChange={(e) => setFormBody(e.target.value)}
+                    placeholder="Ex: archived, completed, in_review…"
+                  />
+                </div>
+              )}
+              {formActionType === "slack_webhook" && (
+                <div className="space-y-2">
+                  <Label>URL du webhook</Label>
+                  <Input
+                    value={formBody}
+                    onChange={(e) => setFormBody(e.target.value)}
+                    placeholder="https://hooks.slack.com/services/..."
+                  />
+                </div>
+              )}
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => { setCreateOpen(false); setEditRule(null); resetForm(); }}>Annuler</Button>
@@ -301,8 +399,31 @@ export function AutomationRulesTab() {
         </Dialog>
       </div>
 
+      {/* Quick templates */}
+      <div className="space-y-2">
+        <h4 className="text-sm font-semibold text-muted-foreground">Modèles rapides</h4>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+          {QUICK_TEMPLATES.map((tpl) => {
+            const TplIcon = tpl.icon;
+            return (
+              <Card key={tpl.name} className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer" onClick={() => applyTemplate(tpl)}>
+                <CardContent className="p-3 flex items-center gap-3">
+                  <div className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${tpl.color}`}>
+                    <TplIcon className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-semibold truncate">{tpl.name}</p>
+                  </div>
+                  <Button size="sm" variant="ghost" className="text-xs shrink-0 h-7 px-2">Activer</Button>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Rules list */}
-      <div className="space-y-3">
+      <div className="space-y-3" ref={animateParent}>
         {rules.length === 0 ? (
           <Card className="border-0 shadow-sm">
             <CardContent className="p-8 text-center">

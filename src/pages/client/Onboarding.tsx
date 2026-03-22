@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import {
   User, Building2, Globe, Target, Wallet, Wrench, Users, ArrowRight, ArrowLeft, Check, Sparkles,
 } from "lucide-react";
+import confetti from "canvas-confetti";
 
 const STEPS = [
   { icon: User, label: "Vous", title: "Faisons connaissance" },
@@ -151,9 +152,15 @@ export default function Onboarding() {
             objectives: data.objectives,
             budget_range: data.budget_range,
             timeline: data.timeline,
+            desired_deadline: data.desired_deadline || null,
             current_tools: data.current_tools,
+            other_tools: data.other_tools || null,
             competitors: data.competitors,
             inspiration: data.inspiration,
+            additional_notes: data.additional_notes || null,
+            social_linkedin: data.social_linkedin || null,
+            social_instagram: data.social_instagram || null,
+            social_facebook: data.social_facebook || null,
           },
         })
         .select("id")
@@ -161,6 +168,7 @@ export default function Onboarding() {
 
       if (projectError) throw projectError;
 
+      confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
       toast.success("Bienvenue ! Démarrons la création de votre cahier des charges.");
       navigate(`/client/projects/${newProject.id}/conversation`);
     } catch (err: unknown) {

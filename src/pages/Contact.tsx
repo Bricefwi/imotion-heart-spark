@@ -99,7 +99,7 @@ export default function Contact() {
             {/* Info cards */}
             <div className="space-y-4 lg:order-2">
               {[
-                { icon: Mail, title: "Email", desc: "contact@imotion.io", href: "mailto:contact@imotion.io" },
+                { icon: Mail, title: "Email", desc: "contact@imotion-conseils.fr", href: "mailto:contact@imotion-conseils.fr" },
                 { icon: Phone, title: "Téléphone", desc: "+33 1 XX XX XX XX", href: "tel:+33100000000" },
                 { icon: MapPin, title: "Adresse", desc: "Paris, France", href: undefined },
               ].map((item, i) => (

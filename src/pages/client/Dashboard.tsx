@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { PhaseProgress } from "@/components/PhaseProgress";
 import { StatsCard } from "@/components/StatsCard";
 import { Link } from "react-router-dom";
+import { ReviewSubmitForm } from "@/components/ReviewSubmitForm";
 import {
   FolderKanban, FileText, Euro, MessageSquare, Clock, Plus, ArrowRight,
   FileDown, CheckCircle, Loader2, CalendarDays, TrendingUp, Shield,
@@ -439,6 +440,9 @@ export default function ClientDashboard() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Review form */}
+          <ReviewSubmitForm />
 
           {/* Recent activity */}
           <Card className="border border-border/40 shadow-sm">

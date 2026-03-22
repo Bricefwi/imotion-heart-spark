@@ -113,7 +113,7 @@ export default function Cookies() {
               Pour toute question relative à notre politique de cookies :
             </p>
             <ul className="text-muted-foreground leading-relaxed list-none pl-0 space-y-1 mt-3">
-              <li><strong>Email :</strong> <a href="mailto:contact@imotion.io" className="text-primary underline hover:no-underline">contact@imotion.io</a></li>
+              <li><strong>Email :</strong> <a href="mailto:contact@imotion-conseils.fr" className="text-primary underline hover:no-underline">contact@imotion-conseils.fr</a></li>
               <li><strong>CNIL :</strong> <a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer" className="text-primary underline hover:no-underline">www.cnil.fr</a></li>
             </ul>
           </section>
