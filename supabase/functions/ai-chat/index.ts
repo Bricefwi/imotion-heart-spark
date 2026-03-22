@@ -765,7 +765,7 @@ serve(async (req) => {
         sentiment,
         ready_for_next_phase: readyForNextPhase,
       }),
-      { headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
+      { status: 200, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
     );
   } catch (e) {
     console.error("ai-chat error:", e);
