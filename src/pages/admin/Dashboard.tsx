@@ -51,7 +51,7 @@ export default function AdminDashboard() {
   const { data: documents = [] } = useQuery({
     queryKey: ["admin-documents-count"],
     queryFn: async () => {
-      const { data } = await supabase.from("documents").select("id, doc_type, created_at").limit(1000);
+      const { data } = await supabase.from("documents").select("id, type, created_at").limit(1000);
       return data || [];
     },
     enabled: !!user,
@@ -60,12 +60,13 @@ export default function AdminDashboard() {
   const { data: pendingReviews = [] } = useQuery({
     queryKey: ["admin-pending-reviews"],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("client_reviews" as string)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data } = await (supabase as any)
+        .from("client_reviews")
         .select("*")
         .order("created_at", { ascending: false })
         .limit(50);
-      return (data || []) as Array<{
+      return (data || []) as unknown as Array<{
         id: string;
         reviewer_name: string;
         reviewer_company: string | null;
@@ -95,8 +96,9 @@ export default function AdminDashboard() {
 
   const moderateReview = useMutation({
     mutationFn: async ({ reviewId, action }: { reviewId: string; action: "approved" | "rejected" }) => {
-      const { error } = await supabase
-        .from("client_reviews" as string)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (supabase as any)
+        .from("client_reviews")
         .update({
           status: action,
           reviewed_by: user?.id,
@@ -115,7 +117,7 @@ export default function AdminDashboard() {
   // ── KPIs ──
 
   const activeProjects = projects.filter(p => !["archived", "delivered", "lost"].includes(p.status));
-  const cdcGenerated = documents.filter(d => d.doc_type === "cdc").length;
+  const cdcGenerated = documents.filter((d: { type: string }) => d.type === "cdc").length;
   const totalPipeline = projects.reduce((sum, p) => sum + (p.estimated_budget_max || 0), 0);
   const totalMessages = projects.reduce((sum, p) => sum + (p.total_messages || 0), 0);
   const onboardedClients = profiles.filter(p => p.onboarding_completed).length;

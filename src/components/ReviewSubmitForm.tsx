@@ -29,7 +29,8 @@ export function ReviewSubmitForm({ onSuccess }: ReviewFormProps) {
 
     setLoading(true);
     try {
-      const { error } = await supabase.from("client_reviews" as string).insert({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (supabase as any).from("client_reviews").insert({
         user_id: user.id,
         reviewer_name: profile?.full_name || "Anonyme",
         reviewer_role: profile?.company_role || null,
