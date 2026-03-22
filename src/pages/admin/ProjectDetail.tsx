@@ -264,14 +264,16 @@ export default function AdminProjectDetail() {
       </Card>
 
       {/* Pipeline overview cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
         {[
           { label: "CDC", count: cdcDocs.length, icon: BookOpen, color: "text-blue-600", type: "cdc" },
+          { label: "Conseil Tech", count: conseilDocs.length, icon: BrainCircuit, color: "text-cyan-600", type: "conseil_technique" },
+          { label: "Prompts Build", count: buildPromptsDocs.length, icon: Sparkles, color: "text-violet-600", type: "build_prompts" },
           { label: "Reco & Prompt", count: techRecoDocs.length, icon: Cpu, color: "text-purple-600", type: "tech_recommendation" },
-          { label: "Outils", count: projectTools.length, icon: Wrench, color: "text-orange-600", type: null },
           { label: "Devis", count: proposalDocs.length, icon: FileText, color: "text-amber-600", type: "pricing" },
           { label: "Contrat", count: contractDocs.length, icon: Scale, color: "text-green-600", type: "contract_fr" },
           { label: "PV Reception", count: pvDocs.length, icon: ClipboardCheck, color: "text-emerald-600", type: "pv_reception" },
+          { label: "Outils", count: projectTools.length, icon: Wrench, color: "text-orange-600", type: null },
         ].map((item) => (
           <Card key={item.label} className="border-0 shadow-sm">
             <CardContent className="p-3 text-center">
