@@ -35,7 +35,7 @@ const EMAIL_SUBJECTS: Record<string, string> = {
 }
 
 // Template mapping
-// deno-lint-ignore no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
   signup: SignupEmail,
   invite: InviteEmail,
