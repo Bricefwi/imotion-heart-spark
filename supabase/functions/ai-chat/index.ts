@@ -502,6 +502,24 @@ serve(async (req) => {
       }
     }
 
+    // ── If discovery is already complete, don't continue the conversation ──
+    if (project.status === "discovery_complete") {
+      return new Response(
+        JSON.stringify({
+          message: "C'est noté ! Ton cahier des charges est en cours de préparation. Tu peux le retrouver dans ton espace Documents dès qu'il sera prêt. 📄",
+          suggestions: [],
+          phase_current: 7,
+          phase_progress: 100,
+          overall_progress: 100,
+          extracted_data: {},
+          sentiment: "positive",
+          ready_for_next_phase: true,
+          discovery_complete: true,
+        }),
+        { status: 200, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
+      );
+    }
+
     const currentPhase = project.current_phase || 1;
     const discoveryData = project.discovery_data || {};
 
@@ -512,8 +530,16 @@ serve(async (req) => {
       .eq("project_id", projectId)
       .eq("phase", currentPhase);
 
-    // ── Save user message (sanitized) ──
+    // ── Server-side farewell detection for phase 7 ──
     const lastUserMsg = messages[messages.length - 1];
+    const lastUserContent = (lastUserMsg?.content || "").toLowerCase().trim();
+    const farewellPatterns = [
+      /\b(merci|à bient[oô]t|au revoir|bonne journ[eé]e|bonne soir[eé]e|à tr[èe]s vite|salut|ciao|bye|parfait|c'est bon|ok merci|super merci|c'est noté|hâte de voir|j'attends|à dans|bonne route|bon courage)\b/i,
+      /^(ok|oui|yes|parfait|super|top|nickel|génial|excellent|c'est tout|rien d'autre|non merci|pas de question)$/i,
+    ];
+    const isPhase7Farewell = currentPhase === 7 && farewellPatterns.some(p => p.test(lastUserContent));
+
+    // ── Save user message (sanitized) ──
     if (lastUserMsg?.role === "user") {
       const sanitizedContent = sanitizeString(lastUserMsg.content, MAX_MESSAGE_LENGTH);
       await supabase.from("messages").insert({
