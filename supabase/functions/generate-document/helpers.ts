@@ -18,6 +18,8 @@ export function getDocName(type: string, projectName: string): string {
     proposal: "Proposition Commerciale",
     contract: "Contrat de Prestation",
     tech_recommendation: "Recommandation Technique & Prompt",
+    conseil_technique: "Conseil Technique — Livrable Stratégique",
+    build_prompts: "Prompts de Build — Guide IA",
     pricing: "Proposition Tarifaire Détaillée",
     contract_fr: "Contrat de Prestation (Droit Français)",
     pv_reception: "Proces-Verbal de Reception",
