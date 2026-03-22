@@ -60,12 +60,13 @@ export default function AdminDashboard() {
   const { data: pendingReviews = [] } = useQuery({
     queryKey: ["admin-pending-reviews"],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("client_reviews" as string)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data } = await (supabase as any)
+        .from("client_reviews")
         .select("*")
         .order("created_at", { ascending: false })
         .limit(50);
-      return (data || []) as Array<{
+      return (data || []) as unknown as Array<{
         id: string;
         reviewer_name: string;
         reviewer_company: string | null;
