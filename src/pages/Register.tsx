@@ -135,14 +135,28 @@ export default function Register() {
   };
 
   const handleGoogleSignUp = async () => {
+    setGoogleLoading(true);
     try {
-      setGoogleLoading(true);
-      await startGoogleOAuth({
-        redirectPath: "/client/dashboard",
-      });
+      // Primary: Lovable OAuth broker
+      await startGoogleOAuth({ redirectPath: "/client/dashboard" });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Erreur lors de l'inscription Google.");
-      setGoogleLoading(false);
+      console.warn("[Register] Lovable OAuth failed, trying Supabase native:", error);
+      // Fallback: Supabase native Google OAuth
+      try {
+        const { error: sbError } = await supabase.auth.signInWithOAuth({
+          provider: "google",
+          options: {
+            redirectTo: `${window.location.origin}/auth/callback`,
+          },
+        });
+        if (sbError) {
+          toast.error(error instanceof Error ? error.message : "Erreur lors de l'inscription Google.");
+          setGoogleLoading(false);
+        }
+      } catch {
+        toast.error("Erreur lors de l'inscription Google.");
+        setGoogleLoading(false);
+      }
     }
   };
 
