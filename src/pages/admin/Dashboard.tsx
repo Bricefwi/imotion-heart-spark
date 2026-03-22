@@ -1,11 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { StatsCard } from "@/components/StatsCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import {
   Users, FolderKanban, FileText, Euro, TrendingUp, Activity,
   MessageSquare, Clock, Star, CheckCircle2, XCircle, Eye,
-  Search, Filter, ArrowRight,
+  Search, Filter, ArrowRight, Sparkles, Building2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,6 +16,7 @@ import { formatDistanceToNow, format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 import { useState } from "react";
+import { motion } from "framer-motion";
 import type { Activity as ActivityType } from "@/types/admin";
 
 export default function AdminDashboard() {
@@ -143,33 +144,134 @@ export default function AdminDashboard() {
     delivered: "success", archived: "muted",
   };
 
+  // ── Aggregated data ──
+  const topIndustries = profiles.reduce<Record<string, number>>((acc, p) => {
+    if (p.industry) acc[p.industry] = (acc[p.industry] || 0) + 1;
+    return acc;
+  }, {});
+  const sortedIndustries = Object.entries(topIndustries).sort(([, a], [, b]) => b - a).slice(0, 4);
+
+  const kpiCards = [
+    {
+      label: "Pipeline total",
+      value: totalPipeline > 0 ? `${(totalPipeline / 1000).toFixed(0)}k€` : "0€",
+      icon: Euro,
+      gradient: "from-primary/90 to-primary/70",
+      textColor: "text-white",
+      bgIcon: "text-white/10",
+    },
+    {
+      label: "Projets actifs",
+      value: activeProjects.length,
+      icon: FolderKanban,
+      gradient: "from-secondary/90 to-amber-500/80",
+      textColor: "text-white",
+      bgIcon: "text-white/10",
+      alert: activeProjects.filter(p => p.status === "review_pending").length > 0
+        ? `${activeProjects.filter(p => p.status === "review_pending").length} en revue`
+        : undefined,
+    },
+    {
+      label: "Taux conversion",
+      value: `${conversionRate}%`,
+      icon: TrendingUp,
+      gradient: "from-emerald-500/90 to-green-600/80",
+      textColor: "text-white",
+      bgIcon: "text-white/10",
+      progress: conversionRate,
+    },
+    {
+      label: "CDC générés",
+      value: cdcGenerated,
+      icon: FileText,
+      gradient: "from-blue-500/90 to-indigo-600/80",
+      textColor: "text-white",
+      bgIcon: "text-white/10",
+    },
+  ];
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Hero header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8 text-white">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-secondary/10" />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
-        <div className="relative z-10 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Administration</h1>
-            <p className="text-white/60 mt-2 text-sm max-w-md">Vue d'ensemble et pilotage de la plateforme.</p>
-          </div>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Vue d'ensemble</h1>
+          <p className="text-muted-foreground mt-1 text-sm">Bienvenue dans votre Tour de Contrôle</p>
+        </div>
+        <div className="flex items-center gap-2">
           {pendingReviewCount > 0 && (
             <Badge className="bg-secondary text-secondary-foreground text-sm px-3 py-1.5">
               {pendingReviewCount} avis en attente
             </Badge>
           )}
+          <Button variant="outline" size="sm" asChild className="gap-2">
+            <Link to="/admin/logs">
+              <Sparkles className="h-3.5 w-3.5" />
+              Diagnostics Système
+            </Link>
+          </Button>
         </div>
       </div>
 
-      {/* KPIs grid — 2 rows */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <StatsCard label="Utilisateurs" value={profiles.length} icon={Users} />
-        <StatsCard label="Projets actifs" value={activeProjects.length} icon={FolderKanban} />
-        <StatsCard label="CDC générés" value={cdcGenerated} icon={FileText} />
-        <StatsCard label="Pipeline" value={totalPipeline > 0 ? `${(totalPipeline / 1000).toFixed(0)}k€` : "0€"} icon={Euro} />
-        <StatsCard label="Taux conversion" value={`${conversionRate}%`} icon={TrendingUp} />
-        <StatsCard label="Onboardés" value={`${onboardedClients}/${profiles.length}`} icon={CheckCircle2} />
+      {/* Hero KPI cards — 4 colored gradient cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {kpiCards.map((kpi, i) => (
+          <motion.div
+            key={kpi.label}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1, duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+          >
+            <div className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${kpi.gradient} p-5 ${kpi.textColor}`}>
+              <kpi.icon className={`absolute top-3 right-3 h-16 w-16 ${kpi.bgIcon}`} />
+              <div className="relative z-10">
+                <p className="text-sm font-medium opacity-80">{kpi.label}</p>
+                <p className="text-3xl font-bold mt-1">{kpi.value}</p>
+                {kpi.alert && (
+                  <p className="text-xs mt-2 flex items-center gap-1 opacity-90">
+                    <Clock className="h-3 w-3" /> {kpi.alert}
+                  </p>
+                )}
+                {kpi.progress !== undefined && (
+                  <div className="mt-3">
+                    <Progress value={kpi.progress} className="h-1.5 bg-white/20 [&>div]:bg-white" />
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Secondary stats row */}
+      <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+        {[
+          { label: "Utilisateurs", value: profiles.length, icon: Users },
+          { label: "En attente", value: projects.filter(p => p.status === "review_pending").length, icon: Clock },
+          { label: "Messages", value: totalMessages, icon: MessageSquare },
+          { label: "Avis à valider", value: pendingReviewCount, icon: Star },
+          { label: "Activités", value: recentActivities.length, icon: Activity },
+          { label: "Onboardés", value: onboardedClients, icon: CheckCircle2 },
+        ].map((stat, i) => (
+          <motion.div
+            key={stat.label}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.4 + i * 0.05, duration: 0.3 }}
+          >
+            <Card className="border-0 shadow-sm">
+              <CardContent className="p-3 flex items-center gap-3">
+                <div className="h-9 w-9 rounded-xl bg-muted flex items-center justify-center shrink-0">
+                  <stat.icon className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="text-lg font-bold leading-none">{stat.value}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{stat.label}</p>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
       </div>
 
       {/* Main content grid */}
@@ -328,29 +430,29 @@ export default function AdminDashboard() {
         </Card>
       </div>
 
-      {/* Bottom row — Projects + Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent projects */}
-        <Card className="border border-border/40 shadow-sm overflow-hidden">
+      {/* Two-column layout: Projects list + Client preferences */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left: Recent projects */}
+        <Card className="lg:col-span-2 border border-border/40 shadow-sm overflow-hidden">
           <CardHeader className="flex-row items-center justify-between pb-3 bg-gradient-to-r from-muted/40 to-transparent">
             <CardTitle className="text-base font-semibold flex items-center gap-2">
               <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center">
                 <FolderKanban className="h-3.5 w-3.5 text-primary" />
               </div>
-              Projets récents
+              Derniers projets
             </CardTitle>
-            <Button variant="ghost" size="sm" asChild className="text-xs">
-              <Link to="/consultant/projects">Voir tous</Link>
+            <Button variant="ghost" size="sm" asChild className="text-xs gap-1">
+              <Link to="/admin/crm">Voir tout <ArrowRight className="h-3 w-3" /></Link>
             </Button>
           </CardHeader>
           <CardContent className="space-y-1 p-3">
-            {projects.slice(0, 5).map((project, i) => (
+            {projects.slice(0, 6).map((project) => (
               <div
                 key={project.id}
-                className="flex items-center justify-between p-3 rounded-xl hover:bg-muted/40 transition-all duration-200 group"
+                className="flex items-center justify-between p-3 rounded-xl hover:bg-muted/40 transition-all duration-200 group border-l-2 border-transparent hover:border-primary/30"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-200">
+                  <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center shrink-0">
                     <span className="text-xs font-bold text-primary">{project.name?.charAt(0) || "P"}</span>
                   </div>
                   <div className="min-w-0">
@@ -366,51 +468,228 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                 </div>
-                <span className="text-[11px] text-muted-foreground/60 shrink-0 ml-2">
-                  {project.created_at && formatDistanceToNow(new Date(project.created_at), { addSuffix: true, locale: fr })}
-                </span>
+                <div className="text-right shrink-0 ml-2">
+                  {project.estimated_budget_max ? (
+                    <p className="text-sm font-semibold">{project.estimated_budget_max.toLocaleString()}€</p>
+                  ) : null}
+                  <p className="text-[10px] text-muted-foreground/60">
+                    {project.created_at && format(new Date(project.created_at), "dd MMM", { locale: fr })}
+                  </p>
+                </div>
               </div>
             ))}
           </CardContent>
         </Card>
 
-        {/* Activity feed */}
+        {/* Right: Client preferences / aggregated data */}
         <Card className="border border-border/40 shadow-sm overflow-hidden">
           <CardHeader className="pb-3 bg-gradient-to-r from-muted/40 to-transparent">
             <CardTitle className="text-base font-semibold flex items-center gap-2">
-              <div className="h-7 w-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                <Activity className="h-3.5 w-3.5 text-blue-500" />
+              <div className="h-7 w-7 rounded-lg bg-secondary/10 flex items-center justify-center">
+                <Building2 className="h-3.5 w-3.5 text-secondary" />
               </div>
-              Activité récente
+              Préférences clients
             </CardTitle>
+            <p className="text-xs text-muted-foreground mt-1">Agrégation des profils</p>
           </CardHeader>
-          <CardContent className="space-y-1 p-3">
-            {recentActivities.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-8 text-center">Aucune activité.</p>
-            ) : (
-              recentActivities.map((activity) => (
-                <div
-                  key={activity.id}
-                  className="flex items-start gap-3 p-3 rounded-xl hover:bg-muted/40 transition-all duration-200"
-                >
-                  <div className="relative mt-0.5">
-                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center">
-                      <div className="h-2 w-2 rounded-full bg-primary" />
-                    </div>
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm leading-snug">{activity.description || activity.action}</p>
-                    <p className="text-[11px] text-muted-foreground/60 mt-1">
-                      <span className="font-medium text-muted-foreground/80">{(activity as unknown as ActivityType).profile?.full_name || "Système"}</span>
-                      {" · "}
-                      {activity.created_at && formatDistanceToNow(new Date(activity.created_at), { addSuffix: true, locale: fr })}
-                    </p>
-                  </div>
+          <CardContent className="p-4 space-y-4">
+            {/* Top industries */}
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground mb-2">Top secteurs d'activité</p>
+              {sortedIndustries.length > 0 ? (
+                <div className="space-y-2">
+                  {sortedIndustries.map(([industry, count], i) => {
+                    const pct = profiles.length > 0 ? Math.round((count / profiles.length) * 100) : 0;
+                    return (
+                      <div key={industry} className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <span className="text-xs text-muted-foreground w-4">{i + 1}.</span>
+                          <span className="truncate text-xs">{industry}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Progress value={pct} className="w-16 h-1.5" />
+                          <span className="text-xs font-semibold text-primary w-8 text-right">{pct}%</span>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              ))
-            )}
+              ) : (
+                <p className="text-xs text-muted-foreground">Aucune donnée</p>
+              )}
+            </div>
+
+            <div className="border-t border-border/30 pt-3 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">Onboarding complété</span>
+                <span className="text-sm font-bold">{profiles.length > 0 ? Math.round((onboardedClients / profiles.length) * 100) : 0}%</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">Projets / client</span>
+                <span className="text-sm font-bold">{profiles.length > 0 ? (projects.length / profiles.length).toFixed(1) : "0"}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">Total clients</span>
+                <span className="text-sm font-bold text-primary">{profiles.length}</span>
+              </div>
+            </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Bottom row — Client list + Reviews + Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Client list */}
+        <Card className="lg:col-span-2 border border-border/40 shadow-sm overflow-hidden">
+          <CardHeader className="flex-row items-center justify-between pb-3 bg-gradient-to-r from-muted/40 to-transparent">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Users className="h-3.5 w-3.5 text-primary" />
+              </div>
+              Clients ({profiles.length})
+            </CardTitle>
+            <div className="relative w-48">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input
+                value={clientSearch}
+                onChange={(e) => setClientSearch(e.target.value)}
+                placeholder="Rechercher..."
+                className="h-8 pl-8 text-xs"
+              />
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="max-h-[350px] overflow-y-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/30 sticky top-0">
+                  <tr className="text-left text-xs text-muted-foreground">
+                    <th className="px-4 py-2.5 font-medium">Client</th>
+                    <th className="px-4 py-2.5 font-medium hidden md:table-cell">Entreprise</th>
+                    <th className="px-4 py-2.5 font-medium hidden lg:table-cell">Secteur</th>
+                    <th className="px-4 py-2.5 font-medium">Statut</th>
+                    <th className="px-4 py-2.5 font-medium hidden md:table-cell">Inscrit</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredClients.slice(0, 15).map((client) => (
+                    <tr key={client.id} className="border-t border-border/20 hover:bg-muted/20 transition-colors">
+                      <td className="px-4 py-3">
+                        <p className="font-medium text-sm">{client.full_name || "—"}</p>
+                        <p className="text-xs text-muted-foreground">{client.email}</p>
+                      </td>
+                      <td className="px-4 py-3 hidden md:table-cell text-muted-foreground text-xs">{client.company_name || "—"}</td>
+                      <td className="px-4 py-3 hidden lg:table-cell">
+                        {client.industry && <Badge variant="muted" className="text-[10px]">{client.industry}</Badge>}
+                      </td>
+                      <td className="px-4 py-3">
+                        <Badge variant={client.onboarding_completed ? "success" : "warning"} className="text-[10px]">
+                          {client.onboarding_completed ? "Actif" : "Onboarding"}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3 hidden md:table-cell text-xs text-muted-foreground">
+                        {client.created_at && format(new Date(client.created_at), "dd/MM/yy", { locale: fr })}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {filteredClients.length === 0 && (
+                <p className="text-sm text-muted-foreground py-8 text-center">Aucun client trouvé.</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Review moderation + Activity feed */}
+        <div className="space-y-6">
+          {/* Reviews */}
+          <Card className="border border-border/40 shadow-sm overflow-hidden">
+            <CardHeader className="flex-row items-center justify-between pb-3 bg-gradient-to-r from-muted/40 to-transparent">
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <div className="h-7 w-7 rounded-lg bg-secondary/10 flex items-center justify-center">
+                  <Star className="h-3.5 w-3.5 text-secondary" />
+                </div>
+                Avis clients
+              </CardTitle>
+              {pendingReviewCount > 0 && (
+                <Badge variant="warning" className="text-[10px]">{pendingReviewCount} en attente</Badge>
+              )}
+            </CardHeader>
+            <CardContent className="space-y-3 p-3 max-h-[250px] overflow-y-auto">
+              {pendingReviews.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-6 text-center">Aucun avis.</p>
+              ) : (
+                pendingReviews.slice(0, 5).map((review) => (
+                  <div
+                    key={review.id}
+                    className={`p-3 rounded-xl border transition-all ${
+                      review.status === "pending"
+                        ? "border-secondary/30 bg-secondary/5"
+                        : review.status === "approved"
+                        ? "border-green-200 bg-green-50/50"
+                        : "border-red-200 bg-red-50/50 opacity-60"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-medium text-xs">{review.reviewer_name}</span>
+                      <div className="flex gap-0.5">
+                        {[1, 2, 3, 4, 5].map((s) => (
+                          <Star key={s} className={`h-2.5 w-2.5 ${s <= review.rating ? "fill-secondary text-secondary" : "text-muted-foreground/20"}`} />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed mb-2 line-clamp-2">"{review.review_text}"</p>
+                    {review.status === "pending" ? (
+                      <div className="flex gap-1.5">
+                        <Button size="sm" variant="ghost" className="h-6 px-2 text-[10px] text-green-600 hover:bg-green-50" onClick={() => moderateReview.mutate({ reviewId: review.id, action: "approved" })}>
+                          <CheckCircle2 className="h-3 w-3 mr-1" /> Approuver
+                        </Button>
+                        <Button size="sm" variant="ghost" className="h-6 px-2 text-[10px] text-red-500 hover:bg-red-50" onClick={() => moderateReview.mutate({ reviewId: review.id, action: "rejected" })}>
+                          <XCircle className="h-3 w-3 mr-1" /> Rejeter
+                        </Button>
+                      </div>
+                    ) : (
+                      <Badge variant={review.status === "approved" ? "success" : "destructive"} className="text-[10px]">
+                        {review.status === "approved" ? "Publié" : "Rejeté"}
+                      </Badge>
+                    )}
+                  </div>
+                ))
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Activity feed */}
+          <Card className="border border-border/40 shadow-sm overflow-hidden">
+            <CardHeader className="pb-3 bg-gradient-to-r from-muted/40 to-transparent">
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <div className="h-7 w-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                  <Activity className="h-3.5 w-3.5 text-blue-500" />
+                </div>
+                Activité récente
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-1 p-3 max-h-[200px] overflow-y-auto">
+              {recentActivities.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-6 text-center">Aucune activité.</p>
+              ) : (
+                recentActivities.slice(0, 5).map((activity) => (
+                  <div key={activity.id} className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted/40 transition-all">
+                    <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5 shrink-0">
+                      <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs leading-snug">{activity.description || activity.action}</p>
+                      <p className="text-[10px] text-muted-foreground/60 mt-0.5">
+                        {(activity as unknown as ActivityType).profile?.full_name || "Système"} · {activity.created_at && formatDistanceToNow(new Date(activity.created_at), { addSuffix: true, locale: fr })}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

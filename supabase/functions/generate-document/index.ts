@@ -481,12 +481,14 @@ REGLES JURIDIQUES IMPERATIVES :
 - Le prestataire est "IMOTION Creator Studio" (SAS)
 - SIRET: XXX XXX XXX 000XX | RCS Paris B XXX XXX XXX | Capital: 10 000 euros`,
 
-    tech_recommendation: `Tu es un architecte technique senior et CTO d'IMOTION Creator Studio, agence digitale premium. Tu maitrises parfaitement l'ecosysteme no-code, low-code et code.
+    tech_recommendation: `Tu es un architecte technique senior et CTO d'IMOTION Creator Studio, agence digitale premium. Tu maitrises parfaitement l'ecosysteme no-code, low-code et code. Tu coordonnes une equipe multi-agent pour repondre aux besoins du CDC client.
 
 REGLES :
 - Recommande les outils les PLUS ADAPTES au projet
-- Justifie chaque choix technique avec des arguments concrets
-- Fournis un prompt technique COMPLET et pret a l'emploi
+- Justifie chaque choix technique avec des arguments concrets (ROI, cout, maintenabilite, scalabilite)
+- Fournis un prompt technique COMPLET et pret a l'emploi pour chaque outil recommande
+- Inclus une section CONSEIL A L'ADMINISTRATEUR avec recommandations internes
+- Inclus un PROMPT MULTI-AGENT ORCHESTRE pour la realisation du projet
 - Pense ROI, maintenabilite, scalabilite et budget client
 - Redige en francais technique mais comprehensible
 - NE JAMAIS utiliser d'emojis`,
@@ -535,17 +537,32 @@ REGLES JURIDIQUES ET PROFESSIONNELLES :
 // buildPromptFromTemplate is imported from ./helpers.ts
 
 function buildDocumentPrompt(type: string, project: Record<string, unknown>, client: Record<string, unknown> | null, discoveryData: Record<string, unknown>, conversationContext: string): string {
+  // Extract preferences (social links, additional data) from client profile
+  const prefs: Record<string, unknown> = (client?.preferences && typeof client.preferences === "object" && !Array.isArray(client.preferences))
+    ? client.preferences as Record<string, unknown>
+    : {};
+
   const base = `
 ## INFORMATIONS PROJET
 - **Nom** : ${project.name} (Réf. ${project.code})
-- **Client** : ${client?.full_name || "N/A"}
-- **Entreprise** : ${client?.company_name || "N/A"}
-- **Secteur** : ${client?.industry || "Non spécifié"}
 - **Phase actuelle** : ${project.current_phase}/7
 - **Score qualification** : ${project.qualification_score || "N/A"}/5
 - **Budget estimé** : ${project.estimated_budget_min || "?"} - ${project.estimated_budget_max || "?"}€
 - **Deadline souhaitée** : ${project.desired_deadline || "Non définie"}
 - **Notes internes** : ${project.internal_notes || "Aucune"}
+
+## INFORMATIONS CLIENT COMPLÈTES
+- **Nom complet** : ${client?.full_name || "N/A"}
+- **Entreprise** : ${client?.company_name || "N/A"}
+- **Fonction** : ${client?.company_role || "Non renseignée"}
+- **Secteur d'activité** : ${client?.industry || "Non spécifié"}
+- **Taille entreprise** : ${client?.company_size || "Non renseignée"}
+- **Téléphone** : ${client?.phone || "Non renseigné"}
+- **Email** : ${client?.email || "N/A"}
+- **Site web actuel** : ${client?.website || "Aucun"}
+- **LinkedIn** : ${prefs.social_linkedin || discoveryData.social_linkedin || "Non renseigné"}
+- **Instagram** : ${prefs.social_instagram || discoveryData.social_instagram || "Non renseigné"}
+- **Facebook** : ${prefs.social_facebook || discoveryData.social_facebook || "Non renseigné"}
 
 ## DONNÉES DE DÉCOUVERTE STRUCTURÉES
 ${JSON.stringify(discoveryData, null, 2)}
@@ -852,17 +869,79 @@ Pour chaque outil principal recommandé, fournir un **prompt technique détaill�
 [Prompt adapté à cet outil]
 \`\`\`
 
-# 4. ARCHITECTURE TECHNIQUE DÉTAILLÉE
+# 4. CONSEIL A L'ADMINISTRATEUR IMOTION
+
+## 4.1 Outils internes recommandes
+Recommande les meilleurs outils pour l'equipe IMOTION pour gerer ce projet :
+| Categorie | Outil recommande | Alternative | Justification |
+|-----------|-----------------|-------------|---------------|
+| Gestion de projet | ... | ... | ... |
+| Communication client | ... | ... | ... |
+| Design / Prototypage | ... | ... | ... |
+| Suivi financier | ... | ... | ... |
+| Documentation | ... | ... | ... |
+| Tests / QA | ... | ... | ... |
+
+## 4.2 Allocation d'equipe recommandee
+| Role | Profil recherche | TJM estime | Jours estimes | Total |
+|------|-----------------|------------|---------------|-------|
+| Chef de projet | Senior, 5+ ans | 550-700EUR | ... | ... |
+| UX/UI Designer | Senior, Figma expert | 450-600EUR | ... | ... |
+| Developpeur | ... | ... | ... | ... |
+| QA / Testeur | ... | ... | ... | ... |
+
+## 4.3 Workflow de production recommande
+Decris les etapes sequentielles recommandees pour l'equipe :
+1. Kickoff et cadrage (1 semaine)
+2. Conception UX/UI (2-3 semaines)
+3. Sprints de developpement (X semaines)
+4. Phase de recette (1-2 semaines)
+5. Mise en production et transfert (1 semaine)
+6. Garantie et maintenance (3 mois)
+
+# 5. PROMPT MULTI-AGENT ORCHESTRE
+
+Genere un prompt principal qui coordonne plusieurs sous-agents IA pour la realisation du projet. Chaque agent a un role specialise :
+
+## Agent 1 : Analyste CDC
+Role : Valider le perimetre fonctionnel, identifier les zones de risque, proposer des arbitrages
+Prompt : [prompt detaille pour cet agent]
+
+## Agent 2 : UX/UI Designer
+Role : Creer le design system, wireframes, prototypes, guidelines d'accessibilite
+Prompt : [prompt detaille pour cet agent]
+
+## Agent 3 : Architecte Developpeur
+Role : Definir l'architecture technique, les schemas de BDD, les APIs, le code de base
+Prompt : [prompt detaille pour cet agent incluant schema SQL, endpoints API, structure de fichiers]
+
+## Agent 4 : QA Engineer
+Role : Ecrire les plans de test, les scenarios de recette, les criteres d'acceptation
+Prompt : [prompt detaille pour cet agent]
+
+## Agent 5 : DevOps / Deploiement
+Role : Configurer l'infrastructure, CI/CD, monitoring, sauvegardes, securite
+Prompt : [prompt detaille pour cet agent]
+
+## Orchestration
+Decris le flux de coordination entre les agents :
+1. Agent CDC analyse et valide → Output : perimetre valide
+2. Agent UX recoit le perimetre → Output : maquettes + design tokens
+3. Agent Dev recoit maquettes + perimetre → Output : code source
+4. Agent QA recoit le code → Output : rapport de tests
+5. Agent DevOps recoit le code valide → Output : deploiement en production
+
+# 6. ARCHITECTURE TECHNIQUE DÉTAILLÉE
 - Diagramme textuel de l'architecture (Markdown)
 - Flux de données
 - Points d'intégration
 - Stratégie de déploiement
 
-# 5. RISQUES TECHNIQUES & MITIGATIONS
+# 7. RISQUES TECHNIQUES & MITIGATIONS
 | Risque | Impact | Probabilité | Mitigation |
 |--------|--------|-------------|------------|
 
-# 6. ESTIMATION DE L'EFFORT TECHNIQUE
+# 8. ESTIMATION DE L'EFFORT TECHNIQUE
 | Phase | Complexité | Jours estimés | Profil requis |
 |-------|-----------|---------------|---------------|
 

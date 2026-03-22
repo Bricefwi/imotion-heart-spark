@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Star, Send, Loader2, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
+import confetti from "canvas-confetti";
 
 interface ReviewFormProps {
   onSuccess?: () => void;
@@ -41,6 +42,7 @@ export function ReviewSubmitForm({ onSuccess }: ReviewFormProps) {
       if (error) throw error;
 
       setSubmitted(true);
+      confetti({ particleCount: 80, spread: 60, origin: { y: 0.7 } });
       toast.success("Merci ! Votre avis sera publié après validation.");
       onSuccess?.();
     } catch (err) {

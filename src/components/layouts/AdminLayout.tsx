@@ -208,17 +208,55 @@ function NotificationDropdown({ unreadCount }: { unreadCount: number }) {
   );
 }
 
-const adminNav = [
-  { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard },
-  { title: "Tower Control", url: "/admin/crm", icon: Radar },
-  { title: "Analytiques", url: "/admin/analytics", icon: BarChart3 },
-  { title: "Utilisateurs", url: "/admin/users", icon: Users },
-  { title: "Blog", url: "/admin/blog", icon: BookOpen },
-  { title: "Templates", url: "/admin/templates", icon: FileText },
-  { title: "Paramètres", url: "/admin/settings", icon: Settings },
-  { title: "Intégrations", url: "/admin/integrations", icon: Plug },
-  { title: "Logs", url: "/admin/logs", icon: ScrollText },
+interface NavItem {
+  title: string;
+  url: string;
+  icon: typeof LayoutDashboard;
+  badge?: "NEW" | "AI" | "SOON";
+}
+
+interface SidebarGroupDef {
+  label: string;
+  items: NavItem[];
+}
+
+const sidebarGroups: SidebarGroupDef[] = [
+  {
+    label: "Modules Principaux",
+    items: [
+      { title: "Vue d'ensemble", url: "/admin/dashboard", icon: LayoutDashboard },
+      { title: "Tower Control", url: "/admin/crm", icon: Radar, badge: "NEW" },
+      { title: "Analytiques", url: "/admin/analytics", icon: BarChart3, badge: "NEW" },
+    ],
+  },
+  {
+    label: "Croissance",
+    items: [
+      { title: "Utilisateurs", url: "/admin/users", icon: Users },
+      { title: "Blog", url: "/admin/blog", icon: BookOpen },
+      { title: "Templates", url: "/admin/templates", icon: FileText },
+    ],
+  },
+  {
+    label: "Outils IA",
+    items: [
+      { title: "Diagnostics", url: "/admin/logs", icon: ScrollText, badge: "AI" },
+    ],
+  },
+  {
+    label: "Système",
+    items: [
+      { title: "Paramètres", url: "/admin/settings", icon: Settings },
+      { title: "Intégrations", url: "/admin/integrations", icon: Plug, badge: "SOON" },
+    ],
+  },
 ];
+
+const badgeStyles: Record<string, string> = {
+  NEW: "bg-primary/15 text-primary text-[9px] font-bold px-1.5 py-0.5 rounded-full",
+  AI: "bg-purple-500/15 text-purple-600 dark:text-purple-400 text-[9px] font-bold px-1.5 py-0.5 rounded-full",
+  SOON: "bg-muted text-muted-foreground text-[9px] font-medium px-1.5 py-0.5 rounded-full",
+};
 
 const adminQuickNav = [
   { title: "Dashboard", url: "/admin/dashboard" },
@@ -242,31 +280,40 @@ function AdminSidebar() {
       </div>
 
       <SidebarContent className="px-2">
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-sidebar-foreground/30 uppercase text-[10px] tracking-[0.1em] px-3 mb-1">
-            {!collapsed && <><Shield className="inline h-3 w-3 mr-1.5 opacity-50" />Administration</>}
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu className="gap-0.5">
-              {adminNav.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-all duration-200"
-                      activeClassName="!bg-[hsl(var(--sidebar-primary)/0.12)] !text-[hsl(var(--sidebar-primary))] font-semibold shadow-[inset_3px_0_0_0_hsl(var(--sidebar-primary))]"
-                    >
-                      <item.icon className="h-[18px] w-[18px] shrink-0" />
-                      {!collapsed && <span className="text-[13px]">{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {sidebarGroups.map((group) => (
+          <SidebarGroup key={group.label}>
+            <SidebarGroupLabel className="text-sidebar-foreground/30 uppercase text-[10px] tracking-[0.1em] px-3 mb-1">
+              {!collapsed && group.label}
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu className="gap-0.5">
+                {group.items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink
+                        to={item.url}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-all duration-200"
+                        activeClassName="!bg-[hsl(var(--sidebar-primary)/0.12)] !text-[hsl(var(--sidebar-primary))] font-semibold shadow-[inset_3px_0_0_0_hsl(var(--sidebar-primary))]"
+                      >
+                        <item.icon className="h-[18px] w-[18px] shrink-0" />
+                        {!collapsed && (
+                          <span className="flex items-center gap-2 flex-1 text-[13px]">
+                            {item.title}
+                            {item.badge && (
+                              <span className={badgeStyles[item.badge]}>{item.badge}</span>
+                            )}
+                          </span>
+                        )}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
 
-        {/* Quick links */}
+        {/* Navigation links */}
         <SidebarGroup>
           <SidebarGroupLabel className="text-sidebar-foreground/30 uppercase text-[10px] tracking-[0.1em] px-3 mb-1">
             {!collapsed && "Navigation"}

@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import Lenis from "lenis";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { TrustBar } from "@/components/landing/TrustBar";
 import { StatsSection } from "@/components/landing/StatsSection";
@@ -9,6 +11,16 @@ import { CTASection } from "@/components/landing/CTASection";
 import { SEOHead, organizationSchema, websiteSchema, softwareSchema, faqSchema } from "@/components/SEOHead";
 
 export default function Index() {
+  useEffect(() => {
+    const lenis = new Lenis({ duration: 1.2, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+    function raf(time: number) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+    return () => lenis.destroy();
+  }, []);
+
   return (
     <div className="overflow-hidden">
       <SEOHead
