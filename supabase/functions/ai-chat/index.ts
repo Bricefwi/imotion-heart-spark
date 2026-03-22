@@ -716,7 +716,7 @@ serve(async (req) => {
     } else if (readyForNextPhase && currentPhase === 7) {
       // Phase 7 validated — mark discovery as complete
       phaseProgressData[String(7)] = { completed: true, progress: 100 };
-      newStatus = "discovery_complete";
+      newStatus = "discovery_completed";
     } else {
       phaseProgressData[String(currentPhase)] = {
         ...(phaseProgressData[String(currentPhase)] || {}),
