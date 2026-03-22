@@ -423,7 +423,7 @@ export function AutomationRulesTab() {
       </div>
 
       {/* Rules list */}
-      <div className="space-y-3" ref={animateParent}>
+      <div className="space-y-3">
         {rules.length === 0 ? (
           <Card className="border-0 shadow-sm">
             <CardContent className="p-8 text-center">
