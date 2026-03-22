@@ -10,7 +10,7 @@ import { AuthPhotoCarousel } from "@/components/AuthPhotoCarousel";
 import { toast } from "sonner";
 import { Loader2, Mail, Wand2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { consumePendingGoogleRedirect } from "@/lib/google-auth";
+import { consumePendingGoogleRedirect, startGoogleOAuth } from "@/lib/google-auth";
 
 const getSmartRedirect = async (userId: string | undefined, fallback: string): Promise<string> => {
   if (!userId || (fallback !== "/client/dashboard" && fallback !== "/")) return fallback;
@@ -89,22 +89,12 @@ export default function Login() {
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
     try {
-      // Store redirect path for after OAuth callback
-      window.sessionStorage.setItem("google-oauth-redirect-path", redirectPath);
-
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-          queryParams: { prompt: "select_account" },
-        },
+      await startGoogleOAuth({
+        redirectPath,
+        prompt: "select_account",
       });
-      if (error) {
-        console.error("[Login] Google OAuth error:", error.message);
-        toast.error(error.message || "Erreur lors de la connexion Google.");
-        setGoogleLoading(false);
-      }
-    } catch {
+    } catch (error) {
+      console.error("[Login] Google OAuth error:", error);
       toast.error("Erreur lors de la connexion Google.");
       setGoogleLoading(false);
     }
