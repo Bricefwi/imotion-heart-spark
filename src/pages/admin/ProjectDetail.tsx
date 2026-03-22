@@ -323,6 +323,10 @@ export default function AdminProjectDetail() {
             <FileText className="h-3.5 w-3.5 mr-1" />
             Tous ({documents.length})
           </TabsTrigger>
+          <TabsTrigger value="emails">
+            <Mail className="h-3.5 w-3.5 mr-1" />
+            Emails
+          </TabsTrigger>
         </TabsList>
 
         {/* OVERVIEW TAB */}
