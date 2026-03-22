@@ -74,7 +74,6 @@ function FAQItem({ question, answer, index }: { question: string; answer: string
 }
 
 export function FAQSection() {
-  const [animateParent] = useAutoAnimate();
   return (
     <section className="py-24 md:py-32">
       <div className="container">
