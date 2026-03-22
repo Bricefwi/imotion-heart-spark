@@ -27,8 +27,20 @@ export async function sendChatMessage(
     throw new Error("Trop de messages envoyés. Veuillez patienter quelques instants.");
   }
 
+  const {
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
+
+  if (sessionError || !session?.access_token) {
+    throw new Error("Session expirée. Merci de vous reconnecter.");
+  }
+
   const { data, error } = await supabase.functions.invoke("ai-chat", {
     body: { messages, projectId, conversationId },
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+    },
   });
 
   if (error) {
