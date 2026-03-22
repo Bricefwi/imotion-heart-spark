@@ -854,3 +854,138 @@ function DocumentCard({
     </div>
   );
 }
+
+// Email history tab component
+const EMAIL_STATUS_BADGES: Record<string, { label: string; className: string }> = {
+  pending: { label: "En attente", className: "bg-amber-100 text-amber-700" },
+  sent: { label: "Envoyé", className: "bg-green-100 text-green-700" },
+  failed: { label: "Échoué", className: "bg-destructive/10 text-destructive" },
+  dlq: { label: "Échoué", className: "bg-destructive/10 text-destructive" },
+  suppressed: { label: "Supprimé", className: "bg-muted text-muted-foreground" },
+  bounced: { label: "Rebond", className: "bg-orange-100 text-orange-700" },
+  complained: { label: "Plainte", className: "bg-destructive/10 text-destructive" },
+};
+
+const TEMPLATE_LABELS: Record<string, string> = {
+  cdc_ready: "CDC prêt",
+  discovery_complete: "Découverte terminée",
+  proposal_sent: "Proposition envoyée",
+  contract_signed: "Contrat signé",
+  development_started: "Développement démarré",
+  project_delivered: "Projet livré",
+  auth_emails: "Email d'authentification",
+};
+
+function EmailHistoryTab({ clientEmail, projectCode }: { clientEmail?: string; projectCode?: string | null }) {
+  const { data: emailLogs = [], isLoading } = useQuery({
+    queryKey: ["admin-email-logs", clientEmail],
+    queryFn: async () => {
+      if (!clientEmail) return [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await (supabase as any)
+        .from("email_send_log")
+        .select("*")
+        .eq("recipient_email", clientEmail)
+        .order("created_at", { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!clientEmail,
+  });
+
+  // Deduplicate by message_id (keep latest)
+  const dedupedLogs = (() => {
+    const seen = new Map<string, typeof emailLogs[0]>();
+    for (const log of emailLogs) {
+      const key = log.message_id || log.id;
+      if (!seen.has(key) || new Date(log.created_at) > new Date(seen.get(key)!.created_at)) {
+        seen.set(key, log);
+      }
+    }
+    return Array.from(seen.values()).sort(
+      (a: { created_at: string }, b: { created_at: string }) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+  })();
+
+  const stats = {
+    total: dedupedLogs.length,
+    sent: dedupedLogs.filter((l: { status: string }) => l.status === "sent").length,
+    failed: dedupedLogs.filter((l: { status: string }) => ["failed", "dlq"].includes(l.status)).length,
+    pending: dedupedLogs.filter((l: { status: string }) => l.status === "pending").length,
+  };
+
+  if (isLoading) {
+    return (
+      <Card className="border-0 shadow-sm">
+        <CardContent className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[
+          { label: "Total envoyés", value: stats.total, color: "text-foreground" },
+          { label: "Délivrés", value: stats.sent, color: "text-green-600" },
+          { label: "En attente", value: stats.pending, color: "text-amber-600" },
+          { label: "Échoués", value: stats.failed, color: "text-destructive" },
+        ].map((s) => (
+          <Card key={s.label} className="border-0 shadow-sm">
+            <CardContent className="p-3 text-center">
+              <p className="text-xs text-muted-foreground">{s.label}</p>
+              <p className={cn("text-xl font-bold", s.color)}>{s.value}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Log table */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="font-display text-base flex items-center gap-2">
+            <Mail className="h-4 w-4" />
+            Historique des emails — {clientEmail || "—"}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {dedupedLogs.length === 0 ? (
+            <div className="text-center py-8">
+              <Mail className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground">Aucun email envoyé pour ce projet.</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {dedupedLogs.map((log: { id: string; template_name: string; status: string; created_at: string; error_message?: string }) => {
+                const badge = EMAIL_STATUS_BADGES[log.status] || EMAIL_STATUS_BADGES.pending;
+                return (
+                  <div key={log.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
+                    <Mail className="h-4 w-4 text-muted-foreground shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">
+                        {TEMPLATE_LABELS[log.template_name] || log.template_name}
+                      </p>
+                      {log.error_message && (
+                        <p className="text-xs text-destructive truncate">{log.error_message}</p>
+                      )}
+                    </div>
+                    <span className={cn("text-[10px] px-2 py-0.5 rounded-full font-medium shrink-0", badge.className)}>
+                      {badge.label}
+                    </span>
+                    <span className="text-xs text-muted-foreground shrink-0">
+                      {formatDistanceToNow(new Date(log.created_at), { addSuffix: true, locale: fr })}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
