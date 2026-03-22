@@ -649,18 +649,28 @@ serve(async (req) => {
     const sentiment = validateSentiment(rawSentiment, aiMessageContent);
 
     // 4. Validate phase transition (prevent premature advancement)
-    const transitionValidation = validatePhaseTransition(
-      currentPhase,
-      rawReadyForNextPhase,
-      rawPhaseProgress,
-      phaseMessageCount || 0,
-      extractedData
-    );
-    const readyForNextPhase = transitionValidation.shouldAdvance;
-    const phaseProgress = transitionValidation.adjustedProgress;
+    // BUT: if phase 7 farewell detected, force completion
+    let readyForNextPhase: boolean;
+    let phaseProgress: number;
 
-    if (transitionValidation.reason) {
-      console.log(`[Phase Guard] ${transitionValidation.reason}`);
+    if (isPhase7Farewell) {
+      readyForNextPhase = true;
+      phaseProgress = 100;
+      console.log(`[Phase 7 Farewell] Forced completion for project ${projectId}`);
+    } else {
+      const transitionValidation = validatePhaseTransition(
+        currentPhase,
+        rawReadyForNextPhase,
+        rawPhaseProgress,
+        phaseMessageCount || 0,
+        extractedData
+      );
+      readyForNextPhase = transitionValidation.shouldAdvance;
+      phaseProgress = transitionValidation.adjustedProgress;
+
+      if (transitionValidation.reason) {
+        console.log(`[Phase Guard] ${transitionValidation.reason}`);
+      }
     }
 
     // 5. Log confidence and self-check for audit trail
