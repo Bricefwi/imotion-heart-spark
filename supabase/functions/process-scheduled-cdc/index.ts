@@ -105,7 +105,7 @@ serve(async (req) => {
           })
           .eq("id", project.id);
 
-        // Notify the client
+        // Notify the client (in-app + email)
         if (project.client_id) {
           await supabase.from("notifications").insert({
             user_id: project.client_id,
@@ -115,6 +115,40 @@ serve(async (req) => {
             project_id: project.id,
             link: "/client/documents",
           });
+
+          // Send email notification via send-transactional-email
+          const { data: clientProfile } = await supabase
+            .from("profiles")
+            .select("email, full_name, company_name")
+            .eq("id", project.client_id)
+            .single();
+
+          if (clientProfile?.email) {
+            const emailUrl = `${supabaseUrl}/functions/v1/send-transactional-email`;
+            const emailRes = await fetch(emailUrl, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${supabaseServiceKey}`,
+              },
+              body: JSON.stringify({
+                template: "cdc_ready",
+                to: clientProfile.email,
+                data: {
+                  projectName: project.name,
+                  projectCode: (project as Record<string, unknown>).code || project.id,
+                  clientName: clientProfile.full_name || "",
+                  companyName: clientProfile.company_name || "",
+                },
+              }),
+            });
+
+            if (!emailRes.ok) {
+              console.error(`[CDC Cron] Email failed for ${project.id}:`, await emailRes.text());
+            } else {
+              console.log(`[CDC Cron] Email sent to ${clientProfile.email} for project ${project.id}`);
+            }
+          }
         }
 
         processed++;
