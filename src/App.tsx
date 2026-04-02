@@ -39,6 +39,7 @@ const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
 const AuthCallback = lazy(() => import("@/pages/AuthCallback"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const Onboarding = lazy(() => import("@/pages/client/Onboarding"));
+const DigitalMaturityAudit = lazy(() => import("@/pages/client/DigitalMaturityAudit"));
 
 // Client pages (lazy)
 const ClientDashboard = lazy(() => import("@/pages/client/Dashboard"));
@@ -104,8 +105,9 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
 
-            {/* Client - Onboarding (standalone, no sidebar) */}
+            {/* Client - Onboarding + Audit (standalone, no sidebar) */}
             <Route path="/client/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+            <Route path="/client/projects/:id/audit" element={<ProtectedRoute><DigitalMaturityAudit /></ProtectedRoute>} />
 
             {/* Client */}
             <Route element={<ProtectedRoute><ClientLayout /></ProtectedRoute>}>

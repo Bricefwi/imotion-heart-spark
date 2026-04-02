@@ -10,6 +10,7 @@ import { ReviewSubmitForm } from "@/components/ReviewSubmitForm";
 import {
   FolderKanban, FileText, Euro, MessageSquare, Clock, Plus, ArrowRight,
   FileDown, CheckCircle, Loader2, CalendarDays, TrendingUp, Shield, FilePen,
+  BarChart3,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -236,10 +237,15 @@ export default function ClientDashboard() {
                   </span>
                 </div>
               </CardContent>
-              <CardFooter className="gap-3 pt-0">
+              <CardFooter className="gap-3 pt-0 flex-wrap">
                 <Button asChild className="gradient-primary border-0">
                   <Link to={`/client/projects/${currentProject.id}/conversation`}>
                     <MessageSquare className="mr-2 h-4 w-4" /> Continuer avec Marc
+                  </Link>
+                </Button>
+                <Button variant="outline" size="sm" asChild>
+                  <Link to={`/client/projects/${currentProject.id}/audit`}>
+                    <BarChart3 className="mr-2 h-3.5 w-3.5" /> Diagnostic digital
                   </Link>
                 </Button>
                 <Button variant="outline" size="sm" asChild>
