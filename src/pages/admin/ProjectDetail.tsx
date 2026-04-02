@@ -9,7 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import {
   ArrowLeft, FileText, MessageSquare, Loader2, CheckCircle, Eye,
   Wrench, ClipboardCheck, BookOpen, Scale, Cpu, Download, AlertTriangle,
-  Clock, ShieldCheck, PenLine,
+  Clock, ShieldCheck, PenLine, Mail, Sparkles, BrainCircuit,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -232,6 +232,8 @@ export default function AdminProjectDetail() {
 
   const cdcDocs = docsByType.cdc || [];
   const techRecoDocs = docsByType.tech_recommendation || [];
+  const conseilDocs = docsByType.conseil_technique || [];
+  const buildPromptsDocs = docsByType.build_prompts || [];
   const contractDocs = [...(docsByType.contract || []), ...(docsByType.contrat || []), ...(docsByType.contract_fr || [])];
   const pvDocs = docsByType.pv_reception || [];
   const proposalDocs = [...(docsByType.proposal || []), ...(docsByType.pricing || []), ...(docsByType.devis || [])];
@@ -262,14 +264,16 @@ export default function AdminProjectDetail() {
       </Card>
 
       {/* Pipeline overview cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
         {[
           { label: "CDC", count: cdcDocs.length, icon: BookOpen, color: "text-blue-600", type: "cdc" },
+          { label: "Conseil Tech", count: conseilDocs.length, icon: BrainCircuit, color: "text-cyan-600", type: "conseil_technique" },
+          { label: "Prompts Build", count: buildPromptsDocs.length, icon: Sparkles, color: "text-violet-600", type: "build_prompts" },
           { label: "Reco & Prompt", count: techRecoDocs.length, icon: Cpu, color: "text-purple-600", type: "tech_recommendation" },
-          { label: "Outils", count: projectTools.length, icon: Wrench, color: "text-orange-600", type: null },
           { label: "Devis", count: proposalDocs.length, icon: FileText, color: "text-amber-600", type: "pricing" },
           { label: "Contrat", count: contractDocs.length, icon: Scale, color: "text-green-600", type: "contract_fr" },
           { label: "PV Reception", count: pvDocs.length, icon: ClipboardCheck, color: "text-emerald-600", type: "pv_reception" },
+          { label: "Outils", count: projectTools.length, icon: Wrench, color: "text-orange-600", type: null },
         ].map((item) => (
           <Card key={item.label} className="border-0 shadow-sm">
             <CardContent className="p-3 text-center">
@@ -307,9 +311,17 @@ export default function AdminProjectDetail() {
             <BookOpen className="h-3.5 w-3.5 mr-1" />
             CDC ({cdcDocs.length})
           </TabsTrigger>
+          <TabsTrigger value="conseil">
+            <BrainCircuit className="h-3.5 w-3.5 mr-1" />
+            Conseil ({conseilDocs.length})
+          </TabsTrigger>
+          <TabsTrigger value="prompts">
+            <Sparkles className="h-3.5 w-3.5 mr-1" />
+            Prompts ({buildPromptsDocs.length})
+          </TabsTrigger>
           <TabsTrigger value="tech">
             <Cpu className="h-3.5 w-3.5 mr-1" />
-            Prompt & Outils
+            Reco legacy
           </TabsTrigger>
           <TabsTrigger value="contract">
             <Scale className="h-3.5 w-3.5 mr-1" />
@@ -317,11 +329,15 @@ export default function AdminProjectDetail() {
           </TabsTrigger>
           <TabsTrigger value="pv">
             <ClipboardCheck className="h-3.5 w-3.5 mr-1" />
-            PV Reception ({pvDocs.length})
+            PV ({pvDocs.length})
           </TabsTrigger>
           <TabsTrigger value="all-docs">
             <FileText className="h-3.5 w-3.5 mr-1" />
             Tous ({documents.length})
+          </TabsTrigger>
+          <TabsTrigger value="emails">
+            <Mail className="h-3.5 w-3.5 mr-1" />
+            Emails
           </TabsTrigger>
         </TabsList>
 
@@ -466,7 +482,32 @@ export default function AdminProjectDetail() {
           />
         </TabsContent>
 
-        {/* TECH & TOOLS TAB */}
+        {/* CONSEIL TECHNIQUE TAB */}
+        <TabsContent value="conseil">
+          <DocumentSection
+            title="Conseil Technique — Livrable Stratégique"
+            docs={conseilDocs}
+            docType="conseil_technique"
+            isGenerating={isGenerating}
+            generatingType={generatingType}
+            onGenerate={generateDocument}
+            emptyMessage="Le conseil technique recommande la stack, l'architecture, le planning et les ressources nécessaires au projet."
+          />
+        </TabsContent>
+
+        {/* PROMPTS DE BUILD TAB */}
+        <TabsContent value="prompts">
+          <DocumentSection
+            title="Prompts de Build — Guide IA"
+            docs={buildPromptsDocs}
+            docType="build_prompts"
+            isGenerating={isGenerating}
+            generatingType={generatingType}
+            onGenerate={generateDocument}
+            emptyMessage="Les prompts de build génèrent des instructions détaillées pour Claude Opus, Lovable ou Cursor afin de construire le projet."
+          />
+        </TabsContent>
+
         <TabsContent value="tech">
           <div className="space-y-6">
             {/* Tech recommendation documents */}
@@ -642,6 +683,11 @@ export default function AdminProjectDetail() {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* EMAILS TAB */}
+        <TabsContent value="emails">
+          <EmailHistoryTab clientEmail={client?.email} projectCode={project.code} />
         </TabsContent>
       </Tabs>
 
@@ -842,6 +888,141 @@ function DocumentCard({
           </Link>
         </Button>
       </div>
+    </div>
+  );
+}
+
+// Email history tab component
+const EMAIL_STATUS_BADGES: Record<string, { label: string; className: string }> = {
+  pending: { label: "En attente", className: "bg-amber-100 text-amber-700" },
+  sent: { label: "Envoyé", className: "bg-green-100 text-green-700" },
+  failed: { label: "Échoué", className: "bg-destructive/10 text-destructive" },
+  dlq: { label: "Échoué", className: "bg-destructive/10 text-destructive" },
+  suppressed: { label: "Supprimé", className: "bg-muted text-muted-foreground" },
+  bounced: { label: "Rebond", className: "bg-orange-100 text-orange-700" },
+  complained: { label: "Plainte", className: "bg-destructive/10 text-destructive" },
+};
+
+const TEMPLATE_LABELS: Record<string, string> = {
+  cdc_ready: "CDC prêt",
+  discovery_complete: "Découverte terminée",
+  proposal_sent: "Proposition envoyée",
+  contract_signed: "Contrat signé",
+  development_started: "Développement démarré",
+  project_delivered: "Projet livré",
+  auth_emails: "Email d'authentification",
+};
+
+function EmailHistoryTab({ clientEmail, projectCode }: { clientEmail?: string; projectCode?: string | null }) {
+  const { data: emailLogs = [], isLoading } = useQuery({
+    queryKey: ["admin-email-logs", clientEmail],
+    queryFn: async () => {
+      if (!clientEmail) return [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await (supabase as any)
+        .from("email_send_log")
+        .select("*")
+        .eq("recipient_email", clientEmail)
+        .order("created_at", { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!clientEmail,
+  });
+
+  // Deduplicate by message_id (keep latest)
+  const dedupedLogs = (() => {
+    const seen = new Map<string, typeof emailLogs[0]>();
+    for (const log of emailLogs) {
+      const key = log.message_id || log.id;
+      if (!seen.has(key) || new Date(log.created_at) > new Date(seen.get(key)!.created_at)) {
+        seen.set(key, log);
+      }
+    }
+    return Array.from(seen.values()).sort(
+      (a: { created_at: string }, b: { created_at: string }) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+  })();
+
+  const stats = {
+    total: dedupedLogs.length,
+    sent: dedupedLogs.filter((l: { status: string }) => l.status === "sent").length,
+    failed: dedupedLogs.filter((l: { status: string }) => ["failed", "dlq"].includes(l.status)).length,
+    pending: dedupedLogs.filter((l: { status: string }) => l.status === "pending").length,
+  };
+
+  if (isLoading) {
+    return (
+      <Card className="border-0 shadow-sm">
+        <CardContent className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[
+          { label: "Total envoyés", value: stats.total, color: "text-foreground" },
+          { label: "Délivrés", value: stats.sent, color: "text-green-600" },
+          { label: "En attente", value: stats.pending, color: "text-amber-600" },
+          { label: "Échoués", value: stats.failed, color: "text-destructive" },
+        ].map((s) => (
+          <Card key={s.label} className="border-0 shadow-sm">
+            <CardContent className="p-3 text-center">
+              <p className="text-xs text-muted-foreground">{s.label}</p>
+              <p className={cn("text-xl font-bold", s.color)}>{s.value}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Log table */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="font-display text-base flex items-center gap-2">
+            <Mail className="h-4 w-4" />
+            Historique des emails — {clientEmail || "—"}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {dedupedLogs.length === 0 ? (
+            <div className="text-center py-8">
+              <Mail className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground">Aucun email envoyé pour ce projet.</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {dedupedLogs.map((log: { id: string; template_name: string; status: string; created_at: string; error_message?: string }) => {
+                const badge = EMAIL_STATUS_BADGES[log.status] || EMAIL_STATUS_BADGES.pending;
+                return (
+                  <div key={log.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
+                    <Mail className="h-4 w-4 text-muted-foreground shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">
+                        {TEMPLATE_LABELS[log.template_name] || log.template_name}
+                      </p>
+                      {log.error_message && (
+                        <p className="text-xs text-destructive truncate">{log.error_message}</p>
+                      )}
+                    </div>
+                    <span className={cn("text-[10px] px-2 py-0.5 rounded-full font-medium shrink-0", badge.className)}>
+                      {badge.label}
+                    </span>
+                    <span className="text-xs text-muted-foreground shrink-0">
+                      {formatDistanceToNow(new Date(log.created_at), { addSuffix: true, locale: fr })}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

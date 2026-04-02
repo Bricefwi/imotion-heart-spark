@@ -1,5 +1,5 @@
 import * as React from 'npm:react@18.3.1'
-import { renderAsync } from 'npm:@react-email/components@0.0.31'
+import { renderAsync } from 'npm:@react-email/render@1.0.5'
 import { parseEmailWebhookPayload } from 'npm:@lovable.dev/email-js'
 import { WebhookError, verifyWebhookRequest } from 'npm:@lovable.dev/webhooks-js'
 import { createClient } from 'npm:@supabase/supabase-js@2'
@@ -147,7 +147,8 @@ async function handleWebhook(req: Request): Promise<Response> {
   }
 
   // Verify signature + timestamp, then parse payload.
-  let payload: Record<string, unknown>
+  // deno-lint-ignore no-explicit-any
+  let payload: any
   let run_id = ''
   try {
     const verified = await verifyWebhookRequest({
@@ -155,8 +156,8 @@ async function handleWebhook(req: Request): Promise<Response> {
       secret: apiKey,
       parser: parseEmailWebhookPayload,
     })
-    payload = verified.payload
-    run_id = payload.run_id
+    payload = verified.payload as any
+    run_id = payload.run_id as string
   } catch (error) {
     if (error instanceof WebhookError) {
       switch (error.code) {

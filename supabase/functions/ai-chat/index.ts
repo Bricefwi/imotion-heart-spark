@@ -9,10 +9,12 @@ const ALLOWED_ORIGINS = [
 
 function getCorsHeaders(req: Request) {
   const origin = req.headers.get("Origin") || "";
-  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  // Allow all lovable.app subdomains (preview, published, etc.)
+  const isAllowed = ALLOWED_ORIGINS.includes(origin) || origin.endsWith(".lovable.app");
+  const allowedOrigin = isAllowed ? origin : ALLOWED_ORIGINS[0];
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
   };
 }
 
@@ -394,7 +396,7 @@ Sois direct mais pas intrusif sur le budget.
 - "Avant qu'on passe à la synthèse, une dernière chose : est-ce que [fonctionnalité pertinente non évoquée] ça pourrait t'intéresser ? Je te demande parce que dans ton cas ça pourrait vraiment apporter de la valeur."
 - Sois sélectif : propose uniquement si c'est VRAIMENT pertinent
 ⚠️ Ne déduis pas les parties prenantes. Le client doit les nommer.`,
-    7: `C'est le moment de synthétiser TOUT ce qu'on a appris. Tu ne passes ici QUE si tu estimes avoir 95%+ de couverture.
+    7: `C'est le moment de synthétiser TOUT ce qu'on a appris.
 
 Fais un récap clair et structuré de ce que tu as compris :
 - Le contexte et le problème
@@ -406,10 +408,16 @@ Fais un récap clair et structuré de ce que tu as compris :
 - Les prochaines étapes
 
 Demande au client de valider ou corriger CHAQUE point.
-Si le client corrige ou ajoute quelque chose d'important, note-le et ajuste la synthèse.
 
-⚠️ La synthèse ne doit contenir QUE des éléments issus de la conversation.
-⚠️ Si tu réalises qu'il manque des informations critiques, N'HÉSITE PAS à revenir en arrière et poser les questions.`,
+⚠️ RÈGLE CRITIQUE — ANTI-BOUCLE :
+- Une fois que le client valide la synthèse (dit OK, parfait, ça marche, c'est bon, à bientôt, hâte de voir, etc.), tu CONCLUS DÉFINITIVEMENT en UNE SEULE réponse finale.
+- Ta réponse finale doit dire : "Super, tout est validé ! Je lance la rédaction de ton cahier des charges. Tu le recevras dans ton espace documents très prochainement."
+- Mets ready_for_next_phase à TRUE et phase_progress à 100.
+- NE RELANCE PAS la conversation après la validation. C'est TERMINÉ.
+- Si le client continue à envoyer des messages après ta conclusion, réponds UNIQUEMENT : "C'est noté, je l'intègre au cahier des charges. La rédaction est en cours !" — RIEN de plus.
+- NE RÉPÈTE JAMAIS les mêmes éléments du projet. Si tu as déjà mentionné un point, ne le re-mentionne pas.
+
+⚠️ La synthèse ne doit contenir QUE des éléments issus de la conversation.`,
   };
   return instructions[phase] || instructions[1];
 }
@@ -494,6 +502,24 @@ serve(async (req) => {
       }
     }
 
+    // ── If discovery is already complete, don't continue the conversation ──
+    if (project.status === "discovery_completed") {
+      return new Response(
+        JSON.stringify({
+          message: "C'est noté ! Ton cahier des charges est en cours de préparation. Tu peux le retrouver dans ton espace Documents dès qu'il sera prêt. 📄",
+          suggestions: [],
+          phase_current: 7,
+          phase_progress: 100,
+          overall_progress: 100,
+          extracted_data: {},
+          sentiment: "positive",
+          ready_for_next_phase: true,
+          discovery_complete: true,
+        }),
+        { status: 200, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
+      );
+    }
+
     const currentPhase = project.current_phase || 1;
     const discoveryData = project.discovery_data || {};
 
@@ -504,8 +530,16 @@ serve(async (req) => {
       .eq("project_id", projectId)
       .eq("phase", currentPhase);
 
-    // ── Save user message (sanitized) ──
+    // ── Server-side farewell detection for phase 7 ──
     const lastUserMsg = messages[messages.length - 1];
+    const lastUserContent = (lastUserMsg?.content || "").toLowerCase().trim();
+    const farewellPatterns = [
+      /\b(merci|à bient[oô]t|au revoir|bonne journ[eé]e|bonne soir[eé]e|à tr[èe]s vite|salut|ciao|bye|parfait|c'est bon|ok merci|super merci|c'est noté|hâte de voir|j'attends|à dans|bonne route|bon courage)\b/i,
+      /^(ok|oui|yes|parfait|super|top|nickel|génial|excellent|c'est tout|rien d'autre|non merci|pas de question)$/i,
+    ];
+    const isPhase7Farewell = currentPhase === 7 && farewellPatterns.some(p => p.test(lastUserContent));
+
+    // ── Save user message (sanitized) ──
     if (lastUserMsg?.role === "user") {
       const sanitizedContent = sanitizeString(lastUserMsg.content, MAX_MESSAGE_LENGTH);
       await supabase.from("messages").insert({
@@ -527,7 +561,7 @@ serve(async (req) => {
       })),
     ];
 
-    // ── Call Lovable AI ──
+    // ── Call Lovable AI (fast model for responsiveness) ──
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -535,7 +569,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "openai/gpt-5",
+        model: "google/gemini-3-flash-preview",
         messages: aiMessages,
         stream: false,
       }),
@@ -615,18 +649,28 @@ serve(async (req) => {
     const sentiment = validateSentiment(rawSentiment, aiMessageContent);
 
     // 4. Validate phase transition (prevent premature advancement)
-    const transitionValidation = validatePhaseTransition(
-      currentPhase,
-      rawReadyForNextPhase,
-      rawPhaseProgress,
-      phaseMessageCount || 0,
-      extractedData
-    );
-    const readyForNextPhase = transitionValidation.shouldAdvance;
-    const phaseProgress = transitionValidation.adjustedProgress;
+    // BUT: if phase 7 farewell detected, force completion
+    let readyForNextPhase: boolean;
+    let phaseProgress: number;
 
-    if (transitionValidation.reason) {
-      console.log(`[Phase Guard] ${transitionValidation.reason}`);
+    if (isPhase7Farewell) {
+      readyForNextPhase = true;
+      phaseProgress = 100;
+      console.log(`[Phase 7 Farewell] Forced completion for project ${projectId}`);
+    } else {
+      const transitionValidation = validatePhaseTransition(
+        currentPhase,
+        rawReadyForNextPhase,
+        rawPhaseProgress,
+        phaseMessageCount || 0,
+        extractedData
+      );
+      readyForNextPhase = transitionValidation.shouldAdvance;
+      phaseProgress = transitionValidation.adjustedProgress;
+
+      if (transitionValidation.reason) {
+        console.log(`[Phase Guard] ${transitionValidation.reason}`);
+      }
     }
 
     // 5. Log confidence and self-check for audit trail
@@ -647,7 +691,7 @@ serve(async (req) => {
       confidence_score: confidenceLevel === "high" ? 0.9 : confidenceLevel === "medium" ? 0.7 : 0.4,
       is_flagged: messageValidation.flags.length > 0 || dataValidation.issues.length > 0,
       flagged_reason: [...messageValidation.flags, ...dataValidation.issues].join("; ") || null,
-      model_used: "openai/gpt-5",
+      model_used: "google/gemini-3-flash-preview",
       tokens_input: aiResponse.usage?.prompt_tokens || 0,
       tokens_output: aiResponse.usage?.completion_tokens || 0,
     });
@@ -663,11 +707,16 @@ serve(async (req) => {
     }
 
     let newPhase = currentPhase;
+    let newStatus = project.status === "draft" ? "discovery_active" : project.status;
     const phaseProgressData = project.phase_progress || {};
     if (readyForNextPhase && currentPhase < 7) {
       newPhase = currentPhase + 1;
       phaseProgressData[String(currentPhase)] = { completed: true, progress: 100 };
       phaseProgressData[String(newPhase)] = { ...(phaseProgressData[String(newPhase)] || {}), progress: 0, completed: false };
+    } else if (readyForNextPhase && currentPhase === 7) {
+      // Phase 7 validated — mark discovery as complete
+      phaseProgressData[String(7)] = { completed: true, progress: 100 };
+      newStatus = "discovery_completed";
     } else {
       phaseProgressData[String(currentPhase)] = {
         ...(phaseProgressData[String(currentPhase)] || {}),
@@ -685,7 +734,7 @@ serve(async (req) => {
         current_phase: newPhase,
         phase_progress: phaseProgressData,
         overall_progress: Math.min(overallProgress, 100),
-        status: project.status === "draft" ? "discovery_active" : project.status,
+        status: newStatus,
       })
       .eq("id", projectId);
 
@@ -752,6 +801,8 @@ serve(async (req) => {
       }
     }
 
+    const isDiscoveryComplete = readyForNextPhase && currentPhase === 7;
+
     return new Response(
       JSON.stringify({
         message: aiMessageContent,
@@ -762,6 +813,7 @@ serve(async (req) => {
         extracted_data: extractedData,
         sentiment,
         ready_for_next_phase: readyForNextPhase,
+        discovery_complete: isDiscoveryComplete,
       }),
       { status: 200, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
     );

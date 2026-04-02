@@ -38,7 +38,7 @@ export function PublicLayout() {
     <div className="min-h-screen flex flex-col">
       {/* Premium Header — glass effect, 64px, backdrop-blur */}
       <header className="sticky top-0 z-50 glass border-b border-border/30">
-        <div className="container flex h-16 items-center justify-between">
+        <div className="container flex h-20 items-center justify-between">
           <Link to="/" className="flex items-center">
             <Logo size="md" />
           </Link>

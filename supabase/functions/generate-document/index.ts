@@ -2,24 +2,14 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getDocName, formatConversationForPrompt, buildPromptFromTemplate } from "./helpers.ts";
 
-const ALLOWED_ORIGINS = [
-  "https://imotion-conseils.fr",
-  "https://www.imotion-conseils.fr",
-  "https://imotion-heart-spark.lovable.app",
-];
-
-function getCorsHeaders(req: Request) {
-  const origin = req.headers.get("Origin") || "";
-  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
-  return {
-    "Access-Control-Allow-Origin": allowedOrigin,
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  };
-}
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+};
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: getCorsHeaders(req) });
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
@@ -38,7 +28,7 @@ serve(async (req) => {
     }
     if (projectId && typeof projectId !== "string") {
       return new Response(JSON.stringify({ error: "Invalid projectId" }), {
-        status: 400, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -48,7 +38,7 @@ serve(async (req) => {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -61,7 +51,7 @@ serve(async (req) => {
     const { data: userData, error: authError } = await anonClient.auth.getUser();
     if (authError || !userData?.user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -74,7 +64,7 @@ serve(async (req) => {
 
     if (projErr || !project) {
       return new Response(JSON.stringify({ error: "Project not found" }), {
-        status: 404, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
+        status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -88,7 +78,7 @@ serve(async (req) => {
     const isAdminOrConsultant = roles.some((r: string) => ["admin", "super_admin", "consultant"].includes(r));
     if (project.client_id !== userId && !isAdminOrConsultant) {
       return new Response(JSON.stringify({ error: "Forbidden: you do not have access to this project" }), {
-        status: 403, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
+        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -157,7 +147,7 @@ INSTRUCTIONS :
       const newContent = sectionAiResult.choices?.[0]?.message?.content || "";
 
       return new Response(JSON.stringify({ success: true, content: newContent }), {
-        headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -189,9 +179,12 @@ INSTRUCTIONS :
       .single();
 
     // Try to fetch current estimate from pricing system
-    let estimate: Record<string, unknown> | null = null;
-    let pricingConfig: Record<string, unknown> | null = null;
-    let maintenancePlan: Record<string, unknown> | null = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let estimate: any = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let pricingConfig: any = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let maintenancePlan: any = null;
 
     const { data: currentEstimate } = await supabase
       .from("project_estimates")
@@ -251,8 +244,9 @@ INSTRUCTIONS :
 `;
     }
 
-    const prompt = template
-      ? buildPromptFromTemplate(template, project, client, discoveryData, conversationContext)
+    const activeTemplate = pricingTemplate ?? template;
+    const prompt = activeTemplate
+      ? buildPromptFromTemplate(activeTemplate, project, client, discoveryData, conversationContext + pricingContext)
       : buildDocumentPrompt(docType, project, client, discoveryData, conversationContext + pricingContext);
 
     // Common AI call setup
@@ -280,7 +274,12 @@ INSTRUCTIONS :
         console.error("AI stream error:", response.status, t);
         if (response.status === 429) {
           return new Response(JSON.stringify({ error: "Trop de requêtes, réessayez dans quelques instants." }), {
-            status: 429, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
+            status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        if (response.status === 402) {
+          return new Response(JSON.stringify({ error: "Le service IA est temporairement indisponible pour cause de crédits ou de facturation. Réessayez plus tard." }), {
+            status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
         }
         throw new Error("AI generation failed");
@@ -338,7 +337,7 @@ INSTRUCTIONS :
       });
 
       return new Response(readable, {
-        headers: { ...getCorsHeaders(req), "Content-Type": "text/event-stream", "Cache-Control": "no-cache", Connection: "keep-alive" },
+        headers: { ...corsHeaders, "Content-Type": "text/event-stream", "Cache-Control": "no-cache", Connection: "keep-alive" },
       });
     }
 
@@ -352,7 +351,12 @@ INSTRUCTIONS :
       console.error("AI error:", response.status, t);
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: "Trop de requêtes, réessayez dans quelques instants." }), {
-          status: 429, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (response.status === 402) {
+        return new Response(JSON.stringify({ error: "Le service IA est temporairement indisponible pour cause de crédits ou de facturation. Réessayez plus tard." }), {
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       throw new Error("AI generation failed");
@@ -421,13 +425,13 @@ INSTRUCTIONS :
     }
 
     return new Response(JSON.stringify({ success: true, document_id: doc.id, content, estimate: estimate ? { final_price: estimate.final_price, duration: `${estimate.duration_weeks_min}-${estimate.duration_weeks_max} semaines` } : null }), {
-      headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
     console.error("generate-document error:", e);
     // Never expose internal error details to clients
-    return new Response(JSON.stringify({ error: "An internal error occurred while generating the document. Please try again later." }), {
-      status: 500, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
+    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "An internal error occurred while generating the document. Please try again later." }), {
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });
@@ -527,7 +531,34 @@ REGLES JURIDIQUES ET PROFESSIONNELLES :
 - Redige en francais juridique precis mais lisible
 - NE JAMAIS utiliser d'emojis
 - Le prestataire est "IMOTION Creator Studio" (SAS)`,
+
+    conseil_technique: `Tu es un CTO / Directeur Technique senior chez IMOTION Creator Studio, agence digitale premium specialisee en solutions no-code, low-code et IA. Tu produis des livrables de conseil technique strategique pour les clients et l'equipe interne.
+
+REGLES :
+- Analyse approfondie des besoins techniques a partir du CDC et de la decouverte
+- Recommandations justifiees par des arguments concrets (ROI, cout, maintenabilite, scalabilite, time-to-market)
+- Compare systematiquement les approches no-code, low-code et code custom
+- Inclus des estimations de cout (TCO sur 12 mois) et de delai
+- Fournis un planning de realisation detaille avec jalons
+- Identifie les profils necessaires avec TJM marche francais
+- Propose les outils IA/LLM les plus adaptes pour assister la realisation
+- Redige en francais technique mais comprehensible
+- NE JAMAIS utiliser d'emojis`,
+
+    build_prompts: `Tu es un prompt engineer expert et architecte IA senior chez IMOTION Creator Studio. Tu maitrises Claude (Anthropic), GPT (OpenAI), Gemini (Google), Lovable, Cursor, Bolt, V0 et tous les outils de dev assistes par IA. Tu crees des prompts de build IMMEDIATEMENT utilisables, ultra-detailles et professionnels.
+
+REGLES :
+- Chaque prompt doit etre COMPLET et auto-suffisant (un developpeur ou un outil IA doit pouvoir demarrer sans question)
+- Inclure : architecture, stack, schema BDD, composants, design system, integrations, auth, RLS
+- Adapter le prompt au format et aux conventions de l'outil cible (Lovable, Cursor, Claude, etc.)
+- Structurer en sections claires : contexte, objectifs, specs techniques, composants, base de donnees, design
+- Inclure des instructions de style (couleurs hex, typos, border-radius, animations)
+- Inclure un prompt d'orchestration multi-agent pour les projets complexes
+- Chaque prompt doit referencer le CDC et les donnees client reelles
+- Redige en francais technique
+- NE JAMAIS utiliser d'emojis`,
   };
+
 
   return prompts[type] || `Tu es un expert en redaction de documents professionnels pour IMOTION Creator Studio, agence digitale premium. Tu generes des documents structures et prets a l'envoi en Markdown. Redige en francais impeccable. NE JAMAIS utiliser d'emojis.`;
 }
@@ -947,6 +978,177 @@ Decris le flux de coordination entre les agents :
 
 ---
 INSTRUCTIONS : Le prompt technique doit être IMMÉDIATEMENT utilisable. Il doit contenir assez de détail pour qu'un développeur (ou un outil IA) puisse démarrer le build sans poser de questions supplémentaires.`;
+  }
+
+  if (type === "conseil_technique") {
+    return `En tant que CTO senior, analyse ce projet en profondeur et produis un livrable de CONSEIL TECHNIQUE STRATÉGIQUE complet :
+
+${base}
+
+# LIVRABLE CONSEIL TECHNIQUE — ${project.name}
+*Référence : ${project.code} | Date : ${new Date().toLocaleDateString("fr-FR")}*
+
+# 1. SYNTHÈSE EXÉCUTIVE
+- Résumé du besoin en 5-8 lignes
+- Niveau de complexité : Simple / Intermédiaire / Complexe / Très complexe
+- Approche recommandée : No-code / Low-code / Hybride / Code custom
+- Estimation budgétaire globale et délai
+
+# 2. ANALYSE TECHNIQUE DU BESOIN
+## 2.1 Besoins fonctionnels critiques (Must/Should/Could/Won't)
+## 2.2 Besoins non-fonctionnels (Performance, sécurité, scalabilité, accessibilité, SEO)
+## 2.3 Contraintes identifiées (Budget, délai, compétences, existant technique)
+
+# 3. RECOMMANDATION DE STACK TECHNIQUE
+| Couche | Outil principal | Alternative | Coût/an | Justification |
+|--------|----------------|-------------|---------|---------------|
+| Frontend / Site | ... | ... | ... | ... |
+| Backend / API | ... | ... | ... | ... |
+| Base de données | ... | ... | ... | ... |
+| Hébergement / CDN | ... | ... | ... | ... |
+| CMS / Contenu | ... | ... | ... | ... |
+| E-commerce (si applicable) | ... | ... | ... | ... |
+| Auth / Sécurité | ... | ... | ... | ... |
+| Analytics / Monitoring | ... | ... | ... | ... |
+| Email transactionnel | ... | ... | ... | ... |
+| IA / Automatisation | ... | ... | ... | ... |
+
+## 3.1 Comparaison TCO sur 12 mois (No-code vs Code custom)
+## 3.2 Recommandation IA / LLM pour le projet
+| Usage | Outil IA | Modèle | Coût estimé | Justification |
+|-------|---------|--------|-------------|---------------|
+| Build du projet | Claude Opus / Lovable / Cursor | ... | ... | ... |
+
+# 4. ARCHITECTURE TECHNIQUE PROPOSÉE
+## 4.1 Schéma d'architecture (Frontend, Backend, BDD, Intégrations, Flux de données)
+## 4.2 Sécurité (Auth, RBAC/RLS, RGPD)
+
+# 5. PLANNING DE RÉALISATION DÉTAILLÉ
+| Phase | Description | Durée | Livrables | Validation |
+|-------|-----------|-------|-----------|------------|
+| 0. Kickoff | Cadrage | 3-5 jours | Backlog | Chef de projet |
+| 1. UX/UI | Wireframes, maquettes | 2-3 sem. | Figma validé | Client |
+| 2-4. Sprints | Développement itératif | X sem. | Démos | Client |
+| 5. QA | Tests et recette | 1-2 sem. | PV de recette | Client |
+| 6. Production | Déploiement | 3-5 jours | Go Live | Chef de projet |
+| 7. Garantie | Support | 3 mois | Clôture | Chef de projet |
+
+# 6. RESSOURCES NÉCESSAIRES
+| Rôle | Profil | TJM marché | Jours estimés | Coût estimé |
+|------|--------|-----------|---------------|-------------|
+| Chef de projet | Senior 5+ ans | 600-800EUR | ... | ... |
+| UX/UI Designer | Senior Figma | 500-700EUR | ... | ... |
+| Développeur Full-stack | Senior | 550-750EUR | ... | ... |
+| QA / Testeur | Confirmé | 350-500EUR | ... | ... |
+
+# 7. RECOMMANDATIONS INTERNES (IMOTION)
+## 7.1 Outils de gestion recommandés
+## 7.2 Points d'attention et risques (minimum 6-8 risques avec mitigations)
+
+# 8. PROCHAINES ÉTAPES
+1. Validation du conseil technique
+2. Génération des prompts de build IA
+3. Démarrage du projet
+
+---
+INSTRUCTIONS : Livrable de conseil professionnel. Données RÉELLES du client. Si info manquante : [À CONFIRMER].`;
+  }
+
+  if (type === "build_prompts") {
+    const bt = "\`\`\`";
+    return `En tant que prompt engineer expert, génère un document de PROMPTS DE BUILD complet :
+
+${base}
+
+# PROMPTS DE BUILD — ${project.name}
+*Référence : ${project.code} | Date : ${new Date().toLocaleDateString("fr-FR")}*
+
+# 1. FICHE PROJET
+- Nom : ${project.name}
+- Client : ${(client as Record<string,unknown>)?.company_name || "N/A"} (${(client as Record<string,unknown>)?.full_name || "N/A"})
+- Type : [type de projet détecté]
+- Stack cible : [stack recommandée]
+
+# 2. PROMPT GLOBAL — CLAUDE OPUS / GPT-5
+Prompt ultra-détaillé (minimum 2000 mots) à donner en une seule fois.
+
+${bt}
+[PROMPT COMPLET incluant :
+- Contexte projet complet (client, objectifs, budget, délai)
+- Architecture technique (stack, BDD complète avec schéma SQL, API, auth)
+- TOUTES les pages avec composants, données, actions utilisateur, state
+- Design system (couleurs hex, typos, spacing, border-radius, animations)
+- Intégrations tierces avec configuration
+- Sécurité (RLS par table, validation, CORS, rate limiting)
+- Responsive (breakpoints, comportement mobile vs desktop)
+- Conventions de nommage et structure de fichiers
+- Gestion des erreurs et tests]
+${bt}
+
+# 3. PROMPTS PAR COMPOSANT (LOVABLE / CURSOR)
+Chaque prompt prêt à copier-coller (minimum 300 mots chacun).
+
+## 3.1 Prompt — Page d'accueil
+${bt}
+[Structure, textes, design, animations, responsive, SEO]
+${bt}
+
+## 3.2 Prompt — Authentification (Login / Register)
+${bt}
+[Pages d'auth complètes]
+${bt}
+
+## 3.3 Prompt — Dashboard principal
+${bt}
+[KPIs, graphiques, tableaux, actions, notifications]
+${bt}
+
+## 3.4 à 3.N — Un prompt par page/composant majeur du CDC
+${bt}
+[Prompt spécifique par page]
+${bt}
+
+# 4. PROMPT — SCHÉMA BASE DE DONNÉES
+${bt}sql
+-- Schéma SQL complet : CREATE TABLE, relations, index, RLS policies, triggers, fonctions
+[Commenté et prêt à exécuter]
+${bt}
+
+# 5. PROMPT — API / EDGE FUNCTIONS
+Pour chaque endpoint backend :
+${bt}
+[Endpoint, méthode HTTP, input/output, logique métier, erreurs, auth]
+${bt}
+
+# 6. PROMPT MULTI-AGENT ORCHESTRÉ
+
+## Agent Orchestrateur (Claude Opus)
+${bt}
+[Coordonne les sous-agents, gère les dépendances, valide les outputs]
+${bt}
+
+## Agent 1 : Analyste (valider périmètre, backlog, priorités)
+## Agent 2 : UX/UI Designer (design system, wireframes, maquettes)
+## Agent 3 : Architecte Backend (BDD, API, auth, RLS, migrations)
+## Agent 4 : Développeur Frontend (React, pages, routing, state, responsive)
+## Agent 5 : QA Engineer (tests, scénarios, critères d'acceptation)
+## Agent 6 : DevOps (CI/CD, monitoring, sauvegardes, déploiement)
+
+Chaque agent avec un prompt détaillé dans un bloc de code.
+
+## Flux d'orchestration
+1. Orchestrateur -> Analyste -> backlog validé
+2. Orchestrateur -> Designer -> design system + maquettes
+3. Orchestrateur -> Backend -> schéma BDD + endpoints
+4. Orchestrateur -> Frontend -> code source
+5. Orchestrateur -> QA -> rapport de tests
+6. Orchestrateur -> DevOps -> déploiement production
+
+# 7. FICHIER SPECS TECHNIQUES (PRD)
+Document de spécifications complet : vue d'ensemble, stack avec versions, modèle de données, architecture, sécurité, performance, déploiement.
+
+---
+INSTRUCTIONS : Chaque prompt IMMÉDIATEMENT utilisable. Données RÉELLES du client. Prompt global Claude Opus minimum 2000 mots. Prompts composants minimum 300 mots.`;
   }
 
   if (type === "pricing") {
