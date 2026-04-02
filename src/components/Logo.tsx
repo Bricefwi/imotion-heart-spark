@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import logoImg from "@/assets/logo-imotion.png";
+import logoImg from "@/assets/logo-imotion-trimmed.png";
 
 interface LogoProps {
   size?: "sm" | "md" | "lg" | "xl";
@@ -20,7 +20,7 @@ export function Logo({ size = "md", showText = false, className }: LogoProps) {
       <img
         src={logoImg}
         alt="IMOTION — AI No-Code Solutions"
-        className={cn("w-auto object-contain", imgSizes[size])}
+        className={cn("block w-auto max-h-full shrink-0 object-contain", imgSizes[size])}
       />
     </div>
   );

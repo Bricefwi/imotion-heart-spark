@@ -1,11 +1,53 @@
 import { sendLovableEmail } from 'npm:@lovable.dev/email-js'
-import { createClient } from 'npm:@supabase/supabase-js@2'
+import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2'
+import type { Database, Json } from '../../../src/integrations/supabase/types.ts'
 
 const MAX_RETRIES = 5
 const DEFAULT_BATCH_SIZE = 10
 const DEFAULT_SEND_DELAY_MS = 200
 const DEFAULT_AUTH_TTL_MINUTES = 15
 const DEFAULT_TRANSACTIONAL_TTL_MINUTES = 60
+
+type QueueName = 'auth_emails' | 'transactional_emails'
+type QueueMessageRow = Database['public']['Functions']['read_email_batch']['Returns'][number]
+type EmailQueuePayload = {
+  run_id?: string
+  to?: string
+  from?: string
+  sender_domain?: string
+  subject?: string
+  html?: string
+  text?: string
+  purpose?: string
+  label?: string
+  idempotency_key?: string
+  unsubscribe_token?: string
+  message_id?: string
+  queued_at?: string
+}
+type QueueMessage = Omit<QueueMessageRow, 'message'> & { message: EmailQueuePayload }
+
+const UNKNOWN_RECIPIENT = 'unknown@invalid.local'
+
+function isJsonRecord(value: Json | null | undefined): value is Record<string, Json | undefined> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function getPayload(value: Json): EmailQueuePayload {
+  return isJsonRecord(value) ? (value as EmailQueuePayload) : {}
+}
+
+function getMessageId(payload: EmailQueuePayload): string | null {
+  return typeof payload.message_id === 'string' && payload.message_id ? payload.message_id : null
+}
+
+function getTemplateName(payload: EmailQueuePayload, queue: QueueName): string {
+  return typeof payload.label === 'string' && payload.label ? payload.label : queue
+}
+
+function getRecipientEmail(payload: EmailQueuePayload): string {
+  return typeof payload.to === 'string' && payload.to ? payload.to : UNKNOWN_RECIPIENT
+}
 
 // Check if an error is a rate-limit (429) response.
 // Uses EmailAPIError.status when available (email-js >=0.x with structured errors),
@@ -54,16 +96,16 @@ function parseJwtClaims(token: string): Record<string, unknown> | null {
 
 // Move a message to the dead letter queue and log the reason.
 async function moveToDlq(
-  supabase: ReturnType<typeof createClient>,
-  queue: string,
-  msg: { msg_id: number; message: Record<string, unknown> },
+  supabase: SupabaseClient<Database>,
+  queue: QueueName,
+  msg: QueueMessage,
   reason: string
 ): Promise<void> {
   const payload = msg.message
   await supabase.from('email_send_log').insert({
-    message_id: payload.message_id,
-    template_name: (payload.label || queue) as string,
-    recipient_email: payload.to,
+    message_id: getMessageId(payload),
+    template_name: getTemplateName(payload, queue),
+    recipient_email: getRecipientEmail(payload),
     status: 'dlq',
     error_message: reason,
   })
@@ -111,7 +153,7 @@ Deno.serve(async (req) => {
     )
   }
 
-  const supabase = createClient(supabaseUrl, supabaseServiceKey)
+  const supabase = createClient<Database>(supabaseUrl, supabaseServiceKey)
 
   // 1. Check rate-limit cooldown and read queue config
   const { data: state } = await supabase
@@ -136,8 +178,10 @@ Deno.serve(async (req) => {
   let totalProcessed = 0
 
   // 2. Process auth_emails first (priority), then transactional_emails
-  for (const queue of ['auth_emails', 'transactional_emails']) {
-    const { data: messages, error: readError } = await supabase.rpc('read_email_batch', {
+  const queues: QueueName[] = ['auth_emails', 'transactional_emails']
+
+  for (const queue of queues) {
+    const { data: rawMessages, error: readError } = await supabase.rpc('read_email_batch', {
       queue_name: queue,
       batch_size: batchSize,
       vt: 30,
@@ -148,7 +192,12 @@ Deno.serve(async (req) => {
       continue
     }
 
-    if (!messages?.length) continue
+    const messages: QueueMessage[] = (rawMessages ?? []).map((msg) => ({
+      ...msg,
+      message: getPayload(msg.message),
+    }))
+
+    if (!messages.length) continue
 
     // Retry budget is based on real send failures, not pgmq read_ct.
     // read_ct increments for every message in a claimed batch, including
@@ -246,21 +295,23 @@ Deno.serve(async (req) => {
       }
 
       try {
+        const emailRequest = {
+          run_id: typeof payload.run_id === 'string' ? payload.run_id : crypto.randomUUID(),
+          to: getRecipientEmail(payload),
+          from: typeof payload.from === 'string' ? payload.from : '',
+          sender_domain: typeof payload.sender_domain === 'string' ? payload.sender_domain : '',
+          subject: typeof payload.subject === 'string' ? payload.subject : '',
+          html: typeof payload.html === 'string' ? payload.html : '',
+          text: typeof payload.text === 'string' ? payload.text : '',
+          purpose: typeof payload.purpose === 'string' ? payload.purpose : 'transactional',
+          label: getTemplateName(payload, queue),
+          idempotency_key: typeof payload.idempotency_key === 'string' ? payload.idempotency_key : undefined,
+          unsubscribe_token: typeof payload.unsubscribe_token === 'string' ? payload.unsubscribe_token : undefined,
+          message_id: getMessageId(payload) ?? crypto.randomUUID(),
+        }
+
         await sendLovableEmail(
-          {
-            run_id: payload.run_id,
-            to: payload.to,
-            from: payload.from,
-            sender_domain: payload.sender_domain,
-            subject: payload.subject,
-            html: payload.html,
-            text: payload.text,
-            purpose: payload.purpose,
-            label: payload.label,
-            idempotency_key: payload.idempotency_key,
-            unsubscribe_token: payload.unsubscribe_token,
-            message_id: payload.message_id,
-          },
+          emailRequest,
           // sendUrl is optional — when LOVABLE_SEND_URL is not set, the library
           // falls back to the default Lovable API endpoint (https://api.lovable.dev).
           // Set LOVABLE_SEND_URL as a Supabase secret to override (e.g. for local dev).
@@ -269,9 +320,9 @@ Deno.serve(async (req) => {
 
         // Log success
         await supabase.from('email_send_log').insert({
-          message_id: payload.message_id,
-          template_name: payload.label || queue,
-          recipient_email: payload.to,
+          message_id: emailRequest.message_id,
+          template_name: emailRequest.label,
+          recipient_email: emailRequest.to,
           status: 'sent',
         })
 
@@ -296,9 +347,9 @@ Deno.serve(async (req) => {
 
         if (isRateLimited(error)) {
           await supabase.from('email_send_log').insert({
-            message_id: payload.message_id,
-            template_name: payload.label || queue,
-            recipient_email: payload.to,
+            message_id: getMessageId(payload),
+            template_name: getTemplateName(payload, queue),
+            recipient_email: getRecipientEmail(payload),
             status: 'rate_limited',
             error_message: errorMsg.slice(0, 1000),
           })
@@ -333,9 +384,9 @@ Deno.serve(async (req) => {
 
         // Log non-429 failures to track real retry attempts.
         await supabase.from('email_send_log').insert({
-          message_id: payload.message_id,
-          template_name: payload.label || queue,
-          recipient_email: payload.to,
+          message_id: getMessageId(payload),
+          template_name: getTemplateName(payload, queue),
+          recipient_email: getRecipientEmail(payload),
           status: 'failed',
           error_message: errorMsg.slice(0, 1000),
         })

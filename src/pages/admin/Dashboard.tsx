@@ -51,7 +51,7 @@ export default function AdminDashboard() {
   const { data: documents = [] } = useQuery({
     queryKey: ["admin-documents-count"],
     queryFn: async () => {
-      const { data } = await supabase.from("documents").select("id, doc_type, type, created_at").limit(1000);
+      const { data } = await supabase.from("documents").select("id, type, created_at").limit(1000);
       return data || [];
     },
     enabled: !!user,
@@ -117,7 +117,7 @@ export default function AdminDashboard() {
   // ── KPIs ──
 
   const activeProjects = projects.filter(p => !["archived", "delivered", "lost"].includes(p.status));
-  const cdcGenerated = documents.filter((d: { doc_type?: string; type?: string }) => (d.doc_type || d.type) === "cdc").length;
+  const cdcGenerated = documents.filter((d) => d.type === "cdc").length;
   const totalPipeline = projects.reduce((sum, p) => sum + (p.estimated_budget_max || 0), 0);
   const totalMessages = projects.reduce((sum, p) => sum + (p.total_messages || 0), 0);
   const onboardedClients = profiles.filter(p => p.onboarding_completed).length;
@@ -555,10 +555,10 @@ export default function AdminDashboard() {
           <CardContent className="p-4">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
               {[
-                { label: "CDC", count: documents.filter(d => d.doc_type === "cdc").length, color: "bg-primary/10 text-primary" },
-                { label: "Propositions", count: documents.filter(d => d.doc_type === "proposal").length, color: "bg-secondary/10 text-secondary" },
-                { label: "Devis", count: documents.filter(d => d.doc_type === "quote").length, color: "bg-emerald-500/10 text-emerald-600" },
-                { label: "Autres", count: documents.filter(d => !["cdc", "proposal", "quote"].includes(d.doc_type)).length, color: "bg-muted text-muted-foreground" },
+                { label: "CDC", count: documents.filter((d) => d.type === "cdc").length, color: "bg-primary/10 text-primary" },
+                { label: "Propositions", count: documents.filter((d) => d.type === "proposal").length, color: "bg-secondary/10 text-secondary" },
+                { label: "Devis", count: documents.filter((d) => d.type === "quote").length, color: "bg-emerald-500/10 text-emerald-600" },
+                { label: "Autres", count: documents.filter((d) => !["cdc", "proposal", "quote"].includes(d.type)).length, color: "bg-muted text-muted-foreground" },
               ].map((docType) => (
                 <div key={docType.label} className="text-center p-3 rounded-xl bg-muted/30">
                   <p className="text-2xl font-bold">{docType.count}</p>
@@ -572,7 +572,7 @@ export default function AdminDashboard() {
                 {documents.slice(0, 5).map((doc) => (
                   <div key={doc.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/30 transition-all">
                     <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-[10px] uppercase">{doc.doc_type}</Badge>
+                      <Badge variant="outline" className="text-[10px] uppercase">{doc.type}</Badge>
                     </div>
                     <span className="text-[10px] text-muted-foreground">
                       {doc.created_at && format(new Date(doc.created_at), "dd MMM yyyy", { locale: fr })}
