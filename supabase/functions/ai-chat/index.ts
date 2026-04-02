@@ -269,6 +269,20 @@ Tu navigues entre ces thèmes NATURELLEMENT selon ce que le client te dit. Si en
 # DONNÉES COLLECTÉES JUSQU'ICI
 ${JSON.stringify(discoveryData || {}, null, 2)}
 
+${discoveryData?.maturity_audit ? `# DIAGNOSTIC MATURITÉ DIGITALE DU CLIENT
+Le client a réalisé un audit de maturité digitale avant cette conversation. Voici ses résultats :
+- Type d'entreprise évalué : ${(discoveryData.maturity_audit as Record<string, unknown>).type}
+- Score global : ${(discoveryData.maturity_audit as Record<string, unknown>).score}% (${(discoveryData.maturity_audit as Record<string, unknown>).level})
+- Détail par thématique : ${JSON.stringify((discoveryData.maturity_audit as Record<string, unknown>).category_scores)}
+
+UTILISE ces données pour :
+1. Adapter ton niveau de langage technique selon sa maturité
+2. Prioriser tes questions sur les domaines où il est le plus faible
+3. Valoriser ses points forts ("Je vois que vous êtes déjà bien avancé sur...")
+4. Proposer des solutions adaptées à son niveau (pas de solution complexe si score faible)
+5. Ne PAS réciter les scores — intègre-les naturellement dans la conversation` : ""}
+
+
 # RÈGLES ABSOLUES
 - NE JAMAIS inventer de statistiques ou de chiffres
 - NE JAMAIS faire de promesses de résultats

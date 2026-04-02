@@ -172,8 +172,8 @@ export default function Onboarding() {
       await refreshProfile();
 
       confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
-      toast.success("Bienvenue ! Démarrons la création de votre cahier des charges.");
-      navigate(`/client/projects/${newProject.id}/conversation`);
+      toast.success("Bienvenue ! Faisons un rapide diagnostic de votre maturité digitale.");
+      navigate(`/client/projects/${newProject.id}/audit`);
     } catch (err: unknown) {
       const errMsg = err instanceof Error ? err.message : "Erreur lors de la sauvegarde";
       console.error("Onboarding finish error:", err);
