@@ -51,7 +51,7 @@ export default function AdminDashboard() {
   const { data: documents = [] } = useQuery({
     queryKey: ["admin-documents-count"],
     queryFn: async () => {
-      const { data } = await supabase.from("documents").select("id, type, created_at").limit(1000);
+      const { data } = await supabase.from("documents").select("id, doc_type, type, created_at").limit(1000);
       return data || [];
     },
     enabled: !!user,
@@ -117,7 +117,7 @@ export default function AdminDashboard() {
   // ── KPIs ──
 
   const activeProjects = projects.filter(p => !["archived", "delivered", "lost"].includes(p.status));
-  const cdcGenerated = documents.filter((d: { type: string }) => d.type === "cdc").length;
+  const cdcGenerated = documents.filter((d: { doc_type?: string; type?: string }) => (d.doc_type || d.type) === "cdc").length;
   const totalPipeline = projects.reduce((sum, p) => sum + (p.estimated_budget_max || 0), 0);
   const totalMessages = projects.reduce((sum, p) => sum + (p.total_messages || 0), 0);
   const onboardedClients = profiles.filter(p => p.onboarding_completed).length;
@@ -535,6 +535,84 @@ export default function AdminDashboard() {
                 <span className="text-sm font-bold text-primary">{profiles.length}</span>
               </div>
             </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Bottom row — Documents + Activity feed */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Documents overview */}
+        <Card className="lg:col-span-2 border border-border/40 shadow-sm overflow-hidden">
+          <CardHeader className="flex-row items-center justify-between pb-3 bg-gradient-to-r from-muted/40 to-transparent">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <div className="h-7 w-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                <FileText className="h-3.5 w-3.5 text-blue-500" />
+              </div>
+              Documents récents
+            </CardTitle>
+            <Badge variant="outline" className="text-[10px]">{documents.length} total</Badge>
+          </CardHeader>
+          <CardContent className="p-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+              {[
+                { label: "CDC", count: documents.filter(d => d.doc_type === "cdc").length, color: "bg-primary/10 text-primary" },
+                { label: "Propositions", count: documents.filter(d => d.doc_type === "proposal").length, color: "bg-secondary/10 text-secondary" },
+                { label: "Devis", count: documents.filter(d => d.doc_type === "quote").length, color: "bg-emerald-500/10 text-emerald-600" },
+                { label: "Autres", count: documents.filter(d => !["cdc", "proposal", "quote"].includes(d.doc_type)).length, color: "bg-muted text-muted-foreground" },
+              ].map((docType) => (
+                <div key={docType.label} className="text-center p-3 rounded-xl bg-muted/30">
+                  <p className="text-2xl font-bold">{docType.count}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{docType.label}</p>
+                </div>
+              ))}
+            </div>
+            {documents.length > 0 && (
+              <div className="space-y-1">
+                <p className="text-xs font-semibold text-muted-foreground mb-2">Derniers générés</p>
+                {documents.slice(0, 5).map((doc) => (
+                  <div key={doc.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/30 transition-all">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-[10px] uppercase">{doc.doc_type}</Badge>
+                    </div>
+                    <span className="text-[10px] text-muted-foreground">
+                      {doc.created_at && format(new Date(doc.created_at), "dd MMM yyyy", { locale: fr })}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Activity feed */}
+        <Card className="border border-border/40 shadow-sm overflow-hidden">
+          <CardHeader className="pb-3 bg-gradient-to-r from-muted/40 to-transparent">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <div className="h-7 w-7 rounded-lg bg-secondary/10 flex items-center justify-center">
+                <Building2 className="h-3.5 w-3.5 text-secondary" />
+              </div>
+              Activité récente
+            </CardTitle>
+            <p className="text-xs text-muted-foreground mt-1">Dernières actions</p>
+          </CardHeader>
+          <CardContent className="space-y-1 p-3 max-h-[350px] overflow-y-auto">
+            {recentActivities.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-6 text-center">Aucune activité.</p>
+            ) : (
+              recentActivities.slice(0, 8).map((activity) => (
+                <div key={activity.id} className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted/40 transition-all">
+                  <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5 shrink-0">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs leading-snug">{activity.description || activity.action}</p>
+                    <p className="text-[10px] text-muted-foreground/60 mt-0.5">
+                      {(activity as unknown as ActivityType).profile?.full_name || "Système"} · {activity.created_at && formatDistanceToNow(new Date(activity.created_at), { addSuffix: true, locale: fr })}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
           </CardContent>
         </Card>
       </div>

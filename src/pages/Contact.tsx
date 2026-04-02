@@ -100,8 +100,8 @@ export default function Contact() {
             <div className="space-y-4 lg:order-2">
               {[
                 { icon: Mail, title: "Email", desc: "contact@imotion-conseils.fr", href: "mailto:contact@imotion-conseils.fr" },
-                { icon: Phone, title: "Téléphone", desc: "+33 1 XX XX XX XX", href: "tel:+33100000000" },
-                { icon: MapPin, title: "Adresse", desc: "Paris, France", href: undefined },
+                { icon: Phone, title: "Téléphone", desc: "+33 9 72 14 59 08", href: "tel:+33972145908" },
+                { icon: MapPin, title: "Adresse", desc: "95 avenue du Président Wilson, 93100 Montreuil", href: "https://maps.google.com/?q=95+avenue+du+Pr%C3%A9sident+Wilson+93100+Montreuil" },
               ].map((item, i) => (
                 <motion.div
                   key={item.title}
@@ -194,7 +194,7 @@ export default function Contact() {
                                 <FormItem>
                                   <FormLabel>Nom complet *</FormLabel>
                                   <FormControl>
-                                    <Input placeholder="Jean Dupont" {...field} />
+                                    <Input placeholder="Votre nom" {...field} />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -207,7 +207,7 @@ export default function Contact() {
                                 <FormItem>
                                   <FormLabel>Email *</FormLabel>
                                   <FormControl>
-                                    <Input type="email" placeholder="jean@entreprise.fr" {...field} />
+                                    <Input type="email" placeholder="votre@email.com" {...field} />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -223,7 +223,7 @@ export default function Contact() {
                                 <FormItem>
                                   <FormLabel>Téléphone</FormLabel>
                                   <FormControl>
-                                    <Input placeholder="+33 6 XX XX XX XX" {...field} />
+                                    <Input placeholder="06 00 00 00 00" {...field} />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>

@@ -20,6 +20,7 @@ import {
   Plus, Pencil, Trash2, Play, BarChart3, Send,
   FileText, RefreshCw, Star, Calendar,
 } from "lucide-react";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 import type { AutomationLog, SupabaseError } from "@/types/admin";
 
 const TRIGGER_EVENTS = [
@@ -76,7 +77,7 @@ export function AutomationRulesTab() {
   const queryClient = useQueryClient();
   const [createOpen, setCreateOpen] = useState(false);
   const [editRule, setEditRule] = useState<AutomationRule | null>(null);
-  
+  const [animateParent] = useAutoAnimate();
 
   // Form state
   const [formName, setFormName] = useState("");
@@ -422,7 +423,7 @@ export function AutomationRulesTab() {
       </div>
 
       {/* Rules list */}
-      <div className="space-y-3">
+      <div className="space-y-3" ref={animateParent}>
         {rules.length === 0 ? (
           <Card className="border-0 shadow-sm">
             <CardContent className="p-8 text-center">

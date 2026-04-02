@@ -54,7 +54,7 @@ const TOOLS = [
 ];
 
 export default function Onboarding() {
-  const { user, profile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -168,6 +168,9 @@ export default function Onboarding() {
 
       if (projectError) throw projectError;
 
+      // Refresh profile in auth context so ProtectedRoute sees onboarding_completed: true
+      await refreshProfile();
+
       confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
       toast.success("Bienvenue ! Démarrons la création de votre cahier des charges.");
       navigate(`/client/projects/${newProject.id}/conversation`);
@@ -226,11 +229,11 @@ export default function Onboarding() {
             <div className="space-y-4">
               <div>
                 <Label htmlFor="full_name">Nom complet *</Label>
-                <Input id="full_name" value={data.full_name} onChange={(e) => update("full_name", e.target.value)} placeholder="Jean Dupont" className="mt-1.5" />
+                <Input id="full_name" value={data.full_name} onChange={(e) => update("full_name", e.target.value)} placeholder="Votre nom complet" className="mt-1.5" />
               </div>
               <div>
                 <Label htmlFor="phone">Téléphone</Label>
-                <Input id="phone" value={data.phone} onChange={(e) => update("phone", e.target.value)} placeholder="+33 6 12 34 56 78" className="mt-1.5" />
+                <Input id="phone" value={data.phone} onChange={(e) => update("phone", e.target.value)} placeholder="06 00 00 00 00" className="mt-1.5" />
               </div>
             </div>
           </div>

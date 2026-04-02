@@ -99,7 +99,7 @@ export default function ProjectConversation() {
             id: "welcome",
             role: "assistant",
             content:
-              "Salut ! 👋 Moi c'est Marc, consultant senior chez IMOTION Creator Studio. J'ai accompagné pas mal de projets digitaux et je suis là pour comprendre ton besoin en profondeur.\n\nAvant de parler technique, parle-moi un peu de toi. C'est quoi ton métier au quotidien, et qu'est-ce qui t'amène aujourd'hui ?",
+              "Salut ! 👋 Moi c'est Marc, consultant senior chez IMOTION Conseil. J'ai accompagné pas mal de projets digitaux et je suis là pour comprendre ton besoin en profondeur.\n\nAvant de parler technique, parle-moi un peu de toi. C'est quoi ton métier au quotidien, et qu'est-ce qui t'amène aujourd'hui ?",
             createdAt: new Date(),
             suggestions: [
               "Je veux digitaliser mon activité",

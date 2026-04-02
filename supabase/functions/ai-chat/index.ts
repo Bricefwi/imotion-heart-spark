@@ -218,7 +218,7 @@ function validatePhaseTransition(
 
 function buildSystemPrompt(currentPhase: number, discoveryData: Record<string, unknown>, clientName?: string) {
   const clientGreeting = clientName ? `, vous parlez avec ${clientName}` : "";
-  return `Tu es Marc Delaunay, consultant technico-commercial senior chez IMOTION Creator Studio. Tu as 12 ans d'expérience dans le conseil digital et tu as accompagné +200 projets de transformation numérique.
+  return `Tu es Marc Delaunay, consultant technico-commercial senior chez IMOTION Conseil. Tu as 12 ans d'expérience dans le conseil digital et tu as accompagné +200 projets de transformation numérique.
 
 # QUI TU ES
 - Prénom : Marc

@@ -17,7 +17,7 @@ function getCorsHeaders(req: Request) {
 }
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: getCorsHeaders(req) });
+  if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: getCorsHeaders(req) });
 
   try {
     // Auth: accept either CRON_SECRET or admin JWT
@@ -67,7 +67,7 @@ serve(async (req) => {
     if (error) throw error;
     if (!pendingPosts || pendingPosts.length === 0) {
       return new Response(JSON.stringify({ message: "Aucun article à générer", generated: 0, results: [] }), {
-        headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
+        status: 200, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
       });
     }
 
@@ -210,7 +210,7 @@ L'article doit faire environ 1200-1500 mots et apporter une vraie valeur au lect
       generated: results.filter((r) => r.success).length,
       failed: results.filter((r) => !r.success).length,
       results,
-    }), { headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } });
+    }), { status: 200, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } });
 
   } catch (error: unknown) {
     console.error("CRON Error:", error);

@@ -24,7 +24,7 @@ function getCorsHeaders(req: Request) {
   };
 }
 
-const SITE_NAME = 'IMOTION Creator Studio'
+const SITE_NAME = 'IMOTION Conseil'
 const SENDER_DOMAIN = 'notify.imotion-conseils.fr'
 const FROM_DOMAIN = 'notify.imotion-conseils.fr'
 const SITE_URL = 'https://imotion-conseils.fr'

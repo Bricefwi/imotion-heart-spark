@@ -23,7 +23,7 @@ export const ConversationSummaryEmail = ({
   keyInsights = [],
   nextSteps = [],
   dashboardUrl = '#',
-  siteName = 'IMOTION Creator Studio',
+  siteName = 'IMOTION Conseil',
   siteUrl = 'https://imotion-conseils.fr',
 }: ConversationSummaryEmailProps) => (
   <Html>
@@ -37,7 +37,7 @@ export const ConversationSummaryEmail = ({
       <Container style={container}>
         {/* Header */}
         <Section style={header}>
-          <Text style={logoText}>IMOTION Creator Studio</Text>
+          <Text style={logoText}>IMOTION</Text>
         </Section>
 
         {/* Hero */}
