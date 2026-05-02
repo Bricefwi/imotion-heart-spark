@@ -16,6 +16,8 @@ export interface AIChatResponse {
   sentiment: string;
   ready_for_next_phase: boolean;
   discovery_complete?: boolean;
+  marketing_audit_suggested?: boolean;
+  marketing_audit_reason?: string | null;
 }
 
 export async function sendChatMessage(
