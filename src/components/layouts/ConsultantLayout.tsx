@@ -28,7 +28,7 @@ function ConsultantSidebar() {
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border/50">
       <div className="px-4 py-5 text-sidebar-foreground">
-        <Logo size="md" showText={!collapsed} />
+        <Logo size="md" showText={!collapsed} markOnly={collapsed} />
       </div>
       <SidebarContent className="px-2">
         <SidebarGroup>
