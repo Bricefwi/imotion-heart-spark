@@ -30,6 +30,7 @@ const CookiesPage = lazy(() => import("@/pages/Cookies"));
 const FAQ = lazy(() => import("@/pages/FAQ"));
 const Blog = lazy(() => import("@/pages/Blog"));
 const BlogArticle = lazy(() => import("@/pages/BlogArticle"));
+const BrandPreview = lazy(() => import("@/pages/BrandPreview"));
 
 // Auth pages (lazy)
 const Login = lazy(() => import("@/pages/Login"));
@@ -98,6 +99,7 @@ const App = () => (
               <Route path="/cookies" element={<CookiesPage />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/blog" element={<Blog />} />
+              <Route path="/brand-preview" element={<BrandPreview />} />
               <Route path="/blog/:slug" element={<BlogArticle />} />
             </Route>
 

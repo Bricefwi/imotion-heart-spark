@@ -15,8 +15,18 @@ export default {
     extend: {
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
-        display: ["Inter", "system-ui", "sans-serif"],
+        display: ["'General Sans'", "Inter", "system-ui", "sans-serif"],
         mono: ["'JetBrains Mono'", "'Fira Code'", "ui-monospace", "monospace"],
+      },
+      backgroundImage: {
+        "gradient-primary": "var(--gradient-primary)",
+        "gradient-flame": "var(--gradient-flame)",
+        "gradient-ember": "var(--gradient-ember)",
+        "gradient-dusk": "var(--gradient-dusk)",
+        "gradient-dawn": "var(--gradient-dawn)",
+        "gradient-paper": "var(--gradient-paper)",
+        "gradient-glow": "var(--gradient-glow)",
+        "gradient-text": "var(--gradient-text)",
       },
       colors: {
         border: "hsl(var(--border))",
