@@ -178,6 +178,7 @@ export default function ClientDashboard() {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      <MarketingAuditBanner />
       {/* Welcome hero */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 sm:p-8 text-white">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-secondary/10" />
