@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -75,7 +74,6 @@ function FAQItem({ question, answer, index }: { question: string; answer: string
 }
 
 export function FAQSection() {
-  const [animateParent] = useAutoAnimate();
   return (
     <section className="py-24 md:py-32">
       <div className="container">
@@ -95,7 +93,7 @@ export function FAQSection() {
           </p>
         </motion.div>
 
-        <div className="max-w-3xl mx-auto" ref={animateParent}>
+        <div className="max-w-3xl mx-auto">
           {faqs.map((faq, i) => (
             <FAQItem key={i} question={faq.question} answer={faq.answer} index={i} />
           ))}
