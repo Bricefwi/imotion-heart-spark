@@ -226,6 +226,7 @@ const sidebarGroups: SidebarGroupDef[] = [
     items: [
       { title: "Vue d'ensemble", url: "/admin/dashboard", icon: LayoutDashboard },
       { title: "Tower Control", url: "/admin/crm", icon: Radar, badge: "NEW" },
+      { title: "Marketing Leads", url: "/admin/marketing-leads", icon: Inbox, badge: "NEW" },
       { title: "Analytiques", url: "/admin/analytics", icon: BarChart3, badge: "NEW" },
     ],
   },
