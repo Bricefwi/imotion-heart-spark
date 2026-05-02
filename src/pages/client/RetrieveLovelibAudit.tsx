@@ -12,16 +12,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ExternalLink, Download, Sparkles, ArrowRight, CheckCircle2, AlertCircle } from "lucide-react";
+import { ExternalLink, Download, Sparkles, ArrowRight, CheckCircle2, AlertCircle, Loader2, Link2 } from "lucide-react";
 import { getMarketingBaseUrl } from "@/lib/marketing-url";
 
 type ProjectRow = { id: string; name: string; code: string | null; status: string };
+
+type HydratedAudit = {
+  audit_id: string;
+  external_id: string | null;
+  company_name: string | null;
+  website_url: string | null;
+  score: number | null;
+  summary: string | null;
+};
 
 export default function RetrieveLovelibAudit() {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [projects, setProjects] = useState<ProjectRow[]>([]);
   const [projectId, setProjectId] = useState<string>(searchParams.get("project") ?? "");
@@ -29,6 +38,11 @@ export default function RetrieveLovelibAudit() {
   const [payloadText, setPayloadText] = useState("");
   const [externalId, setExternalId] = useState("");
   const [lastResult, setLastResult] = useState<{ audit_id: string; project_id: string } | null>(null);
+
+  // Token hydration state
+  const [tokenStatus, setTokenStatus] = useState<"idle" | "verifying" | "ok" | "error">("idle");
+  const [tokenError, setTokenError] = useState<string | null>(null);
+  const [hydrated, setHydrated] = useState<HydratedAudit | null>(null);
 
   const lovelibUrl = `${getMarketingBaseUrl()}/audit?return_to=clarivi`;
 
@@ -48,6 +62,75 @@ export default function RetrieveLovelibAudit() {
       if (!projectId && data && data.length > 0) setProjectId(data[0].id);
     })();
   }, [user]);
+
+  // Auto-hydrate from ?token=...
+  useEffect(() => {
+    const token = searchParams.get("token");
+    if (!token || !user || tokenStatus !== "idle") return;
+    (async () => {
+      setTokenStatus("verifying");
+      setTokenError(null);
+      try {
+        const { data, error } = await supabase.functions.invoke(
+          "verify-lovelib-token",
+          { body: { token } },
+        );
+        if (error) throw error;
+        if (!data?.ok) throw new Error(data?.error ?? "verify_failed");
+        setHydrated({
+          audit_id: data.audit_id,
+          external_id: data.external_id ?? null,
+          company_name: data.company_name ?? null,
+          website_url: data.website_url ?? null,
+          score: data.score ?? null,
+          summary: data.summary ?? null,
+        });
+        setExternalId(data.external_id ?? "");
+        setTokenStatus("ok");
+        toast({
+          title: "Audit récupéré",
+          description: "Choisissez le projet auquel l'associer.",
+        });
+        // Strip token from URL (keep ?project=…)
+        const next = new URLSearchParams(searchParams);
+        next.delete("token");
+        setSearchParams(next, { replace: true });
+      } catch (e: any) {
+        setTokenStatus("error");
+        setTokenError(e?.message ?? "Token invalide");
+        toast({
+          title: "Token invalide",
+          description: e?.message ?? "Lien expiré ou signature incorrecte.",
+          variant: "destructive",
+        });
+      }
+    })();
+  }, [user, searchParams, tokenStatus]);
+
+  async function linkHydratedAudit() {
+    if (!hydrated || !projectId) return;
+    setLoading(true);
+    try {
+      // Lien direct via la table audit_to_project_links (RLS ok: linked_by = auth.uid())
+      const { error } = await supabase.from("audit_to_project_links").insert({
+        audit_id: hydrated.audit_id,
+        project_id: projectId,
+        linked_by: user!.id,
+        note: "Lié via token signé",
+      });
+      if (error) throw error;
+      setLastResult({ audit_id: hydrated.audit_id, project_id: projectId });
+      toast({ title: "Audit associé", description: "L'audit est maintenant rattaché à votre projet." });
+    } catch (e: any) {
+      toast({
+        title: "Échec",
+        description: e?.message ?? "Impossible de lier cet audit.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function mergePayload(rawPayload: unknown) {
     if (!projectId) {
@@ -121,6 +204,65 @@ export default function RetrieveLovelibAudit() {
         </Badge>
       </div>
 
+      {/* Token verification banner */}
+      {tokenStatus === "verifying" && (
+        <Alert>
+          <Loader2 className="h-4 w-4 animate-spin" />
+          <AlertDescription>Vérification du token lovelib en cours…</AlertDescription>
+        </Alert>
+      )}
+
+      {tokenStatus === "error" && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Lien invalide ou expiré : <code className="text-xs">{tokenError}</code>. Demandez un nouveau lien depuis lovelib.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {tokenStatus === "ok" && hydrated && !lastResult && (
+        <Card className="border-green-500/40 bg-gradient-to-br from-green-500/5 to-primary/5">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <CheckCircle2 className="h-5 w-5 text-green-600" />
+              Audit lovelib récupéré
+              {hydrated.score !== null && (
+                <Badge className="ml-1 bg-gradient-to-r from-primary to-secondary text-white">
+                  Score {hydrated.score}/100
+                </Badge>
+              )}
+            </CardTitle>
+            <CardDescription>
+              {hydrated.company_name || hydrated.website_url || "Audit anonyme"}
+              {hydrated.summary && <span className="block mt-1 line-clamp-2">{hydrated.summary}</span>}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Cet audit est maintenant disponible dans votre compte. Liez-le à un projet pour qu'il enrichisse automatiquement la phase de découverte.
+            </p>
+            <div className="flex gap-2 flex-wrap">
+              <Button
+                onClick={linkHydratedAudit}
+                disabled={loading || !projectId}
+                className="bg-gradient-to-r from-primary to-secondary text-white"
+              >
+                {loading ? (
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Liaison…</>
+                ) : (
+                  <><Link2 className="h-4 w-4 mr-2" /> Lier au projet sélectionné</>
+                )}
+              </Button>
+              <Button variant="outline" asChild>
+                <Link to={`/client/audits/${hydrated.audit_id}`}>
+                  Voir le détail <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
       <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-secondary/5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
