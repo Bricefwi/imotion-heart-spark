@@ -13,6 +13,12 @@ interface LogoProps {
   size?: LogoSize;
   /** Affiche le sous-titre "Creator Studio" à droite du wordmark. */
   showText?: boolean;
+  /**
+   * Réduit le logo à la marque seule (flèche), sans le mot "motion".
+   * Idéal pour sidebar collapsée, favicon, mobile compact.
+   * Par défaut, déduit de !showText pour les variants legacy uniquement.
+   */
+  markOnly?: boolean;
   variant?: LogoVariant;
   tone?: LogoTone;
   className?: string;
