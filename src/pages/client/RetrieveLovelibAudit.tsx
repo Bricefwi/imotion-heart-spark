@@ -13,7 +13,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { ExternalLink, Download, Sparkles, ArrowRight, CheckCircle2, AlertCircle } from "lucide-react";
-import { MARKETING_BASE_URL } from "@/lib/marketing-url";
+import { getMarketingBaseUrl } from "@/lib/marketing-url";
 
 type ProjectRow = { id: string; name: string; code: string | null; status: string };
 
@@ -30,7 +30,7 @@ export default function RetrieveLovelibAudit() {
   const [externalId, setExternalId] = useState("");
   const [lastResult, setLastResult] = useState<{ audit_id: string; project_id: string } | null>(null);
 
-  const lovelibUrl = `${MARKETING_BASE_URL}/audit?return_to=clarivi`;
+  const lovelibUrl = `${getMarketingBaseUrl()}/audit?return_to=clarivi`;
 
   useEffect(() => {
     if (!user) return;
