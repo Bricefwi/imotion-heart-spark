@@ -39,8 +39,8 @@ export function PublicLayout() {
       {/* Header — Brand v2 (compact 64px, warm glass) */}
       <header className="sticky top-0 z-50 border-b border-border/40 bg-background/75 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between">
-          <Link to="/" className="flex items-center group">
-            <Logo size="sm" showText variant="chevrons" />
+          <Link to="/" className="flex items-center group" aria-label="IMOTION Creator Studio — Accueil">
+            <Logo size="md" showText />
           </Link>
 
           {/* Desktop nav with active underline */}
