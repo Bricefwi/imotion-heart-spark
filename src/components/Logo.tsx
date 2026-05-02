@@ -45,11 +45,12 @@ const fluxSizeMap: Record<LogoSize, { wordmark: string; sub: string; gap: string
  * ViewBox basé sur la hauteur (40), largeur auto-ajustée par les glyphes.
  */
 function WordmarkFlux({ tone, id }: { tone: LogoTone; id: string }) {
-  // Couleurs adaptatives
+  // Couleurs adaptatives — "auto" = currentColor (suit la couleur du parent → marche sur sidebar dark/light)
   const wordColor =
     tone === "light" ? "#FFFFFF"
+    : tone === "dark" ? "#0F0D0B"
     : tone === "mono" ? "currentColor"
-    : "#0F0D0B"; // dark/auto → ink
+    : "currentColor"; // auto
 
   const useGradient = tone !== "mono";
   const arrowFill = useGradient ? `url(#${id}-arrow)` : "currentColor";
