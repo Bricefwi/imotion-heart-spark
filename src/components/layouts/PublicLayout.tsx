@@ -205,7 +205,7 @@ export function PublicLayout() {
             ) : (
               <div className="flex flex-col gap-2 pt-3 px-3">
                 <Button variant="outline" asChild className="rounded-[var(--radius-md)]"><Link to="/login">{t("nav.login")}</Link></Button>
-                <Button asChild className="gradient-primary border-0"><Link to="/register">{t("nav.register")}</Link></Button>
+                <Button asChild variant="flame"><Link to="/register">{t("nav.register")}</Link></Button>
               </div>
             )}
           </div>
