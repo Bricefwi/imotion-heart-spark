@@ -119,11 +119,17 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    /* Empêche tout débordement horizontal venant d'orbes/gradients absolus */
+    overflow-x: hidden;
   }
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
     line-height: 1.6;
+    overflow-x: hidden;
+    /* Conteneur de référence pour `100vw` + safe-area iOS */
+    width: 100%;
+    max-width: 100vw;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -131,6 +137,10 @@
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: 1.2;
+    /* Évite le découpage de longs mots (URLs, noms de produit) en mobile */
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    hyphens: auto;
   }
 
   h1 { letter-spacing: -0.03em; }
