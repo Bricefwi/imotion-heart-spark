@@ -31,3 +31,12 @@ domain name, hosting, pro emails, SSL, CRM, dashboard, control tower, e-commerce
 - System prompt: supabase/functions/ai-chat/index.ts → buildSystemPrompt()
 - Expanded allowedFields whitelist per phase
 - UI: src/pages/client/ProjectConversation.tsx
+
+## Passerelle B (Marketing audit gateway)
+- Marc renvoie `marketing_audit_suggested: boolean` + `marketing_audit_reason: string` dans son JSON quand il détecte un manque clair de positionnement / cible / analyse concurrentielle.
+- Heuristique fallback côté client : suggestion contenant 'audit marketing', 'audit gratuit', 'stratégie marketing', 'positionnement', 'étude de marché' active aussi le CTA.
+- Persistance: `discovery_data.marketing_audit_suggested|reason|dismissed`.
+- UI: composant `src/components/MarketingAuditCTA.tsx` (bandeau gradient red→orange, ouvre `/audit-gratuit?source=clarivi&project=...&user=...&reason=...` sur marketing.imotion-conseils.fr en nouvel onglet — fallback lovelib-spyglass.lovable.app hors prod).
+- URL helper: `src/lib/marketing-url.ts` (`getMarketingAuditUrl`).
+- Marc ne re-déclenche PAS le flag à chaque tour ; si l'user clique "Plus tard", `marketing_audit_dismissed=true` est persisté.
+
