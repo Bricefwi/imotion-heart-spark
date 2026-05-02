@@ -14,6 +14,23 @@ import { toast } from "sonner";
 import { SafeMarkdown } from "@/components/SafeMarkdown";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import marcAvatar from "@/assets/avatar-marc-consultant.jpg";
+import { MarketingAuditCTA } from "@/components/MarketingAuditCTA";
+
+/** Mots-clés déclenchant la passerelle marketing en fallback côté client. */
+const MARKETING_SUGGESTION_KEYWORDS = [
+  "audit marketing",
+  "audit gratuit",
+  "stratégie marketing",
+  "positionnement",
+  "étude de marché",
+];
+
+const hasMarketingKeyword = (suggestions?: string[]): boolean =>
+  Array.isArray(suggestions) &&
+  suggestions.some((s) => {
+    const lower = s.toLowerCase();
+    return MARKETING_SUGGESTION_KEYWORDS.some((kw) => lower.includes(kw));
+  });
 
 interface DisplayMessage {
   id: string;
@@ -45,6 +62,11 @@ export default function ProjectConversation() {
   const [discoveryComplete, setDiscoveryComplete] = useState(false);
   const [cdcGenerating, setCdcGenerating] = useState(false);
   const [cdcScheduled, setCdcScheduled] = useState<number | null>(null);
+  const [marketingAudit, setMarketingAudit] = useState<{ suggested: boolean; reason: string | null; dismissed: boolean }>({
+    suggested: false,
+    reason: null,
+    dismissed: false,
+  });
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Fetch project
