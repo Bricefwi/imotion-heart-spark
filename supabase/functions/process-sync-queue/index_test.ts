@@ -396,9 +396,13 @@ Deno.test("handleHttpForward: 200 → résultat avec response_code + snippet", a
 // Intégration DB — backoff, idempotence dedupe_key, DLQ
 // =========================================================================
 
+// Tests d'intégration DB: opt-in uniquement (nécessite une vraie service-role key
+// et la possibilité d'écrire dans sync_queue/sync_logs). Lance avec :
+//   RUN_DB_TESTS=1 deno test --allow-net --allow-env --allow-read
+// Sinon, on couvre l'intégration DB par le script SQL `tests/sync-queue-db.sql`.
 const SUPABASE_URL = Deno.env.get("VITE_SUPABASE_URL");
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-const RUN_DB_TESTS = Boolean(SUPABASE_URL && SERVICE_KEY);
+const RUN_DB_TESTS = Deno.env.get("RUN_DB_TESTS") === "1" && Boolean(SUPABASE_URL && SERVICE_KEY);
 
 function dbTest(name: string, fn: () => Promise<void>) {
   Deno.test({
