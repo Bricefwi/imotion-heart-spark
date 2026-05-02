@@ -62,6 +62,33 @@ export type Database = {
           },
         ]
       }
+      agent_state: {
+        Row: {
+          created_at: string
+          expires_at: string
+          key: string
+          scope: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          key: string
+          scope: string
+          updated_at?: string
+          value?: Json
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          key?: string
+          scope?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
       audit_to_project_links: {
         Row: {
           audit_id: string
@@ -1867,6 +1894,7 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      cleanup_agent_state: { Args: never; Returns: undefined }
       cleanup_lovelib_token_uses: { Args: never; Returns: undefined }
       cleanup_pending_audit_claims: { Args: never; Returns: undefined }
       cleanup_webhook_nonces: { Args: never; Returns: undefined }
@@ -1922,6 +1950,7 @@ export type Database = {
         }
         Returns: Json
       }
+      get_active_model: { Args: { _scope?: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1957,6 +1986,10 @@ export type Database = {
       }
       redeem_pending_audits: { Args: never; Returns: Json }
       requeue_sync_job: { Args: { _job_id: string }; Returns: undefined }
+      set_active_model: {
+        Args: { _model: string; _scope?: string; _ttl_seconds?: number }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "client" | "consultant" | "admin" | "super_admin"
