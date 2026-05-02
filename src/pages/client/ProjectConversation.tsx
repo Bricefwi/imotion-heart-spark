@@ -14,6 +14,23 @@ import { toast } from "sonner";
 import { SafeMarkdown } from "@/components/SafeMarkdown";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import marcAvatar from "@/assets/avatar-marc-consultant.jpg";
+import { MarketingAuditCTA } from "@/components/MarketingAuditCTA";
+
+/** Mots-clés déclenchant la passerelle marketing en fallback côté client. */
+const MARKETING_SUGGESTION_KEYWORDS = [
+  "audit marketing",
+  "audit gratuit",
+  "stratégie marketing",
+  "positionnement",
+  "étude de marché",
+];
+
+const hasMarketingKeyword = (suggestions?: string[]): boolean =>
+  Array.isArray(suggestions) &&
+  suggestions.some((s) => {
+    const lower = s.toLowerCase();
+    return MARKETING_SUGGESTION_KEYWORDS.some((kw) => lower.includes(kw));
+  });
 
 interface DisplayMessage {
   id: string;
@@ -45,6 +62,11 @@ export default function ProjectConversation() {
   const [discoveryComplete, setDiscoveryComplete] = useState(false);
   const [cdcGenerating, setCdcGenerating] = useState(false);
   const [cdcScheduled, setCdcScheduled] = useState<number | null>(null);
+  const [marketingAudit, setMarketingAudit] = useState<{ suggested: boolean; reason: string | null; dismissed: boolean }>({
+    suggested: false,
+    reason: null,
+    dismissed: false,
+  });
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Fetch project
@@ -113,11 +135,18 @@ export default function ProjectConversation() {
     loadMessages();
   }, [projectId]);
 
-  // Update phase from project
+  // Update phase from project + hydrate marketing audit flag from discovery_data
   useEffect(() => {
     if (project) {
       setCurrentPhase(project.current_phase || 1);
       setOverallProgress(project.overall_progress || 0);
+      const dd = (project.discovery_data ?? {}) as Record<string, unknown>;
+      const flag = dd.marketing_audit_suggested === true;
+      const reason = typeof dd.marketing_audit_reason === "string" ? dd.marketing_audit_reason : null;
+      const dismissed = dd.marketing_audit_dismissed === true;
+      if (flag) {
+        setMarketingAudit({ suggested: true, reason, dismissed });
+      }
     }
   }, [project]);
 
@@ -171,6 +200,39 @@ export default function ProjectConversation() {
       setCurrentPhase(response.phase_current);
       setOverallProgress(response.overall_progress);
       setPhaseProgress(response.phase_progress);
+
+      // ── Passerelle B : audit marketing ──
+      // 1) flag explicite envoyé par Marc
+      // 2) heuristique fallback : suggestion contenant un mot-clé marketing
+      const flagFromAi = response.marketing_audit_suggested === true;
+      const flagFromHeuristic = hasMarketingKeyword(response.suggestions);
+      const shouldSuggest = flagFromAi || flagFromHeuristic;
+
+      if (shouldSuggest && !marketingAudit.dismissed) {
+        const reason = response.marketing_audit_reason ?? marketingAudit.reason ?? null;
+        const wasNew = !marketingAudit.suggested;
+        setMarketingAudit({ suggested: true, reason, dismissed: false });
+
+        // Persiste le flag dans discovery_data pour qu'il survive aux rechargements.
+        if (wasNew && projectId) {
+          try {
+            const currentDd = (project?.discovery_data ?? {}) as Record<string, unknown>;
+            await supabase
+              .from("projects")
+              .update({
+                discovery_data: {
+                  ...currentDd,
+                  marketing_audit_suggested: true,
+                  marketing_audit_reason: reason,
+                  marketing_audit_suggested_at: new Date().toISOString(),
+                },
+              })
+              .eq("id", projectId);
+          } catch (err) {
+            console.warn("Failed to persist marketing audit flag:", err);
+          }
+        }
+      }
 
       // Check if discovery is complete
       if (response.discovery_complete) {
@@ -404,6 +466,31 @@ export default function ProjectConversation() {
               </Button>
             ))}
           </div>
+        )}
+
+        {/* Passerelle B : audit marketing gratuit */}
+        {marketingAudit.suggested && !marketingAudit.dismissed && !discoveryComplete && (
+          <MarketingAuditCTA
+            projectId={projectId}
+            userId={user?.id}
+            reason={marketingAudit.reason}
+            onDismiss={async () => {
+              setMarketingAudit((prev) => ({ ...prev, dismissed: true }));
+              if (projectId) {
+                try {
+                  const currentDd = (project?.discovery_data ?? {}) as Record<string, unknown>;
+                  await supabase
+                    .from("projects")
+                    .update({
+                      discovery_data: { ...currentDd, marketing_audit_dismissed: true },
+                    })
+                    .eq("id", projectId);
+                } catch (err) {
+                  console.warn("Failed to persist dismiss flag:", err);
+                }
+              }
+            }}
+          />
         )}
 
         {/* CDC Generation Panel */}
