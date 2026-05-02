@@ -63,6 +63,75 @@ export default function RetrieveLovelibAudit() {
     })();
   }, [user]);
 
+  // Auto-hydrate from ?token=...
+  useEffect(() => {
+    const token = searchParams.get("token");
+    if (!token || !user || tokenStatus !== "idle") return;
+    (async () => {
+      setTokenStatus("verifying");
+      setTokenError(null);
+      try {
+        const { data, error } = await supabase.functions.invoke(
+          "verify-lovelib-token",
+          { body: { token } },
+        );
+        if (error) throw error;
+        if (!data?.ok) throw new Error(data?.error ?? "verify_failed");
+        setHydrated({
+          audit_id: data.audit_id,
+          external_id: data.external_id ?? null,
+          company_name: data.company_name ?? null,
+          website_url: data.website_url ?? null,
+          score: data.score ?? null,
+          summary: data.summary ?? null,
+        });
+        setExternalId(data.external_id ?? "");
+        setTokenStatus("ok");
+        toast({
+          title: "Audit récupéré",
+          description: "Choisissez le projet auquel l'associer.",
+        });
+        // Strip token from URL (keep ?project=…)
+        const next = new URLSearchParams(searchParams);
+        next.delete("token");
+        setSearchParams(next, { replace: true });
+      } catch (e: any) {
+        setTokenStatus("error");
+        setTokenError(e?.message ?? "Token invalide");
+        toast({
+          title: "Token invalide",
+          description: e?.message ?? "Lien expiré ou signature incorrecte.",
+          variant: "destructive",
+        });
+      }
+    })();
+  }, [user, searchParams, tokenStatus]);
+
+  async function linkHydratedAudit() {
+    if (!hydrated || !projectId) return;
+    setLoading(true);
+    try {
+      // Lien direct via la table audit_to_project_links (RLS ok: linked_by = auth.uid())
+      const { error } = await supabase.from("audit_to_project_links").insert({
+        audit_id: hydrated.audit_id,
+        project_id: projectId,
+        linked_by: user!.id,
+        note: "Lié via token signé",
+      });
+      if (error) throw error;
+      setLastResult({ audit_id: hydrated.audit_id, project_id: projectId });
+      toast({ title: "Audit associé", description: "L'audit est maintenant rattaché à votre projet." });
+    } catch (e: any) {
+      toast({
+        title: "Échec",
+        description: e?.message ?? "Impossible de lier cet audit.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function mergePayload(rawPayload: unknown) {
     if (!projectId) {
       toast({ title: "Projet requis", description: "Choisissez un projet de destination.", variant: "destructive" });
