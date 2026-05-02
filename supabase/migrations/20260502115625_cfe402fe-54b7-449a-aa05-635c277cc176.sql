@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.cleanup_webhook_nonces() FROM PUBLIC, anon, authenticated;

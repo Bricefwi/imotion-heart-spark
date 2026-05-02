@@ -19,3 +19,5 @@ project_id = "npmkzqxoxobfqdqpnsgf"
     verify_jwt = true
   [functions.process-scheduled-cdc]
     verify_jwt = false
+  [functions.marketing-webhook]
+    verify_jwt = false
