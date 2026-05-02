@@ -1,4 +1,4 @@
-import { Outlet, Link, NavLink } from "react-router-dom";
+import { Outlet, Link, NavLink, useLocation } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { FloatingChatAgent } from "@/components/FloatingChatAgent";
 import { LanguageSelector } from "@/components/LanguageSelector";
@@ -16,6 +16,9 @@ export function PublicLayout() {
   const { user, profile, roles, signOut } = useAuth();
   const { t } = useTranslation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { pathname } = useLocation();
+  // Home page : header transparent dark overlay (matches hero ink dark)
+  const isHome = pathname === "/";
 
   const navLinks = [
     { label: t("nav.features"), to: "/fonctionnalites" },
