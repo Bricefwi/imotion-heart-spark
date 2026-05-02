@@ -195,20 +195,20 @@ export function HeroSection() {
         aria-hidden="true"
       />
 
-      <div className="container relative py-20 md:py-28 lg:py-32">
-        <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+      <div className="container relative py-14 sm:py-20 md:py-24 lg:py-32">
+        <div className="grid lg:grid-cols-12 gap-10 sm:gap-14 lg:gap-16 items-center">
           {/* LEFT — Headline + CTA */}
-          <div className="lg:col-span-6 space-y-8 text-white">
+          <div className="lg:col-span-6 space-y-6 sm:space-y-8 text-white">
             {/* Brand wordmark display */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <h1 className="font-display font-bold tracking-tight leading-none text-[64px] sm:text-[88px] lg:text-[112px] text-white">
+              <h1 className="font-display font-bold tracking-tight leading-none text-[44px] xs:text-[56px] sm:text-[80px] md:text-[96px] lg:text-[112px] text-white break-words">
                 IMOTION
               </h1>
-              <p className="mt-2 font-display uppercase tracking-[0.32em] text-xs sm:text-sm text-white/50">
+              <p className="mt-2 font-display uppercase tracking-[0.24em] sm:tracking-[0.32em] text-[10px] sm:text-xs md:text-sm text-white/50">
                 Creator Studio
               </p>
             </motion.div>
