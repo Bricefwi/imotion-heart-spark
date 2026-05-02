@@ -22,6 +22,17 @@ interface LogoProps {
   variant?: LogoVariant;
   tone?: LogoTone;
   className?: string;
+  /**
+   * Override du libellé accessible. Par défaut :
+   * - "IMOTION Creator Studio" si showText
+   * - "IMOTION" sinon
+   */
+  ariaLabel?: string;
+  /**
+   * Si true, masque entièrement le logo aux lecteurs d'écran (utile lorsqu'il
+   * est imbriqué dans un lien ou bouton qui porte déjà son propre libellé).
+   */
+  decorative?: boolean;
 }
 
 /* ---------- Sizing ---------- */
@@ -77,8 +88,8 @@ function WordmarkFlux({
       viewBox={viewBox}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      role="img"
-      aria-label={markOnly ? "imotion mark" : "imotion"}
+      aria-hidden="true"
+      focusable="false"
       className="h-full w-auto"
     >
       <defs>
@@ -124,7 +135,7 @@ function MarkChevrons({ tone }: { tone: LogoTone }) {
   const c2 = useMono ? "currentColor" : "#D63B1A";
   const c3 = useMono ? "currentColor" : "#F08A00";
   return (
-    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
       <path d="M5 8 L18 20 L5 32" stroke={c1} strokeWidth="5.5" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M14 8 L27 20 L14 32" stroke={c2} strokeWidth="5.5" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M23 8 L36 20 L23 32" stroke={c3} strokeWidth="5.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -135,7 +146,7 @@ function MarkChevrons({ tone }: { tone: LogoTone }) {
 function MarkSpark({ tone, id }: { tone: LogoTone; id: string }) {
   const useMono = tone === "mono";
   return (
-    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
       <defs>
         <linearGradient id={`${id}-g`} x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
           <stop offset="0%" stopColor="#D63B1A" />
@@ -152,7 +163,7 @@ function MarkSpark({ tone, id }: { tone: LogoTone; id: string }) {
 function MarkFlame({ tone, id }: { tone: LogoTone; id: string }) {
   const useMono = tone === "mono";
   return (
-    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
       <defs>
         <linearGradient id={`${id}-flame`} x1="20" y1="4" x2="20" y2="36" gradientUnits="userSpaceOnUse">
           <stop offset="0%" stopColor="#F24E2A" />
@@ -182,31 +193,59 @@ export function Logo({
   variant = "flux", // ← NOUVEAU défaut : wordmark Flux
   tone = "auto",
   className,
+  ariaLabel,
+  decorative = false,
 }: LogoProps) {
   const uid = `logo-${variant}`;
 
+  // Libellé accessible global (porté par le conteneur, le SVG reste aria-hidden).
+  const computedLabel =
+    ariaLabel ??
+    (markOnly
+      ? "IMOTION"
+      : showText
+        ? "IMOTION Creator Studio"
+        : "IMOTION");
+
+  // a11y attrs partagés
+  const a11yProps = decorative
+    ? { "aria-hidden": true as const }
+    : { role: "img" as const, "aria-label": computedLabel };
+
   // Sub-label color (Creator Studio)
+  // Mode mono : on garde le contraste du contexte (currentColor) sans diminuer
+  // l'opacité, qui peut faire chuter le ratio sous 4.5:1 sur fond clair.
   const subColor =
-    tone === "light" ? "text-white/70"
-    : tone === "mono" ? "text-current opacity-70"
+    tone === "light" ? "text-white/80"
+    : tone === "mono" ? "text-current"
     : "text-primary"; // accent coral pour matcher la maquette
 
   /* ---------- Variant FLUX (nouveau logo officiel) ---------- */
   if (variant === "flux") {
     const s = fluxSizeMap[size];
     return (
-      <div className={cn("inline-flex items-center min-w-0 max-w-full", s.gap, className)}>
+      <div
+        {...a11yProps}
+        className={cn(
+          "inline-flex items-center min-w-0 max-w-full",
+          // Anneau de focus visible si le Logo est rendu dans un élément focusable
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm",
+          s.gap,
+          className
+        )}
+      >
         <div className={cn("shrink-0", s.wordmark)}>
           <WordmarkFlux tone={tone} id={uid} markOnly={markOnly} />
         </div>
         {showText && !markOnly && (
           <div
+            aria-hidden="true"
             className={cn(
               // Caché en < sm pour éviter l'écrasement, visible dès 640px.
               "hidden sm:flex flex-col leading-tight font-display font-semibold uppercase tracking-[0.18em] whitespace-nowrap",
               s.sub,
               subColor,
-              "border-l border-current/20 pl-2 sm:pl-3"
+              "border-l border-current/30 pl-2 sm:pl-3"
             )}
           >
             <span>Creator</span>
@@ -222,14 +261,22 @@ export function Logo({
   const textColor = tone === "light" ? "text-white" : "text-foreground";
 
   return (
-    <div className={cn("inline-flex items-center", s.gap, className)}>
+    <div
+      {...a11yProps}
+      className={cn(
+        "inline-flex items-center",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm",
+        s.gap,
+        className
+      )}
+    >
       <div className={cn("shrink-0", s.mark)}>
         {variant === "chevrons" && <MarkChevrons tone={tone} />}
         {variant === "spark" && <MarkSpark tone={tone} id={uid} />}
         {variant === "flame" && <MarkFlame tone={tone} id={uid} />}
       </div>
       {showText && (
-        <div className={cn("flex flex-col leading-none", textColor)}>
+        <div aria-hidden="true" className={cn("flex flex-col leading-none", textColor)}>
           <span className={cn("font-display font-semibold tracking-tight", s.text)}>
             IMOTION
           </span>
