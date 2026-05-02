@@ -45,12 +45,19 @@ function timingSafeEqual(a: Uint8Array, b: Uint8Array): boolean {
   return r === 0;
 }
 
+// Maximum allowed token TTL (15 minutes). Tokens with longer lifetimes are rejected.
+const MAX_TOKEN_TTL_SECONDS = 15 * 60;
+// Tolerance for clock skew on iat / nbf
+const CLOCK_SKEW_SECONDS = 60;
+
 type LovelibTokenPayload = {
   iss?: string;
   sub?: string; // user email or external user id on lovelib
   aud?: string;
   exp?: number; // seconds
   iat?: number;
+  nbf?: number;
+  jti?: string; // unique token id (required for one-shot enforcement)
   audit_id?: string; // external audit id on lovelib
   email?: string;
   company_name?: string;
@@ -80,11 +87,25 @@ async function verifyToken(
 
   const payload = JSON.parse(b64urlToString(payloadB64)) as LovelibTokenPayload;
   const now = Math.floor(Date.now() / 1000);
-  if (typeof payload.exp === "number" && payload.exp < now) {
-    throw new Error("token_expired");
+
+  // exp is mandatory
+  if (typeof payload.exp !== "number") throw new Error("missing_exp");
+  if (payload.exp < now) throw new Error("token_expired");
+
+  // iat is mandatory + cap maximum lifetime
+  if (typeof payload.iat !== "number") throw new Error("missing_iat");
+  if (payload.iat > now + CLOCK_SKEW_SECONDS) throw new Error("token_iat_in_future");
+  if (payload.exp - payload.iat > MAX_TOKEN_TTL_SECONDS) {
+    throw new Error("token_ttl_too_long");
   }
-  if (typeof payload.iat === "number" && payload.iat > now + 300) {
-    throw new Error("token_iat_in_future");
+
+  if (typeof payload.nbf === "number" && payload.nbf > now + CLOCK_SKEW_SECONDS) {
+    throw new Error("token_not_yet_valid");
+  }
+
+  // jti required for one-shot replay protection
+  if (!payload.jti || typeof payload.jti !== "string" || payload.jti.length < 8) {
+    throw new Error("missing_jti");
   }
 
   return payload;
