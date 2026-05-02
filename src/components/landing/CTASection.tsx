@@ -9,14 +9,14 @@ export function CTASection() {
   const { t } = useTranslation();
 
   return (
-    <section className="py-20 md:py-28">
-      <div className="container">
+    <section className="py-14 sm:py-20 md:py-28">
+      <div className="container px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7 }}
-          className="relative rounded-3xl p-10 md:p-16 lg:p-20 overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white"
+          className="relative rounded-2xl sm:rounded-3xl p-6 sm:p-10 md:p-16 lg:p-20 overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white"
         >
           {/* Multi-layer gradient orbs */}
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px] -translate-y-1/3 translate-x-1/4" />
