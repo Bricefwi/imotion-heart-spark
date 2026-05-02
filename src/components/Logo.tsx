@@ -36,12 +36,13 @@ const markSizeMap: Record<LogoSize, { mark: string; text: string; sub: string; g
 };
 
 // Pour le wordmark "flux" (hauteur du SVG, qui inclut déjà le texte "motion")
+// Hauteur responsive : plus petit en mobile, valeur cible en md+ pour éviter l'écrasement.
 const fluxSizeMap: Record<LogoSize, { wordmark: string; sub: string; gap: string; subGap: string }> = {
-  xs: { wordmark: "h-5",  sub: "text-[8px]",  gap: "gap-2",   subGap: "ml-2" },
-  sm: { wordmark: "h-6",  sub: "text-[9px]",  gap: "gap-2.5", subGap: "ml-2.5" },
-  md: { wordmark: "h-8",  sub: "text-[10px]", gap: "gap-3",   subGap: "ml-3" },
-  lg: { wordmark: "h-12", sub: "text-xs",     gap: "gap-4",   subGap: "ml-4" },
-  xl: { wordmark: "h-16", sub: "text-sm",     gap: "gap-5",   subGap: "ml-5" },
+  xs: { wordmark: "h-4 sm:h-5",        sub: "text-[8px]",            gap: "gap-1.5 sm:gap-2",   subGap: "ml-2" },
+  sm: { wordmark: "h-5 sm:h-6",        sub: "text-[9px]",            gap: "gap-2 sm:gap-2.5",   subGap: "ml-2.5" },
+  md: { wordmark: "h-6 sm:h-7 md:h-8", sub: "text-[10px]",           gap: "gap-2 sm:gap-3",     subGap: "ml-3" },
+  lg: { wordmark: "h-8 sm:h-10 md:h-12", sub: "text-[10px] md:text-xs", gap: "gap-3 md:gap-4",   subGap: "ml-4" },
+  xl: { wordmark: "h-10 sm:h-12 md:h-16", sub: "text-xs md:text-sm", gap: "gap-3 md:gap-5",     subGap: "ml-5" },
 };
 
 /* ---------- NEW: Flux wordmark (Direction C) ---------- */
@@ -194,17 +195,18 @@ export function Logo({
   if (variant === "flux") {
     const s = fluxSizeMap[size];
     return (
-      <div className={cn("inline-flex items-center", s.gap, className)}>
+      <div className={cn("inline-flex items-center min-w-0 max-w-full", s.gap, className)}>
         <div className={cn("shrink-0", s.wordmark)}>
           <WordmarkFlux tone={tone} id={uid} markOnly={markOnly} />
         </div>
         {showText && !markOnly && (
           <div
             className={cn(
-              "flex flex-col leading-tight font-display font-semibold uppercase tracking-[0.18em]",
+              // Caché en < sm pour éviter l'écrasement, visible dès 640px.
+              "hidden sm:flex flex-col leading-tight font-display font-semibold uppercase tracking-[0.18em] whitespace-nowrap",
               s.sub,
               subColor,
-              "border-l border-current/20 pl-3"
+              "border-l border-current/20 pl-2 sm:pl-3"
             )}
           >
             <span>Creator</span>
