@@ -177,6 +177,7 @@ function MarkFlame({ tone, id }: { tone: LogoTone; id: string }) {
 export function Logo({
   size = "md",
   showText = false,
+  markOnly,
   variant = "flux", // ← NOUVEAU défaut : wordmark Flux
   tone = "auto",
   className,
@@ -195,9 +196,9 @@ export function Logo({
     return (
       <div className={cn("inline-flex items-center", s.gap, className)}>
         <div className={cn("shrink-0", s.wordmark)}>
-          <WordmarkFlux tone={tone} id={uid} />
+          <WordmarkFlux tone={tone} id={uid} markOnly={markOnly} />
         </div>
-        {showText && (
+        {showText && !markOnly && (
           <div
             className={cn(
               "flex flex-col leading-tight font-display font-semibold uppercase tracking-[0.18em]",
