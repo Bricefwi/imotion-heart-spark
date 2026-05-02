@@ -4,7 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const ALLOWED_ORIGINS = [
   "https://imotion-conseils.fr",
   "https://www.imotion-conseils.fr",
-  "https://imotion-heart-spark.lovable.app",
+  "https://app.imotion-conseils.fr",
   "https://app.imotion-conseils.fr",
   "https://marketing.imotion-conseils.fr",
 ];
@@ -95,7 +95,7 @@ serve(async (req) => {
       .limit(1)
       .single();
 
-    const appUrl = "https://imotion-heart-spark.lovable.app";
+    const appUrl = "https://app.imotion-conseils.fr";
     const dashboardUrl = `${appUrl}/client/dashboard`;
     const projectUrl = cdcDoc
       ? `${appUrl}/client/documents/${cdcDoc.id}`

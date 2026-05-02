@@ -4,7 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 const ALLOWED_ORIGINS = [
   "https://imotion-conseils.fr",
   "https://www.imotion-conseils.fr",
-  "https://imotion-heart-spark.lovable.app",
+  "https://app.imotion-conseils.fr",
   "https://app.imotion-conseils.fr",
   "https://marketing.imotion-conseils.fr",
 ];
