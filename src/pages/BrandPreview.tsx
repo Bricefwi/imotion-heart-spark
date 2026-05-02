@@ -1,11 +1,7 @@
-import { useState } from "react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check } from "lucide-react";
-
-type Variant = "chevrons" | "spark" | "flame";
 
 const PALETTE = [
   { name: "Coral 600 — Primary", hsl: "11 79% 47%", hex: "#D63B1A" },
@@ -19,96 +15,84 @@ const PALETTE = [
 ];
 
 export default function BrandPreview() {
-  const [chosen, setChosen] = useState<Variant | null>(null);
-
-  const variants: { key: Variant; title: string; subtitle: string }[] = [
-    {
-      key: "chevrons",
-      title: "Direction A — Chevrons",
-      subtitle: "Vectorisation propre du logo actuel : 3 chevrons noir / coral / ambre. Lecture immédiate de la marque, continuité forte.",
-    },
-    {
-      key: "spark",
-      title: "Direction B — Spark",
-      subtitle: "Mark cube arrondi avec un « I » et un point d'accent. Plus app-icon, parfait pour favicon, sidebar collapsed, app stores.",
-    },
-    {
-      key: "flame",
-      title: "Direction C — Flame",
-      subtitle: "Silhouette de flamme organique en gradient flame. Évoque l'énergie, l'IA générative, le « heart-spark ». Plus signature, moins corporate.",
-    },
-  ];
-
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border/60 bg-background/80 backdrop-blur-xl sticky top-0 z-10">
         <div className="container mx-auto flex items-center justify-between py-4">
-          <Logo size="md" showText variant="chevrons" />
-          <Badge variant="outline" className="font-mono text-xs">brand-preview · phase 1</Badge>
+          <Logo size="md" showText />
+          <Badge variant="outline" className="font-mono text-xs">brand-preview · v2 · logo officiel</Badge>
         </div>
       </header>
 
       <main className="container mx-auto py-12 space-y-16">
         {/* Intro */}
         <section className="max-w-2xl">
-          <Badge className="bg-gradient-flame border-0 text-white mb-4">Refonte v2</Badge>
+          <Badge className="bg-gradient-flame border-0 text-white mb-4">Logo officiel</Badge>
           <h1 className="font-display text-5xl font-semibold tracking-tight mb-4">
-            Choisis la direction du <span className="bg-gradient-text bg-clip-text text-transparent">logo IMOTION</span>
+            <span className="bg-gradient-text bg-clip-text text-transparent">imotion</span> — wordmark Flux
           </h1>
           <p className="text-muted-foreground text-lg leading-relaxed">
-            Les 3 propositions ci-dessous utilisent le nouveau système de couleurs (coral / amber / ink) et la
-            typographie display <span className="font-display font-semibold">General Sans</span>. Une fois ta direction
-            validée, elle sera propagée à toute l'app + le footer + le favicon.
+            Wordmark <span className="font-semibold">imotion</span> où le « i » est remplacé par une flèche verticale
+            gradient orange→rouge. Inspiré Stripe / Resend / Ramp. Typographique, durable, signature.
           </p>
         </section>
 
-        {/* Logo variants */}
-        <section className="grid gap-6 md:grid-cols-3">
-          {variants.map((v) => (
-            <Card
-              key={v.key}
-              className={`relative p-6 cursor-pointer transition-all hover:-translate-y-1 hover:shadow-lg ${
-                chosen === v.key ? "ring-2 ring-primary shadow-glow" : ""
-              }`}
-              onClick={() => setChosen(v.key)}
-            >
-              {chosen === v.key && (
-                <div className="absolute top-4 right-4 size-7 rounded-full bg-gradient-flame flex items-center justify-center text-white">
-                  <Check className="size-4" />
-                </div>
-              )}
+        {/* Logo showcase — light / dark / mono */}
+        <section className="grid gap-6 md:grid-cols-2">
+          {/* Light bg */}
+          <Card className="p-8 bg-gradient-paper">
+            <div className="text-xs uppercase tracking-widest text-muted-foreground mb-6">Sur fond clair</div>
+            <div className="flex flex-col gap-8 items-start">
+              <Logo size="xl" />
+              <Logo size="lg" showText />
+              <Logo size="md" showText />
+            </div>
+          </Card>
 
-              <div className="bg-gradient-paper rounded-xl p-8 mb-4 flex items-center justify-center min-h-[160px]">
-                <Logo size="xl" variant={v.key} />
-              </div>
+          {/* Dark bg */}
+          <Card className="p-8 bg-gradient-dusk border-0">
+            <div className="text-xs uppercase tracking-widest text-white/50 mb-6">Sur fond sombre</div>
+            <div className="flex flex-col gap-8 items-start">
+              <Logo size="xl" tone="light" />
+              <Logo size="lg" tone="light" showText />
+              <Logo size="md" tone="light" showText />
+            </div>
+          </Card>
 
-              {/* Dark sample */}
-              <div className="bg-gradient-dusk rounded-xl p-8 mb-4 flex items-center justify-center min-h-[120px]">
-                <Logo size="lg" variant={v.key} showText tone="light" />
-              </div>
+          {/* Mono */}
+          <Card className="p-8 bg-muted">
+            <div className="text-xs uppercase tracking-widest text-muted-foreground mb-6">Mono — application stricte</div>
+            <div className="flex flex-col gap-8 items-start text-foreground">
+              <Logo size="lg" tone="mono" />
+              <Logo size="md" tone="mono" showText />
+            </div>
+          </Card>
 
-              {/* Mono sample */}
-              <div className="bg-muted rounded-xl p-6 mb-4 flex items-center justify-center min-h-[80px] text-foreground/80">
-                <Logo size="md" variant={v.key} tone="mono" />
-              </div>
-
-              <h3 className="font-display font-semibold text-lg mb-1">{v.title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{v.subtitle}</p>
-            </Card>
-          ))}
+          {/* Inverted mono on coral */}
+          <Card className="p-8 border-0" style={{ background: "hsl(11 79% 47%)" }}>
+            <div className="text-xs uppercase tracking-widest text-white/70 mb-6">Mono blanc sur coral</div>
+            <div className="flex flex-col gap-8 items-start text-white">
+              <Logo size="lg" tone="mono" />
+              <Logo size="md" tone="mono" showText />
+            </div>
+          </Card>
         </section>
 
-        {/* Selection summary */}
-        {chosen && (
-          <section className="rounded-2xl border border-primary/20 bg-gradient-glow p-8 text-center">
-            <Badge className="bg-gradient-flame border-0 text-white mb-3">Sélection</Badge>
-            <p className="text-lg">
-              Tu as choisi la <span className="font-semibold">direction {chosen.toUpperCase()}</span>. Dis-moi
-              "valide cette direction" et je l'applique à tous les layouts (header public, sidebar, footer, login, favicon).
-            </p>
-          </section>
-        )}
+        {/* Sizes scale */}
+        <section>
+          <h2 className="font-display text-3xl font-semibold mb-6">Échelle des tailles</h2>
+          <Card className="p-8">
+            <div className="flex flex-wrap items-end gap-10">
+              {(["xs", "sm", "md", "lg", "xl"] as const).map((s) => (
+                <div key={s} className="flex flex-col items-start gap-2">
+                  <Logo size={s} />
+                  <span className="text-xs font-mono text-muted-foreground">size="{s}"</span>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </section>
 
         {/* Color palette */}
         <section>
@@ -185,7 +169,7 @@ export default function BrandPreview() {
       </main>
 
       <footer className="border-t border-border/60 mt-16 py-8 text-center text-sm text-muted-foreground">
-        Phase 1 · Fondations · Brand v2 — IMOTION Creator Studio
+        Brand v2 · Logo Flux officiel — IMOTION Creator Studio
       </footer>
     </div>
   );
