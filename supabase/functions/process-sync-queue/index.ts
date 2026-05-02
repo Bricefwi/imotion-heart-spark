@@ -271,7 +271,7 @@ interface HttpForwardPayload {
   retry_on?: number[];
 }
 
-async function handleHttpForward(_supabase: SupabaseClient, job: Job) {
+export async function handleHttpForward(_supabase: SupabaseClient, job: Job) {
   const p = job.payload as HttpForwardPayload;
   if (!p.url) throw new PermanentError("Missing url in payload");
 
