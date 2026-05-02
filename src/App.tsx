@@ -114,6 +114,9 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
 
+            {/* Public claim entry from lovelib (signed token, no auth required) */}
+            <Route path="/audit/claim" element={<ClaimAudit />} />
+
             {/* Client - Onboarding + Audit (standalone, no sidebar) */}
             <Route path="/client/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
             <Route path="/client/projects/:id/audit" element={<ProtectedRoute><DigitalMaturityAudit /></ProtectedRoute>} />
