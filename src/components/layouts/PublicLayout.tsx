@@ -39,8 +39,8 @@ export function PublicLayout() {
       {/* Header — Brand v2 (compact 64px, warm glass) */}
       <header className="sticky top-0 z-50 border-b border-border/40 bg-background/75 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between">
-          <Link to="/" className="flex items-center group">
-            <Logo size="sm" showText variant="chevrons" />
+          <Link to="/" className="flex items-center group" aria-label="IMOTION Creator Studio — Accueil">
+            <Logo size="md" showText />
           </Link>
 
           {/* Desktop nav with active underline */}
@@ -223,7 +223,7 @@ export function PublicLayout() {
         <div className="container py-14">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
             <div className="space-y-4">
-              <Logo size="sm" showText variant="chevrons" />
+              <Logo size="md" showText />
               <p className="text-sm text-muted-foreground/70 leading-relaxed">
                 {t("footer.tagline")}
               </p>
