@@ -1,0 +1,254 @@
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { ExternalLink, Download, Sparkles, ArrowRight, CheckCircle2, AlertCircle } from "lucide-react";
+import { MARKETING_BASE_URL } from "@/lib/marketing-url";
+
+type ProjectRow = { id: string; name: string; code: string | null; status: string };
+
+export default function RetrieveLovelibAudit() {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const [projects, setProjects] = useState<ProjectRow[]>([]);
+  const [projectId, setProjectId] = useState<string>(searchParams.get("project") ?? "");
+  const [loading, setLoading] = useState(false);
+  const [payloadText, setPayloadText] = useState("");
+  const [externalId, setExternalId] = useState("");
+  const [lastResult, setLastResult] = useState<{ audit_id: string; project_id: string } | null>(null);
+
+  const lovelibUrl = `${MARKETING_BASE_URL}/audit?return_to=clarivi`;
+
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { data, error } = await supabase
+        .from("projects")
+        .select("id, name, code, status")
+        .or(`client_id.eq.${user.id},consultant_id.eq.${user.id}`)
+        .order("last_activity_at", { ascending: false });
+      if (error) {
+        toast({ title: "Erreur", description: "Impossible de charger vos projets.", variant: "destructive" });
+        return;
+      }
+      setProjects(data ?? []);
+      if (!projectId && data && data.length > 0) setProjectId(data[0].id);
+    })();
+  }, [user]);
+
+  async function mergePayload(rawPayload: unknown) {
+    if (!projectId) {
+      toast({ title: "Projet requis", description: "Choisissez un projet de destination.", variant: "destructive" });
+      return;
+    }
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.rpc("merge_marketing_into_project", {
+        _project_id: projectId,
+        _audit_payload: rawPayload as any,
+      });
+      if (error) throw error;
+      const result = data as { ok: boolean; audit_id: string; project_id: string };
+      setLastResult({ audit_id: result.audit_id, project_id: result.project_id });
+      toast({
+        title: "Audit fusionné",
+        description: "Votre audit marketing a été rattaché au projet.",
+      });
+    } catch (e: any) {
+      toast({
+        title: "Échec de la fusion",
+        description: e?.message ?? "Erreur inconnue",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handlePastePayload() {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(payloadText);
+    } catch {
+      toast({
+        title: "JSON invalide",
+        description: "Vérifiez le format du payload copié depuis lovelib.",
+        variant: "destructive",
+      });
+      return;
+    }
+    await mergePayload(parsed);
+  }
+
+  async function handleByExternalId() {
+    if (!externalId.trim()) {
+      toast({ title: "Identifiant manquant", description: "Collez l'ID de votre audit lovelib.", variant: "destructive" });
+      return;
+    }
+    // Minimal payload — la RPC fait l'upsert sur (user_id, external_id)
+    await mergePayload({
+      external_id: externalId.trim(),
+      summary: "Audit récupéré via identifiant lovelib",
+      recommendations: [],
+      full_payload: { source: "manual_link", external_id: externalId.trim() },
+    });
+  }
+
+  return (
+    <div className="container max-w-4xl py-8 space-y-6">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Récupérer mon audit lovelib</h1>
+          <p className="text-muted-foreground mt-2">
+            Importez votre audit marketing gratuit lovelib dans un projet Clarivi pour enrichir automatiquement la phase de découverte.
+          </p>
+        </div>
+        <Badge variant="secondary" className="gap-1">
+          <Sparkles className="h-3 w-3" /> 100% gratuit
+        </Badge>
+      </div>
+
+      <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-secondary/5">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ExternalLink className="h-5 w-5 text-primary" />
+            Pas encore d'audit ?
+          </CardTitle>
+          <CardDescription>
+            Lancez votre audit marketing gratuit sur lovelib (5 min). À la fin, revenez ici pour le rattacher à votre projet.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button asChild className="bg-gradient-to-r from-primary to-secondary text-white">
+            <a href={lovelibUrl} target="_blank" rel="noopener noreferrer">
+              Ouvrir lovelib <ArrowRight className="ml-2 h-4 w-4" />
+            </a>
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Projet de destination</CardTitle>
+          <CardDescription>L'audit sera fusionné dans la découverte de ce projet.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {projects.length === 0 ? (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Vous n'avez aucun projet.{" "}
+                <Link to="/client/projects/new" className="underline font-medium">
+                  Créez-en un d'abord
+                </Link>
+                .
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <>
+              <Label htmlFor="project">Projet</Label>
+              <Select value={projectId} onValueChange={setProjectId}>
+                <SelectTrigger id="project">
+                  <SelectValue placeholder="Choisissez un projet" />
+                </SelectTrigger>
+                <SelectContent>
+                  {projects.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.code ? `${p.code} — ` : ""}
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Importer l'audit</CardTitle>
+          <CardDescription>Choisissez la méthode qui correspond à ce que lovelib vous a fourni.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="payload">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="payload">
+                <Download className="h-4 w-4 mr-2" /> Payload JSON
+              </TabsTrigger>
+              <TabsTrigger value="id">Identifiant audit</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="payload" className="space-y-3 pt-4">
+              <Label htmlFor="payload">Collez ici le JSON exporté depuis lovelib</Label>
+              <Textarea
+                id="payload"
+                value={payloadText}
+                onChange={(e) => setPayloadText(e.target.value)}
+                placeholder={`{\n  "external_id": "audit_xxx",\n  "score": 72,\n  "summary": "...",\n  "recommendations": [...]\n}`}
+                rows={10}
+                className="font-mono text-xs"
+              />
+              <Button
+                onClick={handlePastePayload}
+                disabled={loading || !projectId || !payloadText.trim()}
+                className="w-full"
+              >
+                {loading ? "Fusion en cours…" : "Fusionner dans le projet"}
+              </Button>
+            </TabsContent>
+
+            <TabsContent value="id" className="space-y-3 pt-4">
+              <Label htmlFor="external-id">Identifiant lovelib</Label>
+              <Input
+                id="external-id"
+                value={externalId}
+                onChange={(e) => setExternalId(e.target.value)}
+                placeholder="audit_abc123…"
+              />
+              <p className="text-xs text-muted-foreground">
+                Si vous êtes connecté avec le même email sur lovelib, l'audit sera retrouvé automatiquement.
+              </p>
+              <Button
+                onClick={handleByExternalId}
+                disabled={loading || !projectId || !externalId.trim()}
+                className="w-full"
+              >
+                {loading ? "Liaison en cours…" : "Lier cet audit"}
+              </Button>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+
+      {lastResult && (
+        <Alert className="border-green-500/40 bg-green-500/5">
+          <CheckCircle2 className="h-4 w-4 text-green-600" />
+          <AlertDescription className="flex items-center justify-between gap-3 flex-wrap">
+            <span>Audit fusionné avec succès dans votre projet.</span>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => navigate(`/client/projects/${lastResult.project_id}/conversation`)}
+            >
+              Ouvrir la découverte <ArrowRight className="ml-2 h-3 w-3" />
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
+    </div>
+  );
+}
