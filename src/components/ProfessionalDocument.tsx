@@ -164,7 +164,7 @@ export function ProfessionalDocument({
       {/* Document container */}
       <div
         ref={documentRef}
-        className="bg-white text-gray-900 shadow-lg rounded-lg overflow-hidden"
+        className="bg-white text-foreground shadow-lg rounded-lg overflow-hidden"
         style={{ fontFamily: "'Inter', 'Helvetica Neue', Arial, sans-serif" }}
       >
         {/* Header bar */}
@@ -183,16 +183,16 @@ export function ProfessionalDocument({
         </div>
 
         {/* Meta info bar */}
-        <div className="px-8 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between text-xs text-gray-500">
+        <div className="px-8 py-3 bg-muted border-b border-border flex items-center justify-between text-xs text-muted-foreground">
           <div className="flex items-center gap-4">
             {clientCompany && (
-              <span>Client : <strong className="text-gray-700">{clientCompany}</strong></span>
+              <span>Client : <strong className="text-foreground">{clientCompany}</strong></span>
             )}
             {clientName && !clientCompany && (
-              <span>Client : <strong className="text-gray-700">{clientName}</strong></span>
+              <span>Client : <strong className="text-foreground">{clientName}</strong></span>
             )}
             {projectName && (
-              <span>Projet : <strong className="text-gray-700">{projectName}</strong></span>
+              <span>Projet : <strong className="text-foreground">{projectName}</strong></span>
             )}
           </div>
           <div className="flex items-center gap-3">
@@ -460,7 +460,7 @@ export function ProfessionalDocument({
 
         {/* Footer */}
         <div
-          className="px-8 py-4 border-t border-gray-200 flex items-center justify-between text-[10px] text-gray-400"
+          className="px-8 py-4 border-t border-border flex items-center justify-between text-[10px] text-muted-foreground"
           style={{ background: "#fafafa" }}
         >
           <div className="flex items-center gap-2">

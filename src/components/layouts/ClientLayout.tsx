@@ -126,7 +126,7 @@ function ClientSidebar() {
           variant="ghost"
           size="sm"
           onClick={signOut}
-          className="w-full justify-start text-sidebar-foreground/50 hover:text-red-400 hover:bg-red-500/10 rounded-[var(--radius-md)] transition-all duration-200"
+          className="w-full justify-start text-sidebar-foreground/50 hover:text-destructive hover:bg-primary/50/10 rounded-[var(--radius-md)] transition-all duration-200"
         >
           <LogOut className="h-4 w-4 mr-2" /> {!collapsed && "Déconnexion"}
         </Button>

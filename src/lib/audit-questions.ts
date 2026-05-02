@@ -717,7 +717,7 @@ const GE: AuditProfile = {
       key: "transformation",
       label: "Transformation Digitale",
       emoji: "🏢",
-      color: "from-red-500 to-orange-400",
+      color: "from-primary to-secondary",
       encouragement: "Dernière thématique — votre vision de la transformation !",
       questions: [
         {
@@ -785,7 +785,7 @@ export function getMaturityLevel(pct: number): "critique" | "ameliorer" | "satis
 }
 
 export const MATURITY_LABELS = {
-  critique: { label: "En développement", emoji: "🌱", color: "text-orange-600", bg: "bg-orange-50 border-orange-200", description: "Vous avez un fort potentiel d'amélioration — c'est une excellente nouvelle, car les gains seront rapides !" },
+  critique: { label: "En développement", emoji: "🌱", color: "text-secondary", bg: "bg-secondary/5 border-orange-200", description: "Vous avez un fort potentiel d'amélioration — c'est une excellente nouvelle, car les gains seront rapides !" },
   ameliorer: { label: "En progression", emoji: "📈", color: "text-blue-600", bg: "bg-blue-50 border-blue-200", description: "Vous avez déjà de bonnes bases ! Quelques optimisations ciblées peuvent faire une vraie différence." },
   satisfaisant: { label: "Avancé", emoji: "🌟", color: "text-emerald-600", bg: "bg-emerald-50 border-emerald-200", description: "Bravo, vous êtes en avance ! Explorons ensemble les innovations de pointe pour rester compétitif." },
 };

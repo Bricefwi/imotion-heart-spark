@@ -35,7 +35,7 @@ export function StatsCard({ label, value, icon: Icon, change, changeType = "neut
                 className={cn(
                   "text-xs font-semibold flex items-center gap-0.5 px-1.5 py-0.5 rounded-full",
                   changeType === "up" && "text-emerald-700 bg-emerald-100 dark:text-emerald-400 dark:bg-emerald-950",
-                  changeType === "down" && "text-red-700 bg-red-100 dark:text-red-400 dark:bg-red-950",
+                  changeType === "down" && "text-destructive bg-primary/10 dark:text-red-400 dark:bg-red-950",
                   changeType === "neutral" && "text-muted-foreground bg-muted"
                 )}
               >

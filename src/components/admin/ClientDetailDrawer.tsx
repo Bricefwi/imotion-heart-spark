@@ -45,8 +45,8 @@ function computeScore(profile: Profile, projects: Project[], messages: { id: str
 
 const STATUS_LABELS: Record<string, { label: string; className: string }> = {
   draft: { label: "Brouillon", className: "bg-muted text-muted-foreground" },
-  discovery_active: { label: "Decouverte", className: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400" },
-  discovery: { label: "Decouverte", className: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400" },
+  discovery_active: { label: "Decouverte", className: "bg-secondary/10 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400" },
+  discovery: { label: "Decouverte", className: "bg-secondary/10 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400" },
   review_pending: { label: "En revue", className: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400" },
   cdc_ready: { label: "CDC pret", className: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400" },
   proposal: { label: "Proposition", className: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400" },
@@ -56,7 +56,7 @@ const STATUS_LABELS: Record<string, { label: string; className: string }> = {
   delivered: { label: "Livre", className: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" },
   completed: { label: "Termine", className: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" },
   cancelled: { label: "Annule", className: "bg-muted text-muted-foreground" },
-  lost: { label: "Perdu", className: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400" },
+  lost: { label: "Perdu", className: "bg-primary/10 text-destructive dark:bg-red-900/30 dark:text-red-400" },
   archived: { label: "Archive", className: "bg-muted text-muted-foreground" },
 };
 
@@ -192,9 +192,9 @@ export function ClientDetailDrawer({ profileId, open, onOpenChange }: ClientDeta
   const hasAddress = (profile as Profile).address_street || (profile as Profile).address_city || (profile as Profile).address_postal_code;
 
   const scoreColor =
-    score >= 70 ? "text-green-600 dark:text-green-400" : score >= 40 ? "text-yellow-600 dark:text-yellow-400" : "text-red-500";
+    score >= 70 ? "text-green-600 dark:text-green-400" : score >= 40 ? "text-yellow-600 dark:text-yellow-400" : "text-primary";
   const scoreBg =
-    score >= 70 ? "bg-green-50 dark:bg-green-900/20" : score >= 40 ? "bg-yellow-50 dark:bg-yellow-900/20" : "bg-red-50 dark:bg-red-900/20";
+    score >= 70 ? "bg-green-50 dark:bg-green-900/20" : score >= 40 ? "bg-yellow-50 dark:bg-yellow-900/20" : "bg-primary/5 dark:bg-red-900/20";
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -236,7 +236,7 @@ export function ClientDetailDrawer({ profileId, open, onOpenChange }: ClientDeta
                       <CheckCircle2 className="h-3 w-3 mr-0.5" /> Onboarding OK
                     </Badge>
                   ) : (
-                    <Badge variant="outline" className="text-[10px] text-orange-600 border-orange-300">
+                    <Badge variant="outline" className="text-[10px] text-secondary border-orange-300">
                       <XCircle className="h-3 w-3 mr-0.5" /> Onboarding incomplet
                     </Badge>
                   )}
@@ -646,7 +646,7 @@ export function ClientDetailDrawer({ profileId, open, onOpenChange }: ClientDeta
                       <div
                         className={`h-7 w-7 rounded-full flex items-center justify-center shrink-0 z-10 ${
                           act.importance === "high"
-                            ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
+                            ? "bg-primary/10 text-primary dark:bg-red-900/30 dark:text-red-400"
                             : act.action === "message"
                             ? "bg-primary/10 text-primary"
                             : "bg-muted text-muted-foreground"
