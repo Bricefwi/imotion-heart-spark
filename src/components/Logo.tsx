@@ -22,6 +22,17 @@ interface LogoProps {
   variant?: LogoVariant;
   tone?: LogoTone;
   className?: string;
+  /**
+   * Override du libellé accessible. Par défaut :
+   * - "IMOTION Creator Studio" si showText
+   * - "IMOTION" sinon
+   */
+  ariaLabel?: string;
+  /**
+   * Si true, masque entièrement le logo aux lecteurs d'écran (utile lorsqu'il
+   * est imbriqué dans un lien ou bouton qui porte déjà son propre libellé).
+   */
+  decorative?: boolean;
 }
 
 /* ---------- Sizing ---------- */
