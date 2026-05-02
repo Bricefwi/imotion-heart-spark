@@ -3,27 +3,36 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
+/**
+ * Badge — Brand v2.
+ * Backwards compatible: all v1 variants kept. Additive:
+ *  - `flame`: gradient flame fill (use for "Populaire", "New", "Premium")
+ *  - `ember`: gradient ember fill
+ *  - `ink`: solid ink-900 (high contrast on light surfaces)
+ *  - `coral-soft`: soft coral tint (default v1 default, kept as alias)
+ */
 const badgeVariants = cva(
   "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
   {
     variants: {
       variant: {
-        default:
-          "border-transparent bg-primary/10 text-primary hover:bg-primary/15",
-        secondary:
-          "border-transparent bg-secondary/10 text-secondary hover:bg-secondary/15",
-        destructive:
-          "border-transparent bg-destructive/10 text-destructive hover:bg-destructive/15",
+        default: "border-transparent bg-primary/10 text-primary hover:bg-primary/15",
+        secondary: "border-transparent bg-secondary/10 text-secondary hover:bg-secondary/15",
+        destructive: "border-transparent bg-destructive/10 text-destructive hover:bg-destructive/15",
         success:
           "border-transparent bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/15",
         warning:
           "border-transparent bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/15",
         info:
           "border-transparent bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-500/15",
-        outline:
-          "text-foreground border-border/60",
-        muted:
-          "border-transparent bg-muted text-muted-foreground",
+        outline: "text-foreground border-border/60",
+        muted: "border-transparent bg-muted text-muted-foreground",
+
+        // ─── Brand v2 additive ───────────────────────────────────
+        flame: "border-0 bg-gradient-flame text-white shadow-sm",
+        ember: "border-0 bg-gradient-ember text-white shadow-sm",
+        ink: "border-0 bg-foreground text-background",
+        "coral-soft": "border-transparent bg-primary/10 text-primary",
       },
     },
     defaultVariants: {
