@@ -48,7 +48,7 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 }
 
 // Configuration
-const SITE_NAME = "imotion-heart-spark"
+const SITE_NAME = "IMOTION Creator Studio"
 const SENDER_DOMAIN = "notify.imotion-conseils.fr"
 const ROOT_DOMAIN = "imotion-conseils.fr"
 const FROM_DOMAIN = "notify.imotion-conseils.fr" // Domain shown in From address (may be root or sender subdomain)
