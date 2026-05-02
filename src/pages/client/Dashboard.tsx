@@ -7,6 +7,7 @@ import { PhaseProgress } from "@/components/PhaseProgress";
 import { StatsCard } from "@/components/StatsCard";
 import { Link } from "react-router-dom";
 import { ReviewSubmitForm } from "@/components/ReviewSubmitForm";
+import { MarketingAuditBanner } from "@/components/MarketingAuditBanner";
 import {
   FolderKanban, FileText, Euro, MessageSquare, Clock, Plus, ArrowRight,
   FileDown, CheckCircle, Loader2, CalendarDays, TrendingUp, Shield, FilePen,
