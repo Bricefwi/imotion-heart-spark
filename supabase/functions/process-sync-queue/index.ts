@@ -26,22 +26,22 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const BATCH_SIZE = 10;
-const LEASE_SECONDS = 60;
+export const BATCH_SIZE = 10;
+export const LEASE_SECONDS = 60;
 const WORKER_ID = `worker-${crypto.randomUUID().slice(0, 8)}`;
 
 // HTTP status codes that should be retried automatically.
-const TRANSIENT_HTTP_CODES = new Set([408, 425, 429, 500, 502, 503, 504, 522, 524]);
+export const TRANSIENT_HTTP_CODES = new Set([408, 425, 429, 500, 502, 503, 504, 522, 524]);
 
 // Postgres error codes considered transient (connection / serialization issues).
-const TRANSIENT_PG_CODES = new Set([
+export const TRANSIENT_PG_CODES = new Set([
   "08000", "08003", "08006", "08001", "08004", // connection_exception
   "40001", "40P01", // serialization_failure / deadlock_detected
   "57P03", // cannot_connect_now
   "53300", // too_many_connections
 ]);
 
-interface Job {
+export interface Job {
   id: string;
   job_type: string;
   payload: Record<string, unknown>;
@@ -52,9 +52,9 @@ interface Job {
   related_project_id: string | null;
 }
 
-type ErrorKind = "transient" | "permanent" | "partial";
+export type ErrorKind = "transient" | "permanent" | "partial";
 
-class ClassifiedError extends Error {
+export class ClassifiedError extends Error {
   kind: ErrorKind;
   responseCode?: number;
   snippet?: string;
@@ -70,19 +70,19 @@ class ClassifiedError extends Error {
   }
 }
 
-class TransientError extends ClassifiedError {
+export class TransientError extends ClassifiedError {
   constructor(message: string, opts?: { responseCode?: number; snippet?: string }) {
     super("transient", message, opts);
   }
 }
 
-class PermanentError extends ClassifiedError {
+export class PermanentError extends ClassifiedError {
   constructor(message: string, opts?: { responseCode?: number; snippet?: string }) {
     super("permanent", message, opts);
   }
 }
 
-interface PartialResult {
+export interface PartialResult {
   partial: true;
   reason: string;
   progress?: Record<string, unknown>;
@@ -98,7 +98,7 @@ function jsonResponse(status: number, body: unknown) {
 }
 
 // Classify any thrown error → kind + metadata.
-function classifyError(e: unknown): { kind: ErrorKind; message: string; responseCode?: number; snippet?: string; progress?: Record<string, unknown> } {
+export function classifyError(e: unknown): { kind: ErrorKind; message: string; responseCode?: number; snippet?: string; progress?: Record<string, unknown> } {
   if (e instanceof ClassifiedError) {
     return { kind: e.kind, message: e.message, responseCode: e.responseCode, snippet: e.snippet, progress: e.progress };
   }
@@ -271,7 +271,7 @@ interface HttpForwardPayload {
   retry_on?: number[];
 }
 
-async function handleHttpForward(_supabase: SupabaseClient, job: Job) {
+export async function handleHttpForward(_supabase: SupabaseClient, job: Job) {
   const p = job.payload as HttpForwardPayload;
   if (!p.url) throw new PermanentError("Missing url in payload");
 
