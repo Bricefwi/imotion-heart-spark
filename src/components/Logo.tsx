@@ -195,17 +195,18 @@ export function Logo({
   if (variant === "flux") {
     const s = fluxSizeMap[size];
     return (
-      <div className={cn("inline-flex items-center", s.gap, className)}>
+      <div className={cn("inline-flex items-center min-w-0 max-w-full", s.gap, className)}>
         <div className={cn("shrink-0", s.wordmark)}>
           <WordmarkFlux tone={tone} id={uid} markOnly={markOnly} />
         </div>
         {showText && !markOnly && (
           <div
             className={cn(
-              "flex flex-col leading-tight font-display font-semibold uppercase tracking-[0.18em]",
+              // Caché en < sm pour éviter l'écrasement, visible dès 640px.
+              "hidden sm:flex flex-col leading-tight font-display font-semibold uppercase tracking-[0.18em] whitespace-nowrap",
               s.sub,
               subColor,
-              "border-l border-current/20 pl-3"
+              "border-l border-current/20 pl-2 sm:pl-3"
             )}
           >
             <span>Creator</span>
