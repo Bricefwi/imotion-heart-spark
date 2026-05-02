@@ -41,7 +41,7 @@ export const TRANSIENT_PG_CODES = new Set([
   "53300", // too_many_connections
 ]);
 
-interface Job {
+export interface Job {
   id: string;
   job_type: string;
   payload: Record<string, unknown>;
@@ -52,9 +52,9 @@ interface Job {
   related_project_id: string | null;
 }
 
-type ErrorKind = "transient" | "permanent" | "partial";
+export type ErrorKind = "transient" | "permanent" | "partial";
 
-class ClassifiedError extends Error {
+export class ClassifiedError extends Error {
   kind: ErrorKind;
   responseCode?: number;
   snippet?: string;
@@ -70,19 +70,19 @@ class ClassifiedError extends Error {
   }
 }
 
-class TransientError extends ClassifiedError {
+export class TransientError extends ClassifiedError {
   constructor(message: string, opts?: { responseCode?: number; snippet?: string }) {
     super("transient", message, opts);
   }
 }
 
-class PermanentError extends ClassifiedError {
+export class PermanentError extends ClassifiedError {
   constructor(message: string, opts?: { responseCode?: number; snippet?: string }) {
     super("permanent", message, opts);
   }
 }
 
-interface PartialResult {
+export interface PartialResult {
   partial: true;
   reason: string;
   progress?: Record<string, unknown>;
