@@ -43,7 +43,7 @@ function ClientSidebar() {
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border/50">
       <Link to="/" className="block px-4 py-5 text-sidebar-foreground" aria-label="Accueil">
-        <Logo size="md" showText={!collapsed} />
+        <Logo size="md" showText={!collapsed} markOnly={collapsed} />
       </Link>
       <SidebarContent className="px-2">
         <SidebarGroup>
