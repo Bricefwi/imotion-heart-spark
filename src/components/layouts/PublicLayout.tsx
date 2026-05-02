@@ -223,7 +223,7 @@ export function PublicLayout() {
         <div className="container py-14">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
             <div className="space-y-4">
-              <Logo size="sm" />
+              <Logo size="sm" showText variant="chevrons" />
               <p className="text-sm text-muted-foreground/70 leading-relaxed">
                 {t("footer.tagline")}
               </p>
