@@ -238,26 +238,26 @@ export function HeroSection() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-col sm:flex-row gap-3"
+              className="flex flex-col sm:flex-row gap-3 w-full"
             >
               <Button
                 asChild
                 size="lg"
-                className="bg-gradient-to-r from-[#F57C00] to-[#D63B1A] border-0 hover:shadow-[0_10px_40px_-10px_rgba(245,124,0,0.6)] hover:-translate-y-0.5 transition-all duration-300 h-14 px-7 text-base font-semibold"
+                className="w-full sm:w-auto bg-gradient-to-r from-[#F57C00] to-[#D63B1A] border-0 hover:shadow-[0_10px_40px_-10px_rgba(245,124,0,0.6)] hover:-translate-y-0.5 transition-all duration-300 h-14 px-5 sm:px-7 text-sm sm:text-base font-semibold"
               >
-                <Link to="/register">
-                  <Sparkles className="size-4 mr-2" />
-                  Créer mon CDC gratuitement
-                  <ArrowRight className="size-4 ml-2" />
+                <Link to="/register" className="flex items-center justify-center min-w-0">
+                  <Sparkles className="size-4 mr-2 shrink-0" />
+                  <span className="truncate">Créer mon CDC gratuitement</span>
+                  <ArrowRight className="size-4 ml-2 shrink-0" />
                 </Link>
               </Button>
               <Button
                 asChild
                 variant="outline"
                 size="lg"
-                className="h-14 px-7 text-base font-semibold bg-white/5 border-white/15 text-white hover:bg-white/10 hover:border-white/25 backdrop-blur-sm"
+                className="w-full sm:w-auto h-14 px-5 sm:px-7 text-sm sm:text-base font-semibold bg-white/5 border-white/15 text-white hover:bg-white/10 hover:border-white/25 backdrop-blur-sm"
               >
-                <Link to="/fonctionnalites">Voir la démo</Link>
+                <Link to="/fonctionnalites" className="flex items-center justify-center">Voir la démo</Link>
               </Button>
             </motion.div>
 
