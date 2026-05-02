@@ -418,7 +418,6 @@ async function enqueue(jobType: string, payload: Record<string, unknown>, dedupe
       _job_type: jobType,
       _payload: payload,
       _dedupe_key: dedupeKey ?? null,
-      _related_user_id: null,
       _related_project_id: null,
       _max_attempts: 3,
     });
