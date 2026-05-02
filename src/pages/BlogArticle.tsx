@@ -130,9 +130,9 @@ export default function BlogArticle() {
     publisher: {
       "@type": "Organization",
       name: "IMOTION Creator Studio",
-      logo: { "@type": "ImageObject", url: "https://imotion-heart-spark.lovable.app/favicon.png" },
+      logo: { "@type": "ImageObject", url: "https://app.imotion-conseils.fr/favicon.png" },
     },
-    mainEntityOfPage: { "@type": "WebPage", "@id": `https://imotion-heart-spark.lovable.app/blog/${slug}` },
+    mainEntityOfPage: { "@type": "WebPage", "@id": `https://app.imotion-conseils.fr/blog/${slug}` },
     wordCount: post.content?.split(/\s+/).length || 0,
     articleSection: categoryLabels[post.category] || post.category,
     keywords: post.tags?.join(", ") || "",

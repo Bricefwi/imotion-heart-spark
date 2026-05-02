@@ -4,7 +4,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const ALLOWED_ORIGINS = [
   "https://imotion-conseils.fr",
   "https://www.imotion-conseils.fr",
-  "https://imotion-heart-spark.lovable.app",
+  "https://app.imotion-conseils.fr",
+  "https://app.imotion-conseils.fr",
+  "https://marketing.imotion-conseils.fr",
 ];
 
 function getCorsHeaders(req: Request) {
@@ -253,7 +255,7 @@ serve(async (req) => {
     }
 
     // Build app URL
-    const appUrl = Deno.env.get("APP_URL") || Deno.env.get("SITE_URL") || "https://imotion-heart-spark.lovable.app";
+    const appUrl = Deno.env.get("APP_URL") || Deno.env.get("SITE_URL") || "https://app.imotion-conseils.fr";
 
     // Build template data
     const templateData = {

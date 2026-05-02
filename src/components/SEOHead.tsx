@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { PROD_APP_URL } from "@/lib/app-url";
 
 interface SEOHeadProps {
   title: string;
@@ -10,8 +11,10 @@ interface SEOHeadProps {
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
-const BASE_URL = "https://imotion-heart-spark.lovable.app";
-const DEFAULT_IMAGE = "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b6b931c8-bcbc-4f31-a991-88af67fdb02e/id-preview-c1d46a11--63a5fc40-b3d7-4f5f-a065-34e429e33aec.lovable.app-1773187132931.png";
+// Canonical/SEO base must always be the production app domain so search
+// engines never index lovable.app preview URLs.
+const BASE_URL = PROD_APP_URL;
+const DEFAULT_IMAGE = `${PROD_APP_URL}/favicon.png`;
 
 export function SEOHead({
   title,

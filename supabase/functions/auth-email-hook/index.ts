@@ -13,7 +13,9 @@ import { ReauthenticationEmail } from '../_shared/email-templates/reauthenticati
 const ALLOWED_ORIGINS = [
   "https://imotion-conseils.fr",
   "https://www.imotion-conseils.fr",
-  "https://imotion-heart-spark.lovable.app",
+  "https://app.imotion-conseils.fr",
+  "https://app.imotion-conseils.fr",
+  "https://marketing.imotion-conseils.fr",
 ];
 
 function getCorsHeaders(req: Request) {
@@ -46,7 +48,7 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 }
 
 // Configuration
-const SITE_NAME = "imotion-heart-spark"
+const SITE_NAME = "IMOTION Creator Studio"
 const SENDER_DOMAIN = "notify.imotion-conseils.fr"
 const ROOT_DOMAIN = "imotion-conseils.fr"
 const FROM_DOMAIN = "notify.imotion-conseils.fr" // Domain shown in From address (may be root or sender subdomain)
@@ -56,7 +58,7 @@ const FROM_DOMAIN = "notify.imotion-conseils.fr" // Domain shown in From address
 // The sample email uses a fixed placeholder (RFC 6761 .test TLD) so the Go backend
 // can always find-and-replace it with the actual recipient when sending test emails,
 // even if the project's domain has changed since the template was scaffolded.
-const SAMPLE_PROJECT_URL = "https://imotion-heart-spark.lovable.app"
+const SAMPLE_PROJECT_URL = "https://app.imotion-conseils.fr"
 const SAMPLE_EMAIL = "user@example.test"
 const SAMPLE_DATA: Record<string, object> = {
   signup: {
