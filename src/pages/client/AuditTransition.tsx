@@ -109,8 +109,8 @@ function CopyId({ value, label }: { value: string; label?: string }) {
 
 function statusDot(status?: "ok" | "pending" | "error") {
   if (status === "ok") return "bg-green-500 border-green-500";
-  if (status === "error") return "bg-red-500 border-red-500";
-  if (status === "pending") return "bg-orange-500 border-orange-500";
+  if (status === "error") return "bg-primary/50 border-red-500";
+  if (status === "pending") return "bg-secondary/50 border-orange-500";
   return "bg-muted border-border";
 }
 

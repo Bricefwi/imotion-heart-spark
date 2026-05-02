@@ -37,13 +37,13 @@ const statusLabels: Record<string, { label: string; color: string }> = {
   draft: { label: "Brouillon", color: "bg-muted text-muted-foreground" },
   discovery_active: { label: "En decouverte", color: "bg-green-100 text-green-700" },
   discovery_completed: { label: "Decouverte terminee", color: "bg-blue-100 text-blue-700" },
-  cdc_draft: { label: "CDC en cours", color: "bg-orange-100 text-orange-700" },
+  cdc_draft: { label: "CDC en cours", color: "bg-secondary/10 text-orange-700" },
   cdc_ready: { label: "CDC pret", color: "bg-blue-100 text-blue-700" },
   proposal_sent: { label: "Proposition envoyee", color: "bg-indigo-100 text-indigo-700" },
   signed: { label: "Signe", color: "bg-green-100 text-green-700" },
   in_development: { label: "En developpement", color: "bg-yellow-100 text-yellow-700" },
   delivered: { label: "Livre", color: "bg-emerald-100 text-emerald-700" },
-  lost: { label: "Perdu", color: "bg-red-100 text-red-700" },
+  lost: { label: "Perdu", color: "bg-primary/10 text-destructive" },
 };
 
 const TOOL_CATEGORIES: Record<string, string> = {
@@ -273,7 +273,7 @@ export default function AdminProjectDetail() {
           { label: "Devis", count: proposalDocs.length, icon: FileText, color: "text-amber-600", type: "pricing" },
           { label: "Contrat", count: contractDocs.length, icon: Scale, color: "text-green-600", type: "contract_fr" },
           { label: "PV Reception", count: pvDocs.length, icon: ClipboardCheck, color: "text-emerald-600", type: "pv_reception" },
-          { label: "Outils", count: projectTools.length, icon: Wrench, color: "text-orange-600", type: null },
+          { label: "Outils", count: projectTools.length, icon: Wrench, color: "text-secondary", type: null },
         ].map((item) => (
           <Card key={item.label} className="border-0 shadow-sm">
             <CardContent className="p-3 text-center">
@@ -899,7 +899,7 @@ const EMAIL_STATUS_BADGES: Record<string, { label: string; className: string }> 
   failed: { label: "Échoué", className: "bg-destructive/10 text-destructive" },
   dlq: { label: "Échoué", className: "bg-destructive/10 text-destructive" },
   suppressed: { label: "Supprimé", className: "bg-muted text-muted-foreground" },
-  bounced: { label: "Rebond", className: "bg-orange-100 text-orange-700" },
+  bounced: { label: "Rebond", className: "bg-secondary/10 text-orange-700" },
   complained: { label: "Plainte", className: "bg-destructive/10 text-destructive" },
 };
 

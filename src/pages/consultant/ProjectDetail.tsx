@@ -39,17 +39,17 @@ const statusLabels: Record<string, { label: string; color: string }> = {
   discovery_paused: { label: "En pause", color: "bg-yellow-100 text-yellow-700" },
   discovery_completed: { label: "Découverte terminée", color: "bg-blue-100 text-blue-700" },
   review_pending: { label: "En révision", color: "bg-purple-100 text-purple-700" },
-  cdc_draft: { label: "CDC en cours", color: "bg-orange-100 text-orange-700" },
+  cdc_draft: { label: "CDC en cours", color: "bg-secondary/10 text-orange-700" },
   cdc_ready: { label: "CDC prêt", color: "bg-blue-100 text-blue-700" },
   proposal_sent: { label: "Proposition envoyée", color: "bg-indigo-100 text-indigo-700" },
   signed: { label: "Signé", color: "bg-green-100 text-green-700" },
-  lost: { label: "Perdu", color: "bg-red-100 text-red-700" },
+  lost: { label: "Perdu", color: "bg-primary/10 text-destructive" },
 };
 
 const priorityOptions = [
   { value: "low", label: "Basse", color: "text-muted-foreground" },
   { value: "medium", label: "Moyenne", color: "text-secondary" },
-  { value: "high", label: "Haute", color: "text-orange-600" },
+  { value: "high", label: "Haute", color: "text-secondary" },
   { value: "urgent", label: "Urgente", color: "text-destructive" },
 ];
 
@@ -374,7 +374,7 @@ export default function ConsultantProjectDetail() {
                                   <span className={cn(
                                     "text-[9px] px-1.5 py-0.5 rounded-full",
                                     msg.sentiment === "positive" ? "bg-green-100 text-green-700" :
-                                    msg.sentiment === "frustrated" ? "bg-red-100 text-red-700" :
+                                    msg.sentiment === "frustrated" ? "bg-primary/10 text-destructive" :
                                     msg.sentiment === "confused" ? "bg-yellow-100 text-yellow-700" :
                                     "bg-muted text-muted-foreground"
                                   )}>

@@ -371,7 +371,7 @@ export default function AdminDashboard() {
                       ? "border-secondary/30 bg-secondary/5"
                       : review.status === "approved"
                       ? "border-green-200 bg-green-50/50"
-                      : "border-red-200 bg-red-50/50 opacity-60"
+                      : "border-red-200 bg-primary/5/50 opacity-60"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
@@ -410,7 +410,7 @@ export default function AdminDashboard() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="h-7 px-2 text-red-500 hover:bg-red-50 hover:text-red-600"
+                          className="h-7 px-2 text-primary hover:bg-primary/5 hover:text-primary"
                           onClick={() => moderateReview.mutate({ reviewId: review.id, action: "rejected" })}
                         >
                           <XCircle className="h-3.5 w-3.5 mr-1" /> Rejeter
@@ -707,7 +707,7 @@ export default function AdminDashboard() {
                         ? "border-secondary/30 bg-secondary/5"
                         : review.status === "approved"
                         ? "border-green-200 bg-green-50/50"
-                        : "border-red-200 bg-red-50/50 opacity-60"
+                        : "border-red-200 bg-primary/5/50 opacity-60"
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
@@ -724,7 +724,7 @@ export default function AdminDashboard() {
                         <Button size="sm" variant="ghost" className="h-6 px-2 text-[10px] text-green-600 hover:bg-green-50" onClick={() => moderateReview.mutate({ reviewId: review.id, action: "approved" })}>
                           <CheckCircle2 className="h-3 w-3 mr-1" /> Approuver
                         </Button>
-                        <Button size="sm" variant="ghost" className="h-6 px-2 text-[10px] text-red-500 hover:bg-red-50" onClick={() => moderateReview.mutate({ reviewId: review.id, action: "rejected" })}>
+                        <Button size="sm" variant="ghost" className="h-6 px-2 text-[10px] text-primary hover:bg-primary/5" onClick={() => moderateReview.mutate({ reviewId: review.id, action: "rejected" })}>
                           <XCircle className="h-3 w-3 mr-1" /> Rejeter
                         </Button>
                       </div>

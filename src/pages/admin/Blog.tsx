@@ -39,7 +39,7 @@ const statusConfig: Record<string, { label: string; icon: React.ComponentType<{ 
   generating: { label: "En cours", icon: Loader2, className: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20" },
   generated: { label: "Généré", icon: CheckCircle2, className: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" },
   published: { label: "Publié", icon: CheckCircle2, className: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" },
-  failed: { label: "Échoué", icon: XCircle, className: "bg-red-500/10 text-red-600 border-red-500/20" },
+  failed: { label: "Échoué", icon: XCircle, className: "bg-primary/50/10 text-primary border-red-500/20" },
 };
 
 export default function AdminBlog() {
@@ -427,7 +427,7 @@ export default function AdminBlog() {
                     const StatusIcon = sc.icon;
                     const isPast = new Date(entry.planned_date) < new Date();
                     return (
-                      <TableRow key={entry.id} className={entry.status === "failed" ? "bg-red-50/50" : ""}>
+                      <TableRow key={entry.id} className={entry.status === "failed" ? "bg-primary/5/50" : ""}>
                         <TableCell className="text-xs font-mono text-muted-foreground">S{entry.week_number}</TableCell>
                         <TableCell className="text-sm">
                           <div className="flex items-center gap-1">
@@ -513,7 +513,7 @@ export default function AdminBlog() {
                         {format(new Date(sub.subscribed_at), "d MMM yyyy HH:mm", { locale: fr })}
                       </TableCell>
                       <TableCell className="text-center">
-                        <Badge variant="outline" className={sub.is_active ? "bg-emerald-500/10 text-emerald-600" : "bg-red-500/10 text-red-600"}>
+                        <Badge variant="outline" className={sub.is_active ? "bg-emerald-500/10 text-emerald-600" : "bg-primary/50/10 text-primary"}>
                           {sub.is_active ? "Actif" : "Inactif"}
                         </Badge>
                       </TableCell>
