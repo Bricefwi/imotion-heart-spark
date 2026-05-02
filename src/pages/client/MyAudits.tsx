@@ -227,7 +227,9 @@ export default function MyAudits() {
                   <div className="flex items-start justify-between gap-3 flex-wrap">
                     <div className="space-y-1 min-w-0">
                       <CardTitle className="text-base flex items-center gap-2 flex-wrap">
-                        {audit.company_name || audit.website_url || "Audit sans nom"}
+                        <Link to={`/client/audits/${audit.id}`} className="hover:underline">
+                          {audit.company_name || audit.website_url || "Audit sans nom"}
+                        </Link>
                         {statusBadge(audit.status)}
                       </CardTitle>
                       <CardDescription className="flex items-center gap-2 flex-wrap text-xs">
