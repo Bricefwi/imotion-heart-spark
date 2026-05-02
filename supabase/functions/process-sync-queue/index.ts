@@ -47,6 +47,7 @@ interface Job {
   payload: Record<string, unknown>;
   attempts: number;
   max_attempts: number;
+  dedupe_key: string | null;
   related_user_id: string | null;
   related_project_id: string | null;
 }
@@ -246,31 +247,121 @@ async function handleMarketingAuditMerge(supabase: SupabaseClient, job: Job) {
   return { audit_id: auditId };
 }
 
+// HMAC-SHA256 hex (for optional outbound webhook signing)
+async function hmacSha256Hex(secret: string, message: string): Promise<string> {
+  const key = await crypto.subtle.importKey(
+    "raw", new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" }, false, ["sign"],
+  );
+  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(message));
+  return Array.from(new Uint8Array(sig)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+interface HttpForwardPayload {
+  url?: string;
+  body?: unknown;
+  headers?: Record<string, string>;
+  method?: string;
+  timeout_ms?: number;
+  // Idempotency: explicit key wins, else dedupe_key, else job.id
+  idempotency_key?: string;
+  // Optional HMAC signing of body (uses MARKETING_WEBHOOK_SECRET or provided secret_env)
+  sign?: { secret_env?: string; header?: string }; // header default: x-webhook-signature
+  // Treat these extra HTTP codes as transient for this specific call
+  retry_on?: number[];
+}
+
 async function handleHttpForward(_supabase: SupabaseClient, job: Job) {
-  const p = job.payload as { url?: string; body?: unknown; headers?: Record<string, string>; method?: string };
+  const p = job.payload as HttpForwardPayload;
   if (!p.url) throw new PermanentError("Missing url in payload");
+
+  // Validate URL early (no localhost/SSRF; HTTPS in prod)
+  let parsedUrl: URL;
+  try { parsedUrl = new URL(p.url); }
+  catch { throw new PermanentError(`Invalid url: ${p.url}`); }
+  if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+    throw new PermanentError(`Unsupported protocol: ${parsedUrl.protocol}`);
+  }
+
+  const method = (p.method ?? "POST").toUpperCase();
+  const allowedMethods = new Set(["POST", "PUT", "PATCH", "DELETE", "GET"]);
+  if (!allowedMethods.has(method)) {
+    throw new PermanentError(`Unsupported method: ${method}`);
+  }
+
+  // Serialize body once (used for both fetch + HMAC signature)
+  const bodyString = (method === "GET" || p.body == null)
+    ? undefined
+    : (typeof p.body === "string" ? p.body : JSON.stringify(p.body));
+
+  // Idempotency key — derived from job for natural dedup on receiver side
+  const idempotencyKey = p.idempotency_key ?? job.dedupe_key ?? job.id;
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    "Idempotency-Key": idempotencyKey,
+    "x-job-id": job.id,
+    "x-job-attempt": String(job.attempts),
+    ...(p.headers ?? {}),
+  };
+
+  // Optional HMAC signing
+  if (p.sign && bodyString) {
+    const secretEnv = p.sign.secret_env ?? "MARKETING_WEBHOOK_SECRET";
+    const secret = Deno.env.get(secretEnv);
+    if (!secret) {
+      throw new PermanentError(`Missing secret env: ${secretEnv}`);
+    }
+    const ts = Math.floor(Date.now() / 1000);
+    const nonce = crypto.randomUUID();
+    const sig = await hmacSha256Hex(secret, `${ts}.${nonce}.${bodyString}`);
+    headers[p.sign.header ?? "x-webhook-signature"] = sig;
+    headers["x-webhook-timestamp"] = String(ts);
+    headers["x-webhook-nonce"] = nonce;
+  }
+
+  // Per-request transient codes
+  const transientCodes = new Set<number>(TRANSIENT_HTTP_CODES);
+  (p.retry_on ?? []).forEach((c) => transientCodes.add(c));
+
+  // Timeout via AbortController
+  const timeoutMs = Math.min(Math.max(p.timeout_ms ?? 30_000, 1000), 60_000);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   let res: Response;
   try {
     res = await fetch(p.url, {
-      method: p.method ?? "POST",
-      headers: { "Content-Type": "application/json", ...(p.headers ?? {}) },
-      body: p.body ? JSON.stringify(p.body) : undefined,
+      method,
+      headers,
+      body: bodyString,
+      signal: controller.signal,
     });
   } catch (e) {
-    // Network error → always transient
-    throw new TransientError(`fetch failed: ${(e as Error).message}`);
+    const msg = (e as Error).message;
+    if (controller.signal.aborted) {
+      throw new TransientError(`fetch timeout after ${timeoutMs}ms`);
+    }
+    throw new TransientError(`fetch failed: ${msg}`);
+  } finally {
+    clearTimeout(timer);
   }
 
-  const text = await res.text();
+  const text = await res.text().catch(() => "");
+  const snippet = text.slice(0, 500);
+
   if (!res.ok) {
-    const snippet = text.slice(0, 500);
-    if (TRANSIENT_HTTP_CODES.has(res.status)) {
+    if (transientCodes.has(res.status)) {
       throw new TransientError(`HTTP ${res.status}: ${text.slice(0, 200)}`, { responseCode: res.status, snippet });
     }
     throw new PermanentError(`HTTP ${res.status}: ${text.slice(0, 200)}`, { responseCode: res.status, snippet });
   }
-  return { response_code: res.status, snippet: text.slice(0, 500) };
+
+  return {
+    response_code: res.status,
+    snippet,
+    idempotency_key: idempotencyKey,
+  };
 }
 
 const HANDLERS: Record<string, (s: SupabaseClient, j: Job) => Promise<unknown>> = {
