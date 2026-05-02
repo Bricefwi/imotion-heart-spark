@@ -468,6 +468,31 @@ export default function ProjectConversation() {
           </div>
         )}
 
+        {/* Passerelle B : audit marketing gratuit */}
+        {marketingAudit.suggested && !marketingAudit.dismissed && !discoveryComplete && (
+          <MarketingAuditCTA
+            projectId={projectId}
+            userId={user?.id}
+            reason={marketingAudit.reason}
+            onDismiss={async () => {
+              setMarketingAudit((prev) => ({ ...prev, dismissed: true }));
+              if (projectId) {
+                try {
+                  const currentDd = (project?.discovery_data ?? {}) as Record<string, unknown>;
+                  await supabase
+                    .from("projects")
+                    .update({
+                      discovery_data: { ...currentDd, marketing_audit_dismissed: true },
+                    })
+                    .eq("id", projectId);
+                } catch (err) {
+                  console.warn("Failed to persist dismiss flag:", err);
+                }
+              }
+            }}
+          />
+        )}
+
         {/* CDC Generation Panel */}
         {discoveryComplete && cdcScheduled === null && (
           <motion.div
