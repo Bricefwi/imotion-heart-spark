@@ -1692,6 +1692,10 @@ export type Database = {
         Args: { _audit_id: string; _note?: string; _project_id: string }
         Returns: string
       }
+      merge_marketing_into_project: {
+        Args: { _audit_payload: Json; _project_id: string }
+        Returns: Json
+      }
       move_to_dlq: {
         Args: {
           dlq_name: string
