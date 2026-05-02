@@ -57,7 +57,20 @@ Résultat : pas besoin d'intervention admin pour les pannes intermittentes au mi
 ## Job types supportés
 
 - **`marketing_audit_merge`** : payload `{ user_id, project_id?, audit }` — handler reprend sur checkpoint
-- **`marketing_webhook_forward`** : payload `{ url, body, headers?, method? }` — fetch HTTP, classifie auto par code statut
+- **`marketing_webhook_forward`** : POST/PUT/PATCH/DELETE/GET HTTP générique. Payload :
+  ```ts
+  {
+    url: string,                    // requis, http(s) only, validé
+    method?: "POST"|"PUT"|...,      // défaut POST
+    body?: unknown,                 // sérialisé en JSON (sauf si string)
+    headers?: Record<string,string>,
+    timeout_ms?: number,            // 1000-60000, défaut 30000
+    idempotency_key?: string,       // sinon dedupe_key sinon job.id
+    sign?: { secret_env?: string, header?: string }, // HMAC-SHA256 sur `${ts}.${nonce}.${body}`
+    retry_on?: number[],            // codes HTTP additionnels traités comme transient
+  }
+  ```
+  Headers ajoutés auto : `Idempotency-Key`, `x-job-id`, `x-job-attempt`. Si `sign` : `x-webhook-signature`, `x-webhook-timestamp`, `x-webhook-nonce` (compatible avec endpoint `marketing-webhook`).
 
 Ajouter un handler = ajouter une entrée dans `HANDLERS` dans `process-sync-queue/index.ts`. Le handler peut :
 - `throw new TransientError(msg)` / `throw new PermanentError(msg)` pour forcer la classification
