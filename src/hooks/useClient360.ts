@@ -77,27 +77,41 @@ const EMPTY: Client360Data = {
 };
 
 async function fetchClarivi(userId: string): Promise<ClariviSnapshot> {
-  const [{ data: projects, error: pErr }, { count: docCount }, { count: msgCount }, { data: estimates }] =
-    await Promise.all([
-      supabase
-        .from("projects")
-        .select("id,name,code,status,current_phase,overall_progress,last_activity_at,created_at,estimated_budget_max")
-        .eq("client_id", userId)
-        .order("last_activity_at", { ascending: false, nullsFirst: false }),
-      supabase
-        .from("documents")
-        .select("id", { count: "exact", head: true })
-        .eq("created_by", userId)
-        .or(`uploaded_by.eq.${userId}`),
-      supabase
-        .from("messages")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", userId),
-      supabase
-        .from("project_estimates")
-        .select("final_price,project_id,is_current")
-        .eq("is_current", true),
-    ]);
+  const projectsRes = await supabase
+    .from("projects")
+    .select("id,name,code,status,current_phase,overall_progress,last_activity_at,created_at")
+    .eq("client_id", userId)
+    .order("last_activity_at", { ascending: false, nullsFirst: false });
+  const pErr = projectsRes.error;
+  const projects = projectsRes.data;
+
+  const projectIds = (projects ?? []).map((p) => p.id);
+
+  const [docCountRes, msgCountRes, estimatesRes] = await Promise.all([
+    projectIds.length
+      ? supabase
+          .from("documents")
+          .select("id", { count: "exact", head: true })
+          .in("project_id", projectIds)
+      : Promise.resolve({ count: 0 } as { count: number }),
+    projectIds.length
+      ? supabase
+          .from("messages")
+          .select("id", { count: "exact", head: true })
+          .in("project_id", projectIds)
+      : Promise.resolve({ count: 0 } as { count: number }),
+    projectIds.length
+      ? supabase
+          .from("project_estimates")
+          .select("final_price,project_id")
+          .eq("is_current", true)
+          .in("project_id", projectIds)
+      : Promise.resolve({ data: [] as Array<{ final_price: number | null; project_id: string }> }),
+  ]);
+
+  const docCount = (docCountRes as { count: number | null }).count;
+  const msgCount = (msgCountRes as { count: number | null }).count;
+  const estimates = (estimatesRes as { data: Array<{ final_price: number | null; project_id: string }> | null }).data;
 
   if (pErr) throw pErr;
 
