@@ -1,4 +1,4 @@
-import { Outlet, Link, NavLink } from "react-router-dom";
+import { Outlet, Link, NavLink, useLocation } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { FloatingChatAgent } from "@/components/FloatingChatAgent";
 import { LanguageSelector } from "@/components/LanguageSelector";
@@ -16,6 +16,9 @@ export function PublicLayout() {
   const { user, profile, roles, signOut } = useAuth();
   const { t } = useTranslation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { pathname } = useLocation();
+  // Home page : header transparent dark overlay (matches hero ink dark)
+  const isHome = pathname === "/";
 
   const navLinks = [
     { label: t("nav.features"), to: "/fonctionnalites" },
@@ -36,11 +39,21 @@ export function PublicLayout() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header — Brand v2 (compact 64px, warm glass) */}
-      <header className="sticky top-0 z-50 border-b border-border/40 bg-background/75 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+      {/* Header — Brand v2 (compact 64px). Transparent dark overlay on home, glass on other pages. */}
+      <header
+        className={
+          isHome
+            ? "absolute top-0 left-0 right-0 z-50 border-b border-white/10 bg-transparent"
+            : "sticky top-0 z-50 border-b border-border/40 bg-background/75 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60"
+        }
+      >
         <div className="container flex h-16 items-center justify-between">
-          <Link to="/" className="flex items-center group" aria-label="IMOTION Creator Studio — Accueil">
-            <Logo size="md" showText />
+          <Link
+            to="/"
+            className={`flex items-center group ${isHome ? "text-white" : ""}`}
+            aria-label="IMOTION Creator Studio — Accueil"
+          >
+            <Logo size="md" showText tone={isHome ? "light" : "auto"} />
           </Link>
 
           {/* Desktop nav with active underline */}
@@ -51,9 +64,13 @@ export function PublicLayout() {
                 to={link.to}
                 className={({ isActive }) =>
                   `relative px-3 py-2 text-sm font-medium rounded-[var(--radius-md)] transition-all duration-200 ${
-                    isActive
-                      ? "text-foreground"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    isHome
+                      ? isActive
+                        ? "text-white"
+                        : "text-white/70 hover:text-white hover:bg-white/5"
+                      : isActive
+                        ? "text-foreground"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   } after:content-[''] after:absolute after:left-3 after:right-3 after:bottom-1 after:h-[2px] after:rounded-full after:bg-gradient-flame after:transition-transform after:duration-200 ${
                     "after:scale-x-0"
                   } ${isActive ? "after:!scale-x-100" : "hover:after:scale-x-50"}`
@@ -65,7 +82,13 @@ export function PublicLayout() {
 
             {/* Légal dropdown */}
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground rounded-[var(--radius-md)] hover:bg-muted/50 transition-all duration-200 outline-none">
+              <DropdownMenuTrigger
+                className={`flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-[var(--radius-md)] transition-all duration-200 outline-none ${
+                  isHome
+                    ? "text-white/70 hover:text-white hover:bg-white/5"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                }`}
+              >
                 {t("nav.legal")}
                 <ChevronDown className="h-3.5 w-3.5" />
               </DropdownMenuTrigger>
@@ -130,7 +153,13 @@ export function PublicLayout() {
               </div>
             ) : (
               <>
-                <Button variant="ghost" asChild className="rounded-[var(--radius-md)]">
+                <Button
+                  variant="ghost"
+                  asChild
+                  className={`rounded-[var(--radius-md)] ${
+                    isHome ? "text-white/80 hover:text-white hover:bg-white/10" : ""
+                  }`}
+                >
                   <Link to="/login">{t("nav.login")}</Link>
                 </Button>
                 <Button asChild variant="flame">
@@ -143,7 +172,14 @@ export function PublicLayout() {
           {/* Mobile toggle */}
           <div className="flex md:hidden items-center gap-2">
             <LanguageSelector />
-            <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2 rounded-[var(--radius-md)] hover:bg-muted/50 transition-colors">
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className={`p-2 rounded-[var(--radius-md)] transition-colors ${
+                isHome
+                  ? "text-white hover:bg-white/10"
+                  : "hover:bg-muted/50"
+              }`}
+            >
               {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
