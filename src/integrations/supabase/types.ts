@@ -1641,6 +1641,27 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_nonces: {
+        Row: {
+          consumed_at: string
+          expires_at: string
+          nonce: string
+          source: string
+        }
+        Insert: {
+          consumed_at?: string
+          expires_at?: string
+          nonce: string
+          source: string
+        }
+        Update: {
+          consumed_at?: string
+          expires_at?: string
+          nonce?: string
+          source?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -1650,6 +1671,7 @@ export type Database = {
         Args: { p_project_id: string }
         Returns: string
       }
+      cleanup_webhook_nonces: { Args: never; Returns: undefined }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
