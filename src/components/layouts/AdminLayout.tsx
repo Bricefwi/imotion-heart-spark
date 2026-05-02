@@ -276,9 +276,9 @@ function AdminSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border/50">
-      {/* Logo with premium spacing */}
-      <div className="px-4 py-5">
-        <Logo size="sm" showText={!collapsed} />
+      {/* Logo Flux — suit text-sidebar-foreground via tone=auto */}
+      <div className="px-4 py-5 text-sidebar-foreground">
+        <Logo size="md" showText={!collapsed} />
       </div>
 
       <SidebarContent className="px-2">
