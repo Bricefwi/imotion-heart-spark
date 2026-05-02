@@ -62,6 +62,48 @@ export type Database = {
           },
         ]
       }
+      audit_to_project_links: {
+        Row: {
+          audit_id: string
+          created_at: string
+          id: string
+          linked_by: string
+          note: string | null
+          project_id: string
+        }
+        Insert: {
+          audit_id: string
+          created_at?: string
+          id?: string
+          linked_by: string
+          note?: string | null
+          project_id: string
+        }
+        Update: {
+          audit_id?: string
+          created_at?: string
+          id?: string
+          linked_by?: string
+          note?: string | null
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_to_project_links_audit_id_fkey"
+            columns: ["audit_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_audits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_to_project_links_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       automation_logs: {
         Row: {
           error_message: string | null
@@ -792,6 +834,57 @@ export type Database = {
             referencedColumns: ["code"]
           },
         ]
+      }
+      marketing_audits: {
+        Row: {
+          company_name: string | null
+          completed_at: string | null
+          created_at: string
+          external_id: string | null
+          full_payload: Json
+          id: string
+          recommendations: Json
+          score: number | null
+          source: string
+          status: string
+          summary: string | null
+          updated_at: string
+          user_id: string
+          website_url: string | null
+        }
+        Insert: {
+          company_name?: string | null
+          completed_at?: string | null
+          created_at?: string
+          external_id?: string | null
+          full_payload?: Json
+          id?: string
+          recommendations?: Json
+          score?: number | null
+          source?: string
+          status?: string
+          summary?: string | null
+          updated_at?: string
+          user_id: string
+          website_url?: string | null
+        }
+        Update: {
+          company_name?: string | null
+          completed_at?: string | null
+          created_at?: string
+          external_id?: string | null
+          full_payload?: Json
+          id?: string
+          recommendations?: Json
+          score?: number | null
+          source?: string
+          status?: string
+          summary?: string | null
+          updated_at?: string
+          user_id?: string
+          website_url?: string | null
+        }
+        Relationships: []
       }
       messages: {
         Row: {
@@ -1573,6 +1666,10 @@ export type Database = {
         Returns: boolean
       }
       increment_post_views: { Args: { post_slug: string }; Returns: undefined }
+      link_audit_to_project: {
+        Args: { _audit_id: string; _note?: string; _project_id: string }
+        Returns: string
+      }
       move_to_dlq: {
         Args: {
           dlq_name: string
