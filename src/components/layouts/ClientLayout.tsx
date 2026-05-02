@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/sidebar";
 import {
   LayoutDashboard, FolderKanban, FileText, User,
-  LogOut, Home, Shield, MessageSquare
+  LogOut, Home, Shield, MessageSquare, Sparkles
 } from "lucide-react";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -25,6 +25,7 @@ import { Separator } from "@/components/ui/separator";
 
 const clientNav = [
   { title: "Dashboard", url: "/client/dashboard", icon: LayoutDashboard },
+  { title: "Vue 360°", url: "/client/360", icon: Sparkles },
   { title: "Projets", url: "/client/projects", icon: FolderKanban },
   { title: "Documents", url: "/client/documents", icon: FileText },
   { title: "Profil", url: "/client/profile", icon: User },

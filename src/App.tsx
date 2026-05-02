@@ -43,6 +43,7 @@ const DigitalMaturityAudit = lazy(() => import("@/pages/client/DigitalMaturityAu
 
 // Client pages (lazy)
 const ClientDashboard = lazy(() => import("@/pages/client/Dashboard"));
+const ClientDashboard360 = lazy(() => import("@/pages/client/Dashboard360"));
 const ClientProjects = lazy(() => import("@/pages/client/Projects"));
 const ProjectConversation = lazy(() => import("@/pages/client/ProjectConversation"));
 const ClientDocuments = lazy(() => import("@/pages/client/Documents"));
@@ -112,6 +113,7 @@ const App = () => (
             {/* Client */}
             <Route element={<ProtectedRoute><ClientLayout /></ProtectedRoute>}>
               <Route path="/client/dashboard" element={<ClientDashboard />} />
+              <Route path="/client/360" element={<ClientDashboard360 />} />
               <Route path="/client/projects" element={<ClientProjects />} />
               <Route path="/client/projects/new" element={<NewProject />} />
               <Route path="/client/projects/:id/conversation" element={<ProjectConversation />} />
