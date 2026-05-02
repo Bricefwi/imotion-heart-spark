@@ -20,7 +20,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { LayoutDashboard, Users, Settings, Plug, ScrollText, LogOut, Shield, FileText, BookOpen, Radar, BarChart3, Globe, ExternalLink, ChevronRight, Home, Bell, Check, CheckCheck, Inbox, Sun, Moon } from "lucide-react";
+import { LayoutDashboard, Users, Settings, Plug, ScrollText, LogOut, Shield, FileText, BookOpen, Radar, BarChart3, Globe, ExternalLink, ChevronRight, Home, Bell, Check, CheckCheck, Inbox, Sun, Moon, RefreshCw } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
@@ -248,6 +248,7 @@ const sidebarGroups: SidebarGroupDef[] = [
     items: [
       { title: "Paramètres", url: "/admin/settings", icon: Settings },
       { title: "Intégrations", url: "/admin/integrations", icon: Plug },
+      { title: "Sync Queue", url: "/admin/sync-queue", icon: RefreshCw },
     ],
   },
 ];
@@ -383,6 +384,7 @@ const breadcrumbLabels: Record<string, string> = {
   "templates": "Templates",
   "settings": "Paramètres",
   "integrations": "Intégrations",
+  "sync-queue": "Sync Queue",
   "logs": "Logs",
   "projects": "Projets",
 };
