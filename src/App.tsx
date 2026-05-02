@@ -53,6 +53,7 @@ const NewProject = lazy(() => import("@/pages/client/NewProject"));
 const ClientProfile = lazy(() => import("@/pages/client/Profile"));
 const RetrieveLovelibAudit = lazy(() => import("@/pages/client/RetrieveLovelibAudit"));
 const MyAudits = lazy(() => import("@/pages/client/MyAudits"));
+const AuditTransition = lazy(() => import("@/pages/client/AuditTransition"));
 
 // Consultant pages (lazy)
 const ConsultantDashboard = lazy(() => import("@/pages/consultant/Dashboard"));
@@ -128,6 +129,7 @@ const App = () => (
               <Route path="/client/profile" element={<ClientProfile />} />
               <Route path="/client/lovelib-audit" element={<RetrieveLovelibAudit />} />
               <Route path="/client/audits" element={<MyAudits />} />
+              <Route path="/client/audits/:id" element={<AuditTransition />} />
             </Route>
 
             {/* Consultant */}
