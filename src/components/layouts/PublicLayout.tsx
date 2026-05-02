@@ -82,7 +82,13 @@ export function PublicLayout() {
 
             {/* Légal dropdown */}
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground rounded-[var(--radius-md)] hover:bg-muted/50 transition-all duration-200 outline-none">
+              <DropdownMenuTrigger
+                className={`flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-[var(--radius-md)] transition-all duration-200 outline-none ${
+                  isHome
+                    ? "text-white/70 hover:text-white hover:bg-white/5"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                }`}
+              >
                 {t("nav.legal")}
                 <ChevronDown className="h-3.5 w-3.5" />
               </DropdownMenuTrigger>
