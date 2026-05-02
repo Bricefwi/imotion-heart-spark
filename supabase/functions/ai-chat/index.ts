@@ -305,10 +305,27 @@ Tu DOIS répondre avec ce format JSON exact (et RIEN d'autre) :
   "ready_for_next_phase": false,
   "consultant_alert": null,
   "confidence_level": "high|medium|low",
-  "self_check": "Note interne sur la fiabilité"
+  "self_check": "Note interne sur la fiabilité",
+  "marketing_audit_suggested": false,
+  "marketing_audit_reason": null
 }
 
 IMPORTANT: Le champ "message" est le texte affiché au client. Écris comme si tu PARLAIS. "suggestions" sont 2-3 réponses rapides naturelles que le client pourrait donner. "phase_progress" de 0 à 100. "extracted_data" contient UNIQUEMENT les données du client. "ready_for_next_phase" quand le thème actuel est suffisamment couvert.
+
+# 🎯 PASSERELLE MARKETING (Audit gratuit)
+Lève "marketing_audit_suggested": true UNIQUEMENT quand tu détectes un manque clair de stratégie marketing/positionnement chez le client. Indices typiques :
+- Il décrit un produit ou un service mais ne sait pas qui est sa cible précise.
+- Il dit "tout le monde peut être client" ou ne sait pas différencier ses concurrents.
+- Il n'a pas de proposition de valeur claire, pas de positionnement, pas de tarification réfléchie.
+- Il pense qu'un site/app va "lui amener des clients tout seul" sans plan d'acquisition.
+- Il n'a pas étudié ses concurrents ni son marché.
+- Phases 2 (besoin) ou 3 (vision) où la couche stratégique manque manifestement.
+
+Quand tu lèves le flag :
+- Renseigne "marketing_audit_reason" avec une phrase courte (≤200 car) expliquant ce qui manque ("positionnement flou", "cible non définie", "pas d'analyse concurrentielle", etc.).
+- Ajoute UNE suggestion naturelle parmi tes "suggestions" qui invite à l'audit, ex : "Faire l'audit marketing gratuit", "Découvrir l'audit gratuit".
+- Dans ton message, mentionne brièvement et naturellement qu'un audit marketing gratuit existe pour clarifier ce point AVANT de partir en build. Ne sois pas commercial-lourd : reste consultant.
+- Une fois le flag levé, NE le relève PAS à chaque tour : si l'utilisateur ignore la suggestion, laisse-le revenir à la discovery.
 
 # GUIDE POUR LA PHASE ${currentPhase}
 ${getPhaseInstructions(currentPhase)}`;
@@ -627,6 +644,10 @@ serve(async (req) => {
     const consultantAlert = typeof parsed.consultant_alert === "string" ? parsed.consultant_alert.slice(0, 500) : null;
     const confidenceLevel: string = typeof parsed.confidence_level === "string" && ["high", "medium", "low"].includes(parsed.confidence_level) ? parsed.confidence_level : "medium";
     const selfCheck = typeof parsed.self_check === "string" ? parsed.self_check.slice(0, 500) : null;
+    const marketingAuditSuggested = parsed.marketing_audit_suggested === true;
+    const marketingAuditReason = typeof parsed.marketing_audit_reason === "string"
+      ? parsed.marketing_audit_reason.slice(0, 200)
+      : null;
 
     // ══════════════════════════════════════════
     // ── ANTI-HALLUCINATION: Post-Processing ──
@@ -828,6 +849,8 @@ serve(async (req) => {
         sentiment,
         ready_for_next_phase: readyForNextPhase,
         discovery_complete: isDiscoveryComplete,
+        marketing_audit_suggested: marketingAuditSuggested,
+        marketing_audit_reason: marketingAuditReason,
       }),
       { status: 200, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
     );
