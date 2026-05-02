@@ -26,15 +26,15 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const BATCH_SIZE = 10;
-const LEASE_SECONDS = 60;
+export const BATCH_SIZE = 10;
+export const LEASE_SECONDS = 60;
 const WORKER_ID = `worker-${crypto.randomUUID().slice(0, 8)}`;
 
 // HTTP status codes that should be retried automatically.
-const TRANSIENT_HTTP_CODES = new Set([408, 425, 429, 500, 502, 503, 504, 522, 524]);
+export const TRANSIENT_HTTP_CODES = new Set([408, 425, 429, 500, 502, 503, 504, 522, 524]);
 
 // Postgres error codes considered transient (connection / serialization issues).
-const TRANSIENT_PG_CODES = new Set([
+export const TRANSIENT_PG_CODES = new Set([
   "08000", "08003", "08006", "08001", "08004", // connection_exception
   "40001", "40P01", // serialization_failure / deadlock_detected
   "57P03", // cannot_connect_now
