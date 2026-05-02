@@ -38,7 +38,7 @@ BEGIN
   ASSERT next_c > next_b, format('backoff(3)=% doit être > backoff(2)=%', next_c - now(), next_b - now());
   RAISE NOTICE 'OK — backoff exponentiel: 1m=%, 2m=%, 3m=%',
     next_a - now(), next_b - now(), next_c - now();
-  DELETE FROM sync_logs WHERE job_id IN (job_a, job_b, job_c);
+  DELETE FROM sync_logs sl WHERE sl.job_id IN (job_a, job_b, job_c);
   DELETE FROM sync_queue WHERE id IN (job_a, job_b, job_c);
 
   RAISE NOTICE '========== Test 2: DLQ quand attempts >= max_attempts ==========';
@@ -52,7 +52,7 @@ BEGIN
   SELECT count(*) INTO log_count FROM sync_logs sl WHERE sl.job_id = job.id;
   ASSERT log_count = 1, format('1 log attendu, reçu %s', log_count);
   RAISE NOTICE 'OK — fail transient avec attempts >= max_attempts → DLQ';
-  DELETE FROM sync_logs WHERE job_id = job.id;
+  DELETE FROM sync_logs sl WHERE sl.job_id = job.id;
   DELETE FROM sync_queue WHERE id = job.id;
 
   RAISE NOTICE '========== Test 3: permanent → DLQ immédiat ==========';
@@ -64,7 +64,7 @@ BEGIN
   ASSERT job.status = 'dead_letter', format('permanent → DLQ attendu, reçu %s (attempts=%s/max=%s)',
     job.status, job.attempts, job.max_attempts);
   RAISE NOTICE 'OK — permanent → DLQ même avec attempts=% < max=%', job.attempts, job.max_attempts;
-  DELETE FROM sync_logs WHERE job_id = job.id;
+  DELETE FROM sync_logs sl WHERE sl.job_id = job.id;
   DELETE FROM sync_queue WHERE id = job.id;
 
   RAISE NOTICE '========== Test 4: partial NE consomme PAS d''attempt + checkpoint ==========';
@@ -86,7 +86,7 @@ BEGIN
   ASSERT job.next_retry_at - now() < interval '2 minutes',
     format('partial doit re-essayer rapidement (~30s), reçu %s', job.next_retry_at - now());
   RAISE NOTICE 'OK — partial → attempt rendu, checkpoint persisté, retry dans %', job.next_retry_at - now();
-  DELETE FROM sync_logs WHERE job_id = job.id;
+  DELETE FROM sync_logs sl WHERE sl.job_id = job.id;
   DELETE FROM sync_queue WHERE id = job.id;
 
   RAISE NOTICE '========== Test 5: dedupe_key empêche les doublons ==========';
