@@ -195,20 +195,20 @@ export function HeroSection() {
         aria-hidden="true"
       />
 
-      <div className="container relative py-20 md:py-28 lg:py-32">
-        <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+      <div className="container relative py-14 sm:py-20 md:py-24 lg:py-32">
+        <div className="grid lg:grid-cols-12 gap-10 sm:gap-14 lg:gap-16 items-center">
           {/* LEFT — Headline + CTA */}
-          <div className="lg:col-span-6 space-y-8 text-white">
+          <div className="lg:col-span-6 space-y-6 sm:space-y-8 text-white">
             {/* Brand wordmark display */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <h1 className="font-display font-bold tracking-tight leading-none text-[64px] sm:text-[88px] lg:text-[112px] text-white">
+              <h1 className="font-display font-bold tracking-tight leading-none text-[44px] xs:text-[56px] sm:text-[80px] md:text-[96px] lg:text-[112px] text-white break-words">
                 IMOTION
               </h1>
-              <p className="mt-2 font-display uppercase tracking-[0.32em] text-xs sm:text-sm text-white/50">
+              <p className="mt-2 font-display uppercase tracking-[0.24em] sm:tracking-[0.32em] text-[10px] sm:text-xs md:text-sm text-white/50">
                 Creator Studio
               </p>
             </motion.div>
@@ -220,7 +220,7 @@ export function HeroSection() {
               transition={{ duration: 0.6, delay: 0.15 }}
               className="space-y-5"
             >
-              <h2 className="font-display text-3xl sm:text-4xl lg:text-[44px] font-semibold leading-[1.15] tracking-tight">
+              <h2 className="font-display text-[26px] sm:text-3xl md:text-4xl lg:text-[44px] font-semibold leading-[1.15] tracking-tight">
                 Transformez vos idées en{" "}
                 <span className="bg-gradient-to-r from-[#F57C00] to-[#D63B1A] bg-clip-text text-transparent">
                   projets digitaux concrets
@@ -282,17 +282,17 @@ export function HeroSection() {
             initial={{ opacity: 0, scale: 0.96, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="lg:col-span-6 relative"
+            className="lg:col-span-6 relative mt-4 lg:mt-0 pb-16 sm:pb-20 lg:pb-0"
           >
             {/* Floating badge "CDC prêt en 45 min" */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.6 }}
-              className="absolute -top-4 right-4 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-400/15 border border-emerald-400/30 backdrop-blur-md"
+              className="absolute -top-3 right-2 sm:-top-4 sm:right-4 z-30 flex items-center gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-emerald-400/15 border border-emerald-400/30 backdrop-blur-md"
             >
-              <CheckCircle2 className="size-3.5 text-emerald-400" />
-              <span className="text-xs font-medium text-emerald-300">
+              <CheckCircle2 className="size-3 sm:size-3.5 text-emerald-400" />
+              <span className="text-[10px] sm:text-xs font-medium text-emerald-300 whitespace-nowrap">
                 CDC prêt en 45 min
               </span>
             </motion.div>
@@ -302,12 +302,12 @@ export function HeroSection() {
               <ProjectCard />
             </div>
 
-            {/* Marc terminal (overlapping) */}
+            {/* Marc terminal (overlapping) — décalage réduit en mobile pour ne pas déborder */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.8 }}
-              className="absolute -bottom-12 -left-6 sm:-left-10 lg:-left-16 w-[88%] sm:w-[78%] z-20"
+              className="absolute -bottom-8 sm:-bottom-10 lg:-bottom-12 left-2 sm:-left-6 lg:-left-16 w-[92%] sm:w-[82%] lg:w-[78%] z-20"
             >
               <MarcTerminal />
             </motion.div>
