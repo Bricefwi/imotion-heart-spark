@@ -1084,6 +1084,39 @@ export type Database = {
           },
         ]
       }
+      pending_audit_claims: {
+        Row: {
+          claimed_at: string | null
+          claimed_by: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          external_id: string | null
+          jti: string
+          payload: Json
+        }
+        Insert: {
+          claimed_at?: string | null
+          claimed_by?: string | null
+          created_at?: string
+          email: string
+          expires_at: string
+          external_id?: string | null
+          jti: string
+          payload?: Json
+        }
+        Update: {
+          claimed_at?: string | null
+          claimed_by?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          external_id?: string | null
+          jti?: string
+          payload?: Json
+        }
+        Relationships: []
+      }
       pricing_config: {
         Row: {
           base_price: number
@@ -1835,6 +1868,7 @@ export type Database = {
         }
       }
       cleanup_lovelib_token_uses: { Args: never; Returns: undefined }
+      cleanup_pending_audit_claims: { Args: never; Returns: undefined }
       cleanup_webhook_nonces: { Args: never; Returns: undefined }
       complete_sync_job: {
         Args: {
@@ -1921,6 +1955,7 @@ export type Database = {
           read_ct: number
         }[]
       }
+      redeem_pending_audits: { Args: never; Returns: Json }
       requeue_sync_job: { Args: { _job_id: string }; Returns: undefined }
     }
     Enums: {
