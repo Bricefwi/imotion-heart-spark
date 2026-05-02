@@ -133,7 +133,7 @@ export function PublicLayout() {
                 <Button variant="ghost" asChild className="rounded-[var(--radius-md)]">
                   <Link to="/login">{t("nav.login")}</Link>
                 </Button>
-                <Button asChild className="gradient-primary border-0 shadow-glow hover:shadow-glow-lg transition-all duration-300">
+                <Button asChild variant="flame">
                   <Link to="/register">{t("nav.register")}</Link>
                 </Button>
               </>
