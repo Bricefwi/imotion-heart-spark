@@ -39,11 +39,21 @@ export function PublicLayout() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header — Brand v2 (compact 64px, warm glass) */}
-      <header className="sticky top-0 z-50 border-b border-border/40 bg-background/75 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+      {/* Header — Brand v2 (compact 64px). Transparent dark overlay on home, glass on other pages. */}
+      <header
+        className={
+          isHome
+            ? "absolute top-0 left-0 right-0 z-50 border-b border-white/10 bg-transparent"
+            : "sticky top-0 z-50 border-b border-border/40 bg-background/75 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60"
+        }
+      >
         <div className="container flex h-16 items-center justify-between">
-          <Link to="/" className="flex items-center group" aria-label="IMOTION Creator Studio — Accueil">
-            <Logo size="md" showText />
+          <Link
+            to="/"
+            className={`flex items-center group ${isHome ? "text-white" : ""}`}
+            aria-label="IMOTION Creator Studio — Accueil"
+          >
+            <Logo size="md" showText tone={isHome ? "light" : "auto"} />
           </Link>
 
           {/* Desktop nav with active underline */}
@@ -54,9 +64,13 @@ export function PublicLayout() {
                 to={link.to}
                 className={({ isActive }) =>
                   `relative px-3 py-2 text-sm font-medium rounded-[var(--radius-md)] transition-all duration-200 ${
-                    isActive
-                      ? "text-foreground"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    isHome
+                      ? isActive
+                        ? "text-white"
+                        : "text-white/70 hover:text-white hover:bg-white/5"
+                      : isActive
+                        ? "text-foreground"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   } after:content-[''] after:absolute after:left-3 after:right-3 after:bottom-1 after:h-[2px] after:rounded-full after:bg-gradient-flame after:transition-transform after:duration-200 ${
                     "after:scale-x-0"
                   } ${isActive ? "after:!scale-x-100" : "hover:after:scale-x-50"}`
