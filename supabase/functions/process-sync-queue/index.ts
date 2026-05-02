@@ -98,7 +98,7 @@ function jsonResponse(status: number, body: unknown) {
 }
 
 // Classify any thrown error → kind + metadata.
-function classifyError(e: unknown): { kind: ErrorKind; message: string; responseCode?: number; snippet?: string; progress?: Record<string, unknown> } {
+export function classifyError(e: unknown): { kind: ErrorKind; message: string; responseCode?: number; snippet?: string; progress?: Record<string, unknown> } {
   if (e instanceof ClassifiedError) {
     return { kind: e.kind, message: e.message, responseCode: e.responseCode, snippet: e.snippet, progress: e.progress };
   }
