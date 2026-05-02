@@ -164,9 +164,9 @@ Deno.test("handleHttpForward: rejette méthode non autorisée (permanent)", asyn
 
 Deno.test("handleHttpForward: dedupe_key → Idempotency-Key", async () => {
   const dedupe = "audit-42-merge";
-  let captured: Headers | null = null;
+  const cap: { value: Headers | null } = { value: null };
   await withMockFetch(
-    (req) => { captured = req.headers; return new Response("ok", { status: 200 }); },
+    (req) => { cap.value = req.headers; return new Response("ok", { status: 200 }); },
     async () => {
       const job = makeJob({
         dedupe_key: dedupe,
@@ -176,9 +176,9 @@ Deno.test("handleHttpForward: dedupe_key → Idempotency-Key", async () => {
       assertEquals(out.idempotency_key, dedupe);
     },
   );
-  assertExists(captured);
-  assertEquals(captured!.get("idempotency-key"), dedupe);
-  assertEquals(captured!.get("x-job-id"), expect_anything_uuid(captured!));
+  assertExists(cap.value);
+  assertEquals(cap.value!.get("idempotency-key"), dedupe);
+  assertEquals(cap.value!.get("x-job-id"), expect_anything_uuid(cap.value!));
 });
 
 // helper inline pour valider format UUID (et éviter erreur "any")
@@ -189,15 +189,15 @@ function expect_anything_uuid(h: Headers): string {
 }
 
 Deno.test("handleHttpForward: fallback Idempotency-Key = job.id si pas de dedupe", async () => {
-  let captured: Headers | null = null;
+  const cap: { value: Headers | null } = { value: null };
   const job = makeJob({
     payload: { url: "https://example.com/hook", body: { x: 1 } },
   });
   await withMockFetch(
-    (req) => { captured = req.headers; return new Response("ok", { status: 200 }); },
+    (req) => { cap.value = req.headers; return new Response("ok", { status: 200 }); },
     async () => { await handleHttpForward(stubClient, job); },
   );
-  assertEquals(captured!.get("idempotency-key"), job.id);
+  assertEquals(cap.value!.get("idempotency-key"), job.id);
 });
 
 Deno.test("handleHttpForward: 503 → TransientError", async () => {
@@ -325,11 +325,11 @@ Deno.test("handleHttpForward: timeout → transient", async () => {
 
 Deno.test("handleHttpForward: HMAC signe avec secret env", async () => {
   Deno.env.set("MARKETING_WEBHOOK_SECRET", "test-secret-xyz");
-  let captured: Headers | null = null;
+  const cap: { value: Headers | null } = { value: null };
   let body: string | null = null;
   await withMockFetch(
     async (req) => {
-      captured = req.headers;
+      cap.value = req.headers;
       body = await req.text();
       return new Response("ok", { status: 200 });
     },
@@ -344,10 +344,10 @@ Deno.test("handleHttpForward: HMAC signe avec secret env", async () => {
       await handleHttpForward(stubClient, job);
     },
   );
-  assertExists(captured);
-  const sig = captured!.get("x-webhook-signature");
-  const ts = captured!.get("x-webhook-timestamp");
-  const nonce = captured!.get("x-webhook-nonce");
+  assertExists(cap.value);
+  const sig = cap.value!.get("x-webhook-signature");
+  const ts = cap.value!.get("x-webhook-timestamp");
+  const nonce = cap.value!.get("x-webhook-nonce");
   assertExists(sig); assertExists(ts); assertExists(nonce);
   assertMatch(sig!, /^[0-9a-f]{64}$/);
   assertEquals(body, JSON.stringify({ hello: "world" }));
