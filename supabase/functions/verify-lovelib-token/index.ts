@@ -197,6 +197,34 @@ Deno.serve(async (req) => {
     );
   }
 
+  // One-shot enforcement: insert jti before doing any work; reject on conflict.
+  const expiresAtIso = new Date((payload.exp as number) * 1000).toISOString();
+  const { error: jtiErr } = await adminClient
+    .from("lovelib_token_uses")
+    .insert({
+      jti: payload.jti as string,
+      user_id: user.id,
+      audit_external_id: payload.audit_id ?? payload.sub ?? null,
+      expires_at: expiresAtIso,
+    });
+  if (jtiErr) {
+    // Unique violation => token already consumed
+    const code = (jtiErr as { code?: string }).code;
+    if (code === "23505") {
+      return new Response(
+        JSON.stringify({ error: "token_already_used" }),
+        { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+    return new Response(
+      JSON.stringify({ error: "token_use_record_failed", details: jtiErr.message }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
+  }
+
+  // Opportunistic cleanup of expired token records (best effort)
+  adminClient.rpc("cleanup_lovelib_token_uses").then(() => {}, () => {});
+
   const externalId = payload.audit_id ?? payload.sub ?? null;
 
   // Upsert marketing_audits for this user (RLS-safe via service role)
