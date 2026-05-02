@@ -52,6 +52,7 @@ const DocumentViewer = lazy(() => import("@/pages/client/DocumentViewer"));
 const NewProject = lazy(() => import("@/pages/client/NewProject"));
 const ClientProfile = lazy(() => import("@/pages/client/Profile"));
 const RetrieveLovelibAudit = lazy(() => import("@/pages/client/RetrieveLovelibAudit"));
+const ClaimAudit = lazy(() => import("@/pages/ClaimAudit"));
 const MyAudits = lazy(() => import("@/pages/client/MyAudits"));
 const AuditTransition = lazy(() => import("@/pages/client/AuditTransition"));
 
@@ -112,6 +113,9 @@ const App = () => (
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
+
+            {/* Public claim entry from lovelib (signed token, no auth required) */}
+            <Route path="/audit/claim" element={<ClaimAudit />} />
 
             {/* Client - Onboarding + Audit (standalone, no sidebar) */}
             <Route path="/client/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />

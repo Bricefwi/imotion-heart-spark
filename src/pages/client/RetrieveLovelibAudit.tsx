@@ -49,6 +49,19 @@ export default function RetrieveLovelibAudit() {
   useEffect(() => {
     if (!user) return;
     (async () => {
+      // Auto-redeem any pending audit claims tied to this user's email
+      try {
+        const { data } = await supabase.rpc("redeem_pending_audits");
+        const claimed = (data as { claimed?: number; audits?: any[] })?.claimed ?? 0;
+        if (claimed > 0) {
+          sessionStorage.removeItem("pendingAuditClaimEmail");
+          toast({
+            title: `${claimed} audit${claimed > 1 ? "s" : ""} récupéré${claimed > 1 ? "s" : ""}`,
+            description: "Vos audits lovelib sont maintenant dans votre compte.",
+          });
+        }
+      } catch { /* silent */ }
+
       const { data, error } = await supabase
         .from("projects")
         .select("id, name, code, status")
