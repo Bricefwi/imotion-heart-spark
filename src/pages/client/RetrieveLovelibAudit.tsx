@@ -204,6 +204,65 @@ export default function RetrieveLovelibAudit() {
         </Badge>
       </div>
 
+      {/* Token verification banner */}
+      {tokenStatus === "verifying" && (
+        <Alert>
+          <Loader2 className="h-4 w-4 animate-spin" />
+          <AlertDescription>Vérification du token lovelib en cours…</AlertDescription>
+        </Alert>
+      )}
+
+      {tokenStatus === "error" && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Lien invalide ou expiré : <code className="text-xs">{tokenError}</code>. Demandez un nouveau lien depuis lovelib.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {tokenStatus === "ok" && hydrated && !lastResult && (
+        <Card className="border-green-500/40 bg-gradient-to-br from-green-500/5 to-primary/5">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <CheckCircle2 className="h-5 w-5 text-green-600" />
+              Audit lovelib récupéré
+              {hydrated.score !== null && (
+                <Badge className="ml-1 bg-gradient-to-r from-primary to-secondary text-white">
+                  Score {hydrated.score}/100
+                </Badge>
+              )}
+            </CardTitle>
+            <CardDescription>
+              {hydrated.company_name || hydrated.website_url || "Audit anonyme"}
+              {hydrated.summary && <span className="block mt-1 line-clamp-2">{hydrated.summary}</span>}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Cet audit est maintenant disponible dans votre compte. Liez-le à un projet pour qu'il enrichisse automatiquement la phase de découverte.
+            </p>
+            <div className="flex gap-2 flex-wrap">
+              <Button
+                onClick={linkHydratedAudit}
+                disabled={loading || !projectId}
+                className="bg-gradient-to-r from-primary to-secondary text-white"
+              >
+                {loading ? (
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Liaison…</>
+                ) : (
+                  <><Link2 className="h-4 w-4 mr-2" /> Lier au projet sélectionné</>
+                )}
+              </Button>
+              <Button variant="outline" asChild>
+                <Link to={`/client/audits/${hydrated.audit_id}`}>
+                  Voir le détail <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
       <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-secondary/5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
