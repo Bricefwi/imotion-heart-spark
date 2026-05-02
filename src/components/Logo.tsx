@@ -13,6 +13,12 @@ interface LogoProps {
   size?: LogoSize;
   /** Affiche le sous-titre "Creator Studio" à droite du wordmark. */
   showText?: boolean;
+  /**
+   * Réduit le logo à la marque seule (flèche), sans le mot "motion".
+   * Idéal pour sidebar collapsée, favicon, mobile compact.
+   * Par défaut, déduit de !showText pour les variants legacy uniquement.
+   */
+  markOnly?: boolean;
   variant?: LogoVariant;
   tone?: LogoTone;
   className?: string;
@@ -44,61 +50,67 @@ const fluxSizeMap: Record<LogoSize, { wordmark: string; sub: string; gap: string
  * avec gradient orange→rouge (Stripe / Resend / Ramp style).
  * ViewBox basé sur la hauteur (40), largeur auto-ajustée par les glyphes.
  */
-function WordmarkFlux({ tone, id }: { tone: LogoTone; id: string }) {
-  // Couleurs adaptatives — "auto" = currentColor (suit la couleur du parent → marche sur sidebar dark/light)
+function WordmarkFlux({
+  tone,
+  id,
+  markOnly = false,
+}: {
+  tone: LogoTone;
+  id: string;
+  markOnly?: boolean;
+}) {
   const wordColor =
     tone === "light" ? "#FFFFFF"
     : tone === "dark" ? "#0F0D0B"
     : tone === "mono" ? "currentColor"
-    : "currentColor"; // auto
+    : "currentColor";
 
   const useGradient = tone !== "mono";
   const arrowFill = useGradient ? `url(#${id}-arrow)` : "currentColor";
 
+  // Square viewBox for mark-only (favicon / collapsed sidebar)
+  const viewBox = markOnly ? "0 0 28 56" : "0 0 220 56";
+
   return (
     <svg
-      viewBox="0 0 220 56"
+      viewBox={viewBox}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
-      aria-label="imotion"
+      aria-label={markOnly ? "imotion mark" : "imotion"}
       className="h-full w-auto"
     >
       <defs>
         <linearGradient id={`${id}-arrow`} x1="0" y1="56" x2="0" y2="0" gradientUnits="userSpaceOnUse">
-          {/* base = rouge coral, pointe = orange ambre (flux montant) */}
           <stop offset="0%" stopColor="#D63B1A" />
           <stop offset="55%" stopColor="#EE6B1F" />
           <stop offset="100%" stopColor="#F5A524" />
         </linearGradient>
       </defs>
 
-      {/* ---- Flèche verticale qui remplace le "i" ----
-          Tige + tête de flèche + petit point base (rappel du point du i). */}
+      {/* ---- Flèche verticale qui remplace le "i" ---- */}
       <g>
-        {/* point base (souvenir du point du i) */}
         <circle cx="14" cy="52" r="2.6" fill={arrowFill} />
-        {/* tige */}
         <rect x="11.4" y="14" width="5.2" height="32" rx="1.2" fill={arrowFill} />
-        {/* tête de flèche (chevron up) */}
         <path
           d="M14 4 L23.5 16.5 L18 16.5 L18 20 L10 20 L10 16.5 L4.5 16.5 Z"
           fill={arrowFill}
         />
       </g>
 
-      {/* ---- "motion" en wordmark gras ---- */}
-      <text
-        x="30"
-        y="46"
-        fontFamily='"General Sans", "Inter", system-ui, -apple-system, sans-serif'
-        fontWeight="700"
-        fontSize="44"
-        letterSpacing="-1.5"
-        fill={wordColor}
-      >
-        motion
-      </text>
+      {!markOnly && (
+        <text
+          x="30"
+          y="46"
+          fontFamily='"General Sans", "Inter", system-ui, -apple-system, sans-serif'
+          fontWeight="700"
+          fontSize="44"
+          letterSpacing="-1.5"
+          fill={wordColor}
+        >
+          motion
+        </text>
+      )}
     </svg>
   );
 }
@@ -165,6 +177,7 @@ function MarkFlame({ tone, id }: { tone: LogoTone; id: string }) {
 export function Logo({
   size = "md",
   showText = false,
+  markOnly,
   variant = "flux", // ← NOUVEAU défaut : wordmark Flux
   tone = "auto",
   className,
@@ -183,9 +196,9 @@ export function Logo({
     return (
       <div className={cn("inline-flex items-center", s.gap, className)}>
         <div className={cn("shrink-0", s.wordmark)}>
-          <WordmarkFlux tone={tone} id={uid} />
+          <WordmarkFlux tone={tone} id={uid} markOnly={markOnly} />
         </div>
-        {showText && (
+        {showText && !markOnly && (
           <div
             className={cn(
               "flex flex-col leading-tight font-display font-semibold uppercase tracking-[0.18em]",
