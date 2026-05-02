@@ -326,11 +326,11 @@ Deno.test("handleHttpForward: timeout → transient", async () => {
 Deno.test("handleHttpForward: HMAC signe avec secret env", async () => {
   Deno.env.set("MARKETING_WEBHOOK_SECRET", "test-secret-xyz");
   const cap: { value: Headers | null } = { value: null };
-  let body: string | null = null;
+  const bodyRef: { value: string | null } = { value: null };
   await withMockFetch(
     async (req) => {
       cap.value = req.headers;
-      body = await req.text();
+      bodyRef.value = await req.text();
       return new Response("ok", { status: 200 });
     },
     async () => {
@@ -350,7 +350,7 @@ Deno.test("handleHttpForward: HMAC signe avec secret env", async () => {
   const nonce = cap.value!.get("x-webhook-nonce");
   assertExists(sig); assertExists(ts); assertExists(nonce);
   assertMatch(sig!, /^[0-9a-f]{64}$/);
-  assertEquals(body, JSON.stringify({ hello: "world" }));
+  assertEquals(bodyRef.value, JSON.stringify({ hello: "world" }));
 });
 
 Deno.test("handleHttpForward: HMAC sans secret → permanent", async () => {
