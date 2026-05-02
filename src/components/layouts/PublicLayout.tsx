@@ -153,7 +153,13 @@ export function PublicLayout() {
               </div>
             ) : (
               <>
-                <Button variant="ghost" asChild className="rounded-[var(--radius-md)]">
+                <Button
+                  variant="ghost"
+                  asChild
+                  className={`rounded-[var(--radius-md)] ${
+                    isHome ? "text-white/80 hover:text-white hover:bg-white/10" : ""
+                  }`}
+                >
                   <Link to="/login">{t("nav.login")}</Link>
                 </Button>
                 <Button asChild variant="flame">
@@ -166,7 +172,14 @@ export function PublicLayout() {
           {/* Mobile toggle */}
           <div className="flex md:hidden items-center gap-2">
             <LanguageSelector />
-            <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2 rounded-[var(--radius-md)] hover:bg-muted/50 transition-colors">
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className={`p-2 rounded-[var(--radius-md)] transition-colors ${
+                isHome
+                  ? "text-white hover:bg-white/10"
+                  : "hover:bg-muted/50"
+              }`}
+            >
               {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
