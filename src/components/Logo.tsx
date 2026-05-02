@@ -124,7 +124,7 @@ function MarkChevrons({ tone }: { tone: LogoTone }) {
   const c2 = useMono ? "currentColor" : "#D63B1A";
   const c3 = useMono ? "currentColor" : "#F08A00";
   return (
-    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
       <path d="M5 8 L18 20 L5 32" stroke={c1} strokeWidth="5.5" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M14 8 L27 20 L14 32" stroke={c2} strokeWidth="5.5" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M23 8 L36 20 L23 32" stroke={c3} strokeWidth="5.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -135,7 +135,7 @@ function MarkChevrons({ tone }: { tone: LogoTone }) {
 function MarkSpark({ tone, id }: { tone: LogoTone; id: string }) {
   const useMono = tone === "mono";
   return (
-    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
       <defs>
         <linearGradient id={`${id}-g`} x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
           <stop offset="0%" stopColor="#D63B1A" />
@@ -152,7 +152,7 @@ function MarkSpark({ tone, id }: { tone: LogoTone; id: string }) {
 function MarkFlame({ tone, id }: { tone: LogoTone; id: string }) {
   const useMono = tone === "mono";
   return (
-    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
       <defs>
         <linearGradient id={`${id}-flame`} x1="20" y1="4" x2="20" y2="36" gradientUnits="userSpaceOnUse">
           <stop offset="0%" stopColor="#F24E2A" />
