@@ -12,16 +12,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ExternalLink, Download, Sparkles, ArrowRight, CheckCircle2, AlertCircle } from "lucide-react";
+import { ExternalLink, Download, Sparkles, ArrowRight, CheckCircle2, AlertCircle, Loader2, Link2 } from "lucide-react";
 import { getMarketingBaseUrl } from "@/lib/marketing-url";
 
 type ProjectRow = { id: string; name: string; code: string | null; status: string };
+
+type HydratedAudit = {
+  audit_id: string;
+  external_id: string | null;
+  company_name: string | null;
+  website_url: string | null;
+  score: number | null;
+  summary: string | null;
+};
 
 export default function RetrieveLovelibAudit() {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [projects, setProjects] = useState<ProjectRow[]>([]);
   const [projectId, setProjectId] = useState<string>(searchParams.get("project") ?? "");
@@ -29,6 +38,11 @@ export default function RetrieveLovelibAudit() {
   const [payloadText, setPayloadText] = useState("");
   const [externalId, setExternalId] = useState("");
   const [lastResult, setLastResult] = useState<{ audit_id: string; project_id: string } | null>(null);
+
+  // Token hydration state
+  const [tokenStatus, setTokenStatus] = useState<"idle" | "verifying" | "ok" | "error">("idle");
+  const [tokenError, setTokenError] = useState<string | null>(null);
+  const [hydrated, setHydrated] = useState<HydratedAudit | null>(null);
 
   const lovelibUrl = `${getMarketingBaseUrl()}/audit?return_to=clarivi`;
 
