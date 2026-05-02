@@ -1,0 +1,174 @@
+/* ============================================================
+   IMOTION Brand v2 — Tokens primitifs (--imo-*)
+   ------------------------------------------------------------
+   ⚠️ SOURCE UNIQUE DE VÉRITÉ. Ne pas dupliquer ces valeurs ailleurs.
+   Le système shadcn (src/index.css) consomme ces tokens via var().
+   Tu peux aussi les utiliser directement dans Tailwind :
+     bg-imo-coral-500, text-imo-ink-900, ring-imo-amber-300, etc.
+   ============================================================ */
+
+:root {
+  /* ─────────────────────────────────────────────
+     1. PALETTE RAW — HSL triplets (sans hsl())
+     ───────────────────────────────────────────── */
+
+  /* Coral — couleur de marque #1 (signature, énergie) */
+  --imo-coral-50:  11 100% 97%;   /* #FFF4F1 — washes, hover ghosts */
+  --imo-coral-100: 13 100% 93%;   /* #FFE3DB — backgrounds doux */
+  --imo-coral-200: 13 100% 85%;   /* #FFC4B3 — borders soft */
+  --imo-coral-300: 13 100% 75%;   /* #FF9C82 — illustrations */
+  --imo-coral-400: 13 100% 65%;   /* #FF6F4D — focus, accent */
+  --imo-coral-500: 12 89% 56%;    /* #F24E2A — gradient hot end */
+  --imo-coral-600: 11 79% 47%;    /* #D63B1A — PRIMARY — WCAG AA on white */
+  --imo-coral-700: 11 79% 38%;    /* #B02D14 — hover/pressed */
+  --imo-coral-800: 13 80% 30%;    /* #87220F — text on light coral */
+  --imo-coral-900: 13 80% 20%;    /* #5C170A — deep accents */
+
+  /* Amber — couleur de marque #2 (chaleur, lumière) */
+  --imo-amber-50:  38 100% 96%;
+  --imo-amber-100: 40 100% 89%;
+  --imo-amber-200: 38 100% 77%;
+  --imo-amber-300: 38 100% 65%;   /* #FFC04D — flame highlight */
+  --imo-amber-400: 38 100% 56%;   /* #FFA61F — flame mid */
+  --imo-amber-500: 34 100% 47%;   /* #F08A00 — SECONDARY */
+  --imo-amber-600: 33 100% 39%;   /* #C56C00 */
+  --imo-amber-700: 32 100% 29%;   /* #944F00 */
+
+  /* Ink — neutres chauds (légèrement teintés rouge) */
+  --imo-ink-50:  24 14% 98%;      /* #FAF8F7 — page background */
+  --imo-ink-100: 30 12% 94%;      /* #F2EFEC — muted background */
+  --imo-ink-200: 28 13% 88%;      /* #E5E1DC — borders */
+  --imo-ink-300: 28 12% 76%;      /* divider */
+  --imo-ink-400: 25 6% 53%;       /* placeholder text */
+  --imo-ink-500: 25 6% 35%;       /* muted-foreground */
+  --imo-ink-600: 25 8% 23%;       /* secondary text */
+  --imo-ink-700: 25 9% 15%;       /* terminal bg */
+  --imo-ink-800: 28 8% 9%;        /* sidebar accent */
+  --imo-ink-900: 30 17% 5%;       /* #0F0D0B — FOREGROUND, sidebar bg */
+
+  /* Night — bleu-nuit pour hero sombre / overlays signature */
+  --imo-night-900: 230 50% 8%;    /* #0B1020 — hero bg base */
+  --imo-night-800: 230 45% 12%;   /* #0F1530 — hero bg mid */
+  --imo-night-700: 230 35% 18%;
+
+  /* États sémantiques */
+  --imo-success-500: 142 72% 42%;
+  --imo-success-300: 142 65% 60%;
+  --imo-warning-500: 38 92% 50%;
+  --imo-danger-500:  0 84% 60%;
+  --imo-info-500:    217 91% 60%;
+
+  /* ─────────────────────────────────────────────
+     2. ALIAS SÉMANTIQUES (rôle métier)
+     Permet de changer une couleur sans toucher aux composants.
+     ───────────────────────────────────────────── */
+  --imo-brand:           var(--imo-coral-600);
+  --imo-brand-hover:     var(--imo-coral-700);
+  --imo-brand-soft:      var(--imo-coral-50);
+  --imo-accent:          var(--imo-amber-500);
+  --imo-accent-soft:     var(--imo-amber-50);
+
+  --imo-bg:              var(--imo-ink-50);
+  --imo-bg-elevated:     0 0% 100%;
+  --imo-bg-muted:        var(--imo-ink-100);
+  --imo-bg-inverted:     var(--imo-ink-900);
+
+  --imo-fg:              var(--imo-ink-900);
+  --imo-fg-muted:        var(--imo-ink-500);
+  --imo-fg-subtle:       var(--imo-ink-400);
+  --imo-fg-inverted:     var(--imo-ink-50);
+  --imo-fg-on-brand:     0 0% 100%;
+
+  --imo-border:          var(--imo-ink-200);
+  --imo-border-strong:   var(--imo-ink-300);
+  --imo-ring:            var(--imo-coral-600);
+
+  /* ─────────────────────────────────────────────
+     3. GRADIENTS SIGNATURE (raw HEX, exact-match brief)
+     ───────────────────────────────────────────── */
+  --imo-gradient-flame:   linear-gradient(135deg, #F24E2A 0%, #FFA61F 100%);
+  --imo-gradient-ember:   linear-gradient(135deg, #D63B1A 0%, #F08A00 50%, #FFC04D 100%);
+  --imo-gradient-coral:   linear-gradient(135deg, #D63B1A 0%, #F24E2A 100%);
+  --imo-gradient-sunrise: linear-gradient(135deg, #F57C00 0%, #D63B1A 100%);
+  --imo-gradient-text:    linear-gradient(135deg, #F24E2A 0%, #F08A00 100%);
+
+  /* Surfaces */
+  --imo-gradient-paper:   linear-gradient(180deg, #FAF8F7 0%, #FFFFFF 100%);
+  --imo-gradient-card:    linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(30 12% 99%) 100%);
+
+  /* Dark surfaces */
+  --imo-gradient-dusk:    linear-gradient(180deg, #0F0D0B 0%, #1A1714 50%, #2A2622 100%);
+  --imo-gradient-night:   linear-gradient(180deg, #0B1020 0%, #0F1530 60%, #0B1020 100%);
+  --imo-gradient-dawn:    linear-gradient(180deg, #0F0D0B 0%, #2A2622 35%, #5C170A 65%, #FAF8F7 100%);
+
+  /* Halos & glows (radial) */
+  --imo-glow-coral:       radial-gradient(60% 60% at 50% 0%, hsl(12 89% 56% / 0.18) 0%, transparent 65%);
+  --imo-glow-amber:       radial-gradient(120% 80% at 85% 0%, rgba(245, 124, 0, 0.18) 0%, rgba(214, 59, 26, 0.08) 35%, transparent 70%);
+  --imo-glow-soft:        radial-gradient(circle, rgba(245, 138, 0, 0.35) 0%, transparent 70%);
+
+  /* Sidebar (dark) */
+  --imo-gradient-sidebar: linear-gradient(180deg, hsl(30 17% 6%) 0%, hsl(30 17% 4%) 100%);
+
+  /* ─────────────────────────────────────────────
+     4. SHADOWS (warm-tinted ink)
+     ───────────────────────────────────────────── */
+  --imo-shadow-xs: 0 1px 2px 0 hsl(30 17% 5% / 0.05);
+  --imo-shadow-sm: 0 1px 3px 0 hsl(30 17% 5% / 0.06), 0 1px 2px -1px hsl(30 17% 5% / 0.04);
+  --imo-shadow-md: 0 4px 12px -2px hsl(30 17% 5% / 0.08), 0 2px 4px -2px hsl(30 17% 5% / 0.04);
+  --imo-shadow-lg: 0 12px 32px -8px hsl(30 17% 5% / 0.12), 0 6px 12px -4px hsl(30 17% 5% / 0.06);
+  --imo-shadow-xl: 0 24px 48px -12px hsl(30 17% 5% / 0.18), 0 12px 24px -8px hsl(30 17% 5% / 0.08);
+  --imo-shadow-glow:    0 8px 24px -6px hsl(11 79% 47% / 0.32), 0 0 0 1px hsl(11 79% 47% / 0.06);
+  --imo-shadow-glow-lg: 0 12px 40px -8px hsl(11 79% 47% / 0.40), 0 0 0 1px hsl(11 79% 47% / 0.10);
+  --imo-shadow-flame:   0 10px 40px -10px rgba(245, 124, 0, 0.6);
+
+  /* ─────────────────────────────────────────────
+     5. RADIUS
+     ───────────────────────────────────────────── */
+  --imo-radius-xs:   4px;
+  --imo-radius-sm:   6px;
+  --imo-radius-md:   10px;
+  --imo-radius-lg:   16px;
+  --imo-radius-xl:   24px;
+  --imo-radius-2xl:  32px;
+  --imo-radius-full: 9999px;
+
+  /* ─────────────────────────────────────────────
+     6. MOTION
+     ───────────────────────────────────────────── */
+  --imo-ease-out:    cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --imo-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --imo-ease-glide:  cubic-bezier(0.16, 1, 0.3, 1);
+  --imo-duration-fast:   150ms;
+  --imo-duration-base:   200ms;
+  --imo-duration-slow:   300ms;
+  --imo-duration-slower: 500ms;
+
+  /* ─────────────────────────────────────────────
+     7. TYPOGRAPHIE — Font stacks
+     ───────────────────────────────────────────── */
+  --imo-font-display: "General Sans", "Inter", system-ui, -apple-system, sans-serif;
+  --imo-font-sans:    "Inter", system-ui, -apple-system, sans-serif;
+  --imo-font-mono:    "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+}
+
+/* ─────────────────────────────────────────────
+   Dark mode overrides — alias only
+   On garde la même palette raw, on remappe les rôles.
+   ───────────────────────────────────────────── */
+.dark {
+  --imo-bg:            var(--imo-ink-900);
+  --imo-bg-elevated:   var(--imo-ink-800);
+  --imo-bg-muted:      var(--imo-ink-700);
+  --imo-bg-inverted:   var(--imo-ink-50);
+
+  --imo-fg:            var(--imo-ink-50);
+  --imo-fg-muted:      var(--imo-ink-300);
+  --imo-fg-subtle:     var(--imo-ink-400);
+  --imo-fg-inverted:   var(--imo-ink-900);
+
+  --imo-border:        var(--imo-ink-700);
+  --imo-border-strong: var(--imo-ink-600);
+
+  --imo-brand:         var(--imo-coral-500); /* +1 step de luminosité en dark */
+  --imo-brand-hover:   var(--imo-coral-400);
+}
