@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -63,10 +64,23 @@ const STATUS_STYLES: Record<string, string> = {
 
 export default function SyncQueue() {
   const qc = useQueryClient();
+  const [searchParams] = useSearchParams();
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
   const [selectedJob, setSelectedJob] = useState<SyncJob | null>(null);
+
+  // Deep-link: open job detail from ?job=<uuid> (used by dead-letter notifications)
+  useEffect(() => {
+    const jobId = searchParams.get("job");
+    if (!jobId || !isUuid(jobId) || selectedJob?.id === jobId) return;
+    (async () => {
+      const { data, error } = await supabase
+        .from("sync_queue").select("*").eq("id", jobId).maybeSingle();
+      if (!error && data) setSelectedJob(data as SyncJob);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const { data: stats } = useQuery({
     queryKey: ["sync-queue-stats"],
