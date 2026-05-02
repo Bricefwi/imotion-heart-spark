@@ -1850,6 +1850,19 @@ export type Database = {
         }
         Returns: Json
       }
+      fail_sync_job_classified: {
+        Args: {
+          _duration_ms?: number
+          _error_kind?: string
+          _error_message: string
+          _job_id: string
+          _progress?: Json
+          _response_code?: number
+          _response_snippet?: string
+          _worker_id?: string
+        }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
