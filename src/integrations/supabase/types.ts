@@ -835,6 +835,30 @@ export type Database = {
           },
         ]
       }
+      lovelib_token_uses: {
+        Row: {
+          audit_external_id: string | null
+          consumed_at: string
+          expires_at: string
+          jti: string
+          user_id: string
+        }
+        Insert: {
+          audit_external_id?: string | null
+          consumed_at?: string
+          expires_at: string
+          jti: string
+          user_id: string
+        }
+        Update: {
+          audit_external_id?: string | null
+          consumed_at?: string
+          expires_at?: string
+          jti?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       marketing_audits: {
         Row: {
           company_name: string | null
@@ -1810,6 +1834,7 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      cleanup_lovelib_token_uses: { Args: never; Returns: undefined }
       cleanup_webhook_nonces: { Args: never; Returns: undefined }
       complete_sync_job: {
         Args: {
