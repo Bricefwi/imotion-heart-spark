@@ -124,7 +124,7 @@ async function fetchClarivi(userId: string): Promise<ClariviSnapshot> {
     .reduce((sum, e) => sum + (e.final_price ?? 0), 0);
 
   return {
-    projects: projectsList.map(({ estimated_budget_max: _omit, ...rest }: any) => rest),
+    projects: projectsList,
     documentsCount: docCount ?? 0,
     messagesCount: msgCount ?? 0,
     activeProjectsCount,
