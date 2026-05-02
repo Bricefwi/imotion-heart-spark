@@ -77,8 +77,8 @@ function WordmarkFlux({
       viewBox={viewBox}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      role="img"
-      aria-label={markOnly ? "imotion mark" : "imotion"}
+      aria-hidden="true"
+      focusable="false"
       className="h-full w-auto"
     >
       <defs>
