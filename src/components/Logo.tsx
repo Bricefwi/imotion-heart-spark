@@ -1,18 +1,27 @@
 import { cn } from "@/lib/utils";
 
 type LogoSize = "xs" | "sm" | "md" | "lg" | "xl";
-type LogoVariant = "chevrons" | "spark" | "flame";
+/**
+ * Variants:
+ * - "flux"     → NOUVEAU logo officiel (wordmark "imotion", flèche-i gradient). Direction C.
+ * - "chevrons" / "spark" / "flame" → anciennes directions, conservées pour rétro-compat.
+ */
+type LogoVariant = "flux" | "chevrons" | "spark" | "flame";
 type LogoTone = "auto" | "light" | "dark" | "mono";
 
 interface LogoProps {
   size?: LogoSize;
+  /** Affiche le sous-titre "Creator Studio" à droite du wordmark. */
   showText?: boolean;
   variant?: LogoVariant;
   tone?: LogoTone;
   className?: string;
 }
 
-const sizeMap: Record<LogoSize, { mark: string; text: string; sub: string; gap: string }> = {
+/* ---------- Sizing ---------- */
+
+// Pour les variantes "mark only" (chevrons / spark / flame)
+const markSizeMap: Record<LogoSize, { mark: string; text: string; sub: string; gap: string }> = {
   xs: { mark: "h-6 w-6", text: "text-base", sub: "text-[9px]", gap: "gap-1.5" },
   sm: { mark: "h-8 w-8", text: "text-lg", sub: "text-[10px]", gap: "gap-2" },
   md: { mark: "h-10 w-10", text: "text-xl", sub: "text-[11px]", gap: "gap-2.5" },
@@ -20,7 +29,80 @@ const sizeMap: Record<LogoSize, { mark: string; text: string; sub: string; gap: 
   xl: { mark: "h-20 w-20", text: "text-5xl", sub: "text-sm", gap: "gap-4" },
 };
 
-/* ---------- Mark variants (each rendered in a 40x40 viewBox) ---------- */
+// Pour le wordmark "flux" (hauteur du SVG, qui inclut déjà le texte "motion")
+const fluxSizeMap: Record<LogoSize, { wordmark: string; sub: string; gap: string; subGap: string }> = {
+  xs: { wordmark: "h-5",  sub: "text-[8px]",  gap: "gap-2",   subGap: "ml-2" },
+  sm: { wordmark: "h-6",  sub: "text-[9px]",  gap: "gap-2.5", subGap: "ml-2.5" },
+  md: { wordmark: "h-8",  sub: "text-[10px]", gap: "gap-3",   subGap: "ml-3" },
+  lg: { wordmark: "h-12", sub: "text-xs",     gap: "gap-4",   subGap: "ml-4" },
+  xl: { wordmark: "h-16", sub: "text-sm",     gap: "gap-5",   subGap: "ml-5" },
+};
+
+/* ---------- NEW: Flux wordmark (Direction C) ---------- */
+/**
+ * Wordmark "imotion" où le "i" est remplacé par une flèche verticale
+ * avec gradient orange→rouge (Stripe / Resend / Ramp style).
+ * ViewBox basé sur la hauteur (40), largeur auto-ajustée par les glyphes.
+ */
+function WordmarkFlux({ tone, id }: { tone: LogoTone; id: string }) {
+  // Couleurs adaptatives
+  const wordColor =
+    tone === "light" ? "#FFFFFF"
+    : tone === "mono" ? "currentColor"
+    : "#0F0D0B"; // dark/auto → ink
+
+  const useGradient = tone !== "mono";
+  const arrowFill = useGradient ? `url(#${id}-arrow)` : "currentColor";
+
+  return (
+    <svg
+      viewBox="0 0 220 56"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-label="imotion"
+      className="h-full w-auto"
+    >
+      <defs>
+        <linearGradient id={`${id}-arrow`} x1="0" y1="56" x2="0" y2="0" gradientUnits="userSpaceOnUse">
+          {/* base = rouge coral, pointe = orange ambre (flux montant) */}
+          <stop offset="0%" stopColor="#D63B1A" />
+          <stop offset="55%" stopColor="#EE6B1F" />
+          <stop offset="100%" stopColor="#F5A524" />
+        </linearGradient>
+      </defs>
+
+      {/* ---- Flèche verticale qui remplace le "i" ----
+          Tige + tête de flèche + petit point base (rappel du point du i). */}
+      <g>
+        {/* point base (souvenir du point du i) */}
+        <circle cx="14" cy="52" r="2.6" fill={arrowFill} />
+        {/* tige */}
+        <rect x="11.4" y="14" width="5.2" height="32" rx="1.2" fill={arrowFill} />
+        {/* tête de flèche (chevron up) */}
+        <path
+          d="M14 4 L23.5 16.5 L18 16.5 L18 20 L10 20 L10 16.5 L4.5 16.5 Z"
+          fill={arrowFill}
+        />
+      </g>
+
+      {/* ---- "motion" en wordmark gras ---- */}
+      <text
+        x="30"
+        y="46"
+        fontFamily='"General Sans", "Inter", system-ui, -apple-system, sans-serif'
+        fontWeight="700"
+        fontSize="44"
+        letterSpacing="-1.5"
+        fill={wordColor}
+      >
+        motion
+      </text>
+    </svg>
+  );
+}
+
+/* ---------- Legacy marks (kept for backward compat) ---------- */
 
 function MarkChevrons({ tone }: { tone: LogoTone }) {
   const useMono = tone === "mono";
@@ -46,18 +128,8 @@ function MarkSpark({ tone, id }: { tone: LogoTone; id: string }) {
           <stop offset="100%" stopColor="#F08A00" />
         </linearGradient>
       </defs>
-      {/* Rounded square frame */}
-      <rect
-        x="2.5"
-        y="2.5"
-        width="35"
-        height="35"
-        rx="9"
-        fill={useMono ? "currentColor" : `url(#${id}-g)`}
-      />
-      {/* "I" stem */}
+      <rect x="2.5" y="2.5" width="35" height="35" rx="9" fill={useMono ? "currentColor" : `url(#${id}-g)`} />
       <rect x="17.5" y="9" width="5" height="17" rx="2" fill={tone === "dark" ? "#0F0D0B" : "#FFFFFF"} />
-      {/* Spark dot */}
       <circle cx="20" cy="30.5" r="2.5" fill={tone === "dark" ? "#0F0D0B" : "#FFFFFF"} />
     </svg>
   );
@@ -74,12 +146,10 @@ function MarkFlame({ tone, id }: { tone: LogoTone; id: string }) {
           <stop offset="100%" stopColor="#FFC04D" />
         </linearGradient>
       </defs>
-      {/* Flame silhouette — organic, asymmetrical */}
       <path
         d="M21.4 4.2c-.6 4.4-3.5 6.4-6 9.2-3.4 3.7-5.4 7.3-5.4 11.6C10 31.4 14.5 36 20.2 36c5.7 0 10.2-4.5 10.2-10.4 0-4-1.6-7.1-4-9.4 1.4 3.6.5 6.4-1.6 7.4 1.1-3.4-.3-7-2.6-9.5-2.1-2.3-3.2-5.8-.8-9.9z"
         fill={useMono ? "currentColor" : `url(#${id}-flame)`}
       />
-      {/* Inner highlight */}
       <path
         d="M19 22c-.6 2.4 0 4.6 1.6 5.6.6.4 1.4.4 1.9-.1.9-.9.6-2.4-.4-3.5-.9-1-1.6-1.3-3.1-2z"
         fill={tone === "dark" ? "#0F0D0B" : "#FFFFFF"}
@@ -89,18 +159,51 @@ function MarkFlame({ tone, id }: { tone: LogoTone; id: string }) {
   );
 }
 
+/* ---------- Component ---------- */
+
 export function Logo({
   size = "md",
   showText = false,
-  variant = "chevrons",
+  variant = "flux", // ← NOUVEAU défaut : wordmark Flux
   tone = "auto",
   className,
 }: LogoProps) {
-  const s = sizeMap[size];
   const uid = `logo-${variant}`;
 
-  // Auto tone follows current foreground (works on light & dark layouts)
-  const textColor = tone === "dark" ? "text-foreground" : tone === "light" ? "text-white" : "text-foreground";
+  // Sub-label color (Creator Studio)
+  const subColor =
+    tone === "light" ? "text-white/70"
+    : tone === "mono" ? "text-current opacity-70"
+    : "text-primary"; // accent coral pour matcher la maquette
+
+  /* ---------- Variant FLUX (nouveau logo officiel) ---------- */
+  if (variant === "flux") {
+    const s = fluxSizeMap[size];
+    return (
+      <div className={cn("inline-flex items-center", s.gap, className)}>
+        <div className={cn("shrink-0", s.wordmark)}>
+          <WordmarkFlux tone={tone} id={uid} />
+        </div>
+        {showText && (
+          <div
+            className={cn(
+              "flex flex-col leading-tight font-display font-semibold uppercase tracking-[0.18em]",
+              s.sub,
+              subColor,
+              "border-l border-current/20 pl-3"
+            )}
+          >
+            <span>Creator</span>
+            <span>Studio</span>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  /* ---------- Legacy variants ---------- */
+  const s = markSizeMap[size];
+  const textColor = tone === "light" ? "text-white" : "text-foreground";
 
   return (
     <div className={cn("inline-flex items-center", s.gap, className)}>
@@ -111,12 +214,7 @@ export function Logo({
       </div>
       {showText && (
         <div className={cn("flex flex-col leading-none", textColor)}>
-          <span
-            className={cn(
-              "font-display font-semibold tracking-tight",
-              s.text
-            )}
-          >
+          <span className={cn("font-display font-semibold tracking-tight", s.text)}>
             IMOTION
           </span>
           <span
