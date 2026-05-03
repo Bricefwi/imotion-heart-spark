@@ -21,6 +21,9 @@ import { MarketingLayout } from "@/components/layouts/MarketingLayout";
 const MarketingHome = lazy(() => import("@/pages/marketing/Home"));
 const MarketingAuditGratuit = lazy(() => import("@/pages/marketing/AuditGratuit"));
 const MarketingDashboard = lazy(() => import("@/pages/marketing/Dashboard"));
+const MarketingMethode = lazy(() => import("@/pages/marketing/Methode"));
+const MarketingCasClients = lazy(() => import("@/pages/marketing/CasClients"));
+const MarketingVeille = lazy(() => import("@/pages/marketing/Veille"));
 const MarketingPlaceholder = lazy(() => import("@/pages/marketing/Placeholder"));
 
 // Public pages (lazy)
