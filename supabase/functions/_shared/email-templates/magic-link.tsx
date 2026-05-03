@@ -1,63 +1,33 @@
-/// <reference types="npm:@types/react@18.3.1" />
-
 import * as React from 'npm:react@18.3.1'
-
-import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Heading,
-  Html,
-  Preview,
-  Section,
-  Text,
-} from 'npm:@react-email/components@0.0.22'
+import { BrandedEmailLayout } from './_layout.tsx'
+import { Heading, Paragraph, Cta } from './_blocks.tsx'
 
 interface MagicLinkEmailProps {
-  siteName: string
-  confirmationUrl: string
+  magicLink?: string
+  siteName?: string
+  siteUrl?: string
 }
 
 export const MagicLinkEmail = ({
+  magicLink = '#',
   siteName,
-  confirmationUrl,
+  siteUrl,
 }: MagicLinkEmailProps) => (
-  <Html lang="fr" dir="ltr">
-    <Head />
-    <Preview>Votre lien de connexion IMOTION Creator Studio</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Section style={header}>
-          <Text style={logoText}>IMOTION Creator Studio</Text>
-        </Section>
-        <Heading style={h1}>Connexion rapide</Heading>
-        <Text style={text}>
-          Cliquez sur le bouton ci-dessous pour vous connecter à votre espace IMOTION Creator Studio. Ce lien expirera dans quelques minutes.
-        </Text>
-        <Section style={buttonContainer}>
-          <Button style={button} href={confirmationUrl}>
-            Me connecter
-          </Button>
-        </Section>
-        <Text style={footer}>
-          Si vous n'avez pas demandé ce lien, vous pouvez ignorer cet email en toute sécurité.
-        </Text>
-        <Text style={footerBrand}>© IMOTION Creator Studio — Votre partenaire digital</Text>
-      </Container>
-    </Body>
-  </Html>
+  <BrandedEmailLayout
+    preview="Votre lien de connexion sécurisé"
+    siteName={siteName}
+    siteUrl={siteUrl}
+  >
+    <Heading emoji="🔐">Connectez-vous en un clic</Heading>
+    <Paragraph>Bonjour,</Paragraph>
+    <Paragraph>
+      Voici votre lien de connexion sécurisé. Cliquez sur le bouton ci-dessous
+      pour accéder à votre espace IMOTION Creator Studio.
+    </Paragraph>
+    <Cta href={magicLink}>Me connecter</Cta>
+    <Paragraph>
+      Ce lien expire dans 1 heure. Si vous n'êtes pas à l'origine de cette demande,
+      ignorez cet email.
+    </Paragraph>
+  </BrandedEmailLayout>
 )
-
-export default MagicLinkEmail
-
-const main = { backgroundColor: '#ffffff', fontFamily: "'Plus Jakarta Sans', Arial, sans-serif" }
-const container = { padding: '40px 25px 30px' }
-const header = { textAlign: 'center' as const, marginBottom: '24px' }
-const logoText = { fontSize: '28px', fontWeight: 'bold' as const, color: '#D63B1A', margin: '0' }
-const h1 = { fontSize: '24px', fontWeight: 'bold' as const, color: '#141B2B', margin: '0 0 16px' }
-const text = { fontSize: '15px', color: '#6B7280', lineHeight: '1.6', margin: '0 0 20px' }
-const buttonContainer = { textAlign: 'center' as const, margin: '8px 0 32px' }
-const button = { backgroundColor: '#D63B1A', color: '#ffffff', fontSize: '15px', fontWeight: '600' as const, borderRadius: '16px', padding: '14px 28px', textDecoration: 'none' }
-const footer = { fontSize: '13px', color: '#9CA3AF', margin: '0 0 8px' }
-const footerBrand = { fontSize: '12px', color: '#D1D5DB', margin: '16px 0 0', textAlign: 'center' as const }
