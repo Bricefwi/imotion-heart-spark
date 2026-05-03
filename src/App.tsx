@@ -16,6 +16,7 @@ import { ClientLayout } from "@/components/layouts/ClientLayout";
 import { ConsultantLayout } from "@/components/layouts/ConsultantLayout";
 import { AdminLayout } from "@/components/layouts/AdminLayout";
 import { MarketingLayout } from "@/components/layouts/MarketingLayout";
+import { CrossAppTransition } from "@/components/cross-app/CrossAppTransition";
 
 // Marketing pages (lazy)
 const MarketingHome = lazy(() => import("@/pages/marketing/Home"));
