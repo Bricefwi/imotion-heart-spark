@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Lightbulb, ArrowRight, ExternalLink, Target, Rocket, TrendingUp, Link as LinkIcon, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
-import { getMarketingAuditUrl } from "@/lib/marketing-url";
+import { getMarketingAuditUrl, getMarketingHandoffUrl } from "@/lib/marketing-url";
 import type { ClariviSnapshot, LovelibAudit } from "@/hooks/useClient360";
 
 type RecKind = "marketing" | "build" | "bridge";
@@ -80,7 +80,7 @@ export function CrossSellRecommendations({ userId, clarivi, audits }: Props) {
         body: `Votre score marketing est de ${lastAudit?.score}/100. Sans plan d'acquisition, le futur site risque de ne pas générer le pipeline attendu.`,
         cta: {
           label: "Demander une stratégie marketing",
-          href: getMarketingAuditUrl({ userId, path: "/strategy" }),
+          href: getMarketingHandoffUrl("/strategy", { userId }),
           external: true,
         },
       });
@@ -108,7 +108,7 @@ export function CrossSellRecommendations({ userId, clarivi, audits }: Props) {
         body: "Votre site est en ligne. Un plan d'acquisition (SEO, paid, contenu) est ce qui sépare un site d'une machine à leads.",
         cta: {
           label: "Planifier ma croissance",
-          href: getMarketingAuditUrl({ userId, path: "/growth" }),
+          href: getMarketingHandoffUrl("/growth", { userId }),
           external: true,
         },
       });
