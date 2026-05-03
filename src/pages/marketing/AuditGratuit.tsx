@@ -1,14 +1,20 @@
-import { useNavigate } from "react-router-dom";
+/**
+ * Marketing — Audit gratuit (rapatriée depuis lovelib).
+ * Loss-leader : audit 100% gratuit. CTA → /register?next=/marketing/account.
+ */
+import { Helmet } from "react-helmet";
+import { Link, useNavigate } from "react-router-dom";
 import { CheckCircle2, Zap, TrendingUp, Target, ArrowRight, Brain } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { BRAND } from "@/lib/brand";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { buildSEO } from "@/lib/marketing/seo";
 
 const benefits = [
-  { icon: Zap, title: "Analyse rapide", desc: "Collecte automatique des données de votre site en 10 minutes." },
-  { icon: Brain, title: "17 agents IA spécialisés", desc: "Technologie MANUS IA 2.0 pour une analyse complète." },
-  { icon: Target, title: "Opportunités identifiées", desc: "Rapport préliminaire avec quick wins et axes d'amélioration." },
-  { icon: TrendingUp, title: "4 scénarios chiffrés", desc: "Projections ROI : ambitieux, raisonné, opportuniste, mix." },
+  { icon: Zap, title: "Analyse rapide", description: "Collecte automatique des données de votre site en 10 minutes." },
+  { icon: Brain, title: "17 agents IA spécialisés", description: "Technologie MANUS IA 2.0 pour une analyse complète." },
+  { icon: Target, title: "Opportunités identifiées", description: "Rapport préliminaire avec quick wins et axes d'amélioration." },
+  { icon: TrendingUp, title: "4 scénarios chiffrés", description: "Projections ROI : ambitieux, raisonné, opportuniste, mix." },
 ];
 
 const whatYouGet = [
@@ -19,60 +25,81 @@ const whatYouGet = [
   "Estimation ROI et recommandations prioritaires",
 ];
 
+const freeFeatures = [
+  "Analyse technique de base",
+  "Opportunités quick wins",
+  "4 scénarios d'évolution",
+  "Estimation ROI préliminaire",
+];
+
+const premiumFeatures = [
+  "17 agents IA orchestrés (MANUS IA 2.0)",
+  "Analyse approfondie (CRM, Analytics, Ads)",
+  "Plan stratégique 12-24 mois",
+  "Roadmap trimestrielle détaillée",
+  "Séance Q&A + itération 30 jours",
+  "Garantie ZÉRO hallucination (95%+ confiance)",
+];
+
 export default function MarketingAuditGratuit() {
   const navigate = useNavigate();
+  const seo = buildSEO({
+    title: "Audit Digital Gratuit – IMOTION",
+    description:
+      "Audit digital gratuit en 10 minutes. Analyse IA avec 17 agents spécialisés. Rapport préliminaire, opportunités et scénarios chiffrés.",
+    url: "/marketing/audit-gratuit",
+  });
 
   return (
     <>
+      <Helmet>
+        <title>{seo.title}</title>
+        <meta name="description" content={seo.description} />
+        <link rel="canonical" href={seo.canonical} />
+      </Helmet>
 
       <main className="container py-20 md:py-28">
-        {/* Hero */}
-        <div className="text-center max-w-4xl mx-auto mb-20">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6 border border-primary/20 bg-primary/5 text-sm font-semibold text-primary">
-            <Zap className="w-4 h-4" /> 100% gratuit • Sans engagement
-          </div>
-
+        <div className="text-center mb-16 max-w-4xl mx-auto">
+          <Badge className="mb-6 px-4 py-1.5">
+            <Zap className="mr-2 h-4 w-4" /> 100% Gratuit • Sans Engagement
+          </Badge>
           <h1 className="text-5xl md:text-6xl font-bold mb-6">
-            Audit <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">marketing gratuit</span>
+            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              Audit digital gratuit
+            </span>
           </h1>
-
           <p className="text-lg md:text-xl text-muted-foreground mb-8">
             Découvrez le potentiel inexploité de votre site web en <strong>10 minutes</strong>.
             Notre IA analyse votre présence digitale et identifie vos opportunités de croissance.
           </p>
-
-          <Button size="lg" variant="flame" onClick={() => navigate("/register?next=/marketing/audit-gratuit")} className="text-base px-8 py-6">
-            Démarrer mon audit gratuit
-            <ArrowRight className="ml-2 w-5 h-5" />
+          <Button size="lg" variant="flame" onClick={() => navigate("/register?next=/marketing/account/new-audit")}>
+            Démarrer mon audit gratuit <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
-
-          <p className="text-sm text-muted-foreground mt-4">Résultats envoyés par email • Aucun engagement</p>
+          <p className="text-sm text-muted-foreground mt-4">Résultats par email • Aucun engagement</p>
         </div>
 
-        {/* Benefits */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-20">
+        {/* Bénéfices */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
           {benefits.map((b) => (
-            <Card key={b.title} className="p-6 text-center hover:border-primary/40 hover:shadow-lg transition-all">
-              <div className="w-14 h-14 rounded-full mx-auto mb-4 flex items-center justify-center bg-gradient-to-br from-primary/15 to-secondary/15">
-                <b.icon className="w-7 h-7 text-primary" />
+            <Card key={b.title} className="border-2 hover:border-primary/40 hover:shadow-lg transition-all text-center p-6">
+              <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center bg-gradient-to-br from-primary/15 to-secondary/15">
+                <b.icon className="w-8 h-8 text-primary" />
               </div>
               <h3 className="text-lg font-bold mb-2">{b.title}</h3>
-              <p className="text-sm text-muted-foreground">{b.desc}</p>
+              <p className="text-sm text-muted-foreground">{b.description}</p>
             </Card>
           ))}
         </div>
 
-        {/* What you get */}
+        {/* Ce que vous obtenez */}
         <div className="max-w-4xl mx-auto mb-20">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-8">
-            Ce que vous obtiendrez
-          </h2>
-          <Card className="p-8 md:p-10">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-10">Ce que vous obtenez</h2>
+          <Card className="p-8">
             <ul className="space-y-4">
               {whatYouGet.map((item) => (
                 <li key={item} className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 flex-shrink-0 mt-0.5 text-success" />
-                  <p className="text-base md:text-lg">{item}</p>
+                  <CheckCircle2 className="w-6 h-6 flex-shrink-0 mt-0.5 text-primary" />
+                  <span className="text-foreground text-lg">{item}</span>
                 </li>
               ))}
             </ul>
@@ -81,71 +108,59 @@ export default function MarketingAuditGratuit() {
 
         {/* Comparison */}
         <div className="max-w-5xl mx-auto mb-20">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-10">
-            Audit gratuit vs audit premium
-          </h2>
-
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-10">Audit gratuit vs Audit premium</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Gratuit */}
             <Card className="p-8">
               <div className="text-center mb-6">
                 <h3 className="text-2xl font-bold mb-2">Audit gratuit</h3>
                 <p className="text-4xl font-extrabold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">0€</p>
-                <p className="text-sm text-muted-foreground mt-2">Analyse rapide (10 min) • 5 agents IA • Rapport préliminaire</p>
+                <p className="text-sm text-muted-foreground mt-2">Analyse rapide (10 min) • 5 agents IA</p>
               </div>
               <ul className="space-y-3 mb-6">
-                {["Analyse technique de base", "Opportunités quick wins", "4 scénarios d'évolution", "Estimation ROI préliminaire"].map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-sm">
-                    <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5 text-success" /> {f}
+                {freeFeatures.map((f) => (
+                  <li key={f} className="flex items-start gap-2">
+                    <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5 text-primary" />
+                    <span className="text-sm">{f}</span>
                   </li>
                 ))}
               </ul>
-              <Button className="w-full" variant="outline" onClick={() => navigate("/register?next=/marketing/audit-gratuit")}>
+              <Button className="w-full" variant="outline" onClick={() => navigate("/register?next=/marketing/account/new-audit")}>
                 Démarrer l'audit gratuit
               </Button>
             </Card>
-
-            {/* Premium */}
-            <Card className="p-8 relative border-2 border-primary bg-gradient-to-br from-primary/5 to-secondary/5">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold text-white bg-gradient-to-r from-primary to-secondary shadow-md">
-                Recommandé
-              </div>
+            <Card className="p-8 border-2 border-primary/40 bg-gradient-to-br from-primary/5 to-secondary/5 relative">
+              <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">Recommandé</Badge>
               <div className="text-center mb-6">
                 <h3 className="text-2xl font-bold mb-2">Audit premium</h3>
                 <p className="text-4xl font-extrabold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Sur devis</p>
-                <p className="text-sm text-muted-foreground mt-2">Analyse complète (2 semaines) • 17 agents IA • Rapport ultra-détaillé</p>
+                <p className="text-sm text-muted-foreground mt-2">Analyse complète (2 sem.) • 17 agents IA</p>
               </div>
               <ul className="space-y-3 mb-6">
-                {[
-                  <><strong>17 agents IA orchestrés</strong> (MANUS IA 2.0)</>,
-                  "Analyse approfondie (CRM, Analytics, Ads)",
-                  "Plan stratégique 12-24 mois",
-                  "Roadmap trimestrielle détaillée",
-                  "Séance Q&A + itération 30 jours",
-                  "Garantie ZÉRO hallucination (95%+ confiance)",
-                ].map((f, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm">
-                    <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5 text-primary" /> {f}
+                {premiumFeatures.map((f) => (
+                  <li key={f} className="flex items-start gap-2">
+                    <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5 text-primary" />
+                    <span className="text-sm">{f}</span>
                   </li>
                 ))}
               </ul>
-              <Button variant="flame" className="w-full" onClick={() => navigate("/contact")}>
-                Demander un devis
+              <Button asChild className="w-full" variant="flame">
+                <Link to="/contact">Demander un devis</Link>
               </Button>
             </Card>
           </div>
         </div>
 
         {/* CTA Final */}
-        <div className="text-center max-w-2xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Prêt à découvrir votre potentiel ?</h2>
-          <p className="text-lg text-muted-foreground mb-8">
-            Lancez votre audit gratuit maintenant et recevez vos résultats par email en 10 minutes.
-          </p>
-          <Button size="lg" variant="flame" onClick={() => navigate("/register?next=/marketing/audit-gratuit")} className="text-base px-8 py-6">
-            Démarrer mon audit gratuit
-            <ArrowRight className="ml-2 w-5 h-5" />
-          </Button>
+        <div className="text-center">
+          <Card className="p-10 md:p-14 bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20 max-w-4xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Prêt à découvrir votre potentiel ?</h2>
+            <p className="text-lg text-muted-foreground mb-8">
+              Lancez votre audit gratuit et recevez vos résultats par email en 10 minutes.
+            </p>
+            <Button size="lg" variant="flame" onClick={() => navigate("/register?next=/marketing/account/new-audit")}>
+              Démarrer mon audit gratuit <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </Card>
         </div>
       </main>
     </>
