@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { mintLovelibBridgeToken, appendBridgeToken } from "@/lib/lovelib-bridge";
 
 /**
  * Cross-subdomain SSO handoff page.
@@ -50,7 +51,6 @@ export default function AuthHandoff() {
     if (loading) return;
 
     if (!user) {
-      // Bounce to login, come back here after sign-in.
       const next = `/auth/handoff?to=${encodeURIComponent(target)}`;
       navigate(`/login?next=${encodeURIComponent(next)}`, { replace: true });
       return;
@@ -62,11 +62,16 @@ export default function AuthHandoff() {
       return () => clearTimeout(t);
     }
 
-    // Give the SSO cookie bridge a tick to flush the cookie before leaving.
-    const t = setTimeout(() => {
-      window.location.replace(target);
-    }, 250);
-    return () => clearTimeout(t);
+    let cancelled = false;
+    (async () => {
+      // Mint a one-shot bridge token (≤60s) so lovelib can sign the user in
+      // even when the cross-subdomain cookie is blocked (Safari ITP, etc.).
+      const bridge = await mintLovelibBridgeToken();
+      if (cancelled) return;
+      const finalUrl = bridge ? appendBridgeToken(target, bridge.token) : target;
+      setTimeout(() => window.location.replace(finalUrl), 150);
+    })();
+    return () => { cancelled = true; };
   }, [loading, user, target, navigate]);
 
   return (
