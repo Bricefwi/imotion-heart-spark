@@ -364,3 +364,164 @@
   from { width: 100%; }
   to { width: 0%; }
 }
+
+/* ============================================================
+   IMOTION Brand v2 — Signature utilities
+   Petits utilitaires distinctifs qui matérialisent l'ADN visuel.
+   ============================================================ */
+
+/* Ember card hover : halo coral diffus qui pulse au survol */
+.imo-ember-card {
+  position: relative;
+  isolation: isolate;
+}
+.imo-ember-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--imo-gradient-flame);
+  opacity: 0;
+  transition: opacity var(--imo-duration-slow) var(--imo-ease-out);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
+}
+.imo-ember-card::after {
+  content: "";
+  position: absolute;
+  inset: -20px;
+  background: radial-gradient(60% 60% at 50% 100%, hsl(var(--imo-coral-500) / 0.14) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity var(--imo-duration-slower) var(--imo-ease-glide);
+  pointer-events: none;
+  z-index: -1;
+}
+.imo-ember-card:hover::before {
+  opacity: 0.55;
+}
+.imo-ember-card:hover::after {
+  opacity: 1;
+}
+.imo-ember-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--imo-shadow-lg), var(--imo-shadow-glow);
+}
+
+/* Ember pulse : indicateur "live" coral qui pulse */
+@keyframes imo-ember-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 hsl(var(--imo-coral-500) / 0.5);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 6px hsl(var(--imo-coral-500) / 0);
+    transform: scale(1.05);
+  }
+}
+.imo-ember-pulse {
+  animation: imo-ember-pulse 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Shimmer flame : passage de lumière sur les CTA premium */
+@keyframes imo-flame-shimmer {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+.imo-flame-shimmer {
+  background-size: 200% 100%;
+  animation: imo-flame-shimmer 4s ease-in-out infinite;
+}
+
+/* Vertical accent bar : ligne fine qui cite le "|" du wordmark */
+.imo-vertical-bar {
+  position: relative;
+}
+.imo-vertical-bar::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 60%;
+  background: var(--imo-gradient-coral);
+  border-radius: 999px;
+}
+
+/* Editorial separator : bande mince + texte mono, façon "section index" */
+.imo-editorial-rule {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-family: var(--imo-font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: hsl(var(--imo-fg-muted));
+}
+.imo-editorial-rule::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, hsl(var(--imo-ink-300)) 0%, transparent 100%);
+}
+
+/* Grain subtil — texture papier sur les surfaces claires */
+.imo-grain {
+  position: relative;
+  isolation: isolate;
+}
+.imo-grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+}
+.imo-grain > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Stamp wobble : petite oscillation pour les badges tampons */
+@keyframes imo-stamp-wobble {
+  0%, 100% { transform: rotate(-2deg); }
+  50%      { transform: rotate(-1deg) scale(1.03); }
+}
+.imo-stamp-wobble {
+  animation: imo-stamp-wobble 5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+}
+
+/* Display heading style : tracking serré + leading court typique de la marque */
+.imo-display {
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+}
+
+/* Ruban coral : barre à gauche d'un bloc (comme les documents commerciaux) */
+.imo-ribbon-left {
+  position: relative;
+  padding-left: 1.5rem;
+}
+.imo-ribbon-left::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.25rem;
+  bottom: 0.25rem;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--imo-gradient-coral);
+}

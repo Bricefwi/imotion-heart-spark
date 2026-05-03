@@ -1,13 +1,10 @@
 import { useEffect } from "react";
 import { HeroSection } from "@/components/landing/HeroSection";
-import { TrustBar } from "@/components/landing/TrustBar";
-import { StatsSection } from "@/components/landing/StatsSection";
-import { HomeHowItWorks } from "@/components/landing/HomeHowItWorks";
-import { MarketingTrackSection } from "@/components/landing/MarketingTrackSection";
-import { MiniPreviewCards } from "@/components/landing/MiniPreviewCards";
-import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
+import { HowItWorksImotion } from "@/components/landing/HowItWorksImotion";
+import { DocumentsPreview } from "@/components/landing/DocumentsPreview";
+import { PricingSection } from "@/components/landing/PricingSection";
+import { CTASectionImotion } from "@/components/landing/CTASectionImotion";
 import { FAQSection } from "@/components/landing/FAQSection";
-import { CTASection } from "@/components/landing/CTASection";
 import { SEOHead, organizationSchema, websiteSchema, softwareSchema, faqSchema } from "@/components/SEOHead";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
@@ -17,7 +14,6 @@ export default function Index() {
     let rafId: number | null = null;
 
     try {
-      // Dynamic import to avoid SSR/build issues
       import("lenis").then((mod) => {
         const Lenis = mod.default;
         lenis = new Lenis({ duration: 1.2, easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
@@ -42,24 +38,21 @@ export default function Index() {
   return (
     <div className="overflow-hidden">
       <SEOHead
-        title="IMOTION Creator Studio — Transformez votre vision en réalité digitale"
-        description="Générez gratuitement votre cahier des charges grâce à notre IA conversationnelle. 7 phases de découverte, un CDC professionnel en 45 minutes."
+        title="Clarivi — Audit IA white-label pour agences digitales"
+        description="Embarquez un audit IA dans votre tunnel commercial. CDC + devis pré-rempli en 6 minutes, brandés à votre agence. 14 jours d'essai gratuit, sans CB."
         canonical="/"
         jsonLd={[organizationSchema, websiteSchema, softwareSchema, faqSchema]}
       />
       <ErrorBoundary>
         <HeroSection />
       </ErrorBoundary>
-      <TrustBar />
-      <StatsSection />
-      <HomeHowItWorks />
-      <MarketingTrackSection />
-      <MiniPreviewCards />
-      <TestimonialsSection />
+      <HowItWorksImotion />
+      <DocumentsPreview />
+      <PricingSection />
       <ErrorBoundary>
         <FAQSection />
       </ErrorBoundary>
-      <CTASection />
+      <CTASectionImotion />
     </div>
   );
 }
