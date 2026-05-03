@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,11 +13,16 @@ import { Progress } from "@/components/ui/progress";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import {
-  User, Building2, Globe, Target, Wallet, Wrench, Users, ArrowRight, ArrowLeft, Check, Sparkles,
+  Compass, User, Building2, Globe, Target, Wallet, Wrench, Users, ArrowRight, ArrowLeft, Check, Sparkles,
+  TrendingUp, Rocket,
 } from "lucide-react";
 import confetti from "canvas-confetti";
+import { getMarketingHandoffUrl } from "@/lib/marketing-url";
+
+type Track = "marketing" | "build" | null;
 
 const STEPS = [
+  { icon: Compass, label: "Parcours", title: "Quel est votre besoin ?" },
   { icon: User, label: "Vous", title: "Faisons connaissance" },
   { icon: Building2, label: "Entreprise", title: "Votre entreprise" },
   { icon: Globe, label: "Digital", title: "Présence digitale" },
