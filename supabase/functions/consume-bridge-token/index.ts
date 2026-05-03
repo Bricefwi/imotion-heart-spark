@@ -27,7 +27,7 @@ Deno.serve(async (req) => {
 
   const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
   const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  const SECRET = Deno.env.get("LOVELIB_BRIDGE_SECRET") ?? Deno.env.get("MARKETING_WEBHOOK_SECRET");
+  const { value: SECRET } = resolveBridgeSecret();
   if (!SUPABASE_URL || !SERVICE_ROLE || !SECRET) return json({ error: "server_not_configured" }, 500);
 
   let body: { token?: string };
