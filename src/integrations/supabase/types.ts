@@ -1518,6 +1518,66 @@ export type Database = {
         }
         Relationships: []
       }
+      mkt_company_verification_logs: {
+        Row: {
+          created_at: string
+          id: string
+          siret: string | null
+          user_id: string | null
+          verification_data: Json | null
+          verification_status: string
+          verification_type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          siret?: string | null
+          user_id?: string | null
+          verification_data?: Json | null
+          verification_status: string
+          verification_type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          siret?: string | null
+          user_id?: string | null
+          verification_data?: Json | null
+          verification_status?: string
+          verification_type?: string
+        }
+        Relationships: []
+      }
+      mkt_email_notifications: {
+        Row: {
+          email: string
+          id: string
+          metadata: Json | null
+          notification_type: string
+          provider_message_id: string | null
+          sent_at: string
+          user_id: string | null
+        }
+        Insert: {
+          email: string
+          id?: string
+          metadata?: Json | null
+          notification_type: string
+          provider_message_id?: string | null
+          sent_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          email?: string
+          id?: string
+          metadata?: Json | null
+          notification_type?: string
+          provider_message_id?: string | null
+          sent_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       mkt_faq_entries: {
         Row: {
           answer_html: string
@@ -1751,11 +1811,13 @@ export type Database = {
           error: string | null
           id: string
           phases: Json | null
+          plan: string | null
           progress: number | null
           results: Json | null
           started_at: string | null
           status: string
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           audit_id?: string | null
@@ -1765,11 +1827,13 @@ export type Database = {
           error?: string | null
           id?: string
           phases?: Json | null
+          plan?: string | null
           progress?: number | null
           results?: Json | null
           started_at?: string | null
           status?: string
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           audit_id?: string | null
@@ -1779,11 +1843,13 @@ export type Database = {
           error?: string | null
           id?: string
           phases?: Json | null
+          plan?: string | null
           progress?: number | null
           results?: Json | null
           started_at?: string | null
           status?: string
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -1794,6 +1860,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      mkt_rate_limit_buckets: {
+        Row: {
+          created_at: string
+          id: string
+          identifier: string
+          identifier_type: string
+          request_count: number
+          resource_type: string
+          window_start: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          identifier: string
+          identifier_type?: string
+          request_count?: number
+          resource_type: string
+          window_start?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          identifier?: string
+          identifier_type?: string
+          request_count?: number
+          resource_type?: string
+          window_start?: string
+        }
+        Relationships: []
       }
       mkt_rate_limits: {
         Row: {
@@ -2172,20 +2268,31 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          branding_config: Json
+          company_legal_name: string | null
           company_name: string | null
           company_role: string | null
+          company_siret: string | null
           company_size: string | null
+          company_website: string | null
           created_at: string | null
           email: string
+          firstname: string | null
+          free_audits_used: number
           full_name: string | null
           id: string
           industry: string | null
           last_seen_at: string | null
+          lastname: string | null
+          max_free_audits: number
           onboarding_completed: boolean | null
           onboarding_step: number | null
           phone: string | null
           preferences: Json | null
+          professional_email: string | null
           referrer: string | null
+          subscription_plan: string
+          trust_score: number
           updated_at: string | null
           utm_campaign: string | null
           utm_medium: string | null
@@ -2194,20 +2301,31 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          branding_config?: Json
+          company_legal_name?: string | null
           company_name?: string | null
           company_role?: string | null
+          company_siret?: string | null
           company_size?: string | null
+          company_website?: string | null
           created_at?: string | null
           email: string
+          firstname?: string | null
+          free_audits_used?: number
           full_name?: string | null
           id: string
           industry?: string | null
           last_seen_at?: string | null
+          lastname?: string | null
+          max_free_audits?: number
           onboarding_completed?: boolean | null
           onboarding_step?: number | null
           phone?: string | null
           preferences?: Json | null
+          professional_email?: string | null
           referrer?: string | null
+          subscription_plan?: string
+          trust_score?: number
           updated_at?: string | null
           utm_campaign?: string | null
           utm_medium?: string | null
@@ -2216,20 +2334,31 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          branding_config?: Json
+          company_legal_name?: string | null
           company_name?: string | null
           company_role?: string | null
+          company_siret?: string | null
           company_size?: string | null
+          company_website?: string | null
           created_at?: string | null
           email?: string
+          firstname?: string | null
+          free_audits_used?: number
           full_name?: string | null
           id?: string
           industry?: string | null
           last_seen_at?: string | null
+          lastname?: string | null
+          max_free_audits?: number
           onboarding_completed?: boolean | null
           onboarding_step?: number | null
           phone?: string | null
           preferences?: Json | null
+          professional_email?: string | null
           referrer?: string | null
+          subscription_plan?: string
+          trust_score?: number
           updated_at?: string | null
           utm_campaign?: string | null
           utm_medium?: string | null
@@ -2759,6 +2888,16 @@ export type Database = {
         Args: { p_project_id: string }
         Returns: string
       }
+      check_rate_limit: {
+        Args: {
+          p_identifier: string
+          p_identifier_type?: string
+          p_max_requests?: number
+          p_resource_type: string
+          p_window_minutes?: number
+        }
+        Returns: Json
+      }
       claim_sync_jobs: {
         Args: {
           _batch_size?: number
@@ -2855,6 +2994,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      increment_free_audits_used: {
+        Args: { p_user_id: string }
+        Returns: number
       }
       increment_post_views: { Args: { post_slug: string }; Returns: undefined }
       link_audit_to_project: {
