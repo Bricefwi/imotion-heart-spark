@@ -15,6 +15,13 @@ import { PublicLayout } from "@/components/layouts/PublicLayout";
 import { ClientLayout } from "@/components/layouts/ClientLayout";
 import { ConsultantLayout } from "@/components/layouts/ConsultantLayout";
 import { AdminLayout } from "@/components/layouts/AdminLayout";
+import { MarketingLayout } from "@/components/layouts/MarketingLayout";
+
+// Marketing pages (lazy)
+const MarketingHome = lazy(() => import("@/pages/marketing/Home"));
+const MarketingAuditGratuit = lazy(() => import("@/pages/marketing/AuditGratuit"));
+const MarketingDashboard = lazy(() => import("@/pages/marketing/Dashboard"));
+const MarketingPlaceholder = lazy(() => import("@/pages/marketing/Placeholder"));
 
 // Public pages (lazy)
 const Index = lazy(() => import("@/pages/Index"));
