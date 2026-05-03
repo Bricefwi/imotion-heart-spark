@@ -1811,11 +1811,13 @@ export type Database = {
           error: string | null
           id: string
           phases: Json | null
+          plan: string | null
           progress: number | null
           results: Json | null
           started_at: string | null
           status: string
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           audit_id?: string | null
@@ -1825,11 +1827,13 @@ export type Database = {
           error?: string | null
           id?: string
           phases?: Json | null
+          plan?: string | null
           progress?: number | null
           results?: Json | null
           started_at?: string | null
           status?: string
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           audit_id?: string | null
@@ -1839,11 +1843,13 @@ export type Database = {
           error?: string | null
           id?: string
           phases?: Json | null
+          plan?: string | null
           progress?: number | null
           results?: Json | null
           started_at?: string | null
           status?: string
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: [
           {
