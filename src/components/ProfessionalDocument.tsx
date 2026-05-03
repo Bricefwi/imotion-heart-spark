@@ -169,13 +169,14 @@ export function ProfessionalDocument({
         className="bg-white text-foreground shadow-lg rounded-lg overflow-hidden"
         style={{ fontFamily: "'Inter', 'Helvetica Neue', Arial, sans-serif" }}
       >
-        {/* Header bar */}
+        {/* Header bar — coral→amber flame gradient v2 */}
         <div
           className="px-8 py-5 flex items-center justify-between"
-          style={{ background: "linear-gradient(135deg, hsl(0 68% 51%), hsl(30 100% 49%))" }}
+          style={{ background: "linear-gradient(135deg, #F24E2A 0%, #FFA61F 100%)" }}
         >
           <div className="flex items-center gap-4">
             <img src={logoImotion} alt="IMOTION" className="h-10 w-auto" crossOrigin="anonymous" />
+            <span className="text-white/85 text-[11px] font-medium tracking-wide uppercase">Creator Studio</span>
           </div>
           <div className="text-right text-white/90 text-xs">
             <p className="font-semibold text-white text-sm">{documentName}</p>
