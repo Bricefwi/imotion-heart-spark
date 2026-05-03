@@ -110,25 +110,27 @@ export function ProfessionalDocument({
 
         for (let i = 1; i <= totalPages; i++) {
           pdf.setPage(i);
-          pdf.setDrawColor(211, 47, 47);
+          // Top rule — coral-600 #D63B1A
+          pdf.setDrawColor(214, 59, 26);
           pdf.setLineWidth(0.8);
           pdf.line(12, 10, pageWidth - 12, 10);
           pdf.setFontSize(7);
-          pdf.setTextColor(100, 100, 100);
+          pdf.setTextColor(94, 89, 83); // ink-500
           pdf.text(documentName, 12, 8);
           const headerRight = `${projectCode ? "Ref. " + projectCode + " | " : ""}${currentDate}`;
           pdf.text(headerRight, pageWidth - 12, 8, { align: "right" });
-          pdf.setDrawColor(245, 124, 0);
+          // Bottom rule — amber-500 #F08A00
+          pdf.setDrawColor(240, 138, 0);
           pdf.setLineWidth(0.5);
           pdf.line(12, pageHeight - 14, pageWidth - 12, pageHeight - 14);
           pdf.setFontSize(6.5);
-          pdf.setTextColor(160, 160, 160);
-          pdf.text("IMOTION Creator Studio | Document confidentiel", 12, pageHeight - 10);
+          pdf.setTextColor(142, 136, 129); // ink-400
+          pdf.text("IMOTION Creator Studio | Document confidentiel | imotion-conseils.fr", 12, pageHeight - 10);
           pdf.setFontSize(7);
-          pdf.setTextColor(100, 100, 100);
+          pdf.setTextColor(94, 89, 83);
           pdf.text(`Page ${i} / ${totalPages}`, pageWidth / 2, pageHeight - 10, { align: "center" });
           pdf.setFontSize(6.5);
-          pdf.setTextColor(160, 160, 160);
+          pdf.setTextColor(142, 136, 129);
           pdf.text(`v${version}`, pageWidth - 12, pageHeight - 10, { align: "right" });
         }
         pdf.save();
