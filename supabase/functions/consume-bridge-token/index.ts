@@ -11,6 +11,7 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { verifyBridgeToken } from "../_shared/bridge-token.ts";
+import { resolveBridgeSecret } from "../_shared/bridge-secret.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
