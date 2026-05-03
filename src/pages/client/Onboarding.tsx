@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,11 +13,16 @@ import { Progress } from "@/components/ui/progress";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import {
-  User, Building2, Globe, Target, Wallet, Wrench, Users, ArrowRight, ArrowLeft, Check, Sparkles,
+  Compass, User, Building2, Globe, Target, Wallet, Wrench, Users, ArrowRight, ArrowLeft, Check, Sparkles,
+  TrendingUp, Rocket,
 } from "lucide-react";
 import confetti from "canvas-confetti";
+import { getMarketingHandoffUrl } from "@/lib/marketing-url";
+
+type Track = "marketing" | "build" | null;
 
 const STEPS = [
+  { icon: Compass, label: "Parcours", title: "Quel est votre besoin ?" },
   { icon: User, label: "Vous", title: "Faisons connaissance" },
   { icon: Building2, label: "Entreprise", title: "Votre entreprise" },
   { icon: Globe, label: "Digital", title: "Présence digitale" },
@@ -58,6 +63,8 @@ export default function Onboarding() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
+  const [track, setTrack] = useState<Track>(null);
+  const [hydratedFromAudit, setHydratedFromAudit] = useState(false);
 
   const [data, setData] = useState({
     full_name: profile?.full_name || "",
@@ -82,6 +89,39 @@ export default function Onboarding() {
     additional_notes: "",
   });
 
+  // Pré-remplir depuis le dernier audit marketing du user (si existe).
+  useEffect(() => {
+    if (!user || hydratedFromAudit) return;
+    let cancelled = false;
+    (async () => {
+      const { data: audit } = await supabase
+        .from("marketing_audits")
+        .select("company_name, website_url, summary, recommendations, full_payload, score")
+        .eq("user_id", user.id)
+        .order("completed_at", { ascending: false, nullsFirst: false })
+        .limit(1)
+        .maybeSingle();
+      if (cancelled || !audit) { setHydratedFromAudit(true); return; }
+      setData((d) => ({
+        ...d,
+        company_name: d.company_name || audit.company_name || "",
+        website: d.website || audit.website_url || "",
+        objectives_detail: d.objectives_detail || (audit.summary
+          ? `D'après mon audit marketing : ${audit.summary}`
+          : ""),
+        additional_notes: d.additional_notes || (Array.isArray(audit.recommendations) && audit.recommendations.length > 0
+          ? `Recommandations marketing prioritaires :\n- ${audit.recommendations.slice(0, 5).map((r: unknown) => typeof r === "string" ? r : (r as { title?: string })?.title ?? JSON.stringify(r)).join("\n- ")}`
+          : ""),
+      }));
+      // Si un audit existe déjà, on présélectionne le parcours BUILD
+      // (l'utilisateur a déjà fait du marketing, il vient construire).
+      setTrack((t) => t ?? "build");
+      setHydratedFromAudit(true);
+      toast.success("On a pré-rempli votre profil grâce à votre audit marketing.");
+    })();
+    return () => { cancelled = true; };
+  }, [user, hydratedFromAudit]);
+
   const update = <K extends keyof typeof data>(field: K, value: (typeof data)[K]) => setData((d) => ({ ...d, [field]: value }));
   const toggleArray = (field: "objectives" | "current_tools", value: string) => {
     const arr = data[field];
@@ -91,8 +131,9 @@ export default function Onboarding() {
   const progress = ((step + 1) / STEPS.length) * 100;
 
   const canNext = () => {
-    if (step === 0) return data.full_name.trim().length > 0;
-    if (step === 1) return data.company_name.trim().length > 0 && data.industry.length > 0;
+    if (step === 0) return track !== null;
+    if (step === 1) return data.full_name.trim().length > 0;
+    if (step === 2) return data.company_name.trim().length > 0 && data.industry.length > 0;
     return true;
   };
 
@@ -141,6 +182,15 @@ export default function Onboarding() {
           ? data.objectives[0]
           : "Mon projet digital";
 
+      // Récupère le dernier audit pour l'attacher au discovery_data du projet
+      const { data: lastAudit } = await supabase
+        .from("marketing_audits")
+        .select("id, score, summary, recommendations, completed_at")
+        .eq("user_id", user.id)
+        .order("completed_at", { ascending: false, nullsFirst: false })
+        .limit(1)
+        .maybeSingle();
+
       const { data: newProject, error: projectError } = await supabase
         .from("projects")
         .insert({
@@ -148,6 +198,7 @@ export default function Onboarding() {
           client_id: user.id,
           status: "discovery_active",
           discovery_data: {
+            track,
             initial_description: data.objectives_detail || null,
             objectives: data.objectives,
             budget_range: data.budget_range,
@@ -161,6 +212,16 @@ export default function Onboarding() {
             social_linkedin: data.social_linkedin || null,
             social_instagram: data.social_instagram || null,
             social_facebook: data.social_facebook || null,
+            ...(lastAudit ? {
+              marketing_audit: {
+                audit_id: lastAudit.id,
+                score: lastAudit.score,
+                summary: lastAudit.summary,
+                recommendations: lastAudit.recommendations,
+                received_at: lastAudit.completed_at,
+                source: "onboarding_prefill",
+              },
+            } : {}),
           },
         })
         .select("id")
@@ -196,6 +257,22 @@ export default function Onboarding() {
   };
 
   const next = async () => {
+    // Step 0 = choix de parcours.
+    if (step === 0 && track === "marketing") {
+      // Persist le track + envoie l'utilisateur côté marketing via le handoff SSO.
+      // Au retour, le useEffect ci-dessus repré-rempli le formulaire à partir de l'audit.
+      try {
+        await supabase.from("profiles").update({
+          preferences: {
+            ...((profile?.preferences && typeof profile.preferences === "object" && !Array.isArray(profile.preferences)) ? profile.preferences : {}),
+            onboarding_track: "marketing",
+          },
+        }).eq("id", user!.id);
+      } catch (err) { console.warn("track persist failed", err); }
+      toast.info("Direction l'audit marketing — on garde votre place ici.");
+      window.location.href = getMarketingHandoffUrl("/audit-gratuit", { userId: user?.id });
+      return;
+    }
     if (step < STEPS.length - 1) {
       await saveStep();
       setStep(step + 1);
@@ -220,9 +297,68 @@ export default function Onboarding() {
     </button>
   );
 
+  const TrackCard = ({
+    value, icon: Icon, title, badge, desc,
+  }: { value: Track; icon: typeof Rocket; title: string; badge?: string; desc: string }) => (
+    <button
+      type="button"
+      onClick={() => value && setTrack(value)}
+      className={`text-left p-5 rounded-2xl border-2 transition-all w-full ${
+        track === value
+          ? "border-primary bg-primary/5 shadow-md"
+          : "border-border hover:border-primary/40 bg-card"
+      }`}
+    >
+      <div className="flex items-start gap-4">
+        <div className={`h-11 w-11 rounded-xl flex items-center justify-center shrink-0 ${
+          track === value ? "gradient-primary text-primary-foreground" : "bg-muted text-foreground"
+        }`}>
+          <Icon className="h-5 w-5" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <h3 className="font-display text-base font-semibold">{title}</h3>
+            {badge && <Badge variant="secondary" className="text-[10px]">{badge}</Badge>}
+          </div>
+          <p className="text-sm text-muted-foreground">{desc}</p>
+        </div>
+        {track === value && <Check className="h-5 w-5 text-primary shrink-0" />}
+      </div>
+    </button>
+  );
+
   const renderStep = () => {
     switch (step) {
       case 0:
+        return (
+          <div className="space-y-6">
+            <p className="text-muted-foreground">
+              Un seul parcours, deux portes d'entrée. Choisissez par où vous voulez commencer — vous pourrez basculer plus tard.
+            </p>
+            <div className="grid gap-3">
+              <TrackCard
+                value="marketing"
+                icon={TrendingUp}
+                title="Audit marketing gratuit"
+                badge="≈ 5 min"
+                desc="Diagnostic SEO, présence digitale, recommandations actionnables. Idéal si vous n'êtes pas sûr du périmètre du projet à construire."
+              />
+              <TrackCard
+                value="build"
+                icon={Rocket}
+                title="Construire mon projet (CDC IA)"
+                badge="≈ 45 min"
+                desc="Conversation guidée avec Marc, votre consultant IA, pour générer un cahier des charges professionnel en 7 phases."
+              />
+            </div>
+            {track === "marketing" && (
+              <div className="rounded-xl border bg-muted/40 p-3 text-xs text-muted-foreground">
+                On vous redirige vers l'audit ; à la fin, vos données reviennent automatiquement ici pour préremplir votre projet.
+              </div>
+            )}
+          </div>
+        );
+      case 1:
         return (
           <div className="space-y-6">
             <p className="text-muted-foreground">Commençons par apprendre à vous connaître.</p>
@@ -238,7 +374,7 @@ export default function Onboarding() {
             </div>
           </div>
         );
-      case 1:
+      case 2:
         return (
           <div className="space-y-6">
             <p className="text-muted-foreground">Parlez-nous de votre entreprise pour mieux vous accompagner.</p>
@@ -270,7 +406,7 @@ export default function Onboarding() {
             </div>
           </div>
         );
-      case 2:
+      case 3:
         return (
           <div className="space-y-6">
             <p className="text-muted-foreground">Votre présence en ligne actuelle nous aide à évaluer vos besoins.</p>
@@ -294,7 +430,7 @@ export default function Onboarding() {
             </div>
           </div>
         );
-      case 3:
+      case 4:
         return (
           <div className="space-y-6">
             <p className="text-muted-foreground">Quels sont vos objectifs principaux ? Sélectionnez tout ce qui s'applique.</p>
@@ -309,7 +445,7 @@ export default function Onboarding() {
             </div>
           </div>
         );
-      case 4:
+      case 5:
         return (
           <div className="space-y-6">
             <p className="text-muted-foreground">Ces informations nous permettent de calibrer notre proposition.</p>
@@ -337,7 +473,7 @@ export default function Onboarding() {
             </div>
           </div>
         );
-      case 5:
+      case 6:
         return (
           <div className="space-y-6">
             <p className="text-muted-foreground">Quels outils utilisez-vous actuellement ?</p>
@@ -352,7 +488,7 @@ export default function Onboarding() {
             </div>
           </div>
         );
-      case 6:
+      case 7:
         return (
           <div className="space-y-6">
             <p className="text-muted-foreground">Partagez vos sources d'inspiration pour nous aider à comprendre votre vision.</p>
