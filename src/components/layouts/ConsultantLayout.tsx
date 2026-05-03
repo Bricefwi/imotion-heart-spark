@@ -1,4 +1,6 @@
 import { Outlet } from "react-router-dom";
+import { CrossAppSwitcher } from "@/components/cross-app/CrossAppSwitcher";
+import { CrossAppOriginBanner } from "@/components/cross-app/CrossAppOriginBanner";
 import { Logo } from "@/components/Logo";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/hooks/useAuth";
@@ -91,8 +93,12 @@ export function ConsultantLayout() {
                 <Input placeholder="Rechercher un projet, client..." className="pl-9 w-72 h-9 bg-muted/50 border-transparent hover:border-border focus-visible:bg-background" />
               </div>
             </div>
-            <NotificationCenter />
+            <div className="flex items-center gap-2">
+              <CrossAppSwitcher current="build" size="compact" className="hidden sm:inline-flex" />
+              <NotificationCenter />
+            </div>
           </header>
+          <CrossAppOriginBanner />
           <main className="flex-1 p-6 bg-muted/20">
             <div className="page-enter">
               <Outlet />

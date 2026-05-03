@@ -1,4 +1,6 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
+import { CrossAppSwitcher } from "@/components/cross-app/CrossAppSwitcher";
+import { CrossAppOriginBanner } from "@/components/cross-app/CrossAppOriginBanner";
 import { Logo } from "@/components/Logo";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/hooks/useAuth";
@@ -480,6 +482,7 @@ export function AdminLayout() {
             </div>
 
             <div className="ml-auto flex items-center gap-1.5">
+              <CrossAppSwitcher current="build" size="compact" className="hidden md:inline-flex" />
               <Button
                 variant="ghost"
                 size="icon"
@@ -499,6 +502,7 @@ export function AdminLayout() {
               </Button>
             </div>
           </header>
+          <CrossAppOriginBanner />
 
           {/* Main content with page transition */}
           <main className="flex-1 p-6 bg-muted/20">

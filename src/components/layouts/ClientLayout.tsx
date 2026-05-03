@@ -1,4 +1,6 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
+import { CrossAppSwitcher } from "@/components/cross-app/CrossAppSwitcher";
+import { CrossAppOriginBanner } from "@/components/cross-app/CrossAppOriginBanner";
 import { Logo } from "@/components/Logo";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/hooks/useAuth";
@@ -146,7 +148,8 @@ export function ClientLayout() {
         <div className="flex-1 flex flex-col">
           <header className="h-16 flex items-center justify-between border-b border-border/40 px-5 bg-background/80 backdrop-blur-xl sticky top-0 z-10 transition-all duration-200">
             <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2">
+              <CrossAppSwitcher current="build" size="compact" className="hidden sm:inline-flex" />
               {isAdmin && (
                 <Button variant="ghost" size="sm" asChild className="rounded-[var(--radius-md)] text-muted-foreground hover:text-foreground">
                   <Link to="/admin/dashboard">
@@ -157,6 +160,7 @@ export function ClientLayout() {
               <NotificationCenter />
             </div>
           </header>
+          <CrossAppOriginBanner />
           <main className="flex-1 p-4 sm:p-6 bg-muted/20">
             <div className="page-enter">
               <Outlet />
