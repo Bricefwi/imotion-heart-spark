@@ -2,6 +2,7 @@ import { useRef, useCallback, useState, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import logoImotion from "@/assets/logo-imotion.png";
 import { Loader2 } from "lucide-react";
+import { RGB, GRADIENTS, BRAND } from "@/lib/brand-tokens";
 
 interface ProfessionalDocumentProps {
   content: string;
@@ -110,27 +111,27 @@ export function ProfessionalDocument({
 
         for (let i = 1; i <= totalPages; i++) {
           pdf.setPage(i);
-          // Top rule — coral-600 #D63B1A
-          pdf.setDrawColor(214, 59, 26);
+          // Top rule — coral-600 (token partagé)
+          pdf.setDrawColor(...RGB.coral600);
           pdf.setLineWidth(0.8);
           pdf.line(12, 10, pageWidth - 12, 10);
           pdf.setFontSize(7);
-          pdf.setTextColor(94, 89, 83); // ink-500
+          pdf.setTextColor(...RGB.ink500);
           pdf.text(documentName, 12, 8);
           const headerRight = `${projectCode ? "Ref. " + projectCode + " | " : ""}${currentDate}`;
           pdf.text(headerRight, pageWidth - 12, 8, { align: "right" });
-          // Bottom rule — amber-500 #F08A00
-          pdf.setDrawColor(240, 138, 0);
+          // Bottom rule — amber-500 (token partagé)
+          pdf.setDrawColor(...RGB.amber500);
           pdf.setLineWidth(0.5);
           pdf.line(12, pageHeight - 14, pageWidth - 12, pageHeight - 14);
           pdf.setFontSize(6.5);
-          pdf.setTextColor(142, 136, 129); // ink-400
-          pdf.text("IMOTION Creator Studio | Document confidentiel | imotion-conseils.fr", 12, pageHeight - 10);
+          pdf.setTextColor(...RGB.ink500);
+          pdf.text(`${BRAND.productName} | Document confidentiel | ${BRAND.url.replace("https://", "")}`, 12, pageHeight - 10);
           pdf.setFontSize(7);
-          pdf.setTextColor(94, 89, 83);
+          pdf.setTextColor(...RGB.ink500);
           pdf.text(`Page ${i} / ${totalPages}`, pageWidth / 2, pageHeight - 10, { align: "center" });
           pdf.setFontSize(6.5);
-          pdf.setTextColor(142, 136, 129);
+          pdf.setTextColor(...RGB.ink500);
           pdf.text(`v${version}`, pageWidth - 12, pageHeight - 10, { align: "right" });
         }
         pdf.save();
@@ -172,7 +173,7 @@ export function ProfessionalDocument({
         {/* Header bar — coral→amber flame gradient v2 */}
         <div
           className="px-8 py-5 flex items-center justify-between"
-          style={{ background: "linear-gradient(135deg, #F24E2A 0%, #FFA61F 100%)" }}
+          style={{ background: GRADIENTS.flame }}
         >
           <div className="flex items-center gap-4">
             <img src={logoImotion} alt="IMOTION" className="h-10 w-auto" crossOrigin="anonymous" />
