@@ -1861,6 +1861,36 @@ export type Database = {
           },
         ]
       }
+      mkt_rate_limit_buckets: {
+        Row: {
+          created_at: string
+          id: string
+          identifier: string
+          identifier_type: string
+          request_count: number
+          resource_type: string
+          window_start: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          identifier: string
+          identifier_type?: string
+          request_count?: number
+          resource_type: string
+          window_start?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          identifier?: string
+          identifier_type?: string
+          request_count?: number
+          resource_type?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       mkt_rate_limits: {
         Row: {
           bucket: string
@@ -2858,6 +2888,16 @@ export type Database = {
         Args: { p_project_id: string }
         Returns: string
       }
+      check_rate_limit: {
+        Args: {
+          p_identifier: string
+          p_identifier_type?: string
+          p_max_requests?: number
+          p_resource_type: string
+          p_window_minutes?: number
+        }
+        Returns: Json
+      }
       claim_sync_jobs: {
         Args: {
           _batch_size?: number
@@ -2954,6 +2994,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      increment_free_audits_used: {
+        Args: { p_user_id: string }
+        Returns: number
       }
       increment_post_views: { Args: { post_slug: string }; Returns: undefined }
       link_audit_to_project: {
