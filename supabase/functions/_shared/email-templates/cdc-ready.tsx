@@ -109,7 +109,7 @@ const container: React.CSSProperties = {
 }
 
 const header: React.CSSProperties = {
-  background: 'linear-gradient(135deg, #D32F2F, #F57C00)',
+  background: 'linear-gradient(135deg, #D63B1A, #F08A00)',
   padding: '24px 32px',
   textAlign: 'center' as const,
 }
@@ -164,7 +164,7 @@ const ctaSection: React.CSSProperties = {
 }
 
 const ctaButton: React.CSSProperties = {
-  background: 'linear-gradient(135deg, #D32F2F, #F57C00)',
+  background: 'linear-gradient(135deg, #D63B1A, #F08A00)',
   color: '#ffffff',
   fontSize: '16px',
   fontWeight: 600,
@@ -191,6 +191,6 @@ const footerText: React.CSSProperties = {
 }
 
 const link: React.CSSProperties = {
-  color: '#D32F2F',
+  color: '#D63B1A',
   textDecoration: 'underline',
 }
