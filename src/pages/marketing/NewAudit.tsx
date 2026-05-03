@@ -7,7 +7,7 @@
  */
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Helmet } from "react-helmet";
+import { SEOHead } from "@/components/SEOHead";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -68,7 +68,7 @@ export default function MarketingNewAudit() {
 
   return (
     <>
-      <Helmet><title>Nouvel audit – IMOTION Marketing</title></Helmet>
+      <SEOHead title="Nouvel audit – IMOTION Marketing" />
       <main className="container py-12 max-w-2xl">
         <h1 className="text-4xl font-bold mb-3">
           Nouvel <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">audit</span>

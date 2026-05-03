@@ -2,7 +2,7 @@
  * Marketing — Méthodologie ROI (rapatrié depuis lovelib).
  * Explique le calcul du ROI, hypothèses et bornes (optimiste/médiane/prudente).
  */
-import { Helmet } from "react-helmet";
+import { SEOHead } from "@/components/SEOHead";
 import { ChartBlock } from "@/components/marketing/ChartBlock";
 import { Card } from "@/components/ui/card";
 import { buildSEO } from "@/lib/marketing/seo";
@@ -31,11 +31,7 @@ export default function MarketingMethodologieROI() {
 
   return (
     <>
-      <Helmet>
-        <title>{seo.title}</title>
-        <meta name="description" content={seo.description} />
-        <link rel="canonical" href={seo.canonical} />
-      </Helmet>
+      <SEOHead title={seo.title} description={seo.description} canonical={seo.canonical} />
 
       <main className="container py-20 md:py-24 max-w-4xl">
         <h1 className="text-4xl md:text-5xl font-bold mb-6">

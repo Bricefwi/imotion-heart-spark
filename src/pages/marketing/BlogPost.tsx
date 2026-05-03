@@ -6,7 +6,7 @@
  */
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { Helmet } from "react-helmet";
+import { SEOHead } from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Download, Share2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
@@ -119,10 +119,7 @@ export default function MarketingBlogPost() {
 
   return (
     <>
-      <Helmet>
-        <title>{post.title} – Blog IMOTION</title>
-        <meta name="description" content={post.excerpt} />
-      </Helmet>
+      <SEOHead title={`${post.title} – Blog IMOTION`} description={post.excerpt} />
 
       <main className="container py-20 md:py-24 max-w-4xl">
         <div className="flex justify-between items-center mb-8 flex-wrap gap-2">

@@ -2,7 +2,7 @@
  * Marketing — Audit gratuit (rapatriée depuis lovelib).
  * Loss-leader : audit 100% gratuit. CTA → /register?next=/marketing/account.
  */
-import { Helmet } from "react-helmet";
+import { SEOHead } from "@/components/SEOHead";
 import { Link, useNavigate } from "react-router-dom";
 import { CheckCircle2, Zap, TrendingUp, Target, ArrowRight, Brain } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -52,11 +52,11 @@ export default function MarketingAuditGratuit() {
 
   return (
     <>
-      <Helmet>
-        <title>{seo.title}</title>
-        <meta name="description" content={seo.description} />
-        <link rel="canonical" href={seo.canonical} />
-      </Helmet>
+      <SEOHead
+        title={seo.title}
+        description={seo.description}
+        canonical={seo.canonical}
+      />
 
       <main className="container py-20 md:py-28">
         <div className="text-center mb-16 max-w-4xl mx-auto">

@@ -4,7 +4,7 @@
  */
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Helmet } from "react-helmet";
+import { SEOHead } from "@/components/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -59,7 +59,7 @@ export default function MarketingClientAudits() {
 
   return (
     <>
-      <Helmet><title>Mes audits – IMOTION Marketing</title></Helmet>
+      <SEOHead title="Mes audits – IMOTION Marketing" />
       <main className="container py-12 max-w-4xl">
         <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
           <h1 className="text-3xl font-bold">Mes audits</h1>

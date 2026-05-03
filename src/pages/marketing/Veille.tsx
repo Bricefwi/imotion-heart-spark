@@ -5,7 +5,7 @@
  * `mkt-collect-ai-news` non plus. On affiche des rapports statiques pour démo.
  */
 import { useState } from "react";
-import { Helmet } from "react-helmet";
+import { SEOHead } from "@/components/SEOHead";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -99,11 +99,7 @@ export default function MarketingVeille() {
 
   return (
     <>
-      <Helmet>
-        <title>{seo.title}</title>
-        <meta name="description" content={seo.description} />
-        <link rel="canonical" href={seo.canonical} />
-      </Helmet>
+      <SEOHead title={seo.title} description={seo.description} canonical={seo.canonical} />
 
       <main className="container py-12 md:py-16">
         <div className="flex items-center justify-between mb-8 flex-wrap gap-4">

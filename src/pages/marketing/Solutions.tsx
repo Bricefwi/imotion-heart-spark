@@ -2,7 +2,7 @@
  * Marketing — Solutions (rapatrié depuis lovelib `Solutions.tsx`).
  * Catalogue des prestations marketing/commerciales, complément de /marketing/cas-clients.
  */
-import { Helmet } from "react-helmet";
+import { SEOHead } from "@/components/SEOHead";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,11 +27,7 @@ export default function MarketingSolutions() {
 
   return (
     <>
-      <Helmet>
-        <title>{seo.title}</title>
-        <meta name="description" content={seo.description} />
-        <link rel="canonical" href={seo.canonical} />
-      </Helmet>
+      <SEOHead title={seo.title} description={seo.description} canonical={seo.canonical} />
 
       <main className="container py-20 md:py-28">
         <div className="text-center mb-16 max-w-4xl mx-auto">

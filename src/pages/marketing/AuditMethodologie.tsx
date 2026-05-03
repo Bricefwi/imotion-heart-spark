@@ -2,7 +2,7 @@
  * Marketing — Méthodologie d'audit (rapatriée depuis lovelib).
  * Décrit MANUS IA 2.0 + 17 agents + 6 phases + KPIs + quality gates.
  */
-import { Helmet } from "react-helmet";
+import { SEOHead } from "@/components/SEOHead";
 import { Link } from "react-router-dom";
 import { CheckCircle2, Brain, Zap, Target, FileText, TrendingUp } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -47,11 +47,7 @@ export default function MarketingAuditMethodologie() {
 
   return (
     <>
-      <Helmet>
-        <title>{seo.title}</title>
-        <meta name="description" content={seo.description} />
-        <link rel="canonical" href={seo.canonical} />
-      </Helmet>
+      <SEOHead title={seo.title} description={seo.description} canonical={seo.canonical} />
 
       <main className="container py-20 md:py-24">
         <div className="text-center mb-12 max-w-3xl mx-auto">

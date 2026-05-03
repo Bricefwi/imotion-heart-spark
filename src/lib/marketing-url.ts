@@ -56,3 +56,8 @@ export function getMarketingHandoffUrl(targetPath = "/", params: MarketingAuditL
   return isBrowser() ? url.pathname + url.search : url.toString();
 }
 
+
+export function getMarketingUrl(path: string): string {
+  const url = new URL(path, getMarketingBaseUrl());
+  return isBrowser() ? url.pathname : url.toString();
+}

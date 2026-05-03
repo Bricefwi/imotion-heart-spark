@@ -5,7 +5,7 @@
  * n'est pas encore prête. On sert une liste d'articles statiques en attendant.
  * TODO: remplacer par `supabase.from('mkt_blog_articles').select(...)` une fois créée.
  */
-import { Helmet } from "react-helmet";
+import { SEOHead } from "@/components/SEOHead";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -53,11 +53,7 @@ export default function MarketingBlog() {
 
   return (
     <>
-      <Helmet>
-        <title>{seo.title}</title>
-        <meta name="description" content={seo.description} />
-        <link rel="canonical" href={seo.canonical} />
-      </Helmet>
+      <SEOHead title={seo.title} description={seo.description} canonical={seo.canonical} />
 
       <main className="container py-20 md:py-28">
         <div className="text-center mb-16 max-w-3xl mx-auto">

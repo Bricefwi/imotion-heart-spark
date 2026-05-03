@@ -10,7 +10,7 @@
  */
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Helmet } from "react-helmet";
+import { SEOHead } from "@/components/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -96,9 +96,7 @@ export default function MarketingDashboard() {
 
   return (
     <>
-      <Helmet>
-        <title>Mon espace marketing – IMOTION</title>
-      </Helmet>
+      <SEOHead title="Mon espace marketing – IMOTION" />
 
       <main className="container py-12">
         <div className="mb-8">

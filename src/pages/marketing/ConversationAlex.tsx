@@ -7,7 +7,7 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { Helmet } from "react-helmet";
+import { SEOHead } from "@/components/SEOHead";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -77,7 +77,7 @@ export default function MarketingConversationAlex() {
 
   return (
     <>
-      <Helmet><title>Conversation avec Alex – IMOTION</title></Helmet>
+      <SEOHead title="Conversation avec Alex – IMOTION" />
       <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex items-center justify-center p-4">
         <Card className="w-full max-w-3xl h-[700px] flex flex-col">
           <CardHeader className="border-b">
