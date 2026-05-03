@@ -24,6 +24,7 @@ import {
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { useAutoRedeemAudits } from "@/hooks/useAutoRedeemAudits";
 
 const clientNav = [
   { title: "Dashboard", url: "/client/dashboard", icon: LayoutDashboard },
@@ -141,6 +142,9 @@ function ClientSidebar() {
 export function ClientLayout() {
   const { roles } = useAuth();
   const isAdmin = roles.includes("admin") || roles.includes("super_admin");
+
+  // Réconciliation auto des audits lovelib en attente (1× par session)
+  useAutoRedeemAudits();
 
   return (
     <SidebarProvider>
