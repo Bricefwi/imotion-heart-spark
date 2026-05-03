@@ -1891,6 +1891,31 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_list_cron_jobs: {
+        Args: never
+        Returns: {
+          active: boolean
+          command: string
+          database: string
+          jobid: number
+          jobname: string
+          schedule: string
+          username: string
+        }[]
+      }
+      admin_list_cron_runs: {
+        Args: { p_limit?: number }
+        Returns: {
+          duration_ms: number
+          end_time: string
+          jobid: number
+          jobname: string
+          return_message: string
+          runid: number
+          start_time: string
+          status: string
+        }[]
+      }
       calculate_project_estimate: {
         Args: { p_project_id: string }
         Returns: string
