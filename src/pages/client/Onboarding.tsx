@@ -63,6 +63,8 @@ export default function Onboarding() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
+  const [track, setTrack] = useState<Track>(null);
+  const [hydratedFromAudit, setHydratedFromAudit] = useState(false);
 
   const [data, setData] = useState({
     full_name: profile?.full_name || "",
@@ -87,6 +89,39 @@ export default function Onboarding() {
     additional_notes: "",
   });
 
+  // Pré-remplir depuis le dernier audit marketing du user (si existe).
+  useEffect(() => {
+    if (!user || hydratedFromAudit) return;
+    let cancelled = false;
+    (async () => {
+      const { data: audit } = await supabase
+        .from("marketing_audits")
+        .select("company_name, website_url, summary, recommendations, full_payload, score")
+        .eq("user_id", user.id)
+        .order("completed_at", { ascending: false, nullsFirst: false })
+        .limit(1)
+        .maybeSingle();
+      if (cancelled || !audit) { setHydratedFromAudit(true); return; }
+      setData((d) => ({
+        ...d,
+        company_name: d.company_name || audit.company_name || "",
+        website: d.website || audit.website_url || "",
+        objectives_detail: d.objectives_detail || (audit.summary
+          ? `D'après mon audit marketing : ${audit.summary}`
+          : ""),
+        additional_notes: d.additional_notes || (Array.isArray(audit.recommendations) && audit.recommendations.length > 0
+          ? `Recommandations marketing prioritaires :\n- ${audit.recommendations.slice(0, 5).map((r: unknown) => typeof r === "string" ? r : (r as { title?: string })?.title ?? JSON.stringify(r)).join("\n- ")}`
+          : ""),
+      }));
+      // Si un audit existe déjà, on présélectionne le parcours BUILD
+      // (l'utilisateur a déjà fait du marketing, il vient construire).
+      setTrack((t) => t ?? "build");
+      setHydratedFromAudit(true);
+      toast.success("On a pré-rempli votre profil grâce à votre audit marketing.");
+    })();
+    return () => { cancelled = true; };
+  }, [user, hydratedFromAudit]);
+
   const update = <K extends keyof typeof data>(field: K, value: (typeof data)[K]) => setData((d) => ({ ...d, [field]: value }));
   const toggleArray = (field: "objectives" | "current_tools", value: string) => {
     const arr = data[field];
@@ -96,8 +131,9 @@ export default function Onboarding() {
   const progress = ((step + 1) / STEPS.length) * 100;
 
   const canNext = () => {
-    if (step === 0) return data.full_name.trim().length > 0;
-    if (step === 1) return data.company_name.trim().length > 0 && data.industry.length > 0;
+    if (step === 0) return track !== null;
+    if (step === 1) return data.full_name.trim().length > 0;
+    if (step === 2) return data.company_name.trim().length > 0 && data.industry.length > 0;
     return true;
   };
 
