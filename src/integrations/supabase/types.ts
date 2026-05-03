@@ -1548,6 +1548,36 @@ export type Database = {
         }
         Relationships: []
       }
+      mkt_email_notifications: {
+        Row: {
+          email: string
+          id: string
+          metadata: Json | null
+          notification_type: string
+          provider_message_id: string | null
+          sent_at: string
+          user_id: string | null
+        }
+        Insert: {
+          email: string
+          id?: string
+          metadata?: Json | null
+          notification_type: string
+          provider_message_id?: string | null
+          sent_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          email?: string
+          id?: string
+          metadata?: Json | null
+          notification_type?: string
+          provider_message_id?: string | null
+          sent_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       mkt_faq_entries: {
         Row: {
           answer_html: string
