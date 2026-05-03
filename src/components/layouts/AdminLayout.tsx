@@ -254,6 +254,7 @@ const sidebarGroups: SidebarGroupDef[] = [
       { title: "Sync Queue", url: "/admin/sync-queue", icon: RefreshCw },
       { title: "Actions programmées", url: "/admin/scheduled-actions", icon: Activity, badge: "NEW" },
       { title: "Bridge Secret", url: "/admin/bridge-secret", icon: Shield },
+      { title: "Debug SSO", url: "/admin/sso-debug", icon: ScrollText },
     ],
   },
 ];
