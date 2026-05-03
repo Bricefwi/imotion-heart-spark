@@ -281,9 +281,68 @@ export default function Onboarding() {
     </button>
   );
 
+  const TrackCard = ({
+    value, icon: Icon, title, badge, desc,
+  }: { value: Track; icon: typeof Rocket; title: string; badge?: string; desc: string }) => (
+    <button
+      type="button"
+      onClick={() => value && setTrack(value)}
+      className={`text-left p-5 rounded-2xl border-2 transition-all w-full ${
+        track === value
+          ? "border-primary bg-primary/5 shadow-md"
+          : "border-border hover:border-primary/40 bg-card"
+      }`}
+    >
+      <div className="flex items-start gap-4">
+        <div className={`h-11 w-11 rounded-xl flex items-center justify-center shrink-0 ${
+          track === value ? "gradient-primary text-primary-foreground" : "bg-muted text-foreground"
+        }`}>
+          <Icon className="h-5 w-5" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <h3 className="font-display text-base font-semibold">{title}</h3>
+            {badge && <Badge variant="secondary" className="text-[10px]">{badge}</Badge>}
+          </div>
+          <p className="text-sm text-muted-foreground">{desc}</p>
+        </div>
+        {track === value && <Check className="h-5 w-5 text-primary shrink-0" />}
+      </div>
+    </button>
+  );
+
   const renderStep = () => {
     switch (step) {
       case 0:
+        return (
+          <div className="space-y-6">
+            <p className="text-muted-foreground">
+              Un seul parcours, deux portes d'entrée. Choisissez par où vous voulez commencer — vous pourrez basculer plus tard.
+            </p>
+            <div className="grid gap-3">
+              <TrackCard
+                value="marketing"
+                icon={TrendingUp}
+                title="Audit marketing gratuit"
+                badge="≈ 5 min"
+                desc="Diagnostic SEO, présence digitale, recommandations actionnables. Idéal si vous n'êtes pas sûr du périmètre du projet à construire."
+              />
+              <TrackCard
+                value="build"
+                icon={Rocket}
+                title="Construire mon projet (CDC IA)"
+                badge="≈ 45 min"
+                desc="Conversation guidée avec Marc, votre consultant IA, pour générer un cahier des charges professionnel en 7 phases."
+              />
+            </div>
+            {track === "marketing" && (
+              <div className="rounded-xl border bg-muted/40 p-3 text-xs text-muted-foreground">
+                On vous redirige vers l'audit ; à la fin, vos données reviennent automatiquement ici pour préremplir votre projet.
+              </div>
+            )}
+          </div>
+        );
+      case 1:
         return (
           <div className="space-y-6">
             <p className="text-muted-foreground">Commençons par apprendre à vous connaître.</p>
@@ -299,7 +358,7 @@ export default function Onboarding() {
             </div>
           </div>
         );
-      case 1:
+      case 2:
         return (
           <div className="space-y-6">
             <p className="text-muted-foreground">Parlez-nous de votre entreprise pour mieux vous accompagner.</p>
@@ -331,7 +390,7 @@ export default function Onboarding() {
             </div>
           </div>
         );
-      case 2:
+      case 3:
         return (
           <div className="space-y-6">
             <p className="text-muted-foreground">Votre présence en ligne actuelle nous aide à évaluer vos besoins.</p>
@@ -355,7 +414,7 @@ export default function Onboarding() {
             </div>
           </div>
         );
-      case 3:
+      case 4:
         return (
           <div className="space-y-6">
             <p className="text-muted-foreground">Quels sont vos objectifs principaux ? Sélectionnez tout ce qui s'applique.</p>
@@ -370,7 +429,7 @@ export default function Onboarding() {
             </div>
           </div>
         );
-      case 4:
+      case 5:
         return (
           <div className="space-y-6">
             <p className="text-muted-foreground">Ces informations nous permettent de calibrer notre proposition.</p>
@@ -398,7 +457,7 @@ export default function Onboarding() {
             </div>
           </div>
         );
-      case 5:
+      case 6:
         return (
           <div className="space-y-6">
             <p className="text-muted-foreground">Quels outils utilisez-vous actuellement ?</p>
@@ -413,7 +472,7 @@ export default function Onboarding() {
             </div>
           </div>
         );
-      case 6:
+      case 7:
         return (
           <div className="space-y-6">
             <p className="text-muted-foreground">Partagez vos sources d'inspiration pour nous aider à comprendre votre vision.</p>
