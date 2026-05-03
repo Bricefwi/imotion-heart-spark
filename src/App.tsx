@@ -75,6 +75,7 @@ const AdminAnalytics = lazy(() => import("@/pages/admin/Analytics"));
 const AdminProjectDetail = lazy(() => import("@/pages/admin/ProjectDetail"));
 const AdminIntegrations = lazy(() => import("@/pages/admin/Integrations"));
 const AdminSyncQueue = lazy(() => import("@/pages/admin/SyncQueue"));
+const AdminScheduledActions = lazy(() => import("@/pages/admin/ScheduledActions"));
 const AdminMarketingLeads = lazy(() => import("@/pages/admin/MarketingLeads"));
 
 const queryClient = new QueryClient();
