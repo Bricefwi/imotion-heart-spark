@@ -17,6 +17,7 @@ import { ConsultantLayout } from "@/components/layouts/ConsultantLayout";
 import { AdminLayout } from "@/components/layouts/AdminLayout";
 import { MarketingLayout } from "@/components/layouts/MarketingLayout";
 import { CrossAppTransition } from "@/components/cross-app/CrossAppTransition";
+import { MarketingFlagRoute } from "@/components/marketing/MarketingFlagRoute";
 
 // Marketing pages (lazy)
 const MarketingHome = lazy(() => import("@/pages/marketing/Home"));
@@ -127,13 +128,44 @@ const App = () => (
             {/* Marketing (branche fusionnée depuis lovelib) */}
             <Route element={<MarketingLayout />}>
               <Route path="/marketing" element={<MarketingHome />} />
-              <Route path="/marketing/audit-gratuit" element={<MarketingAuditGratuit />} />
+              <Route
+                path="/marketing/audit-gratuit"
+                element={
+                  <MarketingFlagRoute flag="audit">
+                    <MarketingAuditGratuit />
+                  </MarketingFlagRoute>
+                }
+              />
               <Route path="/marketing/dashboard" element={<ProtectedRoute><MarketingDashboard /></ProtectedRoute>} />
               <Route path="/marketing/methode" element={<MarketingMethode />} />
               <Route path="/marketing/cas-clients" element={<MarketingCasClients />} />
               <Route path="/marketing/veille" element={<MarketingVeille />} />
-              <Route path="/marketing/blog" element={<MarketingPlaceholder />} />
-              <Route path="/marketing/blog/:slug" element={<MarketingPlaceholder />} />
+              <Route
+                path="/marketing/blog"
+                element={
+                  <MarketingFlagRoute flag="blog">
+                    <MarketingPlaceholder />
+                  </MarketingFlagRoute>
+                }
+              />
+              <Route
+                path="/marketing/blog/:slug"
+                element={
+                  <MarketingFlagRoute flag="blog">
+                    <MarketingPlaceholder />
+                  </MarketingFlagRoute>
+                }
+              />
+              <Route
+                path="/marketing/account"
+                element={
+                  <MarketingFlagRoute flag="account">
+                    <ProtectedRoute>
+                      <MarketingDashboard />
+                    </ProtectedRoute>
+                  </MarketingFlagRoute>
+                }
+              />
             </Route>
 
             {/* Auth (no layout) */}
