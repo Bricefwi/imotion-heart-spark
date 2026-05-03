@@ -2238,20 +2238,31 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          branding_config: Json
+          company_legal_name: string | null
           company_name: string | null
           company_role: string | null
+          company_siret: string | null
           company_size: string | null
+          company_website: string | null
           created_at: string | null
           email: string
+          firstname: string | null
+          free_audits_used: number
           full_name: string | null
           id: string
           industry: string | null
           last_seen_at: string | null
+          lastname: string | null
+          max_free_audits: number
           onboarding_completed: boolean | null
           onboarding_step: number | null
           phone: string | null
           preferences: Json | null
+          professional_email: string | null
           referrer: string | null
+          subscription_plan: string
+          trust_score: number
           updated_at: string | null
           utm_campaign: string | null
           utm_medium: string | null
@@ -2260,20 +2271,31 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          branding_config?: Json
+          company_legal_name?: string | null
           company_name?: string | null
           company_role?: string | null
+          company_siret?: string | null
           company_size?: string | null
+          company_website?: string | null
           created_at?: string | null
           email: string
+          firstname?: string | null
+          free_audits_used?: number
           full_name?: string | null
           id: string
           industry?: string | null
           last_seen_at?: string | null
+          lastname?: string | null
+          max_free_audits?: number
           onboarding_completed?: boolean | null
           onboarding_step?: number | null
           phone?: string | null
           preferences?: Json | null
+          professional_email?: string | null
           referrer?: string | null
+          subscription_plan?: string
+          trust_score?: number
           updated_at?: string | null
           utm_campaign?: string | null
           utm_medium?: string | null
@@ -2282,20 +2304,31 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          branding_config?: Json
+          company_legal_name?: string | null
           company_name?: string | null
           company_role?: string | null
+          company_siret?: string | null
           company_size?: string | null
+          company_website?: string | null
           created_at?: string | null
           email?: string
+          firstname?: string | null
+          free_audits_used?: number
           full_name?: string | null
           id?: string
           industry?: string | null
           last_seen_at?: string | null
+          lastname?: string | null
+          max_free_audits?: number
           onboarding_completed?: boolean | null
           onboarding_step?: number | null
           phone?: string | null
           preferences?: Json | null
+          professional_email?: string | null
           referrer?: string | null
+          subscription_plan?: string
+          trust_score?: number
           updated_at?: string | null
           utm_campaign?: string | null
           utm_medium?: string | null
