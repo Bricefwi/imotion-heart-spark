@@ -14,6 +14,8 @@ import {
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
+import { UnifiedTimeline } from "@/components/client/UnifiedTimeline";
+import { CrossSellRecommendations, CrossKpis } from "@/components/client/CrossSellRecommendations";
 
 function SourceBadge({ status }: { status: "ok" | "error" | "loading" | "unavailable" }) {
   const map = {
@@ -118,6 +120,30 @@ export default function Dashboard360() {
             />
           </>
         )}
+      </div>
+
+      {/* KPIs croisés Marketing × Build */}
+      <div className="mb-6">
+        <CrossKpis clarivi={data.clarivi} audits={data.lovelibAudits} />
+      </div>
+
+      {/* Recommandations cross-sell */}
+      <div className="mb-6">
+        <CrossSellRecommendations
+          userId={user?.id}
+          clarivi={data.clarivi}
+          audits={data.lovelibAudits}
+        />
+      </div>
+
+      {/* Timeline unifiée Marketing + Build */}
+      <div className="mb-6">
+        <UnifiedTimeline
+          loading={loading}
+          clarivi={data.clarivi}
+          audits={data.lovelibAudits}
+          activities={data.activities}
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

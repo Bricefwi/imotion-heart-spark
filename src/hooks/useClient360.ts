@@ -56,10 +56,19 @@ export interface LovelibLiveKpis {
   last_sync_at: string;
 }
 
+export interface Client360Activity {
+  id: string;
+  action: string;
+  description: string | null;
+  created_at: string;
+  project_id: string | null;
+}
+
 export interface Client360Data {
   clarivi: ClariviSnapshot | null;
   lovelibAudits: LovelibAudit[];
   lovelibLive: LovelibLiveKpis | null;
+  activities: Client360Activity[];
   sources: {
     clarivi: "ok" | "error" | "loading";
     lovelibAudits: "ok" | "error" | "loading";
@@ -72,9 +81,21 @@ const EMPTY: Client360Data = {
   clarivi: null,
   lovelibAudits: [],
   lovelibLive: null,
+  activities: [],
   sources: { clarivi: "loading", lovelibAudits: "loading", lovelibLive: "loading" },
   errors: {},
 };
+
+async function fetchActivities(userId: string): Promise<Client360Activity[]> {
+  const { data, error } = await supabase
+    .from("activities")
+    .select("id,action,description,created_at,project_id")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(20);
+  if (error) throw error;
+  return (data ?? []) as Client360Activity[];
+}
 
 async function fetchClarivi(userId: string): Promise<ClariviSnapshot> {
   const projectsRes = await supabase
@@ -179,10 +200,11 @@ export function useClient360(userId: string | undefined) {
       sources: { clarivi: "loading", lovelibAudits: "loading", lovelibLive: "loading" },
     }));
 
-    const [clariviRes, auditsRes, liveRes] = await Promise.allSettled([
+    const [clariviRes, auditsRes, liveRes, activitiesRes] = await Promise.allSettled([
       fetchClarivi(userId),
       fetchLovelibAudits(userId),
       fetchLovelibLive(),
+      fetchActivities(userId),
     ]);
 
     const errors: Record<string, string> = {};
@@ -193,11 +215,13 @@ export function useClient360(userId: string | undefined) {
     if (auditsRes.status === "rejected") errors.lovelibAudits = String(auditsRes.reason?.message ?? auditsRes.reason);
 
     const lovelibLive = liveRes.status === "fulfilled" ? liveRes.value : null;
+    const activities = activitiesRes.status === "fulfilled" ? activitiesRes.value : [];
 
     setData({
       clarivi,
       lovelibAudits,
       lovelibLive,
+      activities,
       sources: {
         clarivi: clariviRes.status === "fulfilled" ? "ok" : "error",
         lovelibAudits: auditsRes.status === "fulfilled" ? "ok" : "error",
