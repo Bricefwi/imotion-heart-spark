@@ -127,9 +127,9 @@ const App = () => (
               <Route path="/marketing" element={<MarketingHome />} />
               <Route path="/marketing/audit-gratuit" element={<MarketingAuditGratuit />} />
               <Route path="/marketing/dashboard" element={<ProtectedRoute><MarketingDashboard /></ProtectedRoute>} />
-              <Route path="/marketing/methode" element={<MarketingPlaceholder />} />
-              <Route path="/marketing/cas-clients" element={<MarketingPlaceholder />} />
-              <Route path="/marketing/veille" element={<MarketingPlaceholder />} />
+              <Route path="/marketing/methode" element={<MarketingMethode />} />
+              <Route path="/marketing/cas-clients" element={<MarketingCasClients />} />
+              <Route path="/marketing/veille" element={<MarketingVeille />} />
               <Route path="/marketing/blog" element={<MarketingPlaceholder />} />
               <Route path="/marketing/blog/:slug" element={<MarketingPlaceholder />} />
             </Route>
