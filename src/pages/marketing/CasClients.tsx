@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,11 +17,6 @@ export default function MarketingCasClients() {
   const navigate = useNavigate();
   return (
     <>
-      <Helmet>
-        <title>Solutions & cas clients — IMOTION Marketing</title>
-        <meta name="description" content="Découvrez les solutions IMOTION pour optimiser votre marketing et votre commercial : audit stratégique, pilotage, campagnes multi-canales, automatisation, analytics, accompagnement IA." />
-        <link rel="canonical" href={`${BRAND.appUrl}/marketing/cas-clients`} />
-      </Helmet>
 
       <main className="container py-20 md:py-28">
         <div className="text-center mb-16 max-w-4xl mx-auto">

@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle2, Zap, TrendingUp, Target, ArrowRight, Brain } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,11 +24,6 @@ export default function MarketingAuditGratuit() {
 
   return (
     <>
-      <Helmet>
-        <title>Audit marketing gratuit — IMOTION</title>
-        <meta name="description" content="Audit marketing gratuit en 10 minutes. Analyse IA de votre site web par 17 agents spécialisés. Rapport préliminaire et 4 scénarios chiffrés. Sans engagement." />
-        <link rel="canonical" href={`${BRAND.appUrl}/marketing/audit-gratuit`} />
-      </Helmet>
 
       <main className="container py-20 md:py-28">
         {/* Hero */}

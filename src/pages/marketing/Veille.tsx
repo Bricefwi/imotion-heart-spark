@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,11 +7,6 @@ import { BRAND } from "@/lib/brand";
 export default function MarketingVeille() {
   return (
     <>
-      <Helmet>
-        <title>Veille IA — IMOTION Marketing</title>
-        <meta name="description" content="Veille intelligence artificielle hebdomadaire : tendances, outils, cas d'usage marketing. Restez à la pointe des innovations IA pour votre business." />
-        <link rel="canonical" href={`${BRAND.appUrl}/marketing/veille`} />
-      </Helmet>
 
       <main className="container py-20 md:py-28">
         <div className="text-center mb-16 max-w-3xl mx-auto">

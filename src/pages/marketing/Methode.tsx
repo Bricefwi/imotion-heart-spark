@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -26,11 +25,6 @@ export default function MarketingMethode() {
   const navigate = useNavigate();
   return (
     <>
-      <Helmet>
-        <title>Comment ça marche ? — Méthode IMOTION Marketing</title>
-        <meta name="description" content="Découvrez comment notre IA analyse votre site web en 3 étapes simples. 17 agents spécialisés, validation SIRET, rapport détaillé. Audits gratuits pour démarrer." />
-        <link rel="canonical" href={`${BRAND.appUrl}/marketing/methode`} />
-      </Helmet>
 
       <div className="min-h-screen bg-gradient-to-b from-background via-background to-accent/10">
         <section className="container py-20 md:py-28 text-center max-w-5xl">
