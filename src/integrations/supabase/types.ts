@@ -1057,6 +1057,845 @@ export type Database = {
           },
         ]
       }
+      mkt_ai_news_reports: {
+        Row: {
+          created_at: string
+          date: string
+          html_content: string | null
+          id: string
+          recommendations: Json | null
+          summary: string
+          top_news: Json | null
+          trends: Json | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          html_content?: string | null
+          id?: string
+          recommendations?: Json | null
+          summary: string
+          top_news?: Json | null
+          trends?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          html_content?: string | null
+          id?: string
+          recommendations?: Json | null
+          summary?: string
+          top_news?: Json | null
+          trends?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      mkt_audit_access_control: {
+        Row: {
+          allowed: boolean
+          created_at: string
+          denial_reason: string | null
+          free_audits_remaining: number | null
+          id: string
+          ip_address: string | null
+          trust_score: number | null
+          user_id: string | null
+        }
+        Insert: {
+          allowed: boolean
+          created_at?: string
+          denial_reason?: string | null
+          free_audits_remaining?: number | null
+          id?: string
+          ip_address?: string | null
+          trust_score?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          allowed?: boolean
+          created_at?: string
+          denial_reason?: string | null
+          free_audits_remaining?: number | null
+          id?: string
+          ip_address?: string | null
+          trust_score?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      mkt_audit_reports: {
+        Row: {
+          audit_id: string | null
+          content: Json | null
+          created_at: string
+          created_by: string | null
+          html: string | null
+          id: string
+          report_type: string | null
+          status: string | null
+          title: string | null
+        }
+        Insert: {
+          audit_id?: string | null
+          content?: Json | null
+          created_at?: string
+          created_by?: string | null
+          html?: string | null
+          id?: string
+          report_type?: string | null
+          status?: string | null
+          title?: string | null
+        }
+        Update: {
+          audit_id?: string | null
+          content?: Json | null
+          created_at?: string
+          created_by?: string | null
+          html?: string | null
+          id?: string
+          report_type?: string | null
+          status?: string | null
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mkt_audit_reports_audit_id_fkey"
+            columns: ["audit_id"]
+            isOneToOne: false
+            referencedRelation: "mkt_audits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mkt_audit_results: {
+        Row: {
+          audit_id: string | null
+          confidence: number | null
+          created_at: string
+          id: string
+          kpis: Json | null
+          report_md: string | null
+          report_pdf_url: string | null
+          scenarios: Json | null
+          scores: Json | null
+          sources: Json | null
+          summary: string | null
+        }
+        Insert: {
+          audit_id?: string | null
+          confidence?: number | null
+          created_at?: string
+          id?: string
+          kpis?: Json | null
+          report_md?: string | null
+          report_pdf_url?: string | null
+          scenarios?: Json | null
+          scores?: Json | null
+          sources?: Json | null
+          summary?: string | null
+        }
+        Update: {
+          audit_id?: string | null
+          confidence?: number | null
+          created_at?: string
+          id?: string
+          kpis?: Json | null
+          report_md?: string | null
+          report_pdf_url?: string | null
+          scenarios?: Json | null
+          scores?: Json | null
+          sources?: Json | null
+          summary?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mkt_audit_results_audit_id_fkey"
+            columns: ["audit_id"]
+            isOneToOne: false
+            referencedRelation: "mkt_audits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mkt_audit_sources: {
+        Row: {
+          audit_id: string | null
+          created_at: string
+          id: string
+          provider: string
+          query: string | null
+          reliability: number | null
+          snippet: string | null
+          url: string | null
+        }
+        Insert: {
+          audit_id?: string | null
+          created_at?: string
+          id?: string
+          provider: string
+          query?: string | null
+          reliability?: number | null
+          snippet?: string | null
+          url?: string | null
+        }
+        Update: {
+          audit_id?: string | null
+          created_at?: string
+          id?: string
+          provider?: string
+          query?: string | null
+          reliability?: number | null
+          snippet?: string | null
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mkt_audit_sources_audit_id_fkey"
+            columns: ["audit_id"]
+            isOneToOne: false
+            referencedRelation: "mkt_audits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mkt_audit_steps: {
+        Row: {
+          audit_id: string
+          created_at: string
+          ended_at: string | null
+          id: string
+          message: string | null
+          started_at: string | null
+          status: string
+          step: string
+        }
+        Insert: {
+          audit_id: string
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          message?: string | null
+          started_at?: string | null
+          status: string
+          step: string
+        }
+        Update: {
+          audit_id?: string
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          message?: string | null
+          started_at?: string | null
+          status?: string
+          step?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mkt_audit_steps_audit_id_fkey"
+            columns: ["audit_id"]
+            isOneToOne: false
+            referencedRelation: "mkt_audits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mkt_audits: {
+        Row: {
+          ai_tier: string | null
+          company_guess: string | null
+          completed_at: string | null
+          created_at: string
+          email: string | null
+          enriched_data: Json | null
+          error: string | null
+          id: string
+          ip_address: string | null
+          progress: number | null
+          raw_data: Json | null
+          started_at: string | null
+          status: string
+          updated_at: string
+          url: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          ai_tier?: string | null
+          company_guess?: string | null
+          completed_at?: string | null
+          created_at?: string
+          email?: string | null
+          enriched_data?: Json | null
+          error?: string | null
+          id?: string
+          ip_address?: string | null
+          progress?: number | null
+          raw_data?: Json | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          url: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          ai_tier?: string | null
+          company_guess?: string | null
+          completed_at?: string | null
+          created_at?: string
+          email?: string | null
+          enriched_data?: Json | null
+          error?: string | null
+          id?: string
+          ip_address?: string | null
+          progress?: number | null
+          raw_data?: Json | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          url?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      mkt_blog_article_tags: {
+        Row: {
+          article_id: string
+          tag_id: number
+        }
+        Insert: {
+          article_id: string
+          tag_id: number
+        }
+        Update: {
+          article_id?: string
+          tag_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mkt_blog_article_tags_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "mkt_blog_articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mkt_blog_article_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "mkt_blog_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mkt_blog_articles: {
+        Row: {
+          author_name: string | null
+          author_role: string | null
+          category: string | null
+          chart_spec: Json | null
+          content_md: string
+          cover_credit: string | null
+          cover_url: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          is_published: boolean | null
+          published_at: string | null
+          reliability_score: number | null
+          slug: string
+          sources: Json | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_name?: string | null
+          author_role?: string | null
+          category?: string | null
+          chart_spec?: Json | null
+          content_md: string
+          cover_credit?: string | null
+          cover_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          is_published?: boolean | null
+          published_at?: string | null
+          reliability_score?: number | null
+          slug: string
+          sources?: Json | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_name?: string | null
+          author_role?: string | null
+          category?: string | null
+          chart_spec?: Json | null
+          content_md?: string
+          cover_credit?: string | null
+          cover_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          is_published?: boolean | null
+          published_at?: string | null
+          reliability_score?: number | null
+          slug?: string
+          sources?: Json | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      mkt_blog_tags: {
+        Row: {
+          id: number
+          tag: string
+        }
+        Insert: {
+          id?: number
+          tag: string
+        }
+        Update: {
+          id?: number
+          tag?: string
+        }
+        Relationships: []
+      }
+      mkt_companies: {
+        Row: {
+          address: string | null
+          created_at: string
+          description: string | null
+          id: string
+          industry: string | null
+          legal_name: string | null
+          metadata: Json | null
+          name: string
+          siret: string | null
+          size: string | null
+          updated_at: string
+          user_id: string | null
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          industry?: string | null
+          legal_name?: string | null
+          metadata?: Json | null
+          name: string
+          siret?: string | null
+          size?: string | null
+          updated_at?: string
+          user_id?: string | null
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          industry?: string | null
+          legal_name?: string | null
+          metadata?: Json | null
+          name?: string
+          siret?: string | null
+          size?: string | null
+          updated_at?: string
+          user_id?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
+      mkt_faq_entries: {
+        Row: {
+          answer_html: string
+          category: string | null
+          created_at: string
+          display_order: number | null
+          id: string
+          is_active: boolean | null
+          question: string
+          updated_at: string
+        }
+        Insert: {
+          answer_html: string
+          category?: string | null
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          question: string
+          updated_at?: string
+        }
+        Update: {
+          answer_html?: string
+          category?: string | null
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          question?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      mkt_messages: {
+        Row: {
+          audit_id: string | null
+          content: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          role: string
+          user_id: string | null
+        }
+        Insert: {
+          audit_id?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          role: string
+          user_id?: string | null
+        }
+        Update: {
+          audit_id?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          role?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mkt_messages_audit_id_fkey"
+            columns: ["audit_id"]
+            isOneToOne: false
+            referencedRelation: "mkt_audits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mkt_missions: {
+        Row: {
+          blueprint: Json | null
+          company_id: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          blueprint?: Json | null
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          blueprint?: Json | null
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mkt_missions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "mkt_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mkt_orchestration_phases: {
+        Row: {
+          agents: Json | null
+          completed_at: string | null
+          created_at: string
+          error: string | null
+          id: string
+          orchestration_id: string | null
+          phase_name: string
+          phase_order: number
+          results: Json | null
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          agents?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          orchestration_id?: string | null
+          phase_name: string
+          phase_order: number
+          results?: Json | null
+          started_at?: string | null
+          status?: string
+        }
+        Update: {
+          agents?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          orchestration_id?: string | null
+          phase_name?: string
+          phase_order?: number
+          results?: Json | null
+          started_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mkt_orchestration_phases_orchestration_id_fkey"
+            columns: ["orchestration_id"]
+            isOneToOne: false
+            referencedRelation: "mkt_orchestrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mkt_orchestration_results: {
+        Row: {
+          agent_name: string
+          agent_type: string
+          completed_at: string | null
+          confidence: number | null
+          created_at: string
+          duration_ms: number | null
+          error: string | null
+          id: string
+          input: Json | null
+          output: Json | null
+          phase_id: string | null
+          sources: Json | null
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          agent_name: string
+          agent_type: string
+          completed_at?: string | null
+          confidence?: number | null
+          created_at?: string
+          duration_ms?: number | null
+          error?: string | null
+          id?: string
+          input?: Json | null
+          output?: Json | null
+          phase_id?: string | null
+          sources?: Json | null
+          started_at?: string | null
+          status?: string
+        }
+        Update: {
+          agent_name?: string
+          agent_type?: string
+          completed_at?: string | null
+          confidence?: number | null
+          created_at?: string
+          duration_ms?: number | null
+          error?: string | null
+          id?: string
+          input?: Json | null
+          output?: Json | null
+          phase_id?: string | null
+          sources?: Json | null
+          started_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mkt_orchestration_results_phase_id_fkey"
+            columns: ["phase_id"]
+            isOneToOne: false
+            referencedRelation: "mkt_orchestration_phases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mkt_orchestrations: {
+        Row: {
+          audit_id: string | null
+          completed_at: string | null
+          created_at: string
+          current_phase: string | null
+          error: string | null
+          id: string
+          phases: Json | null
+          progress: number | null
+          results: Json | null
+          started_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          audit_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          current_phase?: string | null
+          error?: string | null
+          id?: string
+          phases?: Json | null
+          progress?: number | null
+          results?: Json | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          audit_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          current_phase?: string | null
+          error?: string | null
+          id?: string
+          phases?: Json | null
+          progress?: number | null
+          results?: Json | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mkt_orchestrations_audit_id_fkey"
+            columns: ["audit_id"]
+            isOneToOne: false
+            referencedRelation: "mkt_audits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mkt_rate_limits: {
+        Row: {
+          bucket: string
+          count: number | null
+          created_at: string
+          id: string
+          identifier: string
+          window_start: string
+        }
+        Insert: {
+          bucket: string
+          count?: number | null
+          created_at?: string
+          id?: string
+          identifier: string
+          window_start?: string
+        }
+        Update: {
+          bucket?: string
+          count?: number | null
+          created_at?: string
+          id?: string
+          identifier?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
+      mkt_seo_index: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          last_crawled_at: string | null
+          metadata: Json | null
+          status_code: number | null
+          title: string | null
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          last_crawled_at?: string | null
+          metadata?: Json | null
+          status_code?: number | null
+          title?: string | null
+          url: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          last_crawled_at?: string | null
+          metadata?: Json | null
+          status_code?: number | null
+          title?: string | null
+          url?: string
+        }
+        Relationships: []
+      }
+      mkt_strategic_choices: {
+        Row: {
+          audit_id: string | null
+          category: string
+          choice: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          rationale: string | null
+          user_id: string | null
+        }
+        Insert: {
+          audit_id?: string | null
+          category: string
+          choice: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          rationale?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          audit_id?: string | null
+          category?: string
+          choice?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          rationale?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mkt_strategic_choices_audit_id_fkey"
+            columns: ["audit_id"]
+            isOneToOne: false
+            referencedRelation: "mkt_audits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       newsletter_subscribers: {
         Row: {
           email: string
