@@ -257,6 +257,22 @@ export default function Onboarding() {
   };
 
   const next = async () => {
+    // Step 0 = choix de parcours.
+    if (step === 0 && track === "marketing") {
+      // Persist le track + envoie l'utilisateur côté marketing via le handoff SSO.
+      // Au retour, le useEffect ci-dessus repré-rempli le formulaire à partir de l'audit.
+      try {
+        await supabase.from("profiles").update({
+          preferences: {
+            ...((profile?.preferences && typeof profile.preferences === "object" && !Array.isArray(profile.preferences)) ? profile.preferences : {}),
+            onboarding_track: "marketing",
+          },
+        }).eq("id", user!.id);
+      } catch (err) { console.warn("track persist failed", err); }
+      toast.info("Direction l'audit marketing — on garde votre place ici.");
+      window.location.href = getMarketingHandoffUrl("/audit-gratuit", { userId: user?.id });
+      return;
+    }
     if (step < STEPS.length - 1) {
       await saveStep();
       setStep(step + 1);
