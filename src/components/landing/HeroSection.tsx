@@ -336,13 +336,12 @@ function HeroMockup() {
 
   useEffect(() => {
     if (paused) return;
-    const t = setTimeout(() => setIndex((i) => (i + 1) % SCENES.length), 6500);
+    // Laisser largement le temps de lire chaque scène (≈ 11s)
+    const t = setTimeout(() => setIndex((i) => (i + 1) % SCENES.length), 11000);
     return () => clearTimeout(t);
   }, [index, paused]);
 
   const scene = SCENES[index];
-  const Card = scene.Card;
-  const Terminal = scene.Terminal;
 
   return (
     <div
@@ -350,14 +349,14 @@ function HeroMockup() {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      {/* Floating badge — re-mount on scene change */}
-      <AnimatePresence mode="wait">
+      {/* Floating badge — crossfade lent */}
+      <AnimatePresence mode="sync">
         <motion.div
           key={`badge-${scene.id}`}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -10 }}
-          transition={{ duration: 0.45 }}
+          initial={{ opacity: 0, y: -4 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -4 }}
+          transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1] }}
           className="absolute -top-3 right-2 sm:-top-4 sm:right-4 z-30 flex items-center gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-emerald-400/15 border border-emerald-400/30 backdrop-blur-md"
         >
           <CheckCircle2 className="size-3 sm:size-3.5 text-emerald-400" />
@@ -367,24 +366,32 @@ function HeroMockup() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Scene crossfade */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={scene.id}
-          initial={{ opacity: 0, scale: 0.97 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.97 }}
-          transition={{ duration: 0.55, ease: "easeOut" }}
-          className="relative"
-        >
-          <div className="relative z-10">
-            <Card />
-          </div>
-          <div className="absolute -bottom-8 sm:-bottom-10 lg:-bottom-12 left-2 sm:-left-6 lg:-left-16 w-[92%] sm:w-[82%] lg:w-[78%] z-20">
-            <Terminal />
-          </div>
-        </motion.div>
-      </AnimatePresence>
+      {/* Scene cross-dissolve (les deux visuels se chevauchent en fondu lent) */}
+      <div className="relative">
+        {SCENES.map((s, i) => {
+          const SCard = s.Card;
+          const STerminal = s.Terminal;
+          const active = i === index;
+          return (
+            <motion.div
+              key={s.id}
+              initial={false}
+              animate={{ opacity: active ? 1 : 0 }}
+              transition={{ duration: 1.8, ease: [0.4, 0, 0.2, 1] }}
+              className={`relative ${i === 0 ? "" : "absolute inset-0"}`}
+              style={{ pointerEvents: active ? "auto" : "none" }}
+              aria-hidden={!active}
+            >
+              <div className="relative z-10">
+                <SCard />
+              </div>
+              <div className="absolute -bottom-8 sm:-bottom-10 lg:-bottom-12 left-2 sm:-left-6 lg:-left-16 w-[92%] sm:w-[82%] lg:w-[78%] z-20">
+                <STerminal />
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
 
       {/* Scene indicators (clickable) */}
       <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/30 backdrop-blur-md border border-white/10">
