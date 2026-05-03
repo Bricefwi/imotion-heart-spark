@@ -252,6 +252,7 @@ const sidebarGroups: SidebarGroupDef[] = [
       { title: "Paramètres", url: "/admin/settings", icon: Settings },
       { title: "Intégrations", url: "/admin/integrations", icon: Plug },
       { title: "Sync Queue", url: "/admin/sync-queue", icon: RefreshCw },
+      { title: "Actions programmées", url: "/admin/scheduled-actions", icon: Activity, badge: "NEW" },
     ],
   },
 ];
