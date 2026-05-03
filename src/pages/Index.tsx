@@ -53,6 +53,7 @@ export default function Index() {
       <TrustBar />
       <StatsSection />
       <HomeHowItWorks />
+      <MarketingTrackSection />
       <MiniPreviewCards />
       <TestimonialsSection />
       <ErrorBoundary>
