@@ -537,33 +537,7 @@ export function HeroSection() {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="lg:col-span-6 relative mt-4 lg:mt-0 pb-16 sm:pb-20 lg:pb-0"
           >
-            {/* Floating badge "CDC prêt en 45 min" */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-              className="absolute -top-3 right-2 sm:-top-4 sm:right-4 z-30 flex items-center gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-emerald-400/15 border border-emerald-400/30 backdrop-blur-md"
-            >
-              <CheckCircle2 className="size-3 sm:size-3.5 text-emerald-400" />
-              <span className="text-[10px] sm:text-xs font-medium text-emerald-300 whitespace-nowrap">
-                CDC prêt en 45 min
-              </span>
-            </motion.div>
-
-            {/* Project card (top layer) */}
-            <div className="relative z-10">
-              <ProjectCard />
-            </div>
-
-            {/* Marc terminal (overlapping) — décalage réduit en mobile pour ne pas déborder */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.8 }}
-              className="absolute -bottom-8 sm:-bottom-10 lg:-bottom-12 left-2 sm:-left-6 lg:-left-16 w-[92%] sm:w-[82%] lg:w-[78%] z-20"
-            >
-              <MarcTerminal />
-            </motion.div>
+            <HeroMockup />
 
             {/* Subtle glow under cards */}
             <div
