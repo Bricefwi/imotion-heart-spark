@@ -1518,6 +1518,36 @@ export type Database = {
         }
         Relationships: []
       }
+      mkt_company_verification_logs: {
+        Row: {
+          created_at: string
+          id: string
+          siret: string | null
+          user_id: string | null
+          verification_data: Json | null
+          verification_status: string
+          verification_type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          siret?: string | null
+          user_id?: string | null
+          verification_data?: Json | null
+          verification_status: string
+          verification_type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          siret?: string | null
+          user_id?: string | null
+          verification_data?: Json | null
+          verification_status?: string
+          verification_type?: string
+        }
+        Relationships: []
+      }
       mkt_faq_entries: {
         Row: {
           answer_html: string
