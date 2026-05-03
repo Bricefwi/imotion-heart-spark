@@ -404,6 +404,32 @@ export default function RetrieveLovelibAudit() {
           </AlertDescription>
         </Alert>
       )}
+
+      {/* CTA contextuel : prochaine étape après fusion d'audit */}
+      {lastResult && (
+        <Card className="border-primary/30 bg-gradient-to-br from-primary/5 via-secondary/5 to-secondary/10">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Sparkles className="h-5 w-5 text-primary" />
+              Prochaine étape : transformer l'audit en projet concret
+            </CardTitle>
+            <CardDescription>
+              Marc va exploiter les insights de votre audit pour structurer une discovery ciblée et générer un cahier des charges sur-mesure.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-2">
+            <Button
+              onClick={() => navigate(`/client/projects/${lastResult.project_id}/conversation`)}
+              className="bg-gradient-to-r from-primary to-secondary text-white"
+            >
+              Démarrer la discovery avec Marc <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+            <Button variant="outline" onClick={() => navigate(`/client/audits/${lastResult.audit_id}`)}>
+              Revoir l'audit en détail
+            </Button>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
