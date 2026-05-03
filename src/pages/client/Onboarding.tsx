@@ -182,6 +182,15 @@ export default function Onboarding() {
           ? data.objectives[0]
           : "Mon projet digital";
 
+      // Récupère le dernier audit pour l'attacher au discovery_data du projet
+      const { data: lastAudit } = await supabase
+        .from("marketing_audits")
+        .select("id, score, summary, recommendations, completed_at")
+        .eq("user_id", user.id)
+        .order("completed_at", { ascending: false, nullsFirst: false })
+        .limit(1)
+        .maybeSingle();
+
       const { data: newProject, error: projectError } = await supabase
         .from("projects")
         .insert({
@@ -189,6 +198,7 @@ export default function Onboarding() {
           client_id: user.id,
           status: "discovery_active",
           discovery_data: {
+            track,
             initial_description: data.objectives_detail || null,
             objectives: data.objectives,
             budget_range: data.budget_range,
@@ -202,6 +212,16 @@ export default function Onboarding() {
             social_linkedin: data.social_linkedin || null,
             social_instagram: data.social_instagram || null,
             social_facebook: data.social_facebook || null,
+            ...(lastAudit ? {
+              marketing_audit: {
+                audit_id: lastAudit.id,
+                score: lastAudit.score,
+                summary: lastAudit.summary,
+                recommendations: lastAudit.recommendations,
+                received_at: lastAudit.completed_at,
+                source: "onboarding_prefill",
+              },
+            } : {}),
           },
         })
         .select("id")
