@@ -38,6 +38,7 @@ const Register = lazy(() => import("@/pages/Register"));
 const ForgotPassword = lazy(() => import("@/pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
 const AuthCallback = lazy(() => import("@/pages/AuthCallback"));
+const AuthHandoff = lazy(() => import("@/pages/AuthHandoff"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const Onboarding = lazy(() => import("@/pages/client/Onboarding"));
 const DigitalMaturityAudit = lazy(() => import("@/pages/client/DigitalMaturityAudit"));
@@ -113,6 +114,7 @@ const App = () => (
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route path="/auth/handoff" element={<AuthHandoff />} />
 
             {/* Public claim entry from lovelib (signed token, no auth required) */}
             <Route path="/audit/claim" element={<ClaimAudit />} />
