@@ -16,6 +16,7 @@ import { ClientLayout } from "@/components/layouts/ClientLayout";
 import { ConsultantLayout } from "@/components/layouts/ConsultantLayout";
 import { AdminLayout } from "@/components/layouts/AdminLayout";
 import { MarketingLayout } from "@/components/layouts/MarketingLayout";
+import { CrossAppTransition } from "@/components/cross-app/CrossAppTransition";
 
 // Marketing pages (lazy)
 const MarketingHome = lazy(() => import("@/pages/marketing/Home"));
@@ -102,6 +103,7 @@ const App = () => (
         <Sonner />
         <ErrorBoundary>
         <BrowserRouter>
+          <CrossAppTransition />
           <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
           <Routes>
             {/* Public pages with shared layout */}
