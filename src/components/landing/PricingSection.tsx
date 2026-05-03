@@ -1,19 +1,24 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Check, Sparkles, ArrowRight, Building2 } from "lucide-react";
+import { Check, ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { SectionIndex } from "@/components/brand/SectionIndex";
+import { Eyebrow } from "@/components/brand/Eyebrow";
+import { FlameText } from "@/components/brand/FlameText";
+import { Stamp } from "@/components/brand/Stamp";
+import { EmberCard } from "@/components/brand/EmberCard";
 import { cn } from "@/lib/utils";
 
 const PLANS = [
   {
     name: "Starter",
+    code: "01",
     price: 79,
     description: "Pour tester et convertir vos premiers prospects.",
     audits: "20 audits / mois",
     users: "1 utilisateur",
     features: [
-      "Logo + couleurs de l'agence",
+      "Logo + couleurs agence",
       "CDC + devis pré-rempli",
       "Dashboard audits",
       "Email de notification",
@@ -25,6 +30,7 @@ const PLANS = [
   },
   {
     name: "Pro",
+    code: "02",
     price: 199,
     description: "Le choix des agences qui veulent scaler.",
     audits: "100 audits / mois",
@@ -43,6 +49,7 @@ const PLANS = [
   },
   {
     name: "Agency",
+    code: "03",
     price: 399,
     description: "Pour les agences qui font du volume.",
     audits: "Audits illimités",
@@ -64,121 +71,215 @@ const PLANS = [
 
 export function PricingSection() {
   return (
-    <section id="pricing" className="py-20 md:py-32 bg-background">
-      <div className="container">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-6"
-        >
-          <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-xs font-medium text-primary mb-4">
-            <Building2 className="size-3" />
-            Tarifs agences — HT · Sans engagement
-          </span>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Un abonnement, des audits IA pour tous vos prospects
-          </h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">
-            Votre agence paie un abonnement mensuel. Vos prospects accèdent à l'audit gratuitement via votre lien personnalisé.
-          </p>
-        </motion.div>
+    <section
+      id="pricing"
+      className="relative py-24 md:py-32 overflow-hidden"
+      style={{ background: "hsl(var(--imo-ink-50))" }}
+    >
+      {/* Décor : halo coral en haut */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px]"
+        style={{ background: "var(--imo-glow-coral)" }}
+      />
 
+      <div className="container relative">
+
+        {/* Header */}
+        <div className="grid lg:grid-cols-[1fr_1.5fr] gap-12 mb-16 items-end">
+          <div>
+            <SectionIndex number="04" label="Tarifs agences" className="mb-4" />
+            <Eyebrow className="mb-3">HT · Sans engagement</Eyebrow>
+          </div>
+          <h2
+            className="imo-display text-[2.25rem] sm:text-4xl lg:text-5xl"
+            style={{ color: "hsl(var(--imo-ink-900))" }}
+          >
+            Un abonnement, des audits IA{" "}
+            <FlameText>pour tous vos prospects</FlameText>.
+          </h2>
+        </div>
+
+        {/* Free trial banner */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="flex items-center justify-center gap-3 mb-12 rounded-xl border border-emerald-500/20 bg-emerald-500/5 py-3 px-6 text-sm text-emerald-700 dark:text-emerald-400 max-w-lg mx-auto"
+          className="flex items-center justify-center gap-3 mb-12 rounded-full py-2 px-5 text-sm max-w-fit mx-auto font-mono"
+          style={{
+            border: "1px solid hsl(var(--imo-amber-500) / 0.35)",
+            background: "hsl(var(--imo-amber-50))",
+            color: "hsl(var(--imo-amber-700))",
+          }}
         >
-          <Sparkles className="size-4 shrink-0" />
-          <span>
-            <strong>14 jours d'essai gratuit</strong> · 5 audits inclus · Sans carte bancaire
+          <Sparkles className="size-3.5 shrink-0" style={{ color: "hsl(var(--imo-amber-500))" }} />
+          <span className="text-xs uppercase tracking-[0.14em] font-bold">
+            14 jours gratuits · 5 audits · sans CB
           </span>
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+        {/* Plans grid */}
+        <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
           {PLANS.map((plan, i) => (
             <motion.div
               key={plan.name}
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className={cn(
-                "relative rounded-2xl border p-8 flex flex-col",
-                plan.highlight
-                  ? "border-primary bg-primary text-primary-foreground shadow-2xl scale-[1.03]"
-                  : "border-border bg-card"
-              )}
+              transition={{ delay: i * 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              className={cn(plan.highlight && "md:scale-[1.04] z-10")}
             >
-              {plan.badge && (
-                <Badge
-                  className={cn(
-                    "absolute -top-3 left-1/2 -translate-x-1/2 text-xs",
-                    plan.highlight
-                      ? "bg-background text-primary"
-                      : "bg-primary text-primary-foreground"
-                  )}
+              {plan.highlight ? (
+                /* PRO — plan signature avec gradient flame */
+                <div
+                  className="relative rounded-2xl p-8 flex flex-col h-full"
+                  style={{
+                    background: "var(--imo-gradient-coral)",
+                    boxShadow: "var(--imo-shadow-glow-lg), var(--imo-shadow-xl)",
+                  }}
                 >
-                  {plan.badge}
-                </Badge>
-              )}
+                  {/* Decorative ribbon top */}
+                  <div
+                    aria-hidden
+                    className="absolute top-0 left-6 right-6 h-1 rounded-b"
+                    style={{ background: "rgba(255,255,255,0.4)" }}
+                  />
 
-              <div className="mb-6">
-                <div className="text-sm font-medium opacity-70 mb-1">{plan.name}</div>
-                <div className="flex items-end gap-1 mb-2">
-                  <span className="text-4xl font-bold">{plan.price} €</span>
-                  <span className="text-sm opacity-60 pb-1">/ mois HT</span>
+                  {plan.badge && (
+                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 imo-stamp-wobble">
+                      <Stamp tone="ink" className="!bg-white !text-[hsl(var(--imo-coral-700))] !border-white shadow-md">
+                        ★ {plan.badge}
+                      </Stamp>
+                    </div>
+                  )}
+
+                  {/* Plan code */}
+                  <div className="flex items-center justify-between mb-5">
+                    <span className="font-mono text-[10px] font-bold tabular-nums uppercase tracking-[0.18em] text-white/70">
+                      Plan {plan.code}
+                    </span>
+                    <span className="font-bold text-base text-white">{plan.name}</span>
+                  </div>
+
+                  {/* Price */}
+                  <div className="mb-6">
+                    <div className="flex items-end gap-1.5 mb-2">
+                      <span className="text-5xl font-bold imo-display text-white tabular-nums">
+                        {plan.price}
+                      </span>
+                      <span className="text-xl font-bold text-white pb-1">€</span>
+                      <span className="text-sm text-white/70 pb-1.5 ml-1">/ mois HT</span>
+                    </div>
+                    <p className="text-sm text-white/85">{plan.description}</p>
+                  </div>
+
+                  {/* Quotas */}
+                  <div className="text-[11px] font-mono uppercase tracking-[0.14em] mb-5 flex flex-wrap gap-x-2 text-white/80">
+                    <span>{plan.audits}</span>
+                    <span>·</span>
+                    <span>{plan.users}</span>
+                  </div>
+
+                  {/* Features */}
+                  <ul className="space-y-2.5 mb-8 flex-1">
+                    {plan.features.map((f) => (
+                      <li key={f} className="flex items-start gap-2.5 text-sm text-white">
+                        <Check className="size-4 mt-0.5 shrink-0 text-white/85" strokeWidth={3} />
+                        <span>{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* CTA */}
+                  <Button
+                    size="lg"
+                    className="w-full gap-2 h-12 font-semibold"
+                    style={{ background: "white", color: "hsl(var(--imo-coral-700))" }}
+                    asChild
+                  >
+                    <Link to="/inscription">
+                      {plan.cta}
+                      <ArrowRight className="size-4" />
+                    </Link>
+                  </Button>
                 </div>
-                <p className={cn("text-sm", plan.highlight ? "opacity-80" : "text-muted-foreground")}>
-                  {plan.description}
-                </p>
-              </div>
+              ) : (
+                /* STARTER + AGENCY — papier classique */
+                <EmberCard variant="paper" className="!p-8 h-full flex flex-col" glowOnHover>
+                  {/* Plan code */}
+                  <div className="flex items-center justify-between mb-5">
+                    <span
+                      className="font-mono text-[10px] font-bold tabular-nums uppercase tracking-[0.18em]"
+                      style={{ color: "hsl(var(--imo-coral-600))" }}
+                    >
+                      Plan {plan.code}
+                    </span>
+                    <span className="font-bold text-base" style={{ color: "hsl(var(--imo-ink-900))" }}>
+                      {plan.name}
+                    </span>
+                  </div>
 
-              <div className={cn(
-                "text-xs font-semibold mb-4 flex gap-3",
-                plan.highlight ? "opacity-90" : "text-muted-foreground"
-              )}>
-                <span>{plan.audits}</span>
-                <span>·</span>
-                <span>{plan.users}</span>
-              </div>
+                  {/* Price */}
+                  <div className="mb-6">
+                    <div className="flex items-end gap-1.5 mb-2">
+                      <span className="text-5xl font-bold imo-display tabular-nums" style={{ color: "hsl(var(--imo-ink-900))" }}>
+                        {plan.price}
+                      </span>
+                      <span className="text-xl font-bold pb-1" style={{ color: "hsl(var(--imo-ink-900))" }}>€</span>
+                      <span className="text-sm pb-1.5 ml-1" style={{ color: "hsl(var(--imo-fg-muted))" }}>/ mois HT</span>
+                    </div>
+                    <p className="text-sm" style={{ color: "hsl(var(--imo-fg-muted))" }}>
+                      {plan.description}
+                    </p>
+                  </div>
 
-              <ul className="space-y-2.5 mb-8 flex-1">
-                {plan.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm">
-                    <Check className={cn(
-                      "size-4 mt-0.5 shrink-0",
-                      plan.highlight ? "text-primary-foreground/80" : "text-emerald-500"
-                    )} />
-                    <span className={plan.highlight ? "opacity-90" : ""}>{f}</span>
-                  </li>
-                ))}
-              </ul>
+                  {/* Quotas */}
+                  <div
+                    className="text-[11px] font-mono uppercase tracking-[0.14em] mb-5 flex flex-wrap gap-x-2"
+                    style={{ color: "hsl(var(--imo-fg-subtle))" }}
+                  >
+                    <span>{plan.audits}</span>
+                    <span>·</span>
+                    <span>{plan.users}</span>
+                  </div>
 
-              <Button
-                size="lg"
-                variant={plan.highlight ? "secondary" : "default"}
-                className="w-full gap-2"
-                asChild
-              >
-                <Link to={plan.name === "Agency" ? "/contact" : "/inscription"}>
-                  {plan.cta}
-                  <ArrowRight className="size-4" />
-                </Link>
-              </Button>
+                  {/* Features */}
+                  <ul className="space-y-2.5 mb-8 flex-1">
+                    {plan.features.map((f) => (
+                      <li key={f} className="flex items-start gap-2.5 text-sm" style={{ color: "hsl(var(--imo-fg))" }}>
+                        <Check className="size-4 mt-0.5 shrink-0" style={{ color: "hsl(var(--imo-coral-600))" }} strokeWidth={3} />
+                        <span>{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* CTA */}
+                  <Button size="lg" variant="outline" className="w-full gap-2 h-12 font-semibold border-2"
+                    style={{ borderColor: "hsl(var(--imo-coral-600))", color: "hsl(var(--imo-coral-700))" }}
+                    asChild
+                  >
+                    <Link to={plan.name === "Agency" ? "/contact" : "/inscription"}>
+                      {plan.cta}
+                      <ArrowRight className="size-4" />
+                    </Link>
+                  </Button>
+                </EmberCard>
+              )}
             </motion.div>
           ))}
         </div>
 
-        <motion.p
+        {/* Footer note */}
+        <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="text-center text-xs text-muted-foreground mt-10"
+          className="text-center mt-16 space-y-2"
         >
-          Prix HT · TVA 20 % · Facturation mensuelle ou annuelle (−20 %) · Résiliation à tout moment
-        </motion.p>
+          <p className="text-xs font-mono uppercase tracking-[0.14em]" style={{ color: "hsl(var(--imo-fg-muted))" }}>
+            Prix HT · TVA 20 % · Mensuel ou annuel (−20 %) · Résiliation libre
+          </p>
+        </motion.div>
       </div>
     </section>
   );

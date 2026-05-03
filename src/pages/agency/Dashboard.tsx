@@ -22,16 +22,20 @@ interface AuditRow {
   completed_at: string | null;
 }
 
+const GRADE_STYLES: Record<string, React.CSSProperties> = {
+  A: { background: "hsl(var(--imo-coral-100))", color: "hsl(var(--imo-coral-700))" },
+  B: { background: "hsl(var(--imo-amber-100))", color: "hsl(var(--imo-amber-700))" },
+  C: { background: "hsl(var(--imo-ink-100))",   color: "hsl(var(--imo-ink-600))"   },
+  D: { background: "hsl(var(--imo-danger-500) / 0.12)", color: "hsl(var(--imo-danger-500))" },
+};
+
 function LeadGradeBadge({ grade }: { grade: string | null }) {
   if (!grade) return <span className="text-muted-foreground text-xs">—</span>;
-  const colors: Record<string, string> = {
-    A: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
-    B: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-    C: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400",
-    D: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-  };
   return (
-    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold ${colors[grade] ?? ""}`}>
+    <span
+      className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold"
+      style={GRADE_STYLES[grade] ?? {}}
+    >
       {grade}
     </span>
   );
