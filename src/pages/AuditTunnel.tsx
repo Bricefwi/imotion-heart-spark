@@ -140,8 +140,9 @@ export default function AuditTunnel() {
     );
   }
 
-  const accentColor = branding?.accent_color ?? "#3B82F6";
-  const primaryColor = branding?.primary_color ?? "#0A0A0A";
+  // Fallback sur la couleur brand imotion (coral-600) si le prospect n'a pas de branding agence
+  const accentColor = branding?.accent_color ?? "#D63B1A";
+  const primaryColor = branding?.primary_color ?? "#0F0D0B";
   const consultantName = branding?.consultant_persona ?? "Marc";
 
   // Welcome screen
