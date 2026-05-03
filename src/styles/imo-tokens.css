@@ -146,7 +146,7 @@
   /* ─────────────────────────────────────────────
      7. TYPOGRAPHIE — Font stacks
      ───────────────────────────────────────────── */
-  --imo-font-display: "General Sans", "Inter", system-ui, -apple-system, sans-serif;
+  --imo-font-display: "Inter", system-ui, -apple-system, sans-serif;
   --imo-font-sans:    "Inter", system-ui, -apple-system, sans-serif;
   --imo-font-mono:    "JetBrains Mono", "Fira Code", ui-monospace, monospace;
 }
