@@ -8,6 +8,7 @@ import { StatsCard } from "@/components/StatsCard";
 import { Link } from "react-router-dom";
 import { ReviewSubmitForm } from "@/components/ReviewSubmitForm";
 import { MarketingAuditBanner } from "@/components/MarketingAuditBanner";
+import { PostDeliveryAuditCTA } from "@/components/cross-app/PostDeliveryAuditCTA";
 import {
   FolderKanban, FileText, Euro, MessageSquare, Clock, Plus, ArrowRight,
   FileDown, CheckCircle, Loader2, CalendarDays, TrendingUp, Shield, FilePen,
@@ -179,6 +180,7 @@ export default function ClientDashboard() {
   return (
     <div className="space-y-6 animate-fade-in">
       <MarketingAuditBanner />
+      <PostDeliveryAuditCTA />
       {/* Welcome hero */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 sm:p-8 text-white">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-secondary/10" />
