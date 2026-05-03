@@ -76,6 +76,7 @@ const AdminProjectDetail = lazy(() => import("@/pages/admin/ProjectDetail"));
 const AdminIntegrations = lazy(() => import("@/pages/admin/Integrations"));
 const AdminSyncQueue = lazy(() => import("@/pages/admin/SyncQueue"));
 const AdminScheduledActions = lazy(() => import("@/pages/admin/ScheduledActions"));
+const AdminOperationsHealth = lazy(() => import("@/pages/admin/OperationsHealth"));
 const AdminBridgeSecret = lazy(() => import("@/pages/admin/BridgeSecret"));
 const AdminSsoDebug = lazy(() => import("@/pages/admin/SsoDebug"));
 const AdminMarketingLeads = lazy(() => import("@/pages/admin/MarketingLeads"));
@@ -166,6 +167,7 @@ const App = () => (
               <Route path="/admin/integrations" element={<AdminIntegrations />} />
               <Route path="/admin/sync-queue" element={<AdminSyncQueue />} />
               <Route path="/admin/scheduled-actions" element={<AdminScheduledActions />} />
+              <Route path="/admin/operations-health" element={<AdminOperationsHealth />} />
               <Route path="/admin/bridge-secret" element={<AdminBridgeSecret />} />
               <Route path="/admin/sso-debug" element={<AdminSsoDebug />} />
               <Route path="/admin/marketing-leads" element={<AdminMarketingLeads />} />
