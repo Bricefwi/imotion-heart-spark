@@ -220,7 +220,7 @@ export function ProfessionalDocument({
             <h2 style={{
               fontSize: "1.1rem",
               fontWeight: 700,
-              fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif",
+              fontFamily: "'Inter', sans-serif",
               color: "#1a1a1a",
               marginBottom: "1rem",
               textTransform: "uppercase",
@@ -271,9 +271,9 @@ export function ProfessionalDocument({
                     style={{
                       fontSize: "1.5rem",
                       fontWeight: 700,
-                      fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif",
+                      fontFamily: "'Inter', sans-serif",
                       color: "#1a1a1a",
-                      borderBottom: "3px solid hsl(0 68% 51%)",
+                      borderBottom: "3px solid #D63B1A",
                       paddingBottom: "0.75rem",
                       marginTop: "2.5rem",
                       marginBottom: "1.25rem",
@@ -287,9 +287,9 @@ export function ProfessionalDocument({
                   <h2 style={{
                     fontSize: "1.2rem",
                     fontWeight: 600,
-                    fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif",
+                    fontFamily: "'Inter', sans-serif",
                     color: "#2a2a2a",
-                    borderLeft: "4px solid hsl(30 100% 49%)",
+                    borderLeft: "4px solid #F08A00",
                     paddingLeft: "0.75rem",
                     marginTop: "2rem",
                     marginBottom: "1rem",
@@ -302,7 +302,7 @@ export function ProfessionalDocument({
                   <h3 style={{
                     fontSize: "1.05rem",
                     fontWeight: 600,
-                    fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif",
+                    fontFamily: "'Inter', sans-serif",
                     color: "#333",
                     marginTop: "1.5rem",
                     marginBottom: "0.75rem",
@@ -375,7 +375,7 @@ export function ProfessionalDocument({
                   </div>
                 ),
                 thead: ({ children }) => (
-                  <thead style={{ background: "linear-gradient(135deg, hsl(0 68% 51% / 0.08), hsl(30 100% 49% / 0.08))" }}>
+                  <thead style={{ background: "linear-gradient(135deg, #FFE3DB, #FFEDC9)" }}>
                     {children}
                   </thead>
                 ),
@@ -386,7 +386,7 @@ export function ProfessionalDocument({
                     fontWeight: 600,
                     fontSize: "0.75rem",
                     color: "#374151",
-                    borderBottom: "2px solid hsl(0 68% 51% / 0.3)",
+                    borderBottom: "2px solid #D63B1A",
                     textTransform: "uppercase",
                     letterSpacing: "0.025em",
                   }}>
@@ -404,8 +404,8 @@ export function ProfessionalDocument({
                 ),
                 blockquote: ({ children }) => (
                   <blockquote style={{
-                    borderLeft: "4px solid hsl(30 100% 49%)",
-                    background: "hsl(30 100% 49% / 0.05)",
+                    borderLeft: "4px solid #F08A00",
+                    background: "#FFF8EC",
                     padding: "0.75rem 1rem",
                     margin: "1rem 0",
                     borderRadius: "0 0.5rem 0.5rem 0",
@@ -420,7 +420,7 @@ export function ProfessionalDocument({
                   <hr style={{
                     border: "none",
                     height: "1px",
-                    background: "linear-gradient(90deg, transparent, hsl(0 68% 51% / 0.3), hsl(30 100% 49% / 0.3), transparent)",
+                    background: "linear-gradient(90deg, transparent, #D63B1A, #F08A00, transparent)",
                     margin: "2rem 0",
                   }} />
                 ),
@@ -448,7 +448,7 @@ export function ProfessionalDocument({
                       padding: "0.15rem 0.4rem",
                       borderRadius: "0.25rem",
                       fontSize: "0.825rem",
-                      color: "hsl(0 68% 51%)",
+                      color: "#D63B1A",
                     }}>
                       {children}
                     </code>
