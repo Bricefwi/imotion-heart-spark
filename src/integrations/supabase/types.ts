@@ -862,6 +862,39 @@ export type Database = {
           },
         ]
       }
+      lovelib_bridge_tokens: {
+        Row: {
+          consumed_at: string | null
+          consumer_ip: string | null
+          consumer_ua: string | null
+          email: string
+          expires_at: string
+          issued_at: string
+          jti: string
+          user_id: string
+        }
+        Insert: {
+          consumed_at?: string | null
+          consumer_ip?: string | null
+          consumer_ua?: string | null
+          email: string
+          expires_at: string
+          issued_at?: string
+          jti: string
+          user_id: string
+        }
+        Update: {
+          consumed_at?: string | null
+          consumer_ip?: string | null
+          consumer_ua?: string | null
+          email?: string
+          expires_at?: string
+          issued_at?: string
+          jti?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       lovelib_token_uses: {
         Row: {
           audit_external_id: string | null
@@ -1895,6 +1928,7 @@ export type Database = {
         }
       }
       cleanup_agent_state: { Args: never; Returns: undefined }
+      cleanup_lovelib_bridge_tokens: { Args: never; Returns: undefined }
       cleanup_lovelib_token_uses: { Args: never; Returns: undefined }
       cleanup_pending_audit_claims: { Args: never; Returns: undefined }
       cleanup_webhook_nonces: { Args: never; Returns: undefined }
