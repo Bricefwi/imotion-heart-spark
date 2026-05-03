@@ -3,6 +3,7 @@ import { HeroSection } from "@/components/landing/HeroSection";
 import { TrustBar } from "@/components/landing/TrustBar";
 import { StatsSection } from "@/components/landing/StatsSection";
 import { HomeHowItWorks } from "@/components/landing/HomeHowItWorks";
+import { MarketingTrackSection } from "@/components/landing/MarketingTrackSection";
 import { MiniPreviewCards } from "@/components/landing/MiniPreviewCards";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { FAQSection } from "@/components/landing/FAQSection";
