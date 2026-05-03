@@ -1,21 +1,25 @@
 /**
- * Returns the public URL of the IMOTION marketing app (lovelib).
+ * Marketing URL helpers.
  *
- * - In production (custom domain `app.imotion-conseils.fr`), points to the
- *   sibling subdomain `marketing.imotion-conseils.fr`.
- * - Everywhere else (preview, lovable.app, localhost), falls back to the
- *   public lovable.app URL of lovelib so links keep working before DNS cutover.
+ * Depuis la fusion lovelib → Clarivi, le marketing est servi en interne
+ * sur les routes /marketing/*. On garde ces helpers pour conserver la
+ * compatibilité avec les anciens appels (emails, edge functions) qui
+ * pouvaient pointer vers le sous-domaine `marketing.imotion-conseils.fr`.
+ *
+ * - En navigateur : on retourne des chemins relatifs (/marketing/...)
+ *   que React Router gère sans rechargement.
+ * - Côté serveur (edge functions, emails) : on retourne des URLs absolues
+ *   sur le domaine app pour rester cliquables hors-app.
  */
-const PROD_MARKETING_URL = "https://marketing.imotion-conseils.fr";
-const FALLBACK_MARKETING_URL = "https://lovelib-spyglass.lovable.app";
+const PROD_APP_URL = "https://app.imotion-conseils.fr";
+
+function isBrowser(): boolean {
+  return typeof window !== "undefined";
+}
 
 export function getMarketingBaseUrl(): string {
-  if (typeof window === "undefined") return PROD_MARKETING_URL;
-  const host = window.location.hostname;
-  if (host === "imotion-conseils.fr" || host.endsWith(".imotion-conseils.fr")) {
-    return PROD_MARKETING_URL;
-  }
-  return FALLBACK_MARKETING_URL;
+  if (!isBrowser()) return PROD_APP_URL;
+  return window.location.origin;
 }
 
 export interface MarketingAuditLinkParams {
@@ -24,40 +28,31 @@ export interface MarketingAuditLinkParams {
   reason?: string;
 }
 
-/** Build the absolute URL of the free marketing audit landing page. */
-export function getMarketingAuditUrl(params: MarketingAuditLinkParams = {}): string {
-  const url = new URL("/audit-gratuit", getMarketingBaseUrl());
+function appendParams(url: URL, params: MarketingAuditLinkParams) {
   url.searchParams.set("source", "clarivi");
   if (params.projectId) url.searchParams.set("project", params.projectId);
   if (params.userId) url.searchParams.set("user", params.userId);
   if (params.reason) url.searchParams.set("reason", params.reason);
-  return url.toString();
+}
+
+/** URL (absolue ou relative selon le contexte) de l'audit marketing offert. */
+export function getMarketingAuditUrl(params: MarketingAuditLinkParams = {}): string {
+  const url = new URL("/marketing/audit-gratuit", getMarketingBaseUrl());
+  appendParams(url, params);
+  return isBrowser() ? url.pathname + url.search : url.toString();
 }
 
 /**
- * Build a SSO handoff URL: route the user through Clarivi's `/auth/handoff`
- * page so the shared cookie on `.imotion-conseils.fr` is guaranteed to be
- * written before we land on the marketing app. If the user is not logged in
- * yet, the handoff page sends them to `/login?next=/auth/handoff?to=…` and
- * comes back automatically.
- *
- * In dev / preview (non-prod hosts), we skip the handoff and link directly to
- * the marketing app — the SSO cookie isn't available off the custom domain
- * anyway, and the marketing app falls back to its own auth.
+ * Handoff vers la branche marketing. Plus besoin de SSO inter-domaine
+ * puisque tout est servi par la même app : on renvoie simplement la route
+ * interne avec ses paramètres tracés.
  */
 export function getMarketingHandoffUrl(targetPath = "/", params: MarketingAuditLinkParams = {}): string {
-  const marketing = new URL(targetPath || "/", getMarketingBaseUrl());
-  marketing.searchParams.set("source", "clarivi");
-  if (params.projectId) marketing.searchParams.set("project", params.projectId);
-  if (params.userId) marketing.searchParams.set("user", params.userId);
-  if (params.reason) marketing.searchParams.set("reason", params.reason);
-
-  if (typeof window === "undefined") return marketing.toString();
-  const host = window.location.hostname;
-  const isProd = host === "imotion-conseils.fr" || host.endsWith(".imotion-conseils.fr");
-  if (!isProd) return marketing.toString();
-
-  const handoff = new URL("/auth/handoff", "https://app.imotion-conseils.fr");
-  handoff.searchParams.set("to", marketing.toString());
-  return handoff.toString();
+  const path = targetPath.startsWith("/marketing")
+    ? targetPath
+    : `/marketing${targetPath === "/" ? "" : targetPath}`;
+  const url = new URL(path || "/marketing", getMarketingBaseUrl());
+  appendParams(url, params);
+  return isBrowser() ? url.pathname + url.search : url.toString();
 }
+

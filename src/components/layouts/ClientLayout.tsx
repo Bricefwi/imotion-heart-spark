@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/sidebar";
 import {
   LayoutDashboard, FolderKanban, FileText, User,
-  LogOut, Home, Shield, MessageSquare, Sparkles, Download
+  LogOut, Home, Shield, MessageSquare, Sparkles, Download, Target
 } from "lucide-react";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -31,6 +31,7 @@ const clientNav = [
   { title: "Projets", url: "/client/projects", icon: FolderKanban },
   { title: "Documents", url: "/client/documents", icon: FileText },
   { title: "Mes audits", url: "/client/audits", icon: Sparkles },
+  { title: "Espace marketing", url: "/marketing/dashboard", icon: Target },
   { title: "Audit lovelib", url: "/client/lovelib-audit", icon: Download },
   { title: "Profil", url: "/client/profile", icon: User },
 ];
