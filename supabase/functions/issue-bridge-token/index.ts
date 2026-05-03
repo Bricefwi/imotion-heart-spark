@@ -6,6 +6,7 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { signBridgeToken, BRIDGE_MAX_TTL_SECONDS } from "../_shared/bridge-token.ts";
+import { resolveBridgeSecret } from "../_shared/bridge-secret.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -26,9 +27,12 @@ Deno.serve(async (req) => {
   const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
   const ANON = Deno.env.get("SUPABASE_ANON_KEY");
   const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  const SECRET = Deno.env.get("LOVELIB_BRIDGE_SECRET") ?? Deno.env.get("MARKETING_WEBHOOK_SECRET");
+  const { value: SECRET, source: SECRET_SOURCE } = resolveBridgeSecret();
   if (!SUPABASE_URL || !ANON || !SERVICE_ROLE || !SECRET) {
     return json({ error: "server_not_configured" }, 500);
+  }
+  if (SECRET_SOURCE === "fallback") {
+    console.warn("[issue-bridge-token] Using MARKETING_WEBHOOK_SECRET fallback. Configure LOVELIB_BRIDGE_SECRET for clarity.");
   }
 
   const authHeader = req.headers.get("Authorization") ?? "";
