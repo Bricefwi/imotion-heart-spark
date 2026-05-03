@@ -46,7 +46,7 @@ export function useAutoRedeemAudits() {
         }
         sessionStorage.setItem(SESSION_FLAG, user.id);
 
-        const result = (data ?? { claimed: 0, audits: [] }) as RedeemResult;
+        const result = (data ?? { claimed: 0, audits: [] }) as unknown as RedeemResult;
         if (result.claimed > 0) {
           // Cleanup any stale claim hint stored before login
           sessionStorage.removeItem("pendingAuditClaimEmail");
