@@ -22,7 +22,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { LayoutDashboard, Users, Settings, Plug, ScrollText, LogOut, Shield, FileText, BookOpen, Radar, BarChart3, Globe, ExternalLink, ChevronRight, Home, Bell, Check, CheckCheck, Inbox, Sun, Moon, RefreshCw, Activity } from "lucide-react";
+import { LayoutDashboard, Users, Settings, Plug, ScrollText, LogOut, Shield, FileText, BookOpen, Radar, BarChart3, Globe, ExternalLink, ChevronRight, Home, Bell, Check, CheckCheck, Inbox, Sun, Moon, RefreshCw, Activity, Target } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
@@ -229,6 +229,7 @@ const sidebarGroups: SidebarGroupDef[] = [
       { title: "Vue d'ensemble", url: "/admin/dashboard", icon: LayoutDashboard },
       { title: "Tower Control", url: "/admin/crm", icon: Radar, badge: "NEW" },
       { title: "Marketing Leads", url: "/admin/marketing-leads", icon: Inbox, badge: "NEW" },
+      { title: "Vue Marketing", url: "/marketing/dashboard", icon: Target, badge: "NEW" },
       { title: "Analytiques", url: "/admin/analytics", icon: BarChart3, badge: "NEW" },
     ],
   },

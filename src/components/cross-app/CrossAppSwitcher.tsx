@@ -4,9 +4,7 @@
  * Côté lovelib : composant jumeau avec `current="marketing"` (patch fourni).
  */
 import { Link } from "react-router-dom";
-import { Rocket, Target, ExternalLink } from "lucide-react";
-import { getMarketingHandoffUrl } from "@/lib/marketing-url";
-import { useAuth } from "@/hooks/useAuth";
+import { Rocket, Target } from "lucide-react";
 
 interface Props {
   current?: "build" | "marketing";
@@ -16,9 +14,6 @@ interface Props {
 }
 
 export function CrossAppSwitcher({ current = "build", className = "", size = "full" }: Props) {
-  const { user } = useAuth();
-  const marketingHref = getMarketingHandoffUrl("/", { userId: user?.id });
-
   const baseSeg =
     "flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-[var(--radius-sm)] transition-all duration-200";
 
@@ -43,9 +38,9 @@ export function CrossAppSwitcher({ current = "build", className = "", size = "fu
         <span className={size === "compact" ? "hidden md:inline" : ""}>Build</span>
       </Link>
 
-      {/* MARKETING */}
-      <a
-        href={marketingHref}
+      {/* MARKETING (route interne fusionnée) */}
+      <Link
+        to="/marketing"
         role="tab"
         aria-selected={current === "marketing"}
         className={`${baseSeg} ${
@@ -56,10 +51,7 @@ export function CrossAppSwitcher({ current = "build", className = "", size = "fu
       >
         <Target className="h-3.5 w-3.5" />
         <span className={size === "compact" ? "hidden md:inline" : ""}>Marketing</span>
-        {current === "build" && (
-          <ExternalLink className="h-3 w-3 opacity-60" aria-hidden />
-        )}
-      </a>
+      </Link>
     </div>
   );
 }

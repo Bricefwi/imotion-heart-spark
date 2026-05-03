@@ -15,6 +15,13 @@ import { PublicLayout } from "@/components/layouts/PublicLayout";
 import { ClientLayout } from "@/components/layouts/ClientLayout";
 import { ConsultantLayout } from "@/components/layouts/ConsultantLayout";
 import { AdminLayout } from "@/components/layouts/AdminLayout";
+import { MarketingLayout } from "@/components/layouts/MarketingLayout";
+
+// Marketing pages (lazy)
+const MarketingHome = lazy(() => import("@/pages/marketing/Home"));
+const MarketingAuditGratuit = lazy(() => import("@/pages/marketing/AuditGratuit"));
+const MarketingDashboard = lazy(() => import("@/pages/marketing/Dashboard"));
+const MarketingPlaceholder = lazy(() => import("@/pages/marketing/Placeholder"));
 
 // Public pages (lazy)
 const Index = lazy(() => import("@/pages/Index"));
@@ -110,6 +117,18 @@ const App = () => (
               <Route path="/blog" element={<Blog />} />
               <Route path="/brand-preview" element={<BrandPreview />} />
               <Route path="/blog/:slug" element={<BlogArticle />} />
+            </Route>
+
+            {/* Marketing (branche fusionnée depuis lovelib) */}
+            <Route element={<MarketingLayout />}>
+              <Route path="/marketing" element={<MarketingHome />} />
+              <Route path="/marketing/audit-gratuit" element={<MarketingAuditGratuit />} />
+              <Route path="/marketing/dashboard" element={<ProtectedRoute><MarketingDashboard /></ProtectedRoute>} />
+              <Route path="/marketing/methode" element={<MarketingPlaceholder />} />
+              <Route path="/marketing/cas-clients" element={<MarketingPlaceholder />} />
+              <Route path="/marketing/veille" element={<MarketingPlaceholder />} />
+              <Route path="/marketing/blog" element={<MarketingPlaceholder />} />
+              <Route path="/marketing/blog/:slug" element={<MarketingPlaceholder />} />
             </Route>
 
             {/* Auth (no layout) */}
