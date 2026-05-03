@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Bell, Check, MessageSquare, FileText, FolderKanban, AlertTriangle } from "lucide-react";
+import { Bell, Check, MessageSquare, FileText, FolderKanban, AlertTriangle, Sparkles, TrendingUp, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -25,6 +25,10 @@ const typeIcons: Record<string, typeof Bell> = {
   document_ready: FileText,
   project_status_changed: FolderKanban,
   consultant_intervention: AlertTriangle,
+  marketing_audit_merged: Sparkles,
+  marketing_audit_completed: Sparkles,
+  cross_sell: TrendingUp,
+  post_delivery: TrendingUp,
 };
 
 const isInternalUrl = (url: string) => {
@@ -139,14 +143,25 @@ export function NotificationCenter() {
                   )}
                   onClick={() => {
                     if (!notif.is_read) markAsRead(notif.id);
-                    if (notif.link && isInternalUrl(notif.link)) window.location.href = notif.link;
+                    if (notif.link) {
+                      if (isInternalUrl(notif.link)) {
+                        window.location.href = notif.link;
+                      } else {
+                        window.open(notif.link, "_blank", "noopener,noreferrer");
+                      }
+                    }
                   }}
                 >
                   <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
                     <Icon className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className={cn("text-sm", !notif.is_read && "font-medium")}>{notif.title}</p>
+                    <p className={cn("text-sm flex items-center gap-1", !notif.is_read && "font-medium")}>
+                      {notif.title}
+                      {notif.link && !isInternalUrl(notif.link) && (
+                        <ExternalLink className="h-3 w-3 text-muted-foreground shrink-0" />
+                      )}
+                    </p>
                     {notif.body && (
                       <p className="text-xs text-muted-foreground line-clamp-2">{notif.body}</p>
                     )}
