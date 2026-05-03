@@ -11,6 +11,9 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
+import { CrossAppSwitcher } from "@/components/cross-app/CrossAppSwitcher";
+import { CrossAppOriginBanner } from "@/components/cross-app/CrossAppOriginBanner";
+import { CrossAppFooterBridge } from "@/components/cross-app/CrossAppFooterBridge";
 
 export function PublicLayout() {
   const { user, profile, roles, signOut } = useAuth();
@@ -105,6 +108,7 @@ export function PublicLayout() {
           </nav>
 
           <div className="hidden md:flex items-center gap-2">
+            <CrossAppSwitcher current="build" size="compact" />
             <LanguageSelector />
             {user ? (
               <div className="flex items-center gap-2">
@@ -248,11 +252,15 @@ export function PublicLayout() {
         )}
       </header>
 
+      <CrossAppOriginBanner />
+
       <main className="flex-1">
         <Outlet />
       </main>
 
       <FloatingChatAgent />
+
+      <CrossAppFooterBridge current="build" />
 
       {/* Premium Footer */}
       <footer className="border-t border-border/30 bg-muted/20">
