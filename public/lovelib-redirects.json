@@ -1,0 +1,152 @@
+{
+  "generatedAt": "2026-05-03T12:04:11.407Z",
+  "source": "https://marketing.imotion-conseils.fr",
+  "target": "https://app.imotion-conseils.fr",
+  "rules": [
+    {
+      "from": "/",
+      "to": "https://app.imotion-conseils.fr/marketing",
+      "code": 301
+    },
+    {
+      "from": "/home",
+      "to": "https://app.imotion-conseils.fr/marketing",
+      "code": 301
+    },
+    {
+      "from": "/index",
+      "to": "https://app.imotion-conseils.fr/marketing",
+      "code": 301
+    },
+    {
+      "from": "/audit",
+      "to": "https://app.imotion-conseils.fr/marketing/audit-gratuit",
+      "code": 301
+    },
+    {
+      "from": "/audit-gratuit",
+      "to": "https://app.imotion-conseils.fr/marketing/audit-gratuit",
+      "code": 301
+    },
+    {
+      "from": "/audit-marketing",
+      "to": "https://app.imotion-conseils.fr/marketing/audit-gratuit",
+      "code": 301
+    },
+    {
+      "from": "/free-audit",
+      "to": "https://app.imotion-conseils.fr/marketing/audit-gratuit",
+      "code": 301
+    },
+    {
+      "from": "/methode",
+      "to": "https://app.imotion-conseils.fr/marketing/methode",
+      "code": 301
+    },
+    {
+      "from": "/methodologie",
+      "to": "https://app.imotion-conseils.fr/marketing/methode",
+      "code": 301
+    },
+    {
+      "from": "/cas-clients",
+      "to": "https://app.imotion-conseils.fr/marketing/cas-clients",
+      "code": 301
+    },
+    {
+      "from": "/case-studies",
+      "to": "https://app.imotion-conseils.fr/marketing/cas-clients",
+      "code": 301
+    },
+    {
+      "from": "/realisations",
+      "to": "https://app.imotion-conseils.fr/marketing/cas-clients",
+      "code": 301
+    },
+    {
+      "from": "/veille",
+      "to": "https://app.imotion-conseils.fr/marketing/veille",
+      "code": 301
+    },
+    {
+      "from": "/insights",
+      "to": "https://app.imotion-conseils.fr/marketing/veille",
+      "code": 301
+    },
+    {
+      "from": "/blog",
+      "to": "https://app.imotion-conseils.fr/marketing/blog",
+      "code": 302
+    },
+    {
+      "from": "/blog/*",
+      "to": "https://app.imotion-conseils.fr/marketing/blog/*",
+      "code": 302
+    },
+    {
+      "from": "/articles/*",
+      "to": "https://app.imotion-conseils.fr/marketing/blog/*",
+      "code": 301
+    },
+    {
+      "from": "/account",
+      "to": "https://app.imotion-conseils.fr/marketing/account",
+      "code": 302
+    },
+    {
+      "from": "/login",
+      "to": "https://app.imotion-conseils.fr/login",
+      "code": 301
+    },
+    {
+      "from": "/signup",
+      "to": "https://app.imotion-conseils.fr/register",
+      "code": 301
+    },
+    {
+      "from": "/register",
+      "to": "https://app.imotion-conseils.fr/register",
+      "code": 301
+    },
+    {
+      "from": "/contact",
+      "to": "https://app.imotion-conseils.fr/contact",
+      "code": 301
+    },
+    {
+      "from": "/mentions-legales",
+      "to": "https://app.imotion-conseils.fr/mentions-legales",
+      "code": 301
+    },
+    {
+      "from": "/confidentialite",
+      "to": "https://app.imotion-conseils.fr/confidentialite",
+      "code": 301
+    },
+    {
+      "from": "/privacy",
+      "to": "https://app.imotion-conseils.fr/confidentialite",
+      "code": 301
+    },
+    {
+      "from": "/cgu",
+      "to": "https://app.imotion-conseils.fr/cgu",
+      "code": 301
+    },
+    {
+      "from": "/cgv",
+      "to": "https://app.imotion-conseils.fr/cgv",
+      "code": 301
+    },
+    {
+      "from": "/cookies",
+      "to": "https://app.imotion-conseils.fr/cookies",
+      "code": 301
+    },
+    {
+      "from": "/faq",
+      "to": "https://app.imotion-conseils.fr/faq",
+      "code": 301
+    }
+  ]
+}

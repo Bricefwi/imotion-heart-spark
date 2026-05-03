@@ -37,4 +37,4 @@ Disallow: /admin/
 Disallow: /login
 Disallow: /register
 
-Sitemap: https://imotion-heart-spark.lovable.app/sitemap.xml
+Sitemap: https://app.imotion-conseils.fr/sitemap.xml
