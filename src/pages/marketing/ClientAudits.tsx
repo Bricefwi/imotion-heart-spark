@@ -39,7 +39,7 @@ export default function MarketingClientAudits() {
           .eq("created_by", user.id)
           .order("created_at", { ascending: false });
         if (error) throw error;
-        setAudits((data ?? []) as AuditRow[]);
+        setAudits((data ?? []) as unknown as AuditRow[]);
       } catch (e) {
         console.error(e);
         toast.error("Erreur lors du chargement des audits");
