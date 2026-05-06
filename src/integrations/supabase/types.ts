@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      ab_test_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json
+          session_id: string
+          test_id: string
+          user_id: string | null
+          variant: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json
+          session_id: string
+          test_id: string
+          user_id?: string | null
+          variant: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json
+          session_id?: string
+          test_id?: string
+          user_id?: string | null
+          variant?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ab_test_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       activities: {
         Row: {
           action: string
@@ -344,6 +385,105 @@ export type Database = {
           view_count?: number | null
         }
         Relationships: []
+      }
+      cdc_pro_orders: {
+        Row: {
+          amount_eur: number
+          applied_to_build_estimate_id: string | null
+          cdc_id: string | null
+          completed_at: string | null
+          consultant_id: string | null
+          created_at: string
+          currency: string
+          id: string
+          metadata: Json
+          paid_at: string | null
+          project_id: string
+          refunded_at: string | null
+          scheduled_at: string | null
+          status: string
+          stripe_payment_intent_id: string | null
+          stripe_session_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_eur?: number
+          applied_to_build_estimate_id?: string | null
+          cdc_id?: string | null
+          completed_at?: string | null
+          consultant_id?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          metadata?: Json
+          paid_at?: string | null
+          project_id: string
+          refunded_at?: string | null
+          scheduled_at?: string | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_eur?: number
+          applied_to_build_estimate_id?: string | null
+          cdc_id?: string | null
+          completed_at?: string | null
+          consultant_id?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          metadata?: Json
+          paid_at?: string | null
+          project_id?: string
+          refunded_at?: string | null
+          scheduled_at?: string | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cdc_pro_orders_applied_to_build_estimate_id_fkey"
+            columns: ["applied_to_build_estimate_id"]
+            isOneToOne: false
+            referencedRelation: "project_estimates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cdc_pro_orders_cdc_id_fkey"
+            columns: ["cdc_id"]
+            isOneToOne: false
+            referencedRelation: "generated_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cdc_pro_orders_consultant_id_fkey"
+            columns: ["consultant_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cdc_pro_orders_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cdc_pro_orders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       client_reviews: {
         Row: {
@@ -757,6 +897,59 @@ export type Database = {
           used_at?: string | null
         }
         Relationships: []
+      }
+      events: {
+        Row: {
+          attribution_source: string | null
+          created_at: string
+          dedup_hash: string
+          event_data: Json
+          event_type: string
+          id: string
+          page: string | null
+          session_id: string
+          user_id: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          attribution_source?: string | null
+          created_at?: string
+          dedup_hash: string
+          event_data?: Json
+          event_type: string
+          id?: string
+          page?: string | null
+          session_id: string
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          attribution_source?: string | null
+          created_at?: string
+          dedup_hash?: string
+          event_data?: Json
+          event_type?: string
+          id?: string
+          page?: string | null
+          session_id?: string
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       generated_documents: {
         Row: {
@@ -2079,6 +2272,79 @@ export type Database = {
           },
         ]
       }
+      nurturing_sequences: {
+        Row: {
+          cdc_id: string | null
+          created_at: string
+          current_step: number
+          emails_clicked: number
+          emails_opened: number
+          id: string
+          last_email_sent_at: string | null
+          metadata: Json
+          next_email_due_at: string
+          project_id: string
+          started_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cdc_id?: string | null
+          created_at?: string
+          current_step?: number
+          emails_clicked?: number
+          emails_opened?: number
+          id?: string
+          last_email_sent_at?: string | null
+          metadata?: Json
+          next_email_due_at?: string
+          project_id: string
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cdc_id?: string | null
+          created_at?: string
+          current_step?: number
+          emails_clicked?: number
+          emails_opened?: number
+          id?: string
+          last_email_sent_at?: string | null
+          metadata?: Json
+          next_email_due_at?: string
+          project_id?: string
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nurturing_sequences_cdc_id_fkey"
+            columns: ["cdc_id"]
+            isOneToOne: false
+            referencedRelation: "generated_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nurturing_sequences_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nurturing_sequences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pending_audit_claims: {
         Row: {
           claimed_at: string | null
@@ -2171,6 +2437,8 @@ export type Database = {
       }
       pricing_maintenance: {
         Row: {
+          annual_price: number | null
+          billing_cycle: string
           code: string
           created_at: string | null
           description: string | null
@@ -2187,6 +2455,8 @@ export type Database = {
           support_response_hours: number | null
         }
         Insert: {
+          annual_price?: number | null
+          billing_cycle?: string
           code: string
           created_at?: string | null
           description?: string | null
@@ -2203,6 +2473,8 @@ export type Database = {
           support_response_hours?: number | null
         }
         Update: {
+          annual_price?: number | null
+          billing_cycle?: string
           code?: string
           created_at?: string | null
           description?: string | null
@@ -2485,6 +2757,8 @@ export type Database = {
           current_phase: number | null
           desired_deadline: string | null
           discovery_data: Json | null
+          email_verified: boolean
+          email_verified_at: string | null
           estimated_budget_max: number | null
           estimated_budget_min: number | null
           estimated_end_date: string | null
@@ -2519,6 +2793,8 @@ export type Database = {
           current_phase?: number | null
           desired_deadline?: string | null
           discovery_data?: Json | null
+          email_verified?: boolean
+          email_verified_at?: string | null
           estimated_budget_max?: number | null
           estimated_budget_min?: number | null
           estimated_end_date?: string | null
@@ -2553,6 +2829,8 @@ export type Database = {
           current_phase?: number | null
           desired_deadline?: string | null
           discovery_data?: Json | null
+          email_verified?: boolean
+          email_verified_at?: string | null
           estimated_budget_max?: number | null
           estimated_budget_min?: number | null
           estimated_end_date?: string | null
