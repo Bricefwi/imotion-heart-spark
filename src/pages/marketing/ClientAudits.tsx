@@ -39,7 +39,7 @@ export default function MarketingClientAudits() {
           .eq("created_by", user.id)
           .order("created_at", { ascending: false });
         if (error) throw error;
-        setAudits((data ?? []) as AuditRow[]);
+        setAudits((data ?? []) as unknown as AuditRow[]);
       } catch (e) {
         console.error(e);
         toast.error("Erreur lors du chargement des audits");
@@ -59,7 +59,7 @@ export default function MarketingClientAudits() {
 
   return (
     <>
-      <SEOHead title="Mes audits – IMOTION Marketing" />
+      <SEOHead title="Mes audits – IMOTION Marketing" description="Consultez vos audits marketing IMOTION." />
       <main className="container py-12 max-w-4xl">
         <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
           <h1 className="text-3xl font-bold">Mes audits</h1>

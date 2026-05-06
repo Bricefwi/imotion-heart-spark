@@ -55,10 +55,11 @@ export default function AuditDetail() {
 
   useEffect(() => {
     if (!id) return;
+    const sb = supabase as any;
     Promise.all([
-      supabase.from("audits").select("*").eq("id", id).single(),
-      supabase.from("audit_messages").select("*").eq("audit_id", id).in("role", ["user", "assistant"]).order("created_at"),
-      supabase.from("audit_documents").select("*").eq("audit_id", id).order("created_at"),
+      sb.from("audits").select("*").eq("id", id).single(),
+      sb.from("audit_messages").select("*").eq("audit_id", id).in("role", ["user", "assistant"]).order("created_at"),
+      sb.from("audit_documents").select("*").eq("audit_id", id).order("created_at"),
     ]).then(([auditRes, msgRes, docRes]) => {
       if (auditRes.data) setAudit(auditRes.data as Audit);
       setMessages((msgRes.data ?? []) as AuditMessage[]);

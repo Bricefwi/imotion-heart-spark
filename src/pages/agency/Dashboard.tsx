@@ -48,13 +48,13 @@ export default function AgencyDashboard() {
 
   useEffect(() => {
     if (!agency) return;
-    supabase
+    (supabase as any)
       .from("audits")
       .select("id, prospect_name, prospect_email, status, lead_grade, quality_score, llm_cost_eur, created_at, completed_at")
       .eq("agency_id", agency.id)
       .order("created_at", { ascending: false })
       .limit(10)
-      .then(({ data }) => {
+      .then(({ data }: { data: AuditRow[] | null }) => {
         setAudits((data ?? []) as AuditRow[]);
         setAuditsLoading(false);
       });

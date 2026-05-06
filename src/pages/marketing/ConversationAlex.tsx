@@ -77,7 +77,7 @@ export default function MarketingConversationAlex() {
 
   return (
     <>
-      <SEOHead title="Conversation avec Alex – IMOTION" />
+      <SEOHead title="Conversation avec Alex – IMOTION" description="Discutez avec Alex, votre consultant marketing IA." />
       <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex items-center justify-center p-4">
         <Card className="w-full max-w-3xl h-[700px] flex flex-col">
           <CardHeader className="border-b">

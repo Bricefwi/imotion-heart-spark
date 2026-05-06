@@ -68,7 +68,8 @@ export function AgencyProvider({ children }: { children: ReactNode }) {
     async function load() {
       setIsLoading(true);
       try {
-        const { data: agencyUser } = await supabase
+        const sb = supabase as any;
+        const { data: agencyUser } = await sb
           .from("agency_users")
           .select("agency_id, role")
           .eq("user_id", user!.id)
@@ -82,9 +83,9 @@ export function AgencyProvider({ children }: { children: ReactNode }) {
         setRole(agencyUser.role);
 
         const [agencyRes, brandingRes, subRes] = await Promise.all([
-          supabase.from("agencies").select("*").eq("id", agencyUser.agency_id).single(),
-          supabase.from("agency_branding").select("*").eq("agency_id", agencyUser.agency_id).single(),
-          supabase.from("agency_subscriptions").select("*").eq("agency_id", agencyUser.agency_id).single(),
+          sb.from("agencies").select("*").eq("id", agencyUser.agency_id).single(),
+          sb.from("agency_branding").select("*").eq("agency_id", agencyUser.agency_id).single(),
+          sb.from("agency_subscriptions").select("*").eq("agency_id", agencyUser.agency_id).single(),
         ]);
 
         if (agencyRes.data) setAgency(agencyRes.data as Agency);
