@@ -96,7 +96,7 @@ export default function MarketingDashboard() {
 
   return (
     <>
-      <SEOHead title="Mon espace marketing – IMOTION" />
+      <SEOHead title="Mon espace marketing – IMOTION" description="Tableau de bord de votre espace marketing IMOTION." />
 
       <main className="container py-12">
         <div className="mb-8">

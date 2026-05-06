@@ -68,7 +68,7 @@ export default function MarketingNewAudit() {
 
   return (
     <>
-      <SEOHead title="Nouvel audit – IMOTION Marketing" />
+      <SEOHead title="Nouvel audit – IMOTION Marketing" description="Lancez un nouvel audit marketing IMOTION." />
       <main className="container py-12 max-w-2xl">
         <h1 className="text-4xl font-bold mb-3">
           Nouvel <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">audit</span>
