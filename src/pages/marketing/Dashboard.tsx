@@ -59,7 +59,7 @@ export default function MarketingDashboard() {
           .select("full_name,email,company_name,company_siret,company_siren,company_legal_name,company_website,trust_score,free_audits_used,account_status,last_audit_at")
           .eq("id", user.id)
           .maybeSingle();
-        setProfile(prof as ProfileLite);
+        setProfile(prof as unknown as ProfileLite);
 
         const { data: auditsData } = await supabase
           .from("mkt_audits" as any)
@@ -67,7 +67,7 @@ export default function MarketingDashboard() {
           .eq("created_by", user.id)
           .order("created_at", { ascending: false })
           .limit(5);
-        const list = (auditsData ?? []) as AuditLite[];
+        const list = (auditsData ?? []) as unknown as AuditLite[];
         setAudits(list);
 
         const completed = list.filter((a) => a.status === "consolidated").length;
