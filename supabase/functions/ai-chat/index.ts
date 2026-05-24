@@ -980,6 +980,80 @@ serve(async (req) => {
 
     const isDiscoveryComplete = readyForNextPhase && currentPhase === 7;
 
+    // ── Lead Scoring (Sprint 3bis Prompt 1) — non-blocking ──
+    if (isDiscoveryComplete) {
+      try {
+        const scoringResult = await scoreLead(updatedDiscoveryData, {
+          name: project.name,
+          estimated_budget_min: (project as Record<string, unknown>).estimated_budget_min as number | null ?? null,
+          estimated_budget_max: (project as Record<string, unknown>).estimated_budget_max as number | null ?? null,
+          desired_deadline: (project as Record<string, unknown>).desired_deadline as string | null ?? null,
+        });
+
+        if (scoringResult) {
+          await supabase
+            .from("projects")
+            .update({
+              qualification_score: scoringResult.score,
+              qualification_flags: scoringResult.flags,
+            })
+            .eq("id", projectId);
+
+          if (scoringResult.score >= 70 && project.consultant_id) {
+            await supabase.from("notifications").insert({
+              user_id: project.consultant_id,
+              type: "consultant_intervention",
+              title: `🎯 Lead qualifié — score ${scoringResult.score}/100`,
+              body: `Projet : ${project.name}\nFlags : ${scoringResult.flags.join(", ")}`,
+              project_id: projectId,
+              link: `/consultant/projects/${projectId}`,
+            });
+          } else if (scoringResult.score >= 70) {
+            const { data: admins } = await supabase
+              .from("user_roles")
+              .select("user_id")
+              .in("role", ["consultant", "admin"]);
+            if (admins && admins.length > 0) {
+              const notifs = admins.map((a: { user_id: string }) => ({
+                user_id: a.user_id,
+                type: "consultant_intervention",
+                title: `🎯 Lead qualifié non-assigné — score ${scoringResult.score}/100`,
+                body: `Projet : ${project.name}\nFlags : ${scoringResult.flags.join(", ")}\nPrendre en charge ?`,
+                project_id: projectId,
+                link: `/consultant/projects/${projectId}`,
+              }));
+              await supabase.from("notifications").insert(notifs);
+            }
+          }
+
+          await supabase.from("events").insert({
+            user_id: project.client_id,
+            session_id: crypto.randomUUID(),
+            event_type: "lead_scored",
+            event_data: {
+              project_id: projectId,
+              score: scoringResult.score,
+              flags: scoringResult.flags,
+            },
+            dedup_hash: `lead_scored:${projectId}`,
+          }).then(() => {}, () => {});
+
+          if (scoringResult.score >= 30) {
+            await supabase.from("nurturing_sequences").insert({
+              user_id: project.client_id,
+              project_id: projectId,
+              status: "active",
+              current_step: 0,
+              next_email_due_at: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+            });
+          }
+        }
+      } catch (e) {
+        console.warn("Lead scoring failed (non-blocking):", e);
+      }
+    }
+
+
     return new Response(
       JSON.stringify({
         message: aiMessageContent,
