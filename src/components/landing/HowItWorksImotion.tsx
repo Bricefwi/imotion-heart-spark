@@ -15,8 +15,8 @@ const STEPS = [
     title: "Identité & douleur",
     desc: "Capture le contexte du prospect, son rôle, son secteur — et quantifie sa douleur en heures ou en euros.",
     bullets: [
-      "Persona + entreprise",
-      "Pain quantifié (€/h)",
+      "Persona & entreprise",
+      "Enjeux & contexte",
       "Niveau d'impact",
     ],
   },
@@ -38,12 +38,12 @@ const STEPS = [
     label: "Scoping",
     duration: "2 min",
     icon: FileCheck,
-    title: "Budget & gouvernance",
-    desc: "Qualifie commercialement : enveloppe, délai, décideurs, urgence. Lead grade A→D livré.",
+    title: "Périmètre & gouvernance",
+    desc: "Cadre commercial : enveloppe indicative, délai, décideurs, urgence. Synthèse de qualification livrée.",
     bullets: [
-      "Budget + timeline",
+      "Périmètre & timeline",
       "Décideurs identifiés",
-      "Lead score 0-100",
+      "Synthèse de qualification",
     ],
   },
 ];
@@ -177,17 +177,17 @@ export function HowItWorksImotion() {
             </div>
             <div className="flex-1">
               <h3 className="font-bold text-lg mb-1 imo-display" style={{ color: "hsl(var(--imo-ink-50))" }}>
-                Validation Critic + génération <FlameText>CDC + Devis</FlameText> en parallèle.
+                Validation & génération du <FlameText>cahier des charges</FlameText>.
               </h3>
               <p className="text-sm" style={{ color: "hsl(var(--imo-ink-300))" }}>
-                Score qualité, anti-hallucination, lead grading A/B/C/D. Email envoyé automatiquement à l'agence.
+                Contrôle qualité, anti-hallucination, synthèse de qualification. Notification envoyée à l'équipe.
               </p>
             </div>
             <div className="grid grid-cols-3 gap-4 shrink-0 md:gap-6 font-mono">
               {[
-                { k: "Qualité", v: ">75/100" },
-                { k: "Coût LLM", v: "<2 €" },
-                { k: "Latence", v: "<15 s" },
+                { k: "Phases", v: "7" },
+                { k: "Durée", v: "~45 min" },
+                { k: "Livrable", v: "PDF" },
               ].map(({ k, v }) => (
                 <div key={k} className="text-center">
                   <div className="text-[10px] uppercase tracking-[0.18em]" style={{ color: "hsl(var(--imo-ink-500))" }}>{k}</div>

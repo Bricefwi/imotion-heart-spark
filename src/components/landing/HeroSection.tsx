@@ -8,12 +8,15 @@ import { SectionIndex } from "@/components/brand/SectionIndex";
 import { FlameText } from "@/components/brand/FlameText";
 import { Stamp } from "@/components/brand/Stamp";
 
-/* ─── Mockup live "Audit en cours" ────────────────────────── */
+/* ─── Mockup "Audit en cours" — EXEMPLE ILLUSTRATIF ─────────
+   Aucun audit réel n'est affiché ici. Données fictives à but
+   purement démonstratif (étiqueté "Exemple" dans l'UI).
+─────────────────────────────────────────────────────────────── */
 const auditFlow = [
-  { phase: "P1 · Intake",       fact: "Pain quantifié — −12 h/sem",     status: "done" },
-  { phase: "P2 · Need",         fact: "Vision : reporting auto multi-clients", status: "done" },
-  { phase: "P3 · Scoping",      fact: "Budget 25 — 40 k€ · 12 sem",      status: "done" },
-  { phase: "Critic · Validation", fact: "Lead grade A · score 87/100", status: "live" },
+  { phase: "P1 · Intake",       fact: "Pain quantifié — gain de temps estimé", status: "done" },
+  { phase: "P2 · Need",         fact: "Vision : reporting automatisé", status: "done" },
+  { phase: "P3 · Scoping",      fact: "Périmètre & jalons identifiés", status: "done" },
+  { phase: "Critic · Validation", fact: "Lead qualifié", status: "live" },
 ];
 
 function AuditMockup() {
@@ -66,11 +69,11 @@ function AuditMockup() {
         {/* Reference mono */}
         <div className="px-5 pt-4 pb-2 flex items-center justify-between">
           <div>
-            <div className="text-[10px] uppercase tracking-[0.18em]" style={{ color: "hsl(var(--imo-ink-500))" }}>Réf. audit</div>
-            <div className="text-[11px] tabular-nums" style={{ color: "hsl(var(--imo-ink-200))" }}>AUD-2026-0142</div>
+            <div className="text-[10px] uppercase tracking-[0.18em]" style={{ color: "hsl(var(--imo-ink-500))" }}>Aperçu — exemple</div>
+            <div className="text-[11px] tabular-nums" style={{ color: "hsl(var(--imo-ink-200))" }}>Démo interactive</div>
           </div>
           <Stamp tone="amber" className="!bg-transparent !border-[hsl(var(--imo-amber-500))] !text-[hsl(var(--imo-amber-300))]">
-            6 min
+            ~ 45 min
           </Stamp>
         </div>
 
@@ -117,15 +120,15 @@ function AuditMockup() {
           })}
         </div>
 
-        {/* Footer — outputs */}
+        {/* Footer — outputs (EXEMPLE) */}
         <div
           className="mt-2 grid grid-cols-3 gap-px"
           style={{ background: "hsl(var(--imo-ink-800))" }}
         >
           {[
-            { k: "CDC", v: "✓", note: "2 400 mots" },
-            { k: "Devis", v: "✓", note: "27 700 €" },
-            { k: "Lead", v: "A", note: "87/100" },
+            { k: "CDC", v: "✓", note: "PDF généré" },
+            { k: "Devis", v: "—", note: "sur mesure" },
+            { k: "Lead", v: "✓", note: "qualifié" },
           ].map(({ k, v, note }) => (
             <div key={k} className="px-3 py-3 text-center" style={{ background: "hsl(var(--imo-ink-900))" }}>
               <div className="text-[9px] uppercase tracking-[0.18em]" style={{ color: "hsl(var(--imo-ink-500))" }}>
@@ -142,10 +145,10 @@ function AuditMockup() {
         </div>
       </div>
 
-      {/* Floating stamp */}
+      {/* Étiquette EXEMPLE — flottante en haut à droite */}
       <div className="absolute -top-3 -right-3 imo-stamp-wobble">
         <Stamp tone="dashed" className="!text-[hsl(var(--imo-coral-300))] !border-[hsl(var(--imo-coral-400)/0.7)] !bg-[hsl(var(--imo-ink-900)/0.8)] backdrop-blur shadow-lg">
-          Lead Grade A
+          Exemple illustratif
         </Stamp>
       </div>
     </div>
@@ -321,7 +324,7 @@ export function HeroSection() {
           >
             <AuditMockup />
 
-            {/* Social proof — flottant */}
+            {/* Note méthodologie — flottante */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -339,14 +342,14 @@ export function HeroSection() {
                 <div className="flex items-center gap-2 mb-1.5">
                   <span className="inline-block h-3 w-[2px] rounded-full" style={{ background: "hsl(var(--imo-coral-600))" }} />
                   <span className="text-[10px] font-bold uppercase tracking-[0.14em] font-mono" style={{ color: "hsl(var(--imo-coral-600))" }}>
-                    Cette semaine
+                    Méthode
                   </span>
                 </div>
                 <div className="font-bold text-lg leading-tight" style={{ color: "hsl(var(--imo-fg))" }}>
-                  340 audits
+                  7 phases
                 </div>
                 <div className="text-xs mt-0.5" style={{ color: "hsl(var(--imo-fg-muted))" }}>
-                  par 40+ agences en France
+                  guidées par notre consultant IA
                 </div>
               </div>
             </motion.div>

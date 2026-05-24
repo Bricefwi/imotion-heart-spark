@@ -23,32 +23,33 @@ const MOCK_REPORT_HTML = (id: string) => `<!doctype html>
   .card{border:1px solid #E5E0D8;border-radius:12px;padding:20px;margin:16px 0}
   ul{margin:8px 0 16px 24px}
 </style></head><body>
-  <span class="badge">RAPPORT D'AUDIT — APERÇU</span>
-  <h1>Audit digital — Rapport #${id.slice(0, 8)}</h1>
-  <p style="color:#666">Généré par 17 agents IA orchestrés par MANUS IA 2.0</p>
+  <span class="badge">APERÇU — STRUCTURE TYPE</span>
+  <h1>Structure type d'un rapport d'audit</h1>
+  <p style="color:#666">Document fictif à but illustratif. Le rapport réel sera construit à partir de vos données.</p>
 
   <h2>Synthèse exécutive</h2>
   <div class="card">
-    <p><strong>Score global : 68/100.</strong> Présence digitale solide mais sous-optimisée sur le funnel de conversion.</p>
+    <p>Présentation des axes analysés (SEO technique, performance, conversion, contenu) avec un score qualitatif par axe.</p>
     <ul>
-      <li>SEO technique : 82/100 — peu d'erreurs critiques.</li>
-      <li>Performance : 71/100 — LCP &gt; 2.5s sur mobile.</li>
-      <li>Conversion : 54/100 — CTA peu visibles, friction au paiement.</li>
+      <li>SEO technique — couverture, indexation, structure.</li>
+      <li>Performance — Core Web Vitals, mobile, perçu utilisateur.</li>
+      <li>Conversion — clarté du parcours, CTA, friction.</li>
     </ul>
   </div>
 
-  <h2>4 scénarios chiffrés</h2>
-  <div class="card"><strong>Ambitieux</strong> — Refonte complète, ROI +180% sur 18 mois (budget 45-60k€).</div>
-  <div class="card"><strong>Raisonné</strong> — Optimisation funnel, ROI +95% sur 12 mois (budget 18-25k€).</div>
-  <div class="card"><strong>Opportuniste</strong> — Quick wins SEO + CRO, ROI +40% sur 3 mois (budget 5-8k€).</div>
-  <div class="card"><strong>Mix</strong> — Combinaison étalée, ROI +120% sur 9 mois (budget 22-30k€).</div>
+  <h2>Scénarios d'amélioration</h2>
+  <div class="card"><strong>Ambitieux</strong> — Refonte complète, périmètre large, transformation en profondeur.</div>
+  <div class="card"><strong>Raisonné</strong> — Optimisation ciblée du funnel et des conversions.</div>
+  <div class="card"><strong>Opportuniste</strong> — Quick wins SEO et CRO à court terme.</div>
+  <div class="card"><strong>Mix</strong> — Combinaison étalée selon vos priorités.</div>
+  <p style="font-size:13px;color:#666"><em>Les chiffrages et impacts sont systématiquement personnalisés en fonction de votre contexte et présentés dans un devis dédié.</em></p>
 
   <h2>Plan d'action prioritaire</h2>
   <ol>
-    <li>Optimiser CTA principal de la home (+15% conv. estimé)</li>
-    <li>Réduire LCP mobile via lazy-loading images héro</li>
-    <li>Ajouter preuves sociales (avis Google, logos clients)</li>
-    <li>Simplifier le tunnel checkout (3 → 2 étapes)</li>
+    <li>Priorisation des actions à fort impact / faible effort.</li>
+    <li>Optimisation des performances mobiles.</li>
+    <li>Renforcement des preuves sociales (avis vérifiés, références).</li>
+    <li>Simplification du parcours de conversion.</li>
   </ol>
 
   <p style="margin-top:48px;color:#888;font-size:13px;text-align:center">

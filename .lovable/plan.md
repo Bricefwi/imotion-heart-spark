@@ -1,197 +1,135 @@
 
-# Plan — Fusion Clarivi (BUILD) + lovelib-spyglass (MARKETING)
+# Plan global — Honnêteté, conformité juridique & refonte visuelle
 
-## 1. Constat après analyse
-
-**Clarivi (`imotion-heart-spark`)** = Couvre le **"QUOI construire"**
-- Chat IA "Marc Delaunay" 7 phases → CDC → Devis → Contrat → Build
-- Cible : entrepreneurs qui savent qu'ils veulent un site/app
-
-**lovelib-spyglass** = Couvre le **"POURQUOI / À QUI vendre"**
-- Pré-audit automatique depuis URL, agent conversationnel "Alex"
-- Orchestrateur multi-agent v8 (17 agents IA) → audit stratégique
-- Scénarios ROI, plan 90j, KPIs, intégration Power BI / Metabase
-- Veille IA, blog SEO, lead scoring B2B
-- Cible : dirigeants qui veulent comprendre leur marché et performer
-
-**Constat clé** : Les deux projets sont **complémentaires**, pas redondants. Le marketing répond à *"que dois-je faire pour vendre ?"*, Clarivi répond à *"comment je le construis ?"*.
-
-## 2. Vision : entonnoir d'engagement commercial unifié
-
-```text
-                 ┌─────────────────────────────────────┐
-                 │   imotion.fr (landing principale)   │
-                 │   "De la stratégie à la livraison"  │
-                 └──────────────┬──────────────────────┘
-                                │
-              ┌─────────────────┴─────────────────┐
-              ▼                                   ▼
-    ┌──────────────────┐              ┌──────────────────┐
-    │ marketing.imotion │              │  app.imotion.fr   │
-    │  (lovelib)        │              │   (Clarivi)       │
-    │                   │              │                   │
-    │ AUDIT             │              │ CDC + DEVIS       │
-    │ → Pré-audit URL   │              │ → Chat 7 phases   │
-    │ → Agent Alex      │              │ → CDC pro         │
-    │ → 17 agents IA    │              │ → Contrat signé   │
-    │ → Plan 90j + ROI  │              │ → Livraison       │
-    └────────┬──────────┘              └─────────▲────────┘
-             │                                   │
-             │ "Votre stratégie nécessite        │
-             │  un site/app → on s'en occupe"    │
-             └───────────────────────────────────┘
-                  PASSERELLE COMMERCIALE
-```
-
-**Inversement** : Un client qui arrive sur Clarivi sans stratégie claire est invité vers l'audit marketing.
-
-## 3. Architecture technique
-
-### Option retenue : Backend partagé + 2 frontends
-
-```text
-                ┌────────────────────────────────────┐
-                │     SUPABASE — npmkzqxoxobfqdqpnsgf │
-                │     (backend Clarivi devient maître) │
-                └────────┬───────────────────────────┘
-                         │
-        ┌────────────────┴────────────────┐
-        │                                 │
-   ┌────▼─────────┐               ┌───────▼──────────┐
-   │ app.imotion  │               │ marketing.imotion│
-   │ (Clarivi)    │◄────SSO──────►│ (lovelib repointé)│
-   │              │               │                  │
-   │ Tables :     │               │ Tables ajoutées :│
-   │ profiles     │               │ marketing_audits │
-   │ user_roles   │               │ audit_agents     │
-   │ projects     │               │ audit_runs       │
-   │ messages     │               │ audit_reports    │
-   │ documents    │               │ market_intel     │
-   │ ...          │               │ ...              │
-   └──────────────┘               └──────────────────┘
-```
-
-**Pourquoi Clarivi devient le maître** : Il porte déjà l'auth Lovable Cloud, les rôles `client/consultant/admin/super_admin`, les politiques RLS éprouvées, le système d'emails Brevo, les notifications, et le composant Logo IMOTION officiel.
-
-### Tables marketing à migrer dans Clarivi (préfixées)
-
-Pour éviter conflits avec les tables existantes de Clarivi, toutes les tables venant de lovelib seront préfixées `mkt_` :
-
-```sql
--- Table pivot : un audit marketing
-mkt_audits (
-  id uuid pk,
-  user_id uuid,            -- lié à profiles.id (Clarivi)
-  project_id uuid,         -- lien optionnel vers projects (passerelle)
-  source_url text,         -- URL du site analysé
-  audit_type text,         -- 'gratuit' | 'premium'
-  status text,             -- pending, running, completed
-  current_phase text,      -- preaudit, conversation, orchestration, report
-  conversation_summary jsonb,
-  scenarios jsonb,         -- ambitieux, raisonnable, conservateur
-  action_plan_90d jsonb,
-  kpis jsonb,
-  budget_allocation jsonb,
-  risks jsonb,
-  pdf_storage_path text,
-  created_at, updated_at
-)
-
--- Conversations agent Alex (équivalent de messages côté Clarivi)
-mkt_conversations (audit_id, role, content, agent_name, phase, ...)
-
--- Runs de l'orchestrateur multi-agent v8
-mkt_orchestrator_runs (audit_id, version, agents_invoked, total_tokens, status)
-
--- Veille concurrentielle
-mkt_market_intelligence (audit_id, snapshot_data, scanned_at, ...)
-
--- Articles blog marketing (peuvent fusionner avec blog_posts existant via category='marketing')
-```
-
-### Edge Functions à migrer
-Toutes les functions de lovelib (`audit-generate`, `conversational-agent-alex`, `orchestrate-multi-agent-v8`, `market-intelligence`, `preaudit`, `validate-company-siret`, etc.) sont copiées telles quelles dans `supabase/functions/` de Clarivi. Aucun renommage nécessaire car aucun conflit de nom avec les functions actuelles.
-
-### SSO entre `app.` et `marketing.`
-Une fois les 2 sous-domaines configurés sur le même domaine racine `imotion.fr`, le cookie de session Lovable Cloud est automatiquement partagé. **Un seul login** pour les 2 apps.
-
-## 4. Passerelles commerciales (le cœur de la valeur)
-
-### Passerelle A : Marketing → BUILD (le scénario principal)
-
-À la fin de l'audit marketing, l'agent Alex détecte des recommandations qui nécessitent un site/app :
-- "Refonte du site web obligatoire pour passer à 50K visites/mois"
-- "Lancement d'une plateforme e-commerce pour atteindre l'objectif ROI"
-- "Création d'une web-app SaaS pour le module recommandé"
-
-Action automatique :
-1. CTA dans le rapport audit : **"Concrétiser ce projet web"**
-2. Création d'un `project` dans Clarivi avec :
-   - `client_id` = même user
-   - `discovery_data` pré-rempli depuis `mkt_audits` (cible, marché, budget, KPIs)
-   - `name` = recommandation issue de l'audit
-3. Redirection vers `app.imotion.fr/client/projects/:id`
-4. L'agent Marc démarre par : *"Je vois que ton audit marketing recommande [X]. Validons ensemble les éléments techniques."*
-
-### Passerelle B : BUILD → Marketing (upsell)
-
-Lors de la phase 2 ou 3 du chat Marc, si Marc détecte que le client n'a pas de stratégie claire (pas de cible définie, pas d'analyse concurrentielle, pas de KPIs) → suggère un audit marketing en parallèle.
-
-Action :
-1. Notification dans Clarivi : *"Avant d'aller plus loin, un audit stratégique gratuit pourrait sécuriser ton ROI"*
-2. CTA → `marketing.imotion.fr/audit-gratuit?from_project=:id`
-3. À la fin de l'audit, retour automatique au projet Clarivi avec données enrichies
-
-### Passerelle C : Cross-sell post-livraison
-
-Une fois un projet Clarivi livré (`status = completed`), trigger automatique :
-- Email J+15 : *"Ton site est en ligne. Maintenant, faisons-le performer → audit marketing offert"*
-- Notification in-app vers `marketing.imotion.fr`
-
-### Passerelle D : Vue unifiée client (Dashboard "360°")
-
-Nouvelle page dans `app.imotion.fr/client/dashboard` :
-- Section **"Mes projets BUILD"** (existant)
-- Section **"Mes audits MARKETING"** (nouveau, lit `mkt_audits` du même user)
-- Timeline unifiée : voir l'historique audit → CDC → contrat → livraison → audit suivi
-
-## 5. Étapes d'exécution concrètes
-
-| # | Étape | Durée | Livrable |
-|---|---|---|---|
-| 1 | Audit cross-projet détaillé (lecture des 30 functions + 60 migrations) | 1 session | Inventaire complet |
-| 2 | Migration SQL : créer toutes les tables `mkt_*` dans Supabase Clarivi | 1 session | Migration unique |
-| 3 | Copier les 30 Edge Functions de lovelib vers `supabase/functions/` de Clarivi + adapter les imports | 2 sessions | Functions déployées |
-| 4 | Repointer le frontend lovelib-spyglass vers le Supabase de Clarivi (changement env + clés) | 1 session | Front opérationnel sur backend partagé |
-| 5 | Implémenter Passerelle A (audit → projet) côté lovelib | 1 session | Bouton + création de projet |
-| 6 | Implémenter Passerelle B (projet → audit) côté Clarivi | 1 session | Détection Marc + CTA |
-| 7 | Implémenter Passerelle D (dashboard 360°) côté Clarivi | 1 session | Section "Mes audits" |
-| 8 | Configurer le domaine `imotion.fr` + sous-domaines `app.` et `marketing.` | 1 session | DNS + SSL actifs |
-| 9 | Implémenter Passerelle C (cross-sell email post-livraison) | 1 session | Edge function trigger |
-| 10 | Tests end-to-end du parcours complet | 1 session | Validation |
-
-**Total estimé** : ~10 sessions de travail.
-
-## 6. Risques & arbitrages
-
-### Risques identifiés
-1. **Volume de migrations SQL de lovelib (60 fichiers)** → certains peuvent contenir des opérations qui entrent en conflit avec le schéma Clarivi (ex: deux tables `profiles`). **Mitigation** : préfixer toutes les nouvelles tables `mkt_` et ne jamais toucher aux tables existantes de Clarivi.
-2. **Coûts AI** : 17 agents orchestrés en v8 = élevé. **Mitigation** : garder l'audit gratuit en V1 light (pré-audit + Alex seul), réserver v8 au premium payant.
-3. **Auth différente** : lovelib utilise `supabase.auth` direct, Clarivi utilise le wrapper `lovable.auth`. **Mitigation** : aligner sur le wrapper Lovable lors de la migration du front.
-4. **Logo / branding** : lovelib a son propre logo IMOTION. **Action** : utiliser le `Logo.tsx` officiel de Clarivi sur les deux apps.
-
-### Hors scope V1
-- Fusion des deux blogs (garder 2 espaces de contenu distincts pour V1, fusion en V2)
-- Migration des données utilisateurs existants de lovelib (à faire si comptes réels en prod)
-- Refonte UX complète de lovelib pour matcher 100 % Clarivi (V1 = unification logo + couleurs uniquement)
-
-## 7. Questions avant build
-
-1. **Domaine** : `imotion.fr` est-il déjà à toi, ou faut-il l'acquérir via Lovable ?
-2. **Données existantes** : Y a-t-il des utilisateurs/audits réels dans le Supabase actuel de lovelib qu'il faut préserver, ou peut-on partir sur une base vide ?
-3. **Priorité passerelles** : On commence par laquelle ? Recommandation : **Passerelle A** (Marketing → BUILD) d'abord, c'est elle qui génère le plus de revenu.
-4. **Stratégie audit gratuit** : On garde le freemium "audit gratuit" comme aimant à leads, ou on le rend payant directement ?
+Objectif : éliminer **tout contenu mensonger ou inventé**, retirer **tous les prix publics** (remplacés par "sur devis personnalisé"), et **unifier le visuel** pour qu'il soit propre, sobre et professionnel.
 
 ---
 
-**Réponds à ces 4 questions et je passe en mode build pour exécuter les étapes 1 à 4 dans la première itération.**
+## Axe 1 — Bannir tout contenu Fake (priorité juridique)
+
+### 1.1 Témoignages clients fictifs
+**Fichier :** `src/components/landing/TestimonialsSection.tsx`
+- Supprime les 3 personas inventés (Marie Dupont / TechVision, Thomas Martin / StartupFlow, Sophie Bernard / DataCorp) + avatars associés.
+- Remplace par un **bloc "Premiers clients en cours d'accompagnement"** factuel, OU retire complètement la section du home jusqu'à obtention de vrais témoignages signés.
+- Crée un système `client_reviews` déjà modéré (mémoire existante) → n'afficher QUE les avis réels validés en base. Si zéro avis → ne pas afficher la section.
+
+### 1.2 Statistiques inventées
+- `MiniPreviewCards.tsx` : supprimer **"98% de clients satisfaits"** → remplacer par "Une méthode structurée en 7 phases".
+- Auditer toutes les autres pages (`About`, `StatsSection`, `Solutions`, `Methode`, `CasClients`, `AuditMethodologie`) → retirer chiffres non vérifiables (taux de conversion, "+150 entreprises", "ROI x3", etc.).
+- Conserver uniquement des **descripteurs produit factuels** : nombre de phases, durée moyenne d'un audit, type de livrables.
+
+### 1.3 Cas clients / Logos / Études
+- `src/pages/marketing/CasClients.tsx` : retirer études fictives → remplacer par page "Bientôt : nos premiers retours d'expérience" ou la retirer de la nav.
+- Supprimer logos de marques inventées s'il y en a.
+
+### 1.4 Données de démo dans le Hero
+**Fichier :** `src/components/landing/HeroSection.tsx`
+- Les cartes mock ("Budget 25–40 k€", "Devis 27 700 €", "Lead A 87/100") sont OK **uniquement si étiquetées clairement "Exemple illustratif"** dans le composant.
+- Ajouter un label discret `Exemple` sur la maquette pour éviter toute confusion.
+
+### 1.5 Documents Preview
+**Fichier :** `src/components/landing/DocumentsPreview.tsx`
+- Même règle : ajouter clairement la mention **"Aperçu — exemple fictif"** sur l'aperçu de CDC/devis qui affiche "27 700 €".
+
+---
+
+## Axe 2 — Supprimer les prix publics
+
+**Principe :** seul un **devis personnalisé** après audit/CDC peut chiffrer un projet. Aucun prix BUILD affiché publiquement.
+
+### 2.1 Section Pricing (BUILD)
+**Fichiers :** `src/components/landing/PricingSection.tsx`, `src/pages/Pricing.tsx`, `src/components/landing/PricingAIAgent.tsx`, `src/components/landing/PricingFAQ.tsx`
+- **Supprimer les 3 plans tarifés Starter 79€ / Pro 199€ / Agency 399€** (ces plans concernent l'app agence white-label, à conserver UNIQUEMENT si c'est bien l'offre SaaS réelle — à confirmer ; sinon supprimer entièrement).
+- Remplacer la page `/tarifs` par une page **"Notre approche tarifaire"** qui explique :
+  - Le **CDC est 100% gratuit**.
+  - Chaque projet BUILD fait l'objet d'un **devis personnalisé** après l'audit.
+  - Les facteurs qui influencent le devis (complexité, périmètre, délai).
+  - CTA : "Démarrer mon CDC gratuit" → tunnel d'audit.
+- Supprimer toute mention "À partir de 5 000 €" (`FAQSection.tsx`, `MiniPreviewCards.tsx`).
+- Retirer le RUN "199€/399€/799€" affiché publiquement (ces plans deviennent communiqués en devis).
+
+### 2.2 Mentions de prix dispersées
+Auditer et nettoyer :
+- `FAQSection.tsx` (réponse "à partir de 5 000€")
+- `MiniPreviewCards.tsx` (carte Tarifs)
+- `HowItWorksImotion.tsx` ("Pain quantifié €/h", "Coût LLM <2€")
+- `marketing/AuditGratuit.tsx`, `marketing/Solutions.tsx`, `marketing/Methode.tsx`, `marketing/AuditReport.tsx`, `marketing/CasClients.tsx`, `marketing/Veille.tsx`
+- Tous les `€` non-illustratifs → reformuler en "sur devis" / "selon périmètre".
+
+### 2.3 Navigation
+- Renommer le lien nav **"Tarifs" → "Notre approche"** ou **"Comment ça marche"**.
+- Mettre à jour le footer en conséquence.
+
+---
+
+## Axe 3 — Refonte visuelle (anti-fouillis)
+
+### 3.1 Diagnostic actuel du home
+Trop de sections empilées et redondantes :
+`HeroSection` → `HowItWorksImotion` → `DocumentsPreview` → `PricingSection` → `FAQSection` → `CTASectionImotion`
++ doublons (`PricingAIAgent`, `MiniPreviewCards`, `TestimonialsSection`, `StatsSection`, `MarketingTrackSection`, `TrustBar` etc. utilisés ailleurs).
+
+### 3.2 Nouvelle structure home `/` (5 sections max)
+1. **Hero** — promesse claire + CTA "Démarrer mon CDC gratuit" + mini-aperçu illustratif clairement étiqueté.
+2. **Méthode 7 phases** (refonte de `HowItWorksImotion`) — sobre, sans chiffres inventés.
+3. **Aperçu du livrable CDC** (refonte de `DocumentsPreview`) — étiqueté "Exemple".
+4. **Les 2 mondes IMOTION** : BUILD + MARKETING (cartes équilibrées, déjà recommandé dans audit précédent).
+5. **FAQ + CTA final** fusionnés (sans aucun prix).
+
+### 3.3 Harmonisation graphique
+- **Palette stricte** : Coral `#D63B1A` + Amber `#F08A00` + Ink (déjà en mémoire). Bannir le bleu/emerald/amber décoratif éparpillé (`MiniPreviewCards`, `TestimonialsSection`).
+- **Typographie** : Inter uniquement (déjà en mémoire).
+- **Espaces** : rythme vertical constant (`py-24 md:py-32`), pas de doubles backgrounds.
+- **Composants brand** (`EmberCard`, `FlameText`, `Stamp`, `SectionIndex`) utilisés systématiquement.
+- Retirer les halos et glows redondants qui créent du bruit visuel.
+
+### 3.4 Cohérence cross-pages
+- Pages secondaires (`/fonctionnalites`, `/a-propos`, `/blog`, `/contact`) → même grille, mêmes paddings, mêmes composants brand.
+- Footer unifié sans liens "Tarifs" si supprimé.
+
+---
+
+## Axe 4 — Garde-fous & QA
+
+### 4.1 Mémoire projet
+- Ajouter règle Core : **"Jamais de prix BUILD affichés publiquement. Jamais de témoignages/stats non vérifiés. Tout contenu illustratif doit être étiqueté 'Exemple'."**
+- Mettre à jour `.lovable/memory/removals.md` et `anti-hallucination.md`.
+
+### 4.2 Checklist QA visuelle
+- Captures avant/après de : `/`, `/tarifs` (redirection ou refonte), `/fonctionnalites`, `/a-propos`, `/marketing`, `/blog`.
+- Validation que zéro `€` apparaît hors mention "Exemple" ou "sur devis".
+
+---
+
+## Section technique (détails impl.)
+
+**Fichiers à éditer :**
+- `src/components/landing/TestimonialsSection.tsx` — supprimer ou conditionner aux vrais avis.
+- `src/components/landing/MiniPreviewCards.tsx` — retirer stat "98%", retirer mention "5 000€".
+- `src/components/landing/PricingSection.tsx` — refonte complète "approche tarifaire" sans prix.
+- `src/components/landing/PricingAIAgent.tsx` — supprimer ou refondre.
+- `src/components/landing/PricingFAQ.tsx` — réécrire sans prix.
+- `src/components/landing/FAQSection.tsx` — retirer "à partir de 5 000€".
+- `src/components/landing/HeroSection.tsx` — ajouter label "Exemple" sur la maquette.
+- `src/components/landing/DocumentsPreview.tsx` — ajouter label "Exemple fictif".
+- `src/components/landing/HowItWorksImotion.tsx` — retirer chiffres €.
+- `src/pages/Pricing.tsx` — page "Notre approche" (sans grille tarifaire).
+- `src/pages/Index.tsx` — structure simplifiée 5 sections.
+- `src/pages/marketing/CasClients.tsx`, `Solutions.tsx`, `Methode.tsx`, `AuditReport.tsx`, `Veille.tsx`, `AuditGratuit.tsx` — purge des chiffres/cas inventés.
+- `src/pages/About.tsx`, `StatsSection.tsx` — déjà nettoyés (mémoire), revérifier.
+- Layouts `PublicLayout` / `MarketingLayout` — nav + footer mis à jour.
+
+**Aucune migration DB requise.** Travail 100% frontend/contenu.
+
+**Ordre d'exécution suggéré (par sprints courts) :**
+1. **Sprint A — Juridique (urgent)** : axes 1.1, 1.2, 2.1, 2.2 (purge fake + prix).
+2. **Sprint B — Étiquetage** : axes 1.4, 1.5 (mentions "Exemple").
+3. **Sprint C — Refonte home** : axe 3.2 + 3.3.
+4. **Sprint D — Pages secondaires + garde-fous** : axes 3.4, 4.
+
+---
+
+## Question avant exécution
+
+Une seule clarification nécessaire :
+- Les plans **Starter 79€ / Pro 199€ / Agency 399€** correspondent-ils à une **vraie offre SaaS white-label pour agences** (auquel cas on les garde mais on les déplace sur une page dédiée `/agences`) ou sont-ils également fictifs ? Je préfère confirmer avant de les supprimer définitivement.

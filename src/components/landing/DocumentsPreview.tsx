@@ -23,14 +23,14 @@ export function DocumentsPreview() {
             className="imo-display text-[2.25rem] sm:text-4xl lg:text-5xl"
             style={{ color: "hsl(var(--imo-ink-900))" }}
           >
-            Deux livrables{" "}
-            <FlameText>signés à votre marque</FlameText>,{" "}
-            prêts à envoyer.
+            Un cahier des charges{" "}
+            <FlameText>professionnel et actionnable</FlameText>,{" "}
+            prêt à partager.
           </h2>
         </div>
 
         <div className="imo-editorial-rule mb-12">
-          <span>Les sorties générées</span>
+          <span>Aperçu — exemple fictif à but illustratif</span>
         </div>
 
         {/* Two documents grid */}
@@ -64,9 +64,9 @@ export function DocumentsPreview() {
                   style={{ background: "hsl(var(--imo-border))" }}
                 >
                   {[
-                    { k: "Client", v: "Aurora SAS" },
-                    { k: "Budget", v: "27 700 €" },
-                    { k: "Délai", v: "12 sem" },
+                    { k: "Client", v: "Exemple" },
+                    { k: "Type", v: "Plateforme" },
+                    { k: "Délai", v: "à définir" },
                     { k: "Phase", v: "3/3" },
                   ].map(({ k, v }) => (
                     <div key={k} className="px-3 py-2.5" style={{ background: "hsl(var(--imo-bg-elevated))" }}>
@@ -107,7 +107,7 @@ export function DocumentsPreview() {
             </div>
           </motion.div>
 
-          {/* Devis */}
+          {/* Aperçu des sections — pas de devis chiffré */}
           <motion.div
             initial={{ opacity: 0, x: 24, rotate: 1 }}
             whileInView={{ opacity: 1, x: 0, rotate: 1 }}
@@ -115,62 +115,51 @@ export function DocumentsPreview() {
             transition={{ duration: 0.7, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
             className="relative lg:mt-8"
           >
-            <DocumentFrame docType="DEVIS" reference="DEV-2026-0142" date="03 mai 2026" status="émis" ribbon="ember">
+            <DocumentFrame docType="CDC" reference="Aperçu" date="Exemple" status="démo" ribbon="ember">
               <div className="space-y-4">
                 <div>
                   <div className="text-[11px] font-mono uppercase tracking-[0.14em]" style={{ color: "hsl(var(--imo-amber-600))" }}>
-                    Estimation indicative
+                    Structure type d'un CDC
                   </div>
                   <div className="text-2xl font-bold mt-1 leading-tight imo-display" style={{ color: "hsl(var(--imo-ink-900))" }}>
-                    Plateforme Aurora — <FlameText variant="ember">cadrage & dev</FlameText>
+                    Sections <FlameText variant="ember">générées</FlameText>
                   </div>
                 </div>
 
-                {/* Lines table */}
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   {[
-                    { lib: "Cadrage stratégique & ateliers", j: 8, ht: 4800 },
-                    { lib: "Conception UX/UI", j: 6, ht: 3600 },
-                    { lib: "Développement frontend", j: 14, ht: 8400 },
-                    { lib: "Intégration backend & API", j: 9, ht: 5850 },
-                    { lib: "Tests, recette & livraison", j: 3, ht: 1650 },
-                  ].map((row) => (
+                    { n: "01", t: "Contexte & objectifs métier" },
+                    { n: "02", t: "Personas & parcours utilisateurs" },
+                    { n: "03", t: "Périmètre fonctionnel détaillé" },
+                    { n: "04", t: "Architecture & contraintes techniques" },
+                    { n: "05", t: "Modèle de données & intégrations" },
+                    { n: "06", t: "Sécurité, conformité & RGPD" },
+                    { n: "07", t: "Planning prévisionnel & jalons" },
+                    { n: "08", t: "Critères de réussite" },
+                  ].map(({ n, t }) => (
                     <div
-                      key={row.lib}
-                      className="flex items-center justify-between text-sm py-1.5 border-b"
+                      key={n}
+                      className="flex items-center gap-3 py-1.5 border-b"
                       style={{ borderColor: "hsl(var(--imo-ink-100))" }}
                     >
-                      <div className="flex-1 min-w-0">
-                        <div className="truncate" style={{ color: "hsl(var(--imo-ink-800))" }}>{row.lib}</div>
-                      </div>
-                      <div className="font-mono text-xs tabular-nums w-12 text-right" style={{ color: "hsl(var(--imo-fg-muted))" }}>
-                        {row.j} j
-                      </div>
-                      <div className="font-mono font-bold tabular-nums w-24 text-right" style={{ color: "hsl(var(--imo-ink-900))" }}>
-                        {row.ht.toLocaleString("fr-FR")} €
-                      </div>
+                      <span className="text-[10px] font-mono font-bold tabular-nums" style={{ color: "hsl(var(--imo-amber-600))" }}>
+                        {n}
+                      </span>
+                      <span className="text-sm flex-1" style={{ color: "hsl(var(--imo-ink-800))" }}>
+                        {t}
+                      </span>
                     </div>
                   ))}
                 </div>
 
-                {/* Total */}
-                <div className="rounded-lg px-4 py-3 mt-3 flex items-center justify-between"
-                  style={{ background: "var(--imo-gradient-flame)" }}
-                >
-                  <div className="text-[10px] font-mono uppercase tracking-[0.16em] text-white/80">Total HT</div>
-                  <div className="font-bold text-2xl text-white tabular-nums">27 700 €</div>
-                </div>
-
-                <div className="text-[10px] font-mono pt-1 flex items-center justify-between" style={{ color: "hsl(var(--imo-fg-subtle))" }}>
-                  <span>40 j-h · TJM 600 € · Marge 20 %</span>
-                  <span style={{ color: "hsl(var(--imo-amber-600))" }}>Within budget ✓</span>
+                <div className="text-[10px] font-mono pt-1" style={{ color: "hsl(var(--imo-fg-subtle))" }}>
+                  Le devis associé est ensuite construit sur mesure, hors plateforme.
                 </div>
               </div>
             </DocumentFrame>
 
-            {/* Floating badge */}
             <div className="absolute -top-3 -right-3 imo-stamp-wobble" style={{ animationDelay: "1.5s" }}>
-              <Stamp tone="amber">Devis prêt</Stamp>
+              <Stamp tone="amber">Structure type</Stamp>
             </div>
           </motion.div>
         </div>
@@ -184,8 +173,9 @@ export function DocumentsPreview() {
           className="text-center text-sm mt-16 max-w-xl mx-auto"
           style={{ color: "hsl(var(--imo-fg-muted))" }}
         >
-          Les deux documents sont automatiquement <strong style={{ color: "hsl(var(--imo-ink-900))" }}>brandés à votre agence</strong>{" "}
-          (logo, couleurs, mentions légales) et téléchargeables en PDF.
+          Aperçu non contractuel à but illustratif. Le contenu réel de votre CDC est{" "}
+          <strong style={{ color: "hsl(var(--imo-ink-900))" }}>construit à partir de vos réponses</strong>{" "}
+          et téléchargeable en PDF.
         </motion.p>
       </div>
     </section>
