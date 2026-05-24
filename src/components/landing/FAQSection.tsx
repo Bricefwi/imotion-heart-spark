@@ -18,7 +18,7 @@ const faqs = [
   },
   {
     question: "Est-ce vraiment gratuit ?",
-    answer: "Oui, la génération du cahier des charges est 100% gratuite, sans engagement et sans carte bancaire. Vous pouvez télécharger votre CDC en PDF à tout moment. Si vous souhaitez ensuite faire réaliser votre projet, nous proposons des prestations BUILD à partir de 5 000€."
+    answer: "Oui, la génération du cahier des charges est 100% gratuite, sans engagement et sans carte bancaire. Vous pouvez télécharger votre CDC en PDF à tout moment. Si vous souhaitez ensuite faire réaliser votre projet, nous établissons un devis personnalisé à partir de votre cahier des charges."
   },
   {
     question: "Combien de temps faut-il pour générer un CDC ?",

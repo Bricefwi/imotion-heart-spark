@@ -8,12 +8,15 @@ import { SectionIndex } from "@/components/brand/SectionIndex";
 import { FlameText } from "@/components/brand/FlameText";
 import { Stamp } from "@/components/brand/Stamp";
 
-/* ─── Mockup live "Audit en cours" ────────────────────────── */
+/* ─── Mockup "Audit en cours" — EXEMPLE ILLUSTRATIF ─────────
+   Aucun audit réel n'est affiché ici. Données fictives à but
+   purement démonstratif (étiqueté "Exemple" dans l'UI).
+─────────────────────────────────────────────────────────────── */
 const auditFlow = [
-  { phase: "P1 · Intake",       fact: "Pain quantifié — −12 h/sem",     status: "done" },
-  { phase: "P2 · Need",         fact: "Vision : reporting auto multi-clients", status: "done" },
-  { phase: "P3 · Scoping",      fact: "Budget 25 — 40 k€ · 12 sem",      status: "done" },
-  { phase: "Critic · Validation", fact: "Lead grade A · score 87/100", status: "live" },
+  { phase: "P1 · Intake",       fact: "Pain quantifié — gain de temps estimé", status: "done" },
+  { phase: "P2 · Need",         fact: "Vision : reporting automatisé", status: "done" },
+  { phase: "P3 · Scoping",      fact: "Périmètre & jalons identifiés", status: "done" },
+  { phase: "Critic · Validation", fact: "Lead qualifié", status: "live" },
 ];
 
 function AuditMockup() {

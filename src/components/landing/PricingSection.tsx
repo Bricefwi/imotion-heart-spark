@@ -1,82 +1,52 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Check, ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, FileCheck, MessageSquare, Sparkles, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionIndex } from "@/components/brand/SectionIndex";
 import { Eyebrow } from "@/components/brand/Eyebrow";
 import { FlameText } from "@/components/brand/FlameText";
-import { Stamp } from "@/components/brand/Stamp";
 import { EmberCard } from "@/components/brand/EmberCard";
-import { cn } from "@/lib/utils";
 
-const PLANS = [
+const STEPS = [
   {
-    name: "Starter",
-    code: "01",
-    price: 79,
-    description: "Pour tester et convertir vos premiers prospects.",
-    audits: "20 audits / mois",
-    users: "1 utilisateur",
-    features: [
-      "Logo + couleurs agence",
-      "CDC + devis pré-rempli",
-      "Dashboard audits",
-      "Email de notification",
-      "Historique 3 mois",
-    ],
-    cta: "Démarrer l'essai",
-    highlight: false,
-    badge: null as string | null,
+    icon: MessageSquare,
+    title: "Audit & cahier des charges",
+    description:
+      "Une conversation guidée avec notre consultant IA, structurée en 7 phases. Vous repartez avec un CDC professionnel téléchargeable.",
+    cost: "Gratuit",
   },
   {
-    name: "Pro",
-    code: "02",
-    price: 199,
-    description: "Le choix des agences qui veulent scaler.",
-    audits: "100 audits / mois",
-    users: "3 utilisateurs",
-    features: [
-      "White-label complet (sous-domaine)",
-      "CDC + devis pré-rempli",
-      "Grille tarifaire personnalisée",
-      "Export PDF",
-      "Historique illimité",
-      "Support prioritaire",
-    ],
-    cta: "Démarrer l'essai",
-    highlight: true,
-    badge: "Le plus populaire" as string | null,
+    icon: FileCheck,
+    title: "Devis personnalisé",
+    description:
+      "À partir du CDC, nous étudions votre projet et vous proposons une estimation détaillée, basée sur votre périmètre réel — pas sur une grille standard.",
+    cost: "Sur mesure",
   },
   {
-    name: "Agency",
-    code: "03",
-    price: 399,
-    description: "Pour les agences qui font du volume.",
-    audits: "Audits illimités",
-    users: "10 utilisateurs",
-    features: [
-      "Domaine custom (yourapp.com)",
-      "CDC + devis pré-rempli",
-      "Grille tarifaire multi-templates",
-      "Export PDF",
-      "Accès API REST",
-      "Account manager dédié",
-      "SLA 99,9 %",
-    ],
-    cta: "Contacter l'équipe",
-    highlight: false,
-    badge: null as string | null,
+    icon: Sparkles,
+    title: "Accompagnement",
+    description:
+      "Réalisation, livraison, maintenance : chaque mission fait l'objet d'une proposition adaptée à vos contraintes, votre rythme et votre budget.",
+    cost: "Selon périmètre",
   },
+];
+
+const FACTORS = [
+  "Périmètre fonctionnel et nombre d'écrans",
+  "Niveau de personnalisation design",
+  "Intégrations tierces (CRM, paiement, API…)",
+  "Volumétrie et performances attendues",
+  "Délai souhaité et disponibilité de l'équipe",
+  "Niveau d'accompagnement post-livraison",
 ];
 
 export function PricingSection() {
   return (
     <section
-      id="pricing"
+      id="approche"
       className="relative py-24 md:py-32 overflow-hidden"
       style={{ background: "hsl(var(--imo-ink-50))" }}
     >
-      {/* Décor : halo coral en haut */}
       <div
         aria-hidden
         className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px]"
@@ -84,200 +54,149 @@ export function PricingSection() {
       />
 
       <div className="container relative">
-
-        {/* Header */}
         <div className="grid lg:grid-cols-[1fr_1.5fr] gap-12 mb-16 items-end">
           <div>
-            <SectionIndex number="04" label="Tarifs agences" className="mb-4" />
-            <Eyebrow className="mb-3">HT · Sans engagement</Eyebrow>
+            <SectionIndex number="04" label="Notre approche" className="mb-4" />
+            <Eyebrow className="mb-3">Honnête · Sur mesure · Sans grille standard</Eyebrow>
           </div>
           <h2
             className="imo-display text-[2.25rem] sm:text-4xl lg:text-5xl"
             style={{ color: "hsl(var(--imo-ink-900))" }}
           >
-            Un abonnement, des audits IA{" "}
-            <FlameText>pour tous vos prospects</FlameText>.
+            Le cahier des charges est <FlameText>gratuit</FlameText>. Le devis est{" "}
+            <FlameText>personnalisé</FlameText>.
           </h2>
         </div>
 
-        {/* Free trial banner */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="flex items-center justify-center gap-3 mb-12 rounded-full py-2 px-5 text-sm max-w-fit mx-auto font-mono"
-          style={{
-            border: "1px solid hsl(var(--imo-amber-500) / 0.35)",
-            background: "hsl(var(--imo-amber-50))",
-            color: "hsl(var(--imo-amber-700))",
-          }}
+        <p
+          className="max-w-2xl text-base lg:text-lg mb-12 leading-relaxed"
+          style={{ color: "hsl(var(--imo-fg-muted))" }}
         >
-          <Sparkles className="size-3.5 shrink-0" style={{ color: "hsl(var(--imo-amber-500))" }} />
-          <span className="text-xs uppercase tracking-[0.14em] font-bold">
-            14 jours gratuits · 5 audits · sans CB
-          </span>
-        </motion.div>
+          Nous ne publions pas de grille tarifaire. Chaque projet est unique : afficher des prix
+          standards conduirait soit à sur-évaluer des projets simples, soit à sous-évaluer des
+          projets complexes. Vous méritez une estimation précise, pas un prix d'appel.
+        </p>
 
-        {/* Plans grid */}
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
-          {PLANS.map((plan, i) => (
+        <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto mb-16">
+          {STEPS.map((step, i) => (
             <motion.div
-              key={plan.name}
+              key={step.title}
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className={cn(plan.highlight && "md:scale-[1.04] z-10")}
             >
-              {plan.highlight ? (
-                /* PRO — plan signature avec gradient flame */
+              <EmberCard variant="paper" className="!p-8 h-full flex flex-col" glowOnHover>
+                <div className="flex items-center justify-between mb-5">
+                  <span
+                    className="font-mono text-[10px] font-bold tabular-nums uppercase tracking-[0.18em]"
+                    style={{ color: "hsl(var(--imo-coral-600))" }}
+                  >
+                    Étape 0{i + 1}
+                  </span>
+                  <span
+                    className="text-[11px] font-mono uppercase tracking-[0.12em] px-2.5 py-1 rounded-full"
+                    style={{
+                      background: "hsl(var(--imo-amber-50))",
+                      color: "hsl(var(--imo-amber-700))",
+                      border: "1px solid hsl(var(--imo-amber-200))",
+                    }}
+                  >
+                    {step.cost}
+                  </span>
+                </div>
+
                 <div
-                  className="relative rounded-2xl p-8 flex flex-col h-full"
+                  className="size-10 rounded-lg flex items-center justify-center mb-4"
                   style={{
-                    background: "var(--imo-gradient-coral)",
-                    boxShadow: "var(--imo-shadow-glow-lg), var(--imo-shadow-xl)",
+                    background: "hsl(var(--imo-coral-50))",
+                    border: "1px solid hsl(var(--imo-coral-200))",
                   }}
                 >
-                  {/* Decorative ribbon top */}
-                  <div
-                    aria-hidden
-                    className="absolute top-0 left-6 right-6 h-1 rounded-b"
-                    style={{ background: "rgba(255,255,255,0.4)" }}
-                  />
-
-                  {plan.badge && (
-                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 imo-stamp-wobble">
-                      <Stamp tone="ink" className="!bg-white !text-[hsl(var(--imo-coral-700))] !border-white shadow-md">
-                        ★ {plan.badge}
-                      </Stamp>
-                    </div>
-                  )}
-
-                  {/* Plan code */}
-                  <div className="flex items-center justify-between mb-5">
-                    <span className="font-mono text-[10px] font-bold tabular-nums uppercase tracking-[0.18em] text-white/70">
-                      Plan {plan.code}
-                    </span>
-                    <span className="font-bold text-base text-white">{plan.name}</span>
-                  </div>
-
-                  {/* Price */}
-                  <div className="mb-6">
-                    <div className="flex items-end gap-1.5 mb-2">
-                      <span className="text-5xl font-bold imo-display text-white tabular-nums">
-                        {plan.price}
-                      </span>
-                      <span className="text-xl font-bold text-white pb-1">€</span>
-                      <span className="text-sm text-white/70 pb-1.5 ml-1">/ mois HT</span>
-                    </div>
-                    <p className="text-sm text-white/85">{plan.description}</p>
-                  </div>
-
-                  {/* Quotas */}
-                  <div className="text-[11px] font-mono uppercase tracking-[0.14em] mb-5 flex flex-wrap gap-x-2 text-white/80">
-                    <span>{plan.audits}</span>
-                    <span>·</span>
-                    <span>{plan.users}</span>
-                  </div>
-
-                  {/* Features */}
-                  <ul className="space-y-2.5 mb-8 flex-1">
-                    {plan.features.map((f) => (
-                      <li key={f} className="flex items-start gap-2.5 text-sm text-white">
-                        <Check className="size-4 mt-0.5 shrink-0 text-white/85" strokeWidth={3} />
-                        <span>{f}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  {/* CTA */}
-                  <Button
-                    size="lg"
-                    className="w-full gap-2 h-12 font-semibold"
-                    style={{ background: "white", color: "hsl(var(--imo-coral-700))" }}
-                    asChild
-                  >
-                    <Link to="/inscription">
-                      {plan.cta}
-                      <ArrowRight className="size-4" />
-                    </Link>
-                  </Button>
+                  <step.icon className="size-5" style={{ color: "hsl(var(--imo-coral-600))" }} />
                 </div>
-              ) : (
-                /* STARTER + AGENCY — papier classique */
-                <EmberCard variant="paper" className="!p-8 h-full flex flex-col" glowOnHover>
-                  {/* Plan code */}
-                  <div className="flex items-center justify-between mb-5">
-                    <span
-                      className="font-mono text-[10px] font-bold tabular-nums uppercase tracking-[0.18em]"
-                      style={{ color: "hsl(var(--imo-coral-600))" }}
-                    >
-                      Plan {plan.code}
-                    </span>
-                    <span className="font-bold text-base" style={{ color: "hsl(var(--imo-ink-900))" }}>
-                      {plan.name}
-                    </span>
-                  </div>
 
-                  {/* Price */}
-                  <div className="mb-6">
-                    <div className="flex items-end gap-1.5 mb-2">
-                      <span className="text-5xl font-bold imo-display tabular-nums" style={{ color: "hsl(var(--imo-ink-900))" }}>
-                        {plan.price}
-                      </span>
-                      <span className="text-xl font-bold pb-1" style={{ color: "hsl(var(--imo-ink-900))" }}>€</span>
-                      <span className="text-sm pb-1.5 ml-1" style={{ color: "hsl(var(--imo-fg-muted))" }}>/ mois HT</span>
-                    </div>
-                    <p className="text-sm" style={{ color: "hsl(var(--imo-fg-muted))" }}>
-                      {plan.description}
-                    </p>
-                  </div>
-
-                  {/* Quotas */}
-                  <div
-                    className="text-[11px] font-mono uppercase tracking-[0.14em] mb-5 flex flex-wrap gap-x-2"
-                    style={{ color: "hsl(var(--imo-fg-subtle))" }}
-                  >
-                    <span>{plan.audits}</span>
-                    <span>·</span>
-                    <span>{plan.users}</span>
-                  </div>
-
-                  {/* Features */}
-                  <ul className="space-y-2.5 mb-8 flex-1">
-                    {plan.features.map((f) => (
-                      <li key={f} className="flex items-start gap-2.5 text-sm" style={{ color: "hsl(var(--imo-fg))" }}>
-                        <Check className="size-4 mt-0.5 shrink-0" style={{ color: "hsl(var(--imo-coral-600))" }} strokeWidth={3} />
-                        <span>{f}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  {/* CTA */}
-                  <Button size="lg" variant="outline" className="w-full gap-2 h-12 font-semibold border-2"
-                    style={{ borderColor: "hsl(var(--imo-coral-600))", color: "hsl(var(--imo-coral-700))" }}
-                    asChild
-                  >
-                    <Link to={plan.name === "Agency" ? "/contact" : "/inscription"}>
-                      {plan.cta}
-                      <ArrowRight className="size-4" />
-                    </Link>
-                  </Button>
-                </EmberCard>
-              )}
+                <h3
+                  className="text-xl font-bold mb-2 imo-display"
+                  style={{ color: "hsl(var(--imo-ink-900))" }}
+                >
+                  {step.title}
+                </h3>
+                <p
+                  className="text-sm leading-relaxed"
+                  style={{ color: "hsl(var(--imo-fg-muted))" }}
+                >
+                  {step.description}
+                </p>
+              </EmberCard>
             </motion.div>
           ))}
         </div>
 
-        {/* Footer note */}
+        {/* Facteurs d'estimation */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="max-w-4xl mx-auto rounded-2xl p-8 md:p-10"
+          style={{
+            background: "hsl(var(--imo-bg-elevated))",
+            border: "1px solid hsl(var(--imo-border))",
+          }}
+        >
+          <div className="flex items-center gap-3 mb-6">
+            <ShieldCheck className="size-5" style={{ color: "hsl(var(--imo-coral-600))" }} />
+            <h3
+              className="text-lg font-bold imo-display"
+              style={{ color: "hsl(var(--imo-ink-900))" }}
+            >
+              Ce qui influence votre devis
+            </h3>
+          </div>
+          <ul className="grid sm:grid-cols-2 gap-x-8 gap-y-3">
+            {FACTORS.map((factor) => (
+              <li
+                key={factor}
+                className="flex items-start gap-3 text-sm"
+                style={{ color: "hsl(var(--imo-ink-800))" }}
+              >
+                <span
+                  className="mt-1.5 size-1.5 rounded-full shrink-0"
+                  style={{ background: "hsl(var(--imo-coral-500))" }}
+                />
+                <span>{factor}</span>
+              </li>
+            ))}
+          </ul>
+        </motion.div>
+
+        {/* CTA */}
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="text-center mt-16 space-y-2"
+          className="text-center mt-12"
         >
-          <p className="text-xs font-mono uppercase tracking-[0.14em]" style={{ color: "hsl(var(--imo-fg-muted))" }}>
-            Prix HT · TVA 20 % · Mensuel ou annuel (−20 %) · Résiliation libre
+          <Button
+            size="lg"
+            asChild
+            className="gap-2 text-white border-0 font-semibold text-base h-12 px-7"
+            style={{
+              backgroundImage: "var(--imo-gradient-flame)",
+              boxShadow: "var(--imo-shadow-glow-lg)",
+            }}
+          >
+            <Link to="/inscription">
+              Démarrer mon cahier des charges gratuit
+              <ArrowRight className="size-4" />
+            </Link>
+          </Button>
+          <p
+            className="text-xs font-mono uppercase tracking-[0.14em] mt-5"
+            style={{ color: "hsl(var(--imo-fg-muted))" }}
+          >
+            Sans carte bancaire · Sans engagement · CDC téléchargeable en PDF
           </p>
         </motion.div>
       </div>

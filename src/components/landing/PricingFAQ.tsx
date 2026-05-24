@@ -11,22 +11,22 @@ export const faqs = [
   {
     question: "Pourquoi le cahier des charges est-il gratuit ?",
     answer:
-      "Notre modèle repose sur la réalisation de votre projet, pas sur la vente de documents. Le CDC gratuit nous permet de comprendre précisément votre besoin et de vous proposer un accompagnement sur-mesure. C'est un investissement pour nous — chaque CDC nous coûte environ 0,50€ en ressources IA — mais c'est la meilleure façon de démarrer une collaboration de confiance.",
+      "Notre modèle repose sur la qualité de la relation que nous construisons avec vous, pas sur la vente d'un document. Le CDC gratuit nous permet de comprendre précisément votre besoin avant de vous proposer un accompagnement sur-mesure. C'est la meilleure façon de démarrer une collaboration de confiance.",
   },
   {
     question: "Que contient exactement le cahier des charges ?",
     answer:
-      "Le CDC comprend : le contexte et les objectifs du projet, les fonctionnalités détaillées, les contraintes techniques, les personas utilisateurs, l'architecture recommandée, une estimation budgétaire et un planning prévisionnel. C'est un document professionnel de 15 à 30 pages, prêt à être partagé avec vos équipes ou prestataires.",
+      "Le CDC comprend : le contexte et les objectifs du projet, les fonctionnalités détaillées, les contraintes techniques, les personas utilisateurs, l'architecture recommandée et un planning prévisionnel. C'est un document professionnel prêt à être partagé avec vos équipes ou d'autres prestataires.",
   },
   {
     question: "Combien de temps faut-il pour générer mon CDC ?",
     answer:
-      "La conversation avec notre IA dure en moyenne 45 minutes, réparties en 7 phases structurées. Vous pouvez la faire en une seule session ou la reprendre plus tard. Le document est généré instantanément à la fin de la conversation.",
+      "La conversation avec notre consultant IA dure en moyenne 45 minutes, répartie en 7 phases structurées. Vous pouvez la faire en une seule session ou la reprendre plus tard. Le document est généré à la fin de la conversation.",
   },
   {
     question: "Suis-je obligé de passer par vous pour la réalisation ?",
     answer:
-      "Absolument pas. Le CDC vous appartient et vous pouvez l'utiliser librement : le confier à votre équipe interne, à un autre prestataire, ou nous demander un devis. Aucun engagement, aucune obligation.",
+      "Absolument pas. Le CDC vous appartient et vous pouvez l'utiliser librement : le confier à votre équipe interne, à un autre prestataire, ou nous demander un devis personnalisé. Aucun engagement, aucune obligation.",
   },
   {
     question: "Quels types de projets pouvez-vous réaliser ?",
@@ -34,19 +34,19 @@ export const faqs = [
       "Sites vitrines, applications web et mobiles, plateformes SaaS, e-commerce, outils métiers, API et intégrations. Notre équipe couvre le design, le développement front-end et back-end, le DevOps et l'accompagnement post-lancement.",
   },
   {
-    question: "Comment sont calculés les tarifs de réalisation (BUILD) ?",
+    question: "Comment est calculé le devis de réalisation ?",
     answer:
-      "Le devis est basé sur la complexité fonctionnelle, le nombre de pages/écrans, les intégrations nécessaires et le niveau de personnalisation. Les projets démarrent généralement à partir de 5 000€ et peuvent atteindre 50 000€+ pour des plateformes complexes. Tout est détaillé et transparent dans la proposition.",
+      "Chaque devis est construit sur mesure à partir de votre CDC. Nous n'utilisons pas de grille standard : nous analysons la complexité fonctionnelle, le périmètre, les intégrations nécessaires, le niveau de personnalisation et le délai souhaité. Vous recevez une proposition détaillée et transparente, ligne par ligne.",
   },
   {
-    question: "Que comprend l'offre RUN à 399€/mois ?",
+    question: "Et la maintenance après livraison ?",
     answer:
-      "L'offre RUN inclut : l'hébergement haute disponibilité, la maintenance corrective et préventive, les mises à jour de sécurité, le monitoring 24/7, un support prioritaire et jusqu'à 4h d'évolutions mineures par mois. Sans engagement de durée minimale.",
+      "Nous proposons plusieurs niveaux d'accompagnement post-livraison (hébergement, maintenance corrective et préventive, support, évolutions). Comme pour la réalisation, le périmètre est défini avec vous et chiffré individuellement.",
   },
   {
     question: "Dois-je fournir un email professionnel ?",
     answer:
-      "Oui, nous demandons un email professionnel vérifié pour garantir la qualité de nos échanges et vous fournir un document personnalisé. Les adresses personnelles (Gmail, Yahoo, etc.) ne sont pas acceptées pour la génération du CDC.",
+      "Oui, nous demandons un email professionnel vérifié pour garantir la qualité de nos échanges et vous fournir un document personnalisé.",
   },
 ];
 
@@ -81,8 +81,8 @@ export function PricingFAQ() {
           viewport={{ once: true }}
           variants={fadeUp}
         >
-        <Accordion type="single" collapsible className="space-y-3">
-          {faqs.map((faq, i) => (
+          <Accordion type="single" collapsible className="space-y-3">
+            {faqs.map((faq, i) => (
               <AccordionItem
                 key={faq.question}
                 value={`faq-${i}`}
