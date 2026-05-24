@@ -28,7 +28,7 @@ describe("audit-log", () => {
   it("should not throw on supabase error", async () => {
     vi.mocked(supabase.from).mockReturnValueOnce({
       insert: vi.fn().mockRejectedValue(new Error("DB error")),
-    } as ReturnType<typeof supabase.from>);
+    } as unknown as ReturnType<typeof supabase.from>);
 
     // Should not throw
     await expect(
