@@ -1,6 +1,132 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+// ── Lead Scorer (Sprint 3bis Prompt 1) ──
+interface ScoringResult {
+  score: number;
+  flags: string[];
+  reasoning: string;
+}
+
+async function scoreLead(
+  discoveryData: Record<string, unknown>,
+  project: { name: string; estimated_budget_min: number | null; estimated_budget_max: number | null; desired_deadline: string | null },
+): Promise<ScoringResult | null> {
+  const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
+  if (!lovableApiKey) {
+    console.warn("[LEAD-SCORER] LOVABLE_API_KEY not set");
+    return null;
+  }
+
+  const prompt = `Tu es Agent LEAD-SCORER. Tu évalues la qualité commerciale d'un lead Clarivi sur la base des données extraites pendant les 7 phases de découverte.
+
+RÈGLES DE SCORING (TOTAL = 100 pts max) :
+
+1. Budget annoncé (max 30 pts)
+   - >= 20000 EUR : 30 pts
+   - 10000-19999 EUR : 20 pts
+   - 5000-9999 EUR : 12 pts
+   - < 5000 EUR : 5 pts
+   - Non renseigné : 0 pt
+
+2. Urgence / deadline (max 20 pts)
+   - < 3 mois : 20 pts
+   - 3-6 mois : 12 pts
+   - > 6 mois : 5 pts
+   - Non renseigné : 0 pt
+
+3. Taille entreprise (max 15 pts)
+   - > 20 salariés : 15 pts
+   - 5-20 salariés : 10 pts
+   - < 5 salariés : 5 pts
+
+4. Qualité des réponses 7 phases (max 20 pts)
+   - >= 4 réponses détaillées (>50 mots) : 20 pts
+   - 2-3 : 12 pts
+   - < 2 : 5 pts
+
+5. Décideur identifié (max 15 pts)
+   - decision_maker = oui : 15 pts
+   - sinon : 0 pt
+
+FLAGS à émettre (qualification_flags) :
+- "budget_ok" si budget >= 10000 EUR
+- "urgent" si deadline < 3 mois
+- "decision_maker" si décideur identifié
+- "high_quality_responses" si critère 4 = 20 pts
+- "enterprise" si > 20 salariés
+- "low_budget" si budget < 5000 EUR
+- "no_deadline" si deadline non renseignée
+
+DONNÉES PROJET :
+- Nom : ${project.name}
+- Budget min : ${project.estimated_budget_min ?? "non renseigné"}
+- Budget max : ${project.estimated_budget_max ?? "non renseigné"}
+- Deadline : ${project.desired_deadline ?? "non renseignée"}
+
+DISCOVERY DATA (JSON) :
+${JSON.stringify(discoveryData, null, 2)}
+
+RÉPONSE OBLIGATOIRE (JSON STRICT, pas de markdown) :
+{
+  "agent": "LEAD-SCORER",
+  "status": "success",
+  "score": <0-100>,
+  "flags": ["flag1", "flag2"],
+  "reasoning": "Explication courte",
+  "confidence": <0.0-1.0>
+}`;
+
+  try {
+    const aiRes = await fetch("https://ai.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${lovableApiKey}`,
+      },
+      body: JSON.stringify({
+        model: "google/gemini-3-flash-preview",
+        messages: [
+          { role: "system", content: "Tu réponds STRICTEMENT en JSON valide, sans markdown ni commentaire." },
+          { role: "user", content: prompt },
+        ],
+        temperature: 0.2,
+        max_tokens: 600,
+      }),
+    });
+
+    if (!aiRes.ok) {
+      console.error(`[LEAD-SCORER] AI call failed: ${aiRes.status}`);
+      return null;
+    }
+
+    const aiJson = await aiRes.json();
+    const rawText = aiJson.choices?.[0]?.message?.content;
+    if (!rawText) return null;
+
+    const cleaned = String(rawText)
+      .replace(/^```(?:json)?\s*/i, "")
+      .replace(/\s*```$/i, "")
+      .trim();
+
+    const parsed = JSON.parse(cleaned) as { score?: number; flags?: string[]; reasoning?: string };
+
+    if (typeof parsed.score !== "number" || !Array.isArray(parsed.flags)) {
+      console.warn("[LEAD-SCORER] Invalid output shape");
+      return null;
+    }
+
+    return {
+      score: Math.max(0, Math.min(100, Math.round(parsed.score))),
+      flags: parsed.flags.slice(0, 10),
+      reasoning: parsed.reasoning ?? "",
+    };
+  } catch (e) {
+    console.error("[LEAD-SCORER] Exception:", e);
+    return null;
+  }
+}
+
 const ALLOWED_ORIGINS = [
   "https://imotion-conseils.fr",
   "https://www.imotion-conseils.fr",
@@ -853,6 +979,80 @@ serve(async (req) => {
     }
 
     const isDiscoveryComplete = readyForNextPhase && currentPhase === 7;
+
+    // ── Lead Scoring (Sprint 3bis Prompt 1) — non-blocking ──
+    if (isDiscoveryComplete) {
+      try {
+        const scoringResult = await scoreLead(updatedDiscoveryData, {
+          name: project.name,
+          estimated_budget_min: (project as Record<string, unknown>).estimated_budget_min as number | null ?? null,
+          estimated_budget_max: (project as Record<string, unknown>).estimated_budget_max as number | null ?? null,
+          desired_deadline: (project as Record<string, unknown>).desired_deadline as string | null ?? null,
+        });
+
+        if (scoringResult) {
+          await supabase
+            .from("projects")
+            .update({
+              qualification_score: scoringResult.score,
+              qualification_flags: scoringResult.flags,
+            })
+            .eq("id", projectId);
+
+          if (scoringResult.score >= 70 && project.consultant_id) {
+            await supabase.from("notifications").insert({
+              user_id: project.consultant_id,
+              type: "consultant_intervention",
+              title: `🎯 Lead qualifié — score ${scoringResult.score}/100`,
+              body: `Projet : ${project.name}\nFlags : ${scoringResult.flags.join(", ")}`,
+              project_id: projectId,
+              link: `/consultant/projects/${projectId}`,
+            });
+          } else if (scoringResult.score >= 70) {
+            const { data: admins } = await supabase
+              .from("user_roles")
+              .select("user_id")
+              .in("role", ["consultant", "admin"]);
+            if (admins && admins.length > 0) {
+              const notifs = admins.map((a: { user_id: string }) => ({
+                user_id: a.user_id,
+                type: "consultant_intervention",
+                title: `🎯 Lead qualifié non-assigné — score ${scoringResult.score}/100`,
+                body: `Projet : ${project.name}\nFlags : ${scoringResult.flags.join(", ")}\nPrendre en charge ?`,
+                project_id: projectId,
+                link: `/consultant/projects/${projectId}`,
+              }));
+              await supabase.from("notifications").insert(notifs);
+            }
+          }
+
+          await supabase.from("events").insert({
+            user_id: project.client_id,
+            session_id: crypto.randomUUID(),
+            event_type: "lead_scored",
+            event_data: {
+              project_id: projectId,
+              score: scoringResult.score,
+              flags: scoringResult.flags,
+            },
+            dedup_hash: `lead_scored:${projectId}`,
+          }).then(() => {}, () => {});
+
+          if (scoringResult.score >= 30) {
+            await supabase.from("nurturing_sequences").insert({
+              user_id: project.client_id,
+              project_id: projectId,
+              status: "active",
+              current_step: 0,
+              next_email_due_at: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+            });
+          }
+        }
+      } catch (e) {
+        console.warn("Lead scoring failed (non-blocking):", e);
+      }
+    }
+
 
     return new Response(
       JSON.stringify({
