@@ -95,6 +95,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "activities_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_high_score_leads"
+            referencedColumns: ["project_id"]
+          },
+          {
             foreignKeyName: "activities_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -169,6 +176,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_to_project_links_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_high_score_leads"
+            referencedColumns: ["project_id"]
           },
         ]
       }
@@ -477,6 +491,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "cdc_pro_orders_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_high_score_leads"
+            referencedColumns: ["project_id"]
+          },
+          {
             foreignKeyName: "cdc_pro_orders_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -620,6 +641,13 @@ export type Database = {
             referencedRelation: "projects"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "conversations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_high_score_leads"
+            referencedColumns: ["project_id"]
+          },
         ]
       }
       document_templates: {
@@ -739,6 +767,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_high_score_leads"
+            referencedColumns: ["project_id"]
           },
           {
             foreignKeyName: "documents_signed_by_fkey"
@@ -898,6 +933,67 @@ export type Database = {
         }
         Relationships: []
       }
+      email_verifications: {
+        Row: {
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          metadata: Json
+          project_id: string
+          token: string
+          used_at: string | null
+          used_from_ip: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          metadata?: Json
+          project_id: string
+          token: string
+          used_at?: string | null
+          used_from_ip?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          metadata?: Json
+          project_id?: string
+          token?: string
+          used_at?: string | null
+          used_from_ip?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_verifications_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_verifications_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_high_score_leads"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "email_verifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           attribution_source: string | null
@@ -1038,6 +1134,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generated_documents_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_high_score_leads"
+            referencedColumns: ["project_id"]
           },
           {
             foreignKeyName: "generated_documents_signed_by_fkey"
@@ -1247,6 +1350,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_high_score_leads"
+            referencedColumns: ["project_id"]
           },
         ]
       }
@@ -2264,6 +2374,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "notifications_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_high_score_leads"
+            referencedColumns: ["project_id"]
+          },
+          {
             foreignKeyName: "notifications_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -2335,6 +2452,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nurturing_sequences_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_high_score_leads"
+            referencedColumns: ["project_id"]
           },
           {
             foreignKeyName: "nurturing_sequences_user_id_fkey"
@@ -2728,6 +2852,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_estimates_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_high_score_leads"
+            referencedColumns: ["project_id"]
           },
           {
             foreignKeyName: "project_estimates_project_type_code_fkey"
@@ -3134,7 +3265,36 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      v_high_score_leads: {
+        Row: {
+          client_id: string | null
+          company_name: string | null
+          company_size: string | null
+          completed_at: string | null
+          desired_deadline: string | null
+          email: string | null
+          estimated_budget_max: number | null
+          estimated_budget_min: number | null
+          full_name: string | null
+          last_activity_at: string | null
+          phone: string | null
+          project_code: string | null
+          project_id: string | null
+          project_name: string | null
+          qualification_flags: string[] | null
+          qualification_score: number | null
+          status: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       admin_list_cron_jobs: {
@@ -3209,6 +3369,7 @@ export type Database = {
         }
       }
       cleanup_agent_state: { Args: never; Returns: undefined }
+      cleanup_expired_verifications: { Args: never; Returns: number }
       cleanup_lovelib_bridge_tokens: { Args: never; Returns: undefined }
       cleanup_lovelib_token_uses: { Args: never; Returns: undefined }
       cleanup_pending_audit_claims: { Args: never; Returns: undefined }
