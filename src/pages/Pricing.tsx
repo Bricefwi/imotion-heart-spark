@@ -1,7 +1,5 @@
 import { PricingSection } from "@/components/landing/PricingSection";
-import { PricingAIAgent } from "@/components/landing/PricingAIAgent";
-import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
-import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
+import { PricingFAQ } from "@/components/landing/PricingFAQ";
 import { CTASection } from "@/components/landing/CTASection";
 import { SEOHead, breadcrumbSchema } from "@/components/SEOHead";
 
@@ -9,20 +7,18 @@ export default function Pricing() {
   return (
     <div className="overflow-hidden">
       <SEOHead
-        title="Tarifs — CDC gratuit, réalisation sur-mesure"
-        description="Cahier des charges 100% gratuit. Projets BUILD à partir de 5 000€. Maintenance RUN à 399€/mois. Découvrez nos tarifs transparents."
+        title="Notre approche — CDC gratuit, devis sur mesure"
+        description="Le cahier des charges est 100% gratuit. Le devis de réalisation est personnalisé, construit ligne par ligne à partir de votre périmètre réel."
         canonical="/tarifs"
         jsonLd={[
           breadcrumbSchema([
             { name: "Accueil", url: "/" },
-            { name: "Tarifs", url: "/tarifs" },
+            { name: "Notre approche", url: "/tarifs" },
           ]),
         ]}
       />
       <PricingSection />
-      <PricingAIAgent />
-      <HowItWorksSection />
-      <TestimonialsSection />
+      <PricingFAQ />
       <CTASection />
     </div>
   );
