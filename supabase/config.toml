@@ -29,3 +29,8 @@ project_id = "npmkzqxoxobfqdqpnsgf"
     verify_jwt = true
   [functions.consume-bridge-token]
     verify_jwt = false
+  [functions.capture-email]
+    verify_jwt = true
+  [functions.verify-email]
+    verify_jwt = false
+
