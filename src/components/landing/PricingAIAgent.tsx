@@ -20,8 +20,8 @@ const QUICK_QUESTIONS = [
   "Que contient le cahier des charges ?",
   "Combien de temps pour mon CDC ?",
   "Quels types de projets réalisez-vous ?",
-  "Comment sont calculés les tarifs BUILD ?",
-  "Que comprend l'offre RUN ?",
+  "Comment se passe le devis personnalisé ?",
+  "Quel accompagnement après livraison ?",
 ];
 
 async function streamChat({
