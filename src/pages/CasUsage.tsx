@@ -1,4 +1,4 @@
-import { Helmet } from "react-helmet-async";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -46,16 +46,12 @@ const CAS = [
 ] as const;
 
 export default function CasUsage() {
+  useEffect(() => {
+    document.title = "Cas d'usage — i-MOTION Conseil";
+  }, []);
+
   return (
     <>
-      <Helmet>
-        <title>Cas d'usage — i-MOTION Conseil</title>
-        <meta
-          name="description"
-          content="Exemples de missions IA & NoCode menées par le cabinet i-MOTION Conseil : sites professionnels, automatisations, portails clients."
-        />
-        <link rel="canonical" href="https://app.imotion-conseils.fr/cas-usage" />
-      </Helmet>
 
       <section className="container mx-auto px-4 py-16 md:py-24">
         <div className="max-w-3xl mx-auto text-center mb-12">
