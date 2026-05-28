@@ -2469,6 +2469,63 @@ export type Database = {
           },
         ]
       }
+      paperclip_jobs: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          input_payload: Json
+          job_type: string
+          output_payload: Json | null
+          paperclip_ticket_id: string | null
+          project_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          input_payload?: Json
+          job_type: string
+          output_payload?: Json | null
+          paperclip_ticket_id?: string | null
+          project_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          input_payload?: Json
+          job_type?: string
+          output_payload?: Json | null
+          paperclip_ticket_id?: string | null
+          project_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "paperclip_jobs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "paperclip_jobs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_high_score_leads"
+            referencedColumns: ["project_id"]
+          },
+        ]
+      }
       pending_audit_claims: {
         Row: {
           claimed_at: string | null
