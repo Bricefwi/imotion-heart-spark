@@ -1,46 +1,17 @@
 // Paperclip Intake — Lot 2
-// Called by authenticated admin/consultant (or service-role) to push a qualified
-// lead to the Paperclip back-office cabinet. In MOCK mode, no external call is
-// made: the job is simulated end-to-end inside Supabase so the full cycle can
-// be validated without depending on the real Paperclip Hostinger backend.
 //
-// Auth: verify_jwt = true (JWT required). Admin role enforced in code.
-// Lead qualification rules (must satisfy AT LEAST one):
+// Auth: verify_jwt = true. Admin / super_admin only.
+// Lead qualification (one of):
 //   - marketing_audits.score >= 50, OR
-//   - projects.discovery_data.phase_2_besoin populated (object with keys)
+//   - projects.discovery_data.phase_2_besoin is a non-empty object
 //
-// Request body:
-//   {
-//     "audit_id":    "<uuid>",            // optional but recommended
-//     "project_id":  "<uuid>",            // optional
-//     "user_id":     "<uuid>",            // required (client whose lead it is)
-//     "service_type":"audit_pro" | "conseil" | "build" | "run" | "custom",
-//     "notes":       "string"             // optional
-//   }
+// MOCK mode (PAPERCLIP_MOCK=true OR PAPERCLIP_MOCK_ENABLED=true): no outbound
+// call. The job is simulated end-to-end inside Supabase. PAPERCLIP_API_URL /
+// PAPERCLIP_API_KEY are intentionally NOT read here.
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.4";
+import { adminClient, corsHeaders, isPaperclipMockEnabled, jsonResponse, userClient } from "../_shared/supabase.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
-
-const ALLOWED_SERVICE_TYPES = [
-  "audit_pro",
-  "conseil",
-  "build",
-  "run",
-  "custom",
-];
-
-function jsonResponse(status: number, body: Record<string, unknown>) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
-}
+const ALLOWED_SERVICE_TYPES = ["audit_pro", "conseil", "build", "run", "custom"];
 
 function isObject(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null && !Array.isArray(v);
@@ -50,39 +21,28 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return jsonResponse(405, { error: "Method not allowed" });
 
-  // --- Auth ---
   const authHeader = req.headers.get("Authorization") ?? "";
   if (!authHeader.startsWith("Bearer ")) {
     return jsonResponse(401, { error: "Missing bearer token" });
   }
 
-  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-  const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+  const uClient = userClient(authHeader);
+  const admin = adminClient();
 
-  const userClient = createClient(supabaseUrl, anonKey, {
-    global: { headers: { Authorization: authHeader } },
-  });
-  const admin = createClient(supabaseUrl, serviceRoleKey);
-
-  const { data: userData, error: userErr } = await userClient.auth.getUser();
+  const { data: userData, error: userErr } = await uClient.auth.getUser();
   if (userErr || !userData?.user) {
     return jsonResponse(401, { error: "Invalid token" });
   }
   const caller = userData.user;
 
-  // Admin or service-role caller only
   const { data: roleRow } = await admin
     .from("user_roles")
     .select("role")
     .eq("user_id", caller.id)
     .in("role", ["admin", "super_admin"])
     .maybeSingle();
-  if (!roleRow) {
-    return jsonResponse(403, { error: "Admin role required" });
-  }
+  if (!roleRow) return jsonResponse(403, { error: "Admin role required" });
 
-  // --- Parse body ---
   let body: Record<string, unknown>;
   try {
     body = await req.json();
@@ -93,8 +53,7 @@ Deno.serve(async (req) => {
   const userId = typeof body.user_id === "string" ? body.user_id : null;
   const auditId = typeof body.audit_id === "string" ? body.audit_id : null;
   const projectId = typeof body.project_id === "string" ? body.project_id : null;
-  const serviceType =
-    typeof body.service_type === "string" ? body.service_type : "audit_pro";
+  const serviceType = typeof body.service_type === "string" ? body.service_type : "audit_pro";
   const notes = typeof body.notes === "string" ? body.notes : null;
 
   if (!userId) return jsonResponse(400, { error: "user_id required" });
@@ -105,7 +64,7 @@ Deno.serve(async (req) => {
     return jsonResponse(400, { error: "audit_id or project_id required" });
   }
 
-  // --- Lead qualification ---
+  // --- Qualification ---
   let qualified = false;
   let leadScore = 0;
   let auditPayload: Record<string, unknown> | null = null;
@@ -145,13 +104,13 @@ Deno.serve(async (req) => {
   }
 
   if (!qualified) {
+    // No job created, no Paperclip call attempted.
     return jsonResponse(422, {
       error: "Lead not qualified",
       reason: "audit score < 50 and no phase_2_besoin in project discovery_data",
     });
   }
 
-  // --- Intake payload sent to Paperclip (or mocked) ---
   const intakePayload = {
     schema_version: "1.0",
     user_id: userId,
@@ -165,7 +124,6 @@ Deno.serve(async (req) => {
     sent_at: new Date().toISOString(),
   };
 
-  // --- Insert job (status: qualified) ---
   const { data: jobInsert, error: jobErr } = await admin
     .from("paperclip_jobs")
     .insert({
@@ -182,11 +140,11 @@ Deno.serve(async (req) => {
     .single();
 
   if (jobErr) {
-    console.error("[paperclip-intake] insert job error", jobErr);
-    // Likely a uniqueness violation (active job already exists for this audit)
     if ((jobErr as { code?: string }).code === "23505") {
+      // Unique active job per audit
       return jsonResponse(409, { error: "Active job already exists for this audit" });
     }
+    console.error("[paperclip-intake] insert job error", jobErr);
     return jsonResponse(500, { error: "Failed to create job" });
   }
   const jobId = jobInsert.id as string;
@@ -200,121 +158,49 @@ Deno.serve(async (req) => {
     payload: { caller_id: caller.id, service_type: serviceType, lead_score: leadScore },
   });
 
-  // --- Mock vs Real Paperclip dispatch ---
-  const mockEnabled = (Deno.env.get("PAPERCLIP_MOCK_ENABLED") ?? "true").toLowerCase() === "true";
-
-  if (mockEnabled) {
-    // Simulate: mark as sent_to_paperclip + log mock dispatch event.
-    const mockTicketId = `MOCK-${jobId.slice(0, 8)}-${Date.now()}`;
-    await admin
-      .from("paperclip_jobs")
-      .update({
-        status: "sent_to_paperclip",
-        paperclip_ticket_id: mockTicketId,
-        last_synced_at: new Date().toISOString(),
-      })
-      .eq("id", jobId);
-
-    await admin.from("paperclip_job_events").insert({
-      job_id: jobId,
-      event_type: "mock_dispatched",
-      status_from: "qualified",
-      status_to: "sent_to_paperclip",
-      source: "mock",
-      payload: { mock_ticket_id: mockTicketId, note: "PAPERCLIP_MOCK_ENABLED=true" },
-    });
-
-    return jsonResponse(200, {
-      ok: true,
-      mode: "mock",
-      job_id: jobId,
-      paperclip_ticket_id: mockTicketId,
-      status: "sent_to_paperclip",
-    });
-  }
-
-  // --- Real dispatch (placeholder; not used until Paperclip is deployed) ---
-  const apiUrl = Deno.env.get("PAPERCLIP_API_URL") ?? "http://mock-disabled.local";
-  const apiKey = Deno.env.get("PAPERCLIP_API_KEY") ?? "mock-not-used";
-
-  if (apiUrl.includes("mock-disabled.local") || apiKey === "mock-not-used") {
+  // --- Dispatch: MOCK ONLY in this build. ---
+  if (!isPaperclipMockEnabled()) {
+    // Safety net: even if mock is explicitly disabled, we never call out in
+    // this lot — Paperclip Hostinger is not deployed yet.
     await admin
       .from("paperclip_jobs")
       .update({
         status: "failed",
-        last_error: "PAPERCLIP_API_URL/API_KEY not configured and mock disabled",
+        last_error: "Mock disabled but Paperclip live dispatch is not enabled in this build",
         last_synced_at: new Date().toISOString(),
       })
       .eq("id", jobId);
     return jsonResponse(503, {
-      error: "Paperclip not configured",
-      hint: "Set PAPERCLIP_MOCK_ENABLED=true or configure PAPERCLIP_API_URL/API_KEY",
+      error: "Paperclip live mode not enabled in this build",
+      hint: "Set PAPERCLIP_MOCK=true (or PAPERCLIP_MOCK_ENABLED=true)",
       job_id: jobId,
     });
   }
 
-  try {
-    const resp = await fetch(`${apiUrl.replace(/\/$/, "")}/intake`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({ ...intakePayload, callback_job_id: jobId }),
-    });
-    const text = await resp.text();
-    let parsed: Record<string, unknown> | null = null;
-    try { parsed = JSON.parse(text); } catch { /* ignore */ }
-    const ticketId =
-      parsed && typeof parsed.ticket_id === "string" ? parsed.ticket_id : null;
-
-    if (!resp.ok) {
-      await admin
-        .from("paperclip_jobs")
-        .update({
-          status: "failed",
-          last_error: `Paperclip ${resp.status}: ${text.slice(0, 500)}`,
-          last_synced_at: new Date().toISOString(),
-        })
-        .eq("id", jobId);
-      return jsonResponse(502, { error: "Paperclip rejected intake", job_id: jobId });
-    }
-
-    await admin
-      .from("paperclip_jobs")
-      .update({
-        status: "sent_to_paperclip",
-        paperclip_ticket_id: ticketId,
-        last_synced_at: new Date().toISOString(),
-      })
-      .eq("id", jobId);
-
-    await admin.from("paperclip_job_events").insert({
-      job_id: jobId,
-      event_type: "dispatched",
-      status_from: "qualified",
-      status_to: "sent_to_paperclip",
-      source: "paperclip",
-      payload: { http_status: resp.status, ticket_id: ticketId },
-    });
-
-    return jsonResponse(200, {
-      ok: true,
-      mode: "live",
-      job_id: jobId,
-      paperclip_ticket_id: ticketId,
+  const mockTicketId = `MOCK-${jobId.slice(0, 8)}-${Date.now()}`;
+  await admin
+    .from("paperclip_jobs")
+    .update({
       status: "sent_to_paperclip",
-    });
-  } catch (err) {
-    console.error("[paperclip-intake] dispatch error", err);
-    await admin
-      .from("paperclip_jobs")
-      .update({
-        status: "failed",
-        last_error: `Network error: ${(err as Error).message}`.slice(0, 500),
-        last_synced_at: new Date().toISOString(),
-      })
-      .eq("id", jobId);
-    return jsonResponse(502, { error: "Paperclip unreachable", job_id: jobId });
-  }
+      paperclip_ticket_id: mockTicketId,
+      last_synced_at: new Date().toISOString(),
+    })
+    .eq("id", jobId);
+
+  await admin.from("paperclip_job_events").insert({
+    job_id: jobId,
+    event_type: "mock_dispatched",
+    status_from: "qualified",
+    status_to: "sent_to_paperclip",
+    source: "mock",
+    payload: { mock_ticket_id: mockTicketId, note: "PAPERCLIP_MOCK*=true" },
+  });
+
+  return jsonResponse(200, {
+    ok: true,
+    mode: "mock",
+    job_id: jobId,
+    paperclip_ticket_id: mockTicketId,
+    status: "sent_to_paperclip",
+  });
 });
