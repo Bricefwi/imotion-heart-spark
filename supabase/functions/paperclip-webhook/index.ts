@@ -115,7 +115,7 @@ Deno.serve(async (req) => {
     if (typeof s.confidence_score === "number") update.confidence_score = s.confidence_score;
   }
   if (typeof payload.error === "string") {
-    update.last_error = payload.error.slice(0, 1000);
+    update.error_message = payload.error.slice(0, 1000);
   }
 
   const { error: updErr } = await admin
