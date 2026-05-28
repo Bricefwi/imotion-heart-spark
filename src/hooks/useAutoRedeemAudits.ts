@@ -58,8 +58,8 @@ export function useAutoRedeemAudits() {
 
           const label =
             result.claimed === 1
-              ? "1 audit lovelib récupéré"
-              : `${result.claimed} audits lovelib récupérés`;
+              ? "1 audit marketing récupéré"
+              : `${result.claimed} audits marketing récupérés`;
 
           toast.success(label, {
             description: "Vos audits marketing sont disponibles dans votre espace.",
