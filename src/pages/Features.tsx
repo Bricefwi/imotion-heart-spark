@@ -9,7 +9,7 @@ export default function Features() {
     <div className="overflow-hidden">
       <SEOHead
         title="Fonctionnalités — IA conversationnelle & CDC automatique"
-        description="Découvrez comment IMOTION Creator Studio génère votre cahier des charges en 3 étapes : conversation IA guidée, document professionnel, proposition chiffrée."
+        description="Découvrez comment i-MOTION Conseil structure votre projet : audit conversationnel, cahier des charges, diagnostic IA & NoCode, proposition personnalisée."
         canonical="/fonctionnalites"
         jsonLd={[
           softwareSchema,

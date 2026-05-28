@@ -54,7 +54,7 @@ export function DocumentsPreview() {
                     Plateforme de gestion <FlameText>de projets digitaux</FlameText>
                   </div>
                   <p className="text-sm mt-2" style={{ color: "hsl(var(--imo-fg-muted))" }}>
-                    Document généré par les 8 agents Clarivi sur la base d'un audit conversationnel de 6 minutes.
+                    Exemple illustratif d'un CDC structuré par le cabinet IA i-MOTION Conseil et validé par un consultant humain.
                   </p>
                 </div>
 

@@ -38,8 +38,8 @@ export default function Index() {
   return (
     <div className="overflow-hidden">
       <SEOHead
-        title="Clarivi — Audit IA white-label pour agences digitales"
-        description="Embarquez un audit IA dans votre tunnel commercial. CDC + devis pré-rempli en 6 minutes, brandés à votre agence. 14 jours d'essai gratuit, sans CB."
+        title="i-MOTION Conseil — Cabinet de conseil IA & NoCode"
+        description="Cabinet de conseil IA & NoCode augmenté par des agents IA. Audit gratuit, cahier des charges, diagnostic et accompagnement sur mesure pour vos projets digitaux."
         canonical="/"
         jsonLd={[organizationSchema, websiteSchema, softwareSchema, faqSchema]}
       />

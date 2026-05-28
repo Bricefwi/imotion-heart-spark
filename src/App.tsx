@@ -44,6 +44,9 @@ const FAQ = lazy(() => import("@/pages/FAQ"));
 const Blog = lazy(() => import("@/pages/Blog"));
 const BlogArticle = lazy(() => import("@/pages/BlogArticle"));
 const BrandPreview = lazy(() => import("@/pages/BrandPreview"));
+const CommentCaMarche = lazy(() => import("@/pages/CommentCaMarche"));
+const AuditIANoCode = lazy(() => import("@/pages/AuditIANoCode"));
+const CabinetIA = lazy(() => import("@/pages/CabinetIA"));
 
 // Auth pages (lazy)
 const Login = lazy(() => import("@/pages/Login"));
@@ -122,8 +125,13 @@ const App = () => (
             <Route element={<PublicLayout />}>
               <Route path="/" element={<Index />} />
               <Route path="/fonctionnalites" element={<Features />} />
+              <Route path="/comment-ca-marche" element={<CommentCaMarche />} />
+              <Route path="/audit-ia-nocode" element={<AuditIANoCode />} />
+              <Route path="/cabinet-ia" element={<CabinetIA />} />
               <Route path="/tarifs" element={<Pricing />} />
               <Route path="/a-propos" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/inscription" element={<Navigate to="/register" replace />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/mentions-legales" element={<Legal />} />
               <Route path="/confidentialite" element={<Privacy />} />

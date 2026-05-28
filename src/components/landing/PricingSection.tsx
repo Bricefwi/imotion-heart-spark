@@ -187,7 +187,7 @@ export function PricingSection() {
               boxShadow: "var(--imo-shadow-glow-lg)",
             }}
           >
-            <Link to="/inscription">
+            <Link to="/register">
               Démarrer mon cahier des charges gratuit
               <ArrowRight className="size-4" />
             </Link>

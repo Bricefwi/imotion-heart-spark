@@ -10,7 +10,7 @@ export default function About() {
     <div className="overflow-hidden">
       <SEOHead
         title="À propos — Notre mission et notre équipe"
-        description="IMOTION Creator Studio transforme vos idées en projets digitaux concrets grâce à l'IA et l'expertise humaine. Découvrez notre approche unique."
+        description="i-MOTION Conseil est un cabinet de conseil IA & NoCode augmenté par des agents IA. Audit, cadrage et accompagnement de projets digitaux pour PME et entrepreneurs."
         canonical="/a-propos"
         jsonLd={[
           organizationSchema,
@@ -25,26 +25,26 @@ export default function About() {
           <div className="text-center mb-16">
             <Badge variant="outline" className="mb-4">À propos</Badge>
             <h1 className="font-display text-3xl md:text-5xl font-bold mb-6">
-              IMOTION Creator Studio
+              i-MOTION Conseil
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Nous transformons vos idées en projets digitaux concrets grâce à l'intelligence artificielle et l'expertise humaine.
+              Cabinet de conseil IA &amp; NoCode. Nous cadrons, concevons et accompagnons vos projets digitaux, avec l'appui d'agents IA spécialisés en arrière-plan et la supervision systématique d'un consultant humain.
             </p>
           </div>
 
           <div className="rounded-2xl overflow-hidden mb-16">
-            <img src={teamImg} alt="L'équipe IMOTION Creator Studio en réunion de travail" className="w-full h-64 md:h-80 object-cover" loading="lazy" />
+            <img src={teamImg} alt="L'équipe i-MOTION Conseil en réunion de travail" className="w-full h-64 md:h-80 object-cover" loading="lazy" />
           </div>
 
           <div className="prose prose-neutral dark:prose-invert max-w-none space-y-6">
             <p className="text-muted-foreground text-lg leading-relaxed">
-              IMOTION Creator Studio est né d'un constat simple : trop de projets digitaux échouent par manque de cadrage initial. Notre plateforme combine l'IA conversationnelle et l'expertise de consultants pour vous aider à définir précisément votre besoin.
+              i-MOTION Conseil aide entrepreneurs et PME à clarifier, cadrer et concrétiser leurs projets numériques. Notre conviction : la majorité des projets digitaux échouent par manque de cadrage initial, pas par manque d'outils.
             </p>
             <p className="text-muted-foreground text-lg leading-relaxed">
-              En 45 minutes de conversation guidée, notre système analyse vos besoins, identifie les enjeux et génère automatiquement un cahier des charges professionnel, prêt à être partagé avec vos équipes techniques.
+              Notre approche associe l'expertise de nos consultants à un cabinet d'agents IA spécialisés (intake, analyse du besoin, scoping, contrôle qualité). Les agents préparent et structurent la matière ; le consultant valide, arbitre et engage le cabinet.
             </p>
             <p className="text-muted-foreground text-lg leading-relaxed">
-              Chaque projet que nous accompagnons renforce notre conviction : quand la technologie est au service de la clarté, les résultats dépassent les attentes. Rejoignez les entreprises qui ont choisi une approche structurée pour concrétiser leurs ambitions digitales.
+              Nous ne promettons ni automatisation totale, ni résultats garantis. Nous nous engageons sur une méthode lisible : un audit gratuit, un cahier des charges clair, une proposition personnalisée et un suivi de mission transparent.
             </p>
           </div>
         </div>

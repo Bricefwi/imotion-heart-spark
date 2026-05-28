@@ -69,7 +69,7 @@ export default function Contact() {
     <div className="overflow-hidden">
       <SEOHead
         title="Contact — Parlons de votre projet digital"
-        description="Contactez IMOTION Creator Studio pour discuter de votre projet digital. Réponse sous 24h. Devis gratuit et sans engagement."
+        description="Contactez i-MOTION Conseil pour discuter de votre projet IA, NoCode ou digital. Audit et cahier des charges gratuits, proposition personnalisée."
         canonical="/contact"
         jsonLd={breadcrumbSchema([
           { name: "Accueil", url: "/" },

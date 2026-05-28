@@ -204,7 +204,7 @@ export function Logo({
     (markOnly
       ? "IMOTION"
       : showText
-        ? "IMOTION Creator Studio"
+        ? "i-MOTION Conseil"
         : "IMOTION");
 
   // a11y attrs partagés
@@ -248,8 +248,8 @@ export function Logo({
               "border-l border-current/30 pl-2 sm:pl-3"
             )}
           >
-            <span>Creator</span>
-            <span>Studio</span>
+            <span>Cabinet</span>
+            <span>Conseil</span>
           </div>
         )}
       </div>
@@ -286,7 +286,7 @@ export function Logo({
               s.sub
             )}
           >
-            Creator Studio
+            Conseil
           </span>
         </div>
       )}

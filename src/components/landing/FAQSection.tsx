@@ -26,7 +26,7 @@ const faqs = [
   },
   {
     question: "Quels types de projets sont couverts ?",
-    answer: "IMOTION Creator Studio couvre les projets web et digitaux : sites vitrines, e-commerce, applications web SaaS, marketplaces, CRM sur mesure, applications mobiles hybrides, et refonte de systèmes existants."
+    answer: "i-MOTION Conseil intervient sur les projets web, IA et NoCode : sites vitrines, e-commerce, applications web SaaS, marketplaces, CRM sur mesure, automatisations et refonte de systèmes existants."
   },
   {
     question: "Mes données sont-elles sécurisées ?",

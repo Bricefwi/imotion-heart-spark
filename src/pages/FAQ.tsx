@@ -7,7 +7,7 @@ export default function FAQ() {
     <div className="overflow-hidden">
       <SEOHead
         title="FAQ — Questions fréquentes"
-        description="Retrouvez les réponses aux questions fréquentes sur IMOTION Creator Studio : cahier des charges gratuit, tarifs, processus et accompagnement."
+        description="Réponses aux questions fréquentes sur i-MOTION Conseil : audit gratuit, cahier des charges, diagnostic IA & NoCode, accompagnement et missions."
         canonical="/faq"
         jsonLd={breadcrumbSchema([
           { name: "Accueil", url: "/" },
