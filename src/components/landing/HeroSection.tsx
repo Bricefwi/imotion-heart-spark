@@ -157,10 +157,10 @@ function AuditMockup() {
 
 /* ─── Bénéfices ─────────────────────────────────────────────── */
 const benefits = [
-  { icon: Building2, text: "Cabinet de conseil IA & NoCode" },
-  { icon: FileText,  text: "Cahier des charges clair et structuré" },
-  { icon: Euro,      text: "Proposition personnalisée, sans grille standard" },
-  { icon: Zap,       text: "Audit conversationnel guidé, supervisé par un consultant" },
+  { icon: Building2, text: "Méthode structurée en quatre temps" },
+  { icon: FileText,  text: "Cahier des charges initial offert" },
+  { icon: Euro,      text: "Proposition personnalisée, validée par un humain" },
+  { icon: Zap,       text: "Consultants IA spécialisés, supervisés par nos consultants" },
 ];
 
 /* ─── HeroSection ────────────────────────────────────────────── */
@@ -188,7 +188,7 @@ export function HeroSection() {
           transition={{ duration: 0.5 }}
           className="mb-10 lg:mb-14"
         >
-          <SectionIndex number="01" label="Hero — i-MOTION Conseil" tone="light" />
+          <SectionIndex number="01" label="i-MOTION Conseil" tone="light" />
         </motion.div>
 
         <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-12 lg:gap-16 items-center">
@@ -201,7 +201,7 @@ export function HeroSection() {
               transition={{ duration: 0.5 }}
               className="mb-6"
             >
-              <Eyebrow tone="light">Cabinet de conseil IA & NoCode · PME & entrepreneurs</Eyebrow>
+              <Eyebrow tone="light">Cabinet IA &amp; NoCode · Indépendants, TPE &amp; PME</Eyebrow>
             </motion.div>
 
             <motion.h1
@@ -211,8 +211,8 @@ export function HeroSection() {
               className="imo-display text-[2.5rem] sm:text-5xl lg:text-[4rem] mb-6"
               style={{ color: "hsl(var(--imo-ink-50))" }}
             >
-              Clarifiez votre projet digital avec{" "}
-              <FlameText>i-MOTION Conseil</FlameText>
+              Cadrez, concevez et déployez vos projets{" "}
+              <FlameText>digitaux, IA et NoCode.</FlameText>
             </motion.h1>
 
             <motion.p
@@ -222,15 +222,13 @@ export function HeroSection() {
               className="text-base lg:text-lg mb-8 max-w-xl leading-relaxed"
               style={{ color: "hsl(var(--imo-ink-300))" }}
             >
-              Cabinet de conseil augmenté par des agents IA en arrière-plan,
-              sous supervision humaine. Audit gratuit, {" "}
-              <span style={{ color: "hsl(var(--imo-ink-100))", fontWeight: 600 }}>cahier des charges</span>{" "}
-              structuré et{" "}
-              <span style={{ color: "hsl(var(--imo-ink-100))", fontWeight: 600 }}>proposition personnalisée</span>{" "}
-              adaptée à votre contexte.
+              i-MOTION Conseil accompagne les indépendants, TPE et PME avec une
+              méthode structurée, des consultants IA spécialisés et une{" "}
+              <span style={{ color: "hsl(var(--imo-ink-100))", fontWeight: 600 }}>validation humaine</span>{" "}
+              à chaque étape.
             </motion.p>
 
-            {/* Bénéfices avec ribbon-left */}
+            {/* Bénéfices */}
             <motion.ul
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -269,8 +267,8 @@ export function HeroSection() {
                   boxShadow: "var(--imo-shadow-glow-lg)",
                 }}
               >
-                <Link to="/register">
-                  Démarrer mon audit gratuit
+                <Link to="/diagnostic">
+                  Démarrer mon diagnostic gratuit
                   <ArrowRight className="size-4" />
                 </Link>
               </Button>
@@ -285,7 +283,7 @@ export function HeroSection() {
                   background: "transparent",
                 }}
               >
-              <Link to="/comment-ca-marche">Comment ça marche</Link>
+              <Link to="/methode">Découvrir la méthode</Link>
               </Button>
             </motion.div>
 
@@ -298,17 +296,17 @@ export function HeroSection() {
           >
             <span className="flex items-center gap-1.5">
               <Check className="size-3" style={{ color: "hsl(var(--imo-amber-400))" }} strokeWidth={3} />
-              Audit gratuit
-            </span>
-            <span style={{ color: "hsl(var(--imo-ink-700))" }}>·</span>
-            <span className="flex items-center gap-1.5">
-              <Check className="size-3" style={{ color: "hsl(var(--imo-amber-400))" }} strokeWidth={3} />
-              CDC inclus
-            </span>
-            <span style={{ color: "hsl(var(--imo-ink-700))" }}>·</span>
-            <span className="flex items-center gap-1.5">
-              <Check className="size-3" style={{ color: "hsl(var(--imo-amber-400))" }} strokeWidth={3} />
               Sans engagement
+            </span>
+            <span style={{ color: "hsl(var(--imo-ink-700))" }}>·</span>
+            <span className="flex items-center gap-1.5">
+              <Check className="size-3" style={{ color: "hsl(var(--imo-amber-400))" }} strokeWidth={3} />
+              Cahier des charges initial offert
+            </span>
+            <span style={{ color: "hsl(var(--imo-ink-700))" }}>·</span>
+            <span className="flex items-center gap-1.5">
+              <Check className="size-3" style={{ color: "hsl(var(--imo-amber-400))" }} strokeWidth={3} />
+              Validation humaine sur chaque livrable
             </span>
           </motion.div>
           </div>
