@@ -93,7 +93,7 @@ Deno.serve(async (req) => {
   }
 
   // --- Build update ---
-  const update: Record<string, unknown> = { last_synced_at: new Date().toISOString() };
+  const update: Record<string, unknown> = {};
   if (nextInternal) update.status = nextInternal;
   if (typeof requiresHumanValidation === "boolean") {
     update.requires_human_validation = requiresHumanValidation;
