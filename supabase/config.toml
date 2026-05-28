@@ -33,4 +33,8 @@ project_id = "npmkzqxoxobfqdqpnsgf"
     verify_jwt = true
   [functions.verify-email]
     verify_jwt = false
+  [functions.paperclip-intake]
+    verify_jwt = true
+  [functions.paperclip-webhook]
+    verify_jwt = false
 
