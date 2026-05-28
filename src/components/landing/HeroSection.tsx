@@ -55,7 +55,7 @@ function AuditMockup() {
         >
           <span className="inline-block h-3 w-[2px] rounded-full" style={{ background: "hsl(var(--imo-coral-500))" }} />
           <span className="text-[11px] font-bold uppercase tracking-[0.16em]" style={{ color: "hsl(var(--imo-ink-100))" }}>
-            clarivi
+            i-motion conseil
           </span>
           <span className="text-[10px]" style={{ color: "hsl(var(--imo-ink-500))" }}>· audit en direct</span>
           <span className="ml-auto inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider"
@@ -157,10 +157,10 @@ function AuditMockup() {
 
 /* ─── Bénéfices ─────────────────────────────────────────────── */
 const benefits = [
-  { icon: Building2, text: "White-label complet — votre marque, vos couleurs" },
-  { icon: FileText,  text: "CDC + devis pré-rempli à chaque audit" },
-  { icon: Euro,      text: "Grille tarifaire agence intégrée" },
-  { icon: Zap,       text: "Audit conversationnel en 6 min" },
+  { icon: Building2, text: "Cabinet de conseil IA & NoCode" },
+  { icon: FileText,  text: "Cahier des charges clair et structuré" },
+  { icon: Euro,      text: "Proposition personnalisée, sans grille standard" },
+  { icon: Zap,       text: "Audit conversationnel guidé, supervisé par un consultant" },
 ];
 
 /* ─── HeroSection ────────────────────────────────────────────── */
@@ -188,7 +188,7 @@ export function HeroSection() {
           transition={{ duration: 0.5 }}
           className="mb-10 lg:mb-14"
         >
-          <SectionIndex number="01" label="Hero — Clarivi for Agencies" tone="light" />
+          <SectionIndex number="01" label="Hero — i-MOTION Conseil" tone="light" />
         </motion.div>
 
         <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-12 lg:gap-16 items-center">
@@ -201,7 +201,7 @@ export function HeroSection() {
               transition={{ duration: 0.5 }}
               className="mb-6"
             >
-              <Eyebrow tone="light">B2B2B · Agences digitales · White-label</Eyebrow>
+              <Eyebrow tone="light">Cabinet de conseil IA & NoCode · PME & entrepreneurs</Eyebrow>
             </motion.div>
 
             <motion.h1
@@ -211,10 +211,8 @@ export function HeroSection() {
               className="imo-display text-[2.5rem] sm:text-5xl lg:text-[4rem] mb-6"
               style={{ color: "hsl(var(--imo-ink-50))" }}
             >
-              Embarquez un{" "}
-              <FlameText>audit IA</FlameText>{" "}
-              <br className="hidden sm:block" />
-              dans votre tunnel commercial
+              Clarifiez votre projet digital avec{" "}
+              <FlameText>i-MOTION Conseil</FlameText>
             </motion.h1>
 
             <motion.p
@@ -224,12 +222,12 @@ export function HeroSection() {
               className="text-base lg:text-lg mb-8 max-w-xl leading-relaxed"
               style={{ color: "hsl(var(--imo-ink-300))" }}
             >
-              Clarivi transforme chaque prospect en lead qualifié en 6 minutes.
-              Votre agence reçoit automatiquement un{" "}
+              Cabinet de conseil augmenté par des agents IA en arrière-plan,
+              sous supervision humaine. Audit gratuit, {" "}
               <span style={{ color: "hsl(var(--imo-ink-100))", fontWeight: 600 }}>cahier des charges</span>{" "}
-              et un{" "}
-              <span style={{ color: "hsl(var(--imo-ink-100))", fontWeight: 600 }}>devis pré-rempli</span>{" "}
-              à vos tarifs.
+              structuré et{" "}
+              <span style={{ color: "hsl(var(--imo-ink-100))", fontWeight: 600 }}>proposition personnalisée</span>{" "}
+              adaptée à votre contexte.
             </motion.p>
 
             {/* Bénéfices avec ribbon-left */}
@@ -271,8 +269,8 @@ export function HeroSection() {
                   boxShadow: "var(--imo-shadow-glow-lg)",
                 }}
               >
-                <Link to="/inscription">
-                  Essayer 14 jours gratuit
+                <Link to="/register">
+                  Démarrer mon audit gratuit
                   <ArrowRight className="size-4" />
                 </Link>
               </Button>
@@ -287,7 +285,7 @@ export function HeroSection() {
                   background: "transparent",
                 }}
               >
-                <Link to="/tarifs">Voir les tarifs</Link>
+              <Link to="/comment-ca-marche">Comment ça marche</Link>
               </Button>
             </motion.div>
 
@@ -297,22 +295,22 @@ export function HeroSection() {
               transition={{ delay: 0.4 }}
               className="mt-5 flex items-center gap-4 text-xs font-mono"
               style={{ color: "hsl(var(--imo-ink-500))" }}
-            >
-              <span className="flex items-center gap-1.5">
-                <Check className="size-3" style={{ color: "hsl(var(--imo-amber-400))" }} strokeWidth={3} />
-                5 audits inclus
-              </span>
-              <span style={{ color: "hsl(var(--imo-ink-700))" }}>·</span>
-              <span className="flex items-center gap-1.5">
-                <Check className="size-3" style={{ color: "hsl(var(--imo-amber-400))" }} strokeWidth={3} />
-                Sans CB
-              </span>
-              <span style={{ color: "hsl(var(--imo-ink-700))" }}>·</span>
-              <span className="flex items-center gap-1.5">
-                <Check className="size-3" style={{ color: "hsl(var(--imo-amber-400))" }} strokeWidth={3} />
-                Annulation libre
-              </span>
-            </motion.div>
+          >
+            <span className="flex items-center gap-1.5">
+              <Check className="size-3" style={{ color: "hsl(var(--imo-amber-400))" }} strokeWidth={3} />
+              Audit gratuit
+            </span>
+            <span style={{ color: "hsl(var(--imo-ink-700))" }}>·</span>
+            <span className="flex items-center gap-1.5">
+              <Check className="size-3" style={{ color: "hsl(var(--imo-amber-400))" }} strokeWidth={3} />
+              CDC inclus
+            </span>
+            <span style={{ color: "hsl(var(--imo-ink-700))" }}>·</span>
+            <span className="flex items-center gap-1.5">
+              <Check className="size-3" style={{ color: "hsl(var(--imo-amber-400))" }} strokeWidth={3} />
+              Sans engagement
+            </span>
+          </motion.div>
           </div>
 
           {/* ═══ Colonne droite : audit mockup ═══ */}
