@@ -163,7 +163,9 @@ Deno.serve(async (req) => {
   return jsonResponse(200, {
     ok: true,
     job_id: jobId,
-    new_status: newStatus ?? previousStatus,
+    new_status: nextInternal ?? previousStatus,
+    namespace: resolved.namespace,
     inserted_documents: insertedDocs,
   });
 });
+
