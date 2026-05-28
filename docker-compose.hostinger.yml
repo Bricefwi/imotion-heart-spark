@@ -1,0 +1,69 @@
+# ─────────────────────────────────────────────────────────────
+# Stack déploiement Hostinger VPS — IMOTION / Clarivi BUILD
+#
+#   $ docker compose -f docker-compose.hostinger.yml --env-file .env.production up -d --build
+#
+# Pré-requis :
+#   - Docker + docker compose v2 installés sur le VPS
+#   - .env.production (copié depuis .env.example) renseigné côté serveur
+#   - DNS app.imotion-conseils.fr → IP du VPS
+# ─────────────────────────────────────────────────────────────
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Vite fige ces valeurs DANS le bundle au build. Pas de secret runtime.
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
+        VITE_SUPABASE_PUBLISHABLE_KEY: ${VITE_SUPABASE_PUBLISHABLE_KEY}
+        VITE_SUPABASE_PROJECT_ID: ${VITE_SUPABASE_PROJECT_ID}
+    image: imotion-frontend:latest
+    container_name: imotion-frontend
+    restart: unless-stopped
+    expose:
+      - "80"
+    networks:
+      - web
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  # Reverse proxy Caddy : TLS automatique (Let's Encrypt) + HTTP→HTTPS
+  proxy:
+    image: caddy:2-alpine
+    container_name: imotion-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - web
+    depends_on:
+      - frontend
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+networks:
+  web:
+    driver: bridge
+
+volumes:
+  caddy_data:
+  caddy_config:
