@@ -64,15 +64,28 @@ Deno.serve(async (req) => {
   if (jobFetchErr || !job) return jsonResponse(404, { error: "job not found" });
   const previousStatus = job.status as string;
 
-  // --- Transition guard ---
-  const transition = canWebhookTransition(previousStatus, newStatus);
-  if (!transition.ok) {
-    // Log rejected attempt as an event (no job mutation)
+  // --- Resolve external/internal status + transition guard ---
+  const requiresHumanValidation = payload.requires_human_validation === true;
+  const resolved = resolveWebhookStatus(newStatus, requiresHumanValidation);
+  if (!resolved.ok) {
     await admin.from("paperclip_job_events").insert({
       job_id: jobId,
       event_type: "rejected_transition",
       status_from: previousStatus,
       status_to: newStatus,
+      source: "paperclip",
+      payload: { reason: resolved.error, raw: payload },
+    });
+    return jsonResponse(resolved.status, { error: resolved.error, job_id: jobId });
+  }
+  const nextInternal = resolved.internal;
+  const transition = canApplyTransition(previousStatus, nextInternal);
+  if (!transition.ok) {
+    await admin.from("paperclip_job_events").insert({
+      job_id: jobId,
+      event_type: "rejected_transition",
+      status_from: previousStatus,
+      status_to: nextInternal,
       source: "paperclip",
       payload: { reason: transition.error, raw: payload },
     });
@@ -81,10 +94,14 @@ Deno.serve(async (req) => {
 
   // --- Build update ---
   const update: Record<string, unknown> = { last_synced_at: new Date().toISOString() };
-  if (newStatus) update.status = newStatus;
+  if (nextInternal) update.status = nextInternal;
+  if (typeof requiresHumanValidation === "boolean") {
+    update.requires_human_validation = requiresHumanValidation;
+  }
   if (typeof payload.paperclip_ticket_id === "string") {
     update.paperclip_ticket_id = payload.paperclip_ticket_id;
   }
+
   if (payload.output_payload && typeof payload.output_payload === "object") {
     update.output_payload = payload.output_payload;
   }
