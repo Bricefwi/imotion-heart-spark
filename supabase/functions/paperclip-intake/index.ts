@@ -115,12 +115,13 @@ Deno.serve(async (req) => {
   }
 
   if (!qualified) {
-    // No job created, no Paperclip call attempted.
-    return jsonResponse(422, {
-      error: "Lead not qualified",
-      reason: "audit score < 50 and no phase_2_besoin in project discovery_data",
+    // Business decision, not a technical error. No job, no event, no call.
+    return jsonResponse(200, {
+      status: "not_qualified",
+      reason: "lead_score_below_threshold",
     });
   }
+
 
   const intakePayload = {
     schema_version: "1.0",
