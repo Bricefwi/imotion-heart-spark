@@ -1,13 +1,24 @@
 // Paperclip Intake — Lot 2
 //
-// Auth: verify_jwt = true. Admin / super_admin only.
+// Auth: verify_jwt = true. **MVP: admin / super_admin only.**
+//   - Objectif: éviter qu'un client déclenche Paperclip automatiquement.
+//   - Phase future: déclenchement client possible UNIQUEMENT après
+//     qualification automatique maîtrisée (lead scoring serveur).
+//   - Le rôle 'consultant' n'est PAS autorisé en MVP (peut être ajouté
+//     ultérieurement après validation produit).
+//   - Aucun rôle 'board' n'existe dans ce projet.
+//
 // Lead qualification (one of):
 //   - marketing_audits.score >= 50, OR
 //   - projects.discovery_data.phase_2_besoin is a non-empty object
 //
+// Un lead non qualifié est une décision métier normale, pas une erreur:
+//   → HTTP 200 { status: "not_qualified", reason: "lead_score_below_threshold" }
+//   → aucun job créé, aucun event créé, aucun appel Paperclip.
+//
 // MOCK mode (PAPERCLIP_MOCK=true OR PAPERCLIP_MOCK_ENABLED=true): no outbound
-// call. The job is simulated end-to-end inside Supabase. PAPERCLIP_API_URL /
-// PAPERCLIP_API_KEY are intentionally NOT read here.
+// call. PAPERCLIP_API_URL / PAPERCLIP_API_KEY are intentionally NOT read here.
+
 
 import { adminClient, corsHeaders, isPaperclipMockEnabled, jsonResponse, userClient } from "../_shared/supabase.ts";
 
@@ -104,12 +115,13 @@ Deno.serve(async (req) => {
   }
 
   if (!qualified) {
-    // No job created, no Paperclip call attempted.
-    return jsonResponse(422, {
-      error: "Lead not qualified",
-      reason: "audit score < 50 and no phase_2_besoin in project discovery_data",
+    // Business decision, not a technical error. No job, no event, no call.
+    return jsonResponse(200, {
+      status: "not_qualified",
+      reason: "lead_score_below_threshold",
     });
   }
+
 
   const intakePayload = {
     schema_version: "1.0",
@@ -166,8 +178,7 @@ Deno.serve(async (req) => {
       .from("paperclip_jobs")
       .update({
         status: "failed",
-        last_error: "Mock disabled but Paperclip live dispatch is not enabled in this build",
-        last_synced_at: new Date().toISOString(),
+        error_message: "Mock disabled but Paperclip live dispatch is not enabled in this build",
       })
       .eq("id", jobId);
     return jsonResponse(503, {
@@ -183,7 +194,6 @@ Deno.serve(async (req) => {
     .update({
       status: "sent_to_paperclip",
       paperclip_ticket_id: mockTicketId,
-      last_synced_at: new Date().toISOString(),
     })
     .eq("id", jobId);
 
