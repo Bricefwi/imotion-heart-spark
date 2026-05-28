@@ -178,8 +178,7 @@ Deno.serve(async (req) => {
       .from("paperclip_jobs")
       .update({
         status: "failed",
-        last_error: "Mock disabled but Paperclip live dispatch is not enabled in this build",
-        last_synced_at: new Date().toISOString(),
+        error_message: "Mock disabled but Paperclip live dispatch is not enabled in this build",
       })
       .eq("id", jobId);
     return jsonResponse(503, {
@@ -195,7 +194,6 @@ Deno.serve(async (req) => {
     .update({
       status: "sent_to_paperclip",
       paperclip_ticket_id: mockTicketId,
-      last_synced_at: new Date().toISOString(),
     })
     .eq("id", jobId);
 
