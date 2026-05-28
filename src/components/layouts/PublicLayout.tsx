@@ -54,7 +54,7 @@ export function PublicLayout() {
           <Link
             to="/"
             className={`flex items-center group ${isHome ? "text-white" : ""}`}
-            aria-label="IMOTION Creator Studio — Accueil"
+            aria-label="i-MOTION Conseil — Accueil"
           >
             <Logo size="md" showText tone={isHome ? "light" : "auto"} />
           </Link>
@@ -300,7 +300,7 @@ export function PublicLayout() {
             </div>
           </div>
           <div className="border-t border-border/30 mt-10 pt-6 text-center text-sm text-muted-foreground/50">
-            © {new Date().getFullYear()} IMOTION Creator Studio. {t("footer.rights")}
+            © {new Date().getFullYear()} i-MOTION Conseil. {t("footer.rights")}
           </div>
         </div>
       </footer>
