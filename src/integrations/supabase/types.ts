@@ -2511,13 +2511,6 @@ export type Database = {
             referencedRelation: "paperclip_jobs"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "paperclip_documents_job_id_fkey"
-            columns: ["job_id"]
-            isOneToOne: false
-            referencedRelation: "v_client_job_status"
-            referencedColumns: ["id"]
-          },
         ]
       }
       paperclip_job_events: {
@@ -2557,13 +2550,6 @@ export type Database = {
             columns: ["job_id"]
             isOneToOne: false
             referencedRelation: "paperclip_jobs"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "paperclip_job_events_job_id_fkey"
-            columns: ["job_id"]
-            isOneToOne: false
-            referencedRelation: "v_client_job_status"
             referencedColumns: ["id"]
           },
         ]
@@ -3454,48 +3440,6 @@ export type Database = {
       }
     }
     Views: {
-      v_client_job_status: {
-        Row: {
-          audit_id: string | null
-          client_status: string | null
-          has_document: boolean | null
-          id: string | null
-          project_id: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          audit_id?: string | null
-          client_status?: never
-          has_document?: never
-          id?: string | null
-          project_id?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          audit_id?: string | null
-          client_status?: never
-          has_document?: never
-          id?: string | null
-          project_id?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "paperclip_jobs_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "paperclip_jobs_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "v_high_score_leads"
-            referencedColumns: ["project_id"]
-          },
-        ]
-      }
       v_high_score_leads: {
         Row: {
           client_id: string | null
@@ -3658,6 +3602,17 @@ export type Database = {
         Returns: Json
       }
       get_active_model: { Args: { _scope?: string }; Returns: string }
+      get_my_client_job_statuses: {
+        Args: never
+        Returns: {
+          audit_id: string
+          client_status: string
+          has_document: boolean
+          id: string
+          project_id: string
+          updated_at: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
