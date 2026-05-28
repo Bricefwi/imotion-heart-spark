@@ -24,12 +24,11 @@ export function PublicLayout() {
   const isHome = pathname === "/";
 
   const navLinks = [
-    { label: t("nav.features"), to: "/fonctionnalites" },
-    { label: t("nav.pricing"), to: "/tarifs" },
-    { label: t("nav.blog"), to: "/blog" },
-    { label: t("nav.about"), to: "/a-propos" },
-    { label: t("nav.contact"), to: "/contact" },
-    { label: t("nav.faq"), to: "/faq" },
+    { label: "Diagnostic gratuit", to: "/diagnostic" },
+    { label: "Méthode", to: "/methode" },
+    { label: "Offres", to: "/offres" },
+    { label: "Cas d'usage", to: "/cas-usage" },
+    { label: "Contact", to: "/contact" },
   ];
 
   const legalLinks = [
@@ -275,10 +274,11 @@ export function PublicLayout() {
             <div>
               <h4 className="font-semibold text-sm mb-4">{t("footer.product")}</h4>
               <ul className="space-y-2.5 text-sm text-muted-foreground/70">
-                <li><Link to="/fonctionnalites" className="hover:text-foreground transition-colors duration-150">{t("nav.features")}</Link></li>
-                <li><Link to="/tarifs" className="hover:text-foreground transition-colors duration-150">{t("nav.pricing")}</Link></li>
-                <li><Link to="/blog" className="hover:text-foreground transition-colors duration-150">{t("nav.blog")}</Link></li>
-                <li><Link to="/faq" className="hover:text-foreground transition-colors duration-150">{t("nav.faq")}</Link></li>
+                <li><Link to="/diagnostic" className="hover:text-foreground transition-colors duration-150">Diagnostic gratuit</Link></li>
+                <li><Link to="/methode" className="hover:text-foreground transition-colors duration-150">Méthode</Link></li>
+                <li><Link to="/offres" className="hover:text-foreground transition-colors duration-150">Offres</Link></li>
+                <li><Link to="/cas-usage" className="hover:text-foreground transition-colors duration-150">Cas d'usage</Link></li>
+                <li><Link to="/cabinet" className="hover:text-foreground transition-colors duration-150">Cabinet IA supervisé</Link></li>
               </ul>
             </div>
             <div>
@@ -286,6 +286,8 @@ export function PublicLayout() {
               <ul className="space-y-2.5 text-sm text-muted-foreground/70">
                 <li><Link to="/a-propos" className="hover:text-foreground transition-colors duration-150">{t("nav.about")}</Link></li>
                 <li><Link to="/contact" className="hover:text-foreground transition-colors duration-150">{t("nav.contact")}</Link></li>
+                <li><Link to="/faq" className="hover:text-foreground transition-colors duration-150">{t("nav.faq")}</Link></li>
+                <li><Link to="/blog" className="hover:text-foreground transition-colors duration-150">{t("nav.blog")}</Link></li>
               </ul>
             </div>
             <div>

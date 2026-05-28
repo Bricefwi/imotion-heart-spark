@@ -16,7 +16,7 @@
 
 export const BRAND = {
   name: "IMOTION Conseil",
-  productName: "IMOTION Creator Studio",
+  productName: "i-MOTION Conseil",
   url: "https://imotion-conseils.fr",
   appUrl: "https://app.imotion-conseils.fr",
   marketingUrl: "https://marketing.imotion-conseils.fr",

@@ -47,6 +47,7 @@ const BrandPreview = lazy(() => import("@/pages/BrandPreview"));
 const CommentCaMarche = lazy(() => import("@/pages/CommentCaMarche"));
 const AuditIANoCode = lazy(() => import("@/pages/AuditIANoCode"));
 const CabinetIA = lazy(() => import("@/pages/CabinetIA"));
+const CasUsage = lazy(() => import("@/pages/CasUsage"));
 
 // Auth pages (lazy)
 const Login = lazy(() => import("@/pages/Login"));
@@ -124,14 +125,26 @@ const App = () => (
             {/* Public pages with shared layout */}
             <Route element={<PublicLayout />}>
               <Route path="/" element={<Index />} />
-              <Route path="/fonctionnalites" element={<Features />} />
-              <Route path="/comment-ca-marche" element={<CommentCaMarche />} />
-              <Route path="/audit-ia-nocode" element={<AuditIANoCode />} />
-              <Route path="/cabinet-ia" element={<CabinetIA />} />
-              <Route path="/tarifs" element={<Pricing />} />
-              <Route path="/a-propos" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
+
+              {/* Routes publiques canoniques i-MOTION Conseil */}
+              <Route path="/diagnostic" element={<AuditIANoCode />} />
+              <Route path="/methode" element={<CommentCaMarche />} />
+              <Route path="/offres" element={<Pricing />} />
+              <Route path="/cas-usage" element={<CasUsage />} />
+              <Route path="/cabinet" element={<CabinetIA />} />
+
+              {/* Redirections legacy → routes canoniques */}
+              <Route path="/fonctionnalites" element={<Navigate to="/methode" replace />} />
+              <Route path="/tarifs" element={<Navigate to="/offres" replace />} />
               <Route path="/inscription" element={<Navigate to="/register" replace />} />
+              <Route path="/comment-ca-marche" element={<Navigate to="/methode" replace />} />
+              <Route path="/audit-ia-nocode" element={<Navigate to="/diagnostic" replace />} />
+              <Route path="/cabinet-ia" element={<Navigate to="/cabinet" replace />} />
+
+              {/* Conserver Features/Pricing accessibles aussi par leur slug d'origine */}
+              <Route path="/features" element={<Features />} />
+
+              <Route path="/a-propos" element={<About />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/mentions-legales" element={<Legal />} />
               <Route path="/confidentialite" element={<Privacy />} />
