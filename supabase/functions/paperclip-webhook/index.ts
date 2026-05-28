@@ -13,7 +13,8 @@
 import { adminClient, corsHeaders, jsonResponse } from "../_shared/supabase.ts";
 import { verifySignedRequest } from "../_shared/hmac.ts";
 import { consumeNonce } from "../_shared/nonce.ts";
-import { canWebhookTransition } from "../_shared/status.ts";
+import { canApplyTransition, resolveWebhookStatus } from "../_shared/status.ts";
+
 
 const NONCE_SOURCE = "paperclip-webhook";
 
