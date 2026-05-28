@@ -1,8 +1,7 @@
 import { useEffect } from "react";
 import { HeroSection } from "@/components/landing/HeroSection";
+import { ConstatReponseSection } from "@/components/landing/ConstatReponseSection";
 import { HowItWorksImotion } from "@/components/landing/HowItWorksImotion";
-import { DocumentsPreview } from "@/components/landing/DocumentsPreview";
-import { PricingSection } from "@/components/landing/PricingSection";
 import { CTASectionImotion } from "@/components/landing/CTASectionImotion";
 import { FAQSection } from "@/components/landing/FAQSection";
 import { SEOHead, organizationSchema, websiteSchema, softwareSchema, faqSchema } from "@/components/SEOHead";
@@ -38,8 +37,8 @@ export default function Index() {
   return (
     <div className="overflow-hidden">
       <SEOHead
-        title="i-MOTION Conseil — Cabinet de conseil IA & NoCode"
-        description="Cabinet de conseil IA & NoCode augmenté par des agents IA. Audit gratuit, cahier des charges, diagnostic et accompagnement sur mesure pour vos projets digitaux."
+        title="i-MOTION Conseil — Cabinet IA & NoCode pour PME et entrepreneurs"
+        description="Cadrez, concevez et déployez vos projets digitaux, IA et NoCode. Méthode structurée, consultants spécialisés, validation humaine à chaque étape. Diagnostic gratuit."
         canonical="/"
         jsonLd={[organizationSchema, websiteSchema, softwareSchema, faqSchema]}
       />
@@ -47,8 +46,7 @@ export default function Index() {
         <HeroSection />
       </ErrorBoundary>
       <HowItWorksImotion />
-      <DocumentsPreview />
-      <PricingSection />
+      <ConstatReponseSection />
       <ErrorBoundary>
         <FAQSection />
       </ErrorBoundary>

@@ -50,7 +50,7 @@ export function CTASectionImotion() {
             transition={{ delay: 0.1 }}
             className="mb-5 flex justify-center"
           >
-            <Eyebrow tone="light">Audit gratuit · CDC inclus · Sans engagement</Eyebrow>
+            <Eyebrow tone="light">Sans engagement · Cahier des charges offert · Validation humaine</Eyebrow>
           </motion.div>
 
           <motion.h2
@@ -61,8 +61,8 @@ export function CTASectionImotion() {
             className="imo-display text-[2.5rem] sm:text-5xl lg:text-6xl mb-6"
             style={{ color: "hsl(var(--imo-ink-50))" }}
           >
-            Donnez de la clarté à votre projet{" "}
-            <FlameText>dès aujourd'hui.</FlameText>
+            Prêt à clarifier votre projet ?{" "}
+            <FlameText>Commencez par le diagnostic gratuit.</FlameText>
           </motion.h2>
 
           <motion.p
@@ -73,7 +73,8 @@ export function CTASectionImotion() {
             className="text-lg mb-10 max-w-2xl mx-auto leading-relaxed"
             style={{ color: "hsl(var(--imo-ink-300))" }}
           >
-            Lancez votre audit en quelques minutes. Notre cabinet IA structure votre besoin et un consultant i-MOTION valide votre cahier des charges avant toute proposition.
+            En quelques minutes, évaluez votre maturité, structurez votre besoin et repartez avec
+            un cahier des charges initial. Vous restez libre à chaque étape.
           </motion.p>
 
           {/* Stamps preview */}
@@ -85,13 +86,13 @@ export function CTASectionImotion() {
             className="flex flex-wrap items-center justify-center gap-3 mb-10"
           >
             <Stamp tone="dashed" className="!text-[hsl(var(--imo-coral-300))] !border-[hsl(var(--imo-coral-400)/0.5)] !bg-[hsl(var(--imo-ink-900)/0.4)]">
-              Audit gratuit
+              Gratuit
             </Stamp>
             <Stamp tone="dashed" className="!text-[hsl(var(--imo-amber-300))] !border-[hsl(var(--imo-amber-400)/0.5)] !bg-[hsl(var(--imo-ink-900)/0.4)]">
-              CDC inclus
+              Sans engagement
             </Stamp>
             <Stamp tone="dashed" className="!text-[hsl(var(--imo-coral-300))] !border-[hsl(var(--imo-coral-400)/0.5)] !bg-[hsl(var(--imo-ink-900)/0.4)]">
-              Supervision humaine
+              Validation humaine
             </Stamp>
           </motion.div>
 
@@ -113,8 +114,8 @@ export function CTASectionImotion() {
                 height: "52px",
               }}
             >
-              <Link to="/register">
-                Démarrer mon audit gratuit
+              <Link to="/diagnostic">
+                Démarrer mon diagnostic
                 <ArrowRight className="size-4" />
               </Link>
             </Button>
@@ -130,7 +131,7 @@ export function CTASectionImotion() {
                 height: "52px",
               }}
             >
-              <Link to="/contact">Réserver une démo</Link>
+              <Link to="/methode">Découvrir la méthode</Link>
             </Button>
           </motion.div>
 
