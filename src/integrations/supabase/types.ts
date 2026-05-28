@@ -2469,42 +2469,174 @@ export type Database = {
           },
         ]
       }
+      paperclip_documents: {
+        Row: {
+          created_at: string
+          doc_type: string
+          id: string
+          is_validated: boolean
+          job_id: string
+          storage_path: string
+          title: string | null
+          user_id: string
+          visibility: string
+        }
+        Insert: {
+          created_at?: string
+          doc_type: string
+          id?: string
+          is_validated?: boolean
+          job_id: string
+          storage_path: string
+          title?: string | null
+          user_id: string
+          visibility?: string
+        }
+        Update: {
+          created_at?: string
+          doc_type?: string
+          id?: string
+          is_validated?: boolean
+          job_id?: string
+          storage_path?: string
+          title?: string | null
+          user_id?: string
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "paperclip_documents_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "paperclip_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "paperclip_documents_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "v_client_job_status"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      paperclip_job_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          job_id: string
+          payload: Json | null
+          source: string
+          status_from: string | null
+          status_to: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          job_id: string
+          payload?: Json | null
+          source?: string
+          status_from?: string | null
+          status_to?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          job_id?: string
+          payload?: Json | null
+          source?: string
+          status_from?: string | null
+          status_to?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "paperclip_job_events_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "paperclip_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "paperclip_job_events_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "v_client_job_status"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       paperclip_jobs: {
         Row: {
+          audit_id: string | null
+          confidence_score: number | null
+          cost_estimate: Json | null
           created_at: string
           error_message: string | null
           id: string
-          input_payload: Json
-          job_type: string
+          intake_payload: Json | null
+          job_type: string | null
+          lead_score: number | null
+          margin_check: Json | null
+          maturity_score: number | null
           output_payload: Json | null
+          output_type: string | null
           paperclip_ticket_id: string | null
           project_id: string | null
+          qa_report: Json | null
+          requested_service_type: string | null
+          requires_human_validation: boolean
+          risk_flags: Json | null
           status: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          audit_id?: string | null
+          confidence_score?: number | null
+          cost_estimate?: Json | null
           created_at?: string
           error_message?: string | null
           id?: string
-          input_payload?: Json
-          job_type: string
+          intake_payload?: Json | null
+          job_type?: string | null
+          lead_score?: number | null
+          margin_check?: Json | null
+          maturity_score?: number | null
           output_payload?: Json | null
+          output_type?: string | null
           paperclip_ticket_id?: string | null
           project_id?: string | null
+          qa_report?: Json | null
+          requested_service_type?: string | null
+          requires_human_validation?: boolean
+          risk_flags?: Json | null
           status?: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          audit_id?: string | null
+          confidence_score?: number | null
+          cost_estimate?: Json | null
           created_at?: string
           error_message?: string | null
           id?: string
-          input_payload?: Json
-          job_type?: string
+          intake_payload?: Json | null
+          job_type?: string | null
+          lead_score?: number | null
+          margin_check?: Json | null
+          maturity_score?: number | null
           output_payload?: Json | null
+          output_type?: string | null
           paperclip_ticket_id?: string | null
           project_id?: string | null
+          qa_report?: Json | null
+          requested_service_type?: string | null
+          requires_human_validation?: boolean
+          risk_flags?: Json | null
           status?: string
           updated_at?: string
           user_id?: string
@@ -3322,6 +3454,48 @@ export type Database = {
       }
     }
     Views: {
+      v_client_job_status: {
+        Row: {
+          audit_id: string | null
+          client_status: string | null
+          has_document: boolean | null
+          id: string | null
+          project_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          audit_id?: string | null
+          client_status?: never
+          has_document?: never
+          id?: string | null
+          project_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          audit_id?: string | null
+          client_status?: never
+          has_document?: never
+          id?: string | null
+          project_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "paperclip_jobs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "paperclip_jobs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_high_score_leads"
+            referencedColumns: ["project_id"]
+          },
+        ]
+      }
       v_high_score_leads: {
         Row: {
           client_id: string | null
