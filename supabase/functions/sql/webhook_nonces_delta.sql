@@ -1,0 +1,25 @@
+-- Reference SQL — webhook_nonces table already exists and is reused for
+-- the paperclip-webhook (source = 'paperclip-webhook'). No schema change
+-- is required for Lot 2. This file documents the expected shape and an
+-- optional helpful index for source-scoped cleanup.
+--
+-- Existing table (already migrated, do NOT re-run blindly):
+--
+--   CREATE TABLE public.webhook_nonces (
+--     nonce       text PRIMARY KEY,
+--     source      text NOT NULL,
+--     expires_at  timestamptz NOT NULL,
+--     created_at  timestamptz NOT NULL DEFAULT now()
+--   );
+--
+-- Reused source values:
+--   - 'marketing-webhook'
+--   - 'paperclip-webhook'   ← Lot 2
+--
+-- Optional helper index (safe, idempotent) for source-scoped cleanup
+-- queries — only apply if monitoring shows scans on (source, expires_at):
+--
+-- CREATE INDEX IF NOT EXISTS idx_webhook_nonces_source_expires
+--   ON public.webhook_nonces (source, expires_at);
+--
+-- The existing public.cleanup_webhook_nonces() function already covers TTL.
