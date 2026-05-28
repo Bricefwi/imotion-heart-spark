@@ -131,10 +131,11 @@ Deno.serve(async (req) => {
     job_id: jobId,
     event_type: eventType,
     status_from: previousStatus,
-    status_to: newStatus ?? previousStatus,
+    status_to: nextInternal ?? previousStatus,
     source: "paperclip",
-    payload,
+    payload: { ...payload, _resolved_namespace: resolved.namespace },
   });
+
 
   // Optional documents
   let insertedDocs = 0;
