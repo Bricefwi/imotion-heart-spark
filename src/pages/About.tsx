@@ -49,9 +49,6 @@ export default function About() {
           </div>
         </div>
       </section>
-          </div>
-        </div>
-      </section>
 
       <StatsSection />
       <TestimonialsSection />
