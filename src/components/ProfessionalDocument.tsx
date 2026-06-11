@@ -3,6 +3,7 @@ import ReactMarkdown from "react-markdown";
 import { Loader2 } from "lucide-react";
 import { RGB, GRADIENTS, BRAND } from "@/lib/brand-tokens";
 import { Logo } from "@/components/Logo";
+import logoImotion from "@/assets/logo-imotion.png";
 
 interface ProfessionalDocumentProps {
   content: string;
