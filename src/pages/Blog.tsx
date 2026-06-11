@@ -88,7 +88,7 @@ export default function Blog() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <>
       <SEOHead
         title="Blog — Conseils en stratégie digitale et expression du besoin"
         description="Articles experts sur l'expression du besoin, la stratégie digitale, le cahier des charges et les bonnes pratiques pour réussir votre projet digital."
@@ -98,20 +98,6 @@ export default function Blog() {
           { name: "Blog", url: "/blog" },
         ])}
       />
-      {/* Header */}
-      <header className="sticky top-0 z-50 glass">
-        <div className="container flex h-16 items-center justify-between">
-          <Link to="/" className="flex items-center"><Logo size="md" /></Link>
-          <nav className="hidden md:flex items-center gap-6">
-            <Link to="/" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Accueil</Link>
-            <Link to="/blog" className="text-sm font-medium text-foreground">Blog</Link>
-          </nav>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" asChild><Link to="/login">Se connecter</Link></Button>
-            <Button asChild className="gradient-primary border-0"><Link to="/register">Démarrer</Link></Button>
-          </div>
-        </div>
-      </header>
 
       <main className="flex-1">
         {/* Hero */}
@@ -277,13 +263,6 @@ export default function Blog() {
           </div>
         </section>
       </main>
-
-      {/* Footer */}
-      <footer className="border-t bg-muted/30 py-8">
-        <div className="container text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} IMOTION Conseil. Tous droits réservés.
-        </div>
-      </footer>
-    </div>
+    </>
   );
 }
