@@ -71,10 +71,7 @@ const GithubSync = () => {
 
   return (
     <>
-      <Helmet>
-        <title>GitHub Sync — Admin Clarivi</title>
-        <meta name="description" content="État de la synchronisation entre le dépôt GitHub et Lovable." />
-      </Helmet>
+
 
       <main className="container mx-auto px-4 py-8 space-y-6 max-w-5xl">
         <header className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
