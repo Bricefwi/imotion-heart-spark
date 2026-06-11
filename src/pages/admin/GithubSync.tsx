@@ -37,9 +37,12 @@ type GithubSyncResponse = {
   checkedAt?: string;
   rateLimit?: GithubRateLimit;
   tokenConfigured?: boolean;
+  repoDefaultBranch?: string | null;
+  branchAutoDetected?: boolean;
 };
 
 const STORAGE_KEY = "admin.github-sync.repo";
+const BRANCH_KEY = "admin.github-sync.branch";
 const LAST_CHECK_KEY = "admin.github-sync.last-check";
 
 const normalizeRepo = (input: string): string | null => {
@@ -58,6 +61,7 @@ const normalizeRepo = (input: string): string | null => {
 
 const getGithubErrorMessage = (response: GithubSyncResponse): string => {
   if (response.status === 404) {
+    if (response.message) return response.message;
     return `Dépôt ou branche introuvable (${response.repo ?? "dépôt"}@${response.branch ?? "branche"}). Si le dépôt est privé, ajoute un secret backend GITHUB_TOKEN pour autoriser la lecture.`;
   }
   if (response.status === 403) {
@@ -75,14 +79,15 @@ const getGithubErrorMessage = (response: GithubSyncResponse): string => {
 
 const GithubSync = () => {
   const [repo, setRepo] = useState<string>(() => localStorage.getItem(STORAGE_KEY) ?? "");
-  const [branch, setBranch] = useState<string>("principal");
+  const [branch, setBranch] = useState<string>(() => localStorage.getItem(BRANCH_KEY) ?? "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [commits, setCommits] = useState<GithubCommit[]>([]);
   const [lastCheck, setLastCheck] = useState<string | null>(() => localStorage.getItem(LAST_CHECK_KEY));
   const [tokenConfigured, setTokenConfigured] = useState<boolean | null>(null);
+  const [detectedDefaultBranch, setDetectedDefaultBranch] = useState<string | null>(null);
 
-  const fetchCommits = useCallback(async () => {
+  const fetchCommits = useCallback(async (opts?: { autoBranch?: boolean }) => {
     const cleaned = normalizeRepo(repo);
     if (!cleaned) {
       setError("Format invalide. Utilise owner/repo (ex: Bricefwi/imotion-heart-spark) ou colle l'URL GitHub complète.");
@@ -91,20 +96,39 @@ const GithubSync = () => {
     setLoading(true);
     setError(null);
     try {
+      const branchToSend = opts?.autoBranch ? "" : branch;
       const { data, error: invokeError } = await supabase.functions.invoke<GithubSyncResponse>("github-sync-status", {
-        body: { repo: cleaned, branch },
+        body: { repo: cleaned, branch: branchToSend },
       });
       if (invokeError) throw new Error(invokeError.message);
+
+      // Toujours mémoriser la branche par défaut détectée, même en cas d'erreur
+      if (data?.repoDefaultBranch) {
+        setDetectedDefaultBranch(data.repoDefaultBranch);
+        if (!branch || data.branchAutoDetected) {
+          setBranch(data.repoDefaultBranch);
+          localStorage.setItem(BRANCH_KEY, data.repoDefaultBranch);
+        }
+      }
+
       if (!data?.ok || !data.commits) throw new Error(getGithubErrorMessage(data ?? { error: "network_error" }));
 
       setCommits(data.commits);
       setTokenConfigured(Boolean(data.tokenConfigured));
+      if (data.branch) {
+        setBranch(data.branch);
+        localStorage.setItem(BRANCH_KEY, data.branch);
+      }
       const now = data.checkedAt ?? new Date().toISOString();
       setLastCheck(now);
       localStorage.setItem(LAST_CHECK_KEY, now);
       localStorage.setItem(STORAGE_KEY, cleaned);
       setRepo(cleaned);
-      toast.success("Synchronisation vérifiée depuis GitHub");
+      toast.success(
+        data.branchAutoDetected
+          ? `Branche détectée automatiquement : ${data.branch}`
+          : "Synchronisation vérifiée depuis GitHub"
+      );
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Erreur inconnue";
       setError(msg);
@@ -115,7 +139,7 @@ const GithubSync = () => {
   }, [repo, branch]);
 
   useEffect(() => {
-    if (repo) fetchCommits();
+    if (repo) fetchCommits({ autoBranch: !branch });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
