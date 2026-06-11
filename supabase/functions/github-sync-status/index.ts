@@ -78,7 +78,7 @@ Deno.serve(async (req) => {
   }
 
   const repo = normalizeRepo(body.repo ?? "");
-  const branch = (body.branch ?? "main").trim() || "main";
+  const requestedBranch = (body.branch ?? "").trim();
   if (!repo) return json({ error: "invalid_repo" }, 400);
 
   const token = Deno.env.get("GITHUB_TOKEN");
@@ -103,7 +103,7 @@ Deno.serve(async (req) => {
     } catch { /* diagnostic only */ }
   }
 
-  // Diagnostic: detect repo default branch (only works if token can see the repo)
+  // Detect default branch (works for public repos anonymously, or when token has access)
   let repoDefaultBranch: string | null = null;
   let repoVisible = false;
   try {
@@ -117,10 +117,26 @@ Deno.serve(async (req) => {
     }
   } catch { /* diagnostic only */ }
 
-  const githubUrl = `https://api.github.com/repos/${repo}/commits?sha=${encodeURIComponent(branch)}&per_page=10`;
+  // Pick the branch to query: caller value, else detected default, else "main" as last resort
+  const branch = requestedBranch || repoDefaultBranch || "main";
+  const branchAutoDetected = !requestedBranch && Boolean(repoDefaultBranch);
+
+  const fetchCommits = (b: string) =>
+    fetch(`https://api.github.com/repos/${repo}/commits?sha=${encodeURIComponent(b)}&per_page=10`, { headers });
 
   try {
-    const res = await fetch(githubUrl, { headers });
+    let usedBranch = branch;
+    let res = await fetchCommits(usedBranch);
+
+    // Auto-fallback: if branch 404s but repo is visible and default differs, retry with default
+    if (res.status === 404 && repoVisible && repoDefaultBranch && repoDefaultBranch !== usedBranch) {
+      const retry = await fetchCommits(repoDefaultBranch);
+      if (retry.ok) {
+        usedBranch = repoDefaultBranch;
+        res = retry;
+      }
+    }
+
     const rateLimit = {
       limit: res.headers.get("x-ratelimit-limit"),
       remaining: res.headers.get("x-ratelimit-remaining"),
@@ -133,15 +149,15 @@ Deno.serve(async (req) => {
       if (res.status === 404) {
         if (token && tokenLogin && !repoVisible) {
           message = `Le token appartient au compte GitHub « ${tokenLogin} » qui n'a pas accès au dépôt ${repo}. Vérifie : (1) que le token a bien été créé sur le compte propriétaire du dépôt, (2) pour un Fine-grained PAT, que ce dépôt est inclus dans "Repository access" avec la permission Contents: Read-only, (3) pour un Classic PAT, que le scope "repo" est coché.`;
-        } else if (token && repoVisible && repoDefaultBranch && repoDefaultBranch !== branch) {
-          message = `La branche « ${branch} » n'existe pas sur ${repo}. Branche par défaut détectée : « ${repoDefaultBranch} ».`;
+        } else if (repoVisible && repoDefaultBranch && repoDefaultBranch !== usedBranch) {
+          message = `La branche « ${usedBranch} » n'existe pas sur ${repo}. Branche par défaut détectée : « ${repoDefaultBranch} ».`;
         }
       }
-      return json({ error: "github_error", status: res.status, message, repo, branch, rateLimit, tokenConfigured: Boolean(token), tokenLogin, repoDefaultBranch }, 200);
+      return json({ error: "github_error", status: res.status, message, repo, branch: usedBranch, rateLimit, tokenConfigured: Boolean(token), tokenLogin, repoDefaultBranch, branchAutoDetected }, 200);
     }
 
     const commits = (await res.json()) as GithubCommitPayload[];
-    return json({ ok: true, repo, branch, commits, checkedAt: new Date().toISOString(), rateLimit, tokenConfigured: Boolean(token), tokenLogin, repoDefaultBranch });
+    return json({ ok: true, repo, branch: usedBranch, commits, checkedAt: new Date().toISOString(), rateLimit, tokenConfigured: Boolean(token), tokenLogin, repoDefaultBranch, branchAutoDetected: branchAutoDetected || usedBranch !== branch });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Erreur réseau inconnue.";
     return json({ error: "network_error", message, repo, branch, tokenConfigured: Boolean(token), tokenLogin, repoDefaultBranch }, 200);
