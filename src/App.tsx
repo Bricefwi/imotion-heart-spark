@@ -82,6 +82,8 @@ const ConsultantProjects = lazy(() => import("@/pages/consultant/Projects"));
 const ConsultantProjectDetail = lazy(() => import("@/pages/consultant/ProjectDetail"));
 const ConsultantAnalytics = lazy(() => import("@/pages/consultant/Analytics"));
 const ConsultantDocumentEditor = lazy(() => import("@/pages/consultant/DocumentEditor"));
+const ConsultantDocuments = lazy(() => import("@/pages/consultant/Documents"));
+const AdminDocuments = lazy(() => import("@/pages/admin/Documents"));
 
 // Admin pages (lazy)
 const AdminOperations = lazy(() => import("@/pages/admin/Operations"));
@@ -236,6 +238,7 @@ const App = () => (
               <Route path="/consultant/leads" element={<ConsultantLeads />} />
               <Route path="/consultant/projects" element={<ConsultantProjects />} />
               <Route path="/consultant/projects/:id" element={<ConsultantProjectDetail />} />
+              <Route path="/consultant/documents" element={<ConsultantDocuments />} />
               <Route path="/consultant/documents/:id/edit" element={<ConsultantDocumentEditor />} />
               <Route path="/consultant/clients" element={<ConsultantDashboard />} />
               <Route path="/consultant/analytics" element={<ConsultantAnalytics />} />
@@ -252,6 +255,7 @@ const App = () => (
               <Route path="/admin/blog" element={<AdminBlog />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
               <Route path="/admin/templates" element={<AdminTemplates />} />
+              <Route path="/admin/documents" element={<AdminDocuments />} />
               <Route path="/admin/templates/preview" element={<AdminTemplatesPreview />} />
               <Route path="/admin/projects/:id" element={<AdminProjectDetail />} />
               <Route path="/admin/integrations" element={<AdminIntegrations />} />
