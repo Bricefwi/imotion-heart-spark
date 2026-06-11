@@ -134,6 +134,7 @@ Deno.serve(async (req) => {
 
   // Diagnostic: which GitHub account does the token belong to?
   let tokenLogin: string | null = null;
+  let candidateRepos: RepoCandidate[] = [];
   if (token) {
     try {
       const meRes = await fetch("https://api.github.com/user", { headers });
@@ -157,8 +158,29 @@ Deno.serve(async (req) => {
       repoVisible = true;
     } else {
       await repoRes.text();
+      if (token) {
+        candidateRepos = await listVisibleRepoCandidates(headers, repo).catch(() => []);
+      }
     }
   } catch { /* diagnostic only */ }
+
+  if (!repoVisible && candidateRepos.length > 0) {
+    const preferred = candidateRepos[0];
+    const message = preferred.fullName.toLowerCase() === repo.toLowerCase()
+      ? `Le dépôt ${repo} est visible par le token, mais GitHub refuse l'accès direct à ses commits. Vérifie que le token a la permission Contents: Read-only.`
+      : `Le dépôt ${repo} est introuvable avec ce token. En revanche, le token voit « ${preferred.fullName} » avec la branche par défaut « ${preferred.defaultBranch ?? "non détectée"} ». Corrige le champ Dépôt avec ce nom exact ou vérifie que ${repo} existe bien sous ce propriétaire.`;
+    return json({
+      error: "github_error",
+      status: 404,
+      message,
+      repo,
+      branch: requestedBranch || preferred.defaultBranch || "main",
+      tokenConfigured: Boolean(token),
+      tokenLogin,
+      repoDefaultBranch: preferred.defaultBranch,
+      candidateRepos,
+    }, 200);
+  }
 
   // Pick the branch to query: caller value, else detected default, else "main" as last resort
   const branch = requestedBranch || repoDefaultBranch || "main";
@@ -191,7 +213,7 @@ Deno.serve(async (req) => {
       let message = typeof payload.message === "string" ? payload.message : "GitHub ne répond pas correctement.";
       if (res.status === 404) {
         if (token && tokenLogin && !repoVisible) {
-          message = `Le token appartient au compte GitHub « ${tokenLogin} » qui n'a pas accès au dépôt ${repo}. Vérifie : (1) que le token a bien été créé sur le compte propriétaire du dépôt, (2) pour un Fine-grained PAT, que ce dépôt est inclus dans "Repository access" avec la permission Contents: Read-only, (3) pour un Classic PAT, que le scope "repo" est coché.`;
+          message = `GitHub ne trouve pas le dépôt ${repo} avec le token du compte « ${tokenLogin} ». Ce n'est pas un problème de branche : l'API /repos/${repo} renvoie 404. Vérifie le nom propriétaire/dépôt exact dans l'URL GitHub, puis donne au token l'accès à ce dépôt avec Contents: Read-only.`;
         } else if (repoVisible && repoDefaultBranch && repoDefaultBranch !== usedBranch) {
           message = `La branche « ${usedBranch} » n'existe pas sur ${repo}. Branche par défaut détectée : « ${repoDefaultBranch} ».`;
         }
