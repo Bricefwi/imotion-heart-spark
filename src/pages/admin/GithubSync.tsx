@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { RefreshCw, GitBranch, ExternalLink, AlertCircle, CheckCircle2, GitCommit, Clock } from "lucide-react";
 
@@ -14,13 +15,63 @@ interface GithubCommit {
   html_url: string;
   commit: {
     message: string;
-    author: { name: string; email: string; date: string };
+    author: { name: string; email: string; date: string } | null;
   };
   author: { login: string; avatar_url: string } | null;
 }
 
+type GithubRateLimit = {
+  limit: string | null;
+  remaining: string | null;
+  reset: string | null;
+};
+
+type GithubSyncResponse = {
+  ok?: boolean;
+  error?: "github_error" | "network_error" | "invalid_repo" | "invalid_json" | "forbidden" | "invalid_session" | "missing_authorization" | "method_not_allowed" | "backend_not_configured";
+  status?: number;
+  message?: string;
+  repo?: string;
+  branch?: string;
+  commits?: GithubCommit[];
+  checkedAt?: string;
+  rateLimit?: GithubRateLimit;
+  tokenConfigured?: boolean;
+};
+
 const STORAGE_KEY = "admin.github-sync.repo";
 const LAST_CHECK_KEY = "admin.github-sync.last-check";
+
+const normalizeRepo = (input: string): string | null => {
+  if (!input) return null;
+  const cleaned = input
+    .trim()
+    .replace(/^https?:\/\/(www\.)?github\.com\//i, "")
+    .replace(/^git@github\.com:/i, "")
+    .replace(/\.git$/i, "")
+    .replace(/\/+$/, "");
+
+  const parts = cleaned.split("/").filter(Boolean);
+  if (parts.length < 2) return null;
+  return `${parts[0]}/${parts[1]}`;
+};
+
+const getGithubErrorMessage = (response: GithubSyncResponse): string => {
+  if (response.status === 404) {
+    return `Dépôt ou branche introuvable (${response.repo ?? "dépôt"}@${response.branch ?? "branche"}). Si le dépôt est privé, ajoute un secret backend GITHUB_TOKEN pour autoriser la lecture.`;
+  }
+  if (response.status === 403) {
+    return response.tokenConfigured
+      ? "GitHub refuse la requête avec le token configuré. Vérifie ses droits ou sa limite de requêtes."
+      : "Limite GitHub atteinte en accès anonyme. Ajoute un secret backend GITHUB_TOKEN ou réessaie plus tard.";
+  }
+  if (response.error === "network_error") {
+    return `Le backend n'arrive pas à joindre GitHub : ${response.message ?? "erreur réseau inconnue"}.`;
+  }
+  if (response.error === "forbidden") return "Accès refusé : cette vérification est réservée aux administrateurs.";
+  if (response.error === "invalid_session" || response.error === "missing_authorization") return "Session expirée : reconnecte-toi puis relance la vérification.";
+  return response.message ?? "GitHub n'a pas renvoyé de réponse exploitable.";
+};
 
 const GithubSync = () => {
   const [repo, setRepo] = useState<string>(() => localStorage.getItem(STORAGE_KEY) ?? "");
@@ -29,19 +80,7 @@ const GithubSync = () => {
   const [error, setError] = useState<string | null>(null);
   const [commits, setCommits] = useState<GithubCommit[]>([]);
   const [lastCheck, setLastCheck] = useState<string | null>(() => localStorage.getItem(LAST_CHECK_KEY));
-
-  const normalizeRepo = (input: string): string | null => {
-    if (!input) return null;
-    let s = input.trim();
-    // Accepte URL complète (https://github.com/owner/repo[.git]) ou git@github.com:owner/repo.git
-    s = s.replace(/^https?:\/\/(www\.)?github\.com\//i, "")
-         .replace(/^git@github\.com:/i, "")
-         .replace(/\.git$/i, "")
-         .replace(/\/+$/, "");
-    const parts = s.split("/").filter(Boolean);
-    if (parts.length < 2) return null;
-    return `${parts[0]}/${parts[1]}`;
-  };
+  const [tokenConfigured, setTokenConfigured] = useState<boolean | null>(null);
 
   const fetchCommits = useCallback(async () => {
     const cleaned = normalizeRepo(repo);
@@ -52,21 +91,15 @@ const GithubSync = () => {
     setLoading(true);
     setError(null);
     try {
-      const url = `https://api.github.com/repos/${cleaned}/commits?sha=${encodeURIComponent(branch)}&per_page=10`;
-      const res = await fetch(url, { headers: { Accept: "application/vnd.github+json" } });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        if (res.status === 404) {
-          throw new Error(`Dépôt ou branche introuvable (${cleaned}@${branch}). S'il est privé, l'API publique GitHub ne peut pas y accéder sans token.`);
-        }
-        if (res.status === 403) {
-          throw new Error(`Limite GitHub atteinte (60 requêtes/h en anonyme). Réessaie dans quelques minutes.`);
-        }
-        throw new Error(body.message || `GitHub API: ${res.status}`);
-      }
-      const data: GithubCommit[] = await res.json();
-      setCommits(data);
-      const now = new Date().toISOString();
+      const { data, error: invokeError } = await supabase.functions.invoke<GithubSyncResponse>("github-sync-status", {
+        body: { repo: cleaned, branch },
+      });
+      if (invokeError) throw new Error(invokeError.message);
+      if (!data?.ok || !data.commits) throw new Error(getGithubErrorMessage(data ?? { error: "network_error" }));
+
+      setCommits(data.commits);
+      setTokenConfigured(Boolean(data.tokenConfigured));
+      const now = data.checkedAt ?? new Date().toISOString();
       setLastCheck(now);
       localStorage.setItem(LAST_CHECK_KEY, now);
       localStorage.setItem(STORAGE_KEY, cleaned);
@@ -87,7 +120,7 @@ const GithubSync = () => {
   }, []);
 
   const latest = commits[0];
-  const latestDate = latest ? new Date(latest.commit.author.date) : null;
+  const latestDate = latest?.commit.author?.date ? new Date(latest.commit.author.date) : null;
   const ageMinutes = latestDate ? Math.round((Date.now() - latestDate.getTime()) / 60000) : null;
 
   return (
@@ -165,7 +198,7 @@ const GithubSync = () => {
                 </div>
                 <div>
                   <div className="text-xs text-muted-foreground uppercase tracking-wide">Auteur</div>
-                  <div className="text-sm mt-1">{latest.author?.login ?? latest.commit.author.name}</div>
+                  <div className="text-sm mt-1">{latest.author?.login ?? latest.commit.author?.name ?? "Auteur inconnu"}</div>
                   <div className="text-xs text-muted-foreground mt-1">{latestDate?.toLocaleString("fr-FR")}</div>
                 </div>
                 <div>
@@ -177,6 +210,11 @@ const GithubSync = () => {
                   {lastCheck && (
                     <div className="text-xs text-muted-foreground mt-2">
                       Vérifié : {new Date(lastCheck).toLocaleString("fr-FR")}
+                    </div>
+                  )}
+                  {tokenConfigured !== null && (
+                    <div className="text-xs text-muted-foreground mt-1">
+                      Accès GitHub : {tokenConfigured ? "token backend" : "public"}
                     </div>
                   )}
                 </div>
@@ -203,8 +241,8 @@ const GithubSync = () => {
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-medium truncate">{c.commit.message.split("\n")[0]}</div>
                       <div className="text-xs text-muted-foreground">
-                        <span className="font-mono">{c.sha.slice(0, 8)}</span> · {c.author?.login ?? c.commit.author.name} ·{" "}
-                        {new Date(c.commit.author.date).toLocaleString("fr-FR")}
+                        <span className="font-mono">{c.sha.slice(0, 8)}</span> · {c.author?.login ?? c.commit.author?.name ?? "Auteur inconnu"} ·{" "}
+                        {c.commit.author?.date ? new Date(c.commit.author.date).toLocaleString("fr-FR") : "date inconnue"}
                       </div>
                     </div>
                     <a
@@ -227,8 +265,8 @@ const GithubSync = () => {
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Comment ça marche ?</AlertTitle>
           <AlertDescription className="text-sm space-y-1">
-            <p>Cette page interroge l'API publique GitHub pour lire les derniers commits de ton dépôt. Elle ne déclenche pas la sync Lovable elle-même (qui est automatique côté plateforme).</p>
-            <p>Si le dernier commit ici est plus récent que ce que tu vois dans l'éditeur Lovable, attends 30 s puis recharge ; sinon reconnecte l'app GitHub via le menu <strong>+ → GitHub → Manage</strong>.</p>
+            <p>Cette page interroge GitHub via le backend Lovable Cloud pour éviter le blocage réseau du navigateur. Elle ne déclenche pas la sync Lovable elle-même, qui reste automatique côté plateforme.</p>
+            <p>Pour un dépôt privé, configure un secret backend <strong>GITHUB_TOKEN</strong> avec un token GitHub en lecture seule, puis relance la vérification.</p>
           </AlertDescription>
         </Alert>
       </main>
