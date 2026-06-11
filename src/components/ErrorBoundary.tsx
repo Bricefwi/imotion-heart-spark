@@ -24,7 +24,29 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error("ErrorBoundary caught:", error, errorInfo);
+
+    // Auto-recover from stale lazy-loaded chunks after a deploy.
+    // Vite emits hashed chunks; an open tab can request a chunk that no longer
+    // exists. We force a single reload to fetch the new index.html + chunks.
+    const msg = String(error?.message || "");
+    const isChunkError =
+      msg.includes("Failed to fetch dynamically imported module") ||
+      msg.includes("Importing a module script failed") ||
+      msg.includes("error loading dynamically imported module");
+
+    if (isChunkError) {
+      try {
+        const KEY = "__chunk_reload_once__";
+        if (!sessionStorage.getItem(KEY)) {
+          sessionStorage.setItem(KEY, String(Date.now()));
+          window.location.reload();
+        }
+      } catch {
+        // sessionStorage may be unavailable (private mode); fail silently.
+      }
+    }
   }
+
 
   handleRetry = () => {
     this.setState({ hasError: false, error: null });
