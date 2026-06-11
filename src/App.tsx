@@ -9,7 +9,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ThemeProvider } from "next-themes";
 import { CookieConsent } from "@/components/CookieConsent";
-import { AgencyProvider } from "@/contexts/AgencyContext";
+
 
 // Layouts (static imports - used as wrappers)
 import { PublicLayout } from "@/components/layouts/PublicLayout";
@@ -98,14 +98,6 @@ const AdminBridgeSecret = lazy(() => import("@/pages/admin/BridgeSecret"));
 const AdminSsoDebug = lazy(() => import("@/pages/admin/SsoDebug"));
 const AdminMarketingLeads = lazy(() => import("@/pages/admin/MarketingLeads"));
 
-// Agency V2 pages (lazy)
-const AgencyDashboard = lazy(() => import("@/pages/agency/Dashboard"));
-const AgencyNewAuditLink = lazy(() => import("@/pages/agency/NewAuditLink"));
-const AgencyAuditDetail = lazy(() => import("@/pages/agency/AuditDetail"));
-
-// Audit tunnel (public, no auth)
-const AuditTunnel = lazy(() => import("@/pages/AuditTunnel"));
-const AuditDone = lazy(() => import("@/pages/AuditDone"));
 
 const queryClient = new QueryClient();
 
@@ -113,7 +105,7 @@ const App = () => (
   <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <AgencyProvider>
+      
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -262,15 +254,6 @@ const App = () => (
               <Route path="/admin/logs" element={<AdminDashboard />} />
             </Route>
 
-            {/* Agency V2 routes */}
-            <Route path="/app/dashboard" element={<ProtectedRoute><AgencyDashboard /></ProtectedRoute>} />
-            <Route path="/app/audits" element={<ProtectedRoute><AgencyDashboard /></ProtectedRoute>} />
-            <Route path="/app/audits/new" element={<ProtectedRoute><AgencyNewAuditLink /></ProtectedRoute>} />
-            <Route path="/app/audits/:id" element={<ProtectedRoute><AgencyAuditDetail /></ProtectedRoute>} />
-
-            {/* Audit tunnel — public (prospect, no auth) */}
-            <Route path="/audit/:token" element={<AuditTunnel />} />
-            <Route path="/audit/:token/done" element={<AuditDone />} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
@@ -279,7 +262,6 @@ const App = () => (
         </ErrorBoundary>
         <CookieConsent />
       </TooltipProvider>
-      </AgencyProvider>
     </AuthProvider>
   </QueryClientProvider>
   </ThemeProvider>
