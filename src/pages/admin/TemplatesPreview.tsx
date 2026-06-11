@@ -64,6 +64,67 @@ function interpolate(content: string, vars: Record<string, string>): string {
   return content.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, key) => vars[key] ?? `{{${key}}}`);
 }
 
+// Schémas zod par clé — appliqués uniquement si la variable est utilisée dans le template
+const VAR_SCHEMAS: Record<string, z.ZodString> = {
+  client_name: z.string().trim().min(2, "Nom trop court").max(100),
+  client_company: z.string().trim().min(2, "Société requise").max(150),
+  client_email: z.string().trim().email("Email invalide").max(255),
+  project_name: z.string().trim().min(3, "Nom de projet trop court").max(150),
+  project_code: z
+    .string()
+    .trim()
+    .regex(/^[A-Z]{2,5}-\d{3,4}-\d{3,5}$/, "Format attendu : IM-2603-4789"),
+  project_description: z.string().trim().min(10, "Description trop courte").max(1000),
+  date: z
+    .string()
+    .trim()
+    .min(6, "Date requise")
+    .regex(/\d/, "La date doit contenir un chiffre"),
+  consultant_name: z.string().trim().min(2).max(100),
+  amount: z
+    .string()
+    .trim()
+    .regex(/^[\d\s.,]+\s?[€$]?$/, "Format attendu : 24 500 €"),
+  duration: z.string().trim().min(2).max(50),
+  document_name: z.string().trim().min(2).max(150),
+  document_url: z.string().trim().url("URL invalide").max(500),
+};
+
+interface ValidationIssue {
+  key: string;
+  label: string;
+  message: string;
+  type: "missing" | "format";
+}
+
+function validateVars(
+  usedKeys: Set<string>,
+  vars: Record<string, string>
+): ValidationIssue[] {
+  const issues: ValidationIssue[] = [];
+  for (const f of VAR_FIELDS) {
+    if (!usedKeys.has(f.key)) continue;
+    const value = vars[f.key] ?? "";
+    if (!value.trim()) {
+      issues.push({ key: f.key, label: f.label, message: "Champ obligatoire", type: "missing" });
+      continue;
+    }
+    const schema = VAR_SCHEMAS[f.key];
+    if (schema) {
+      const res = schema.safeParse(value);
+      if (!res.success) {
+        issues.push({
+          key: f.key,
+          label: f.label,
+          message: res.error.issues[0]?.message ?? "Format invalide",
+          type: "format",
+        });
+      }
+    }
+  }
+  return issues;
+}
+
 export default function TemplatesPreview() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
