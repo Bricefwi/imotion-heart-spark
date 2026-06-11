@@ -91,6 +91,7 @@ const AdminDashboard = lazy(() => import("@/pages/admin/Dashboard"));
 const AdminUsers = lazy(() => import("@/pages/admin/Users"));
 const AdminSettings = lazy(() => import("@/pages/admin/Settings"));
 const AdminTemplates = lazy(() => import("@/pages/admin/Templates"));
+const AdminTemplatesPreview = lazy(() => import("@/pages/admin/TemplatesPreview"));
 const AdminBlog = lazy(() => import("@/pages/admin/Blog"));
 const AdminCRM = lazy(() => import("@/pages/admin/CRM"));
 const AdminAnalytics = lazy(() => import("@/pages/admin/Analytics"));
@@ -251,6 +252,7 @@ const App = () => (
               <Route path="/admin/blog" element={<AdminBlog />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
               <Route path="/admin/templates" element={<AdminTemplates />} />
+              <Route path="/admin/templates/preview" element={<AdminTemplatesPreview />} />
               <Route path="/admin/projects/:id" element={<AdminProjectDetail />} />
               <Route path="/admin/integrations" element={<AdminIntegrations />} />
               <Route path="/admin/sync-queue" element={<AdminSyncQueue />} />
