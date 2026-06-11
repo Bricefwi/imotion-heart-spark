@@ -74,7 +74,7 @@ export default function AdminAgentsPilot() {
         .select("key, value")
         .eq("scope", "agent-config");
       if (!data) return [];
-      return data.map((row) => ({
+      return data.map((row: any) => ({
         name: row.key as string,
         ...(row.value as Omit<AgentConfig, "name">),
       }));
@@ -95,7 +95,7 @@ export default function AdminAgentsPilot() {
 
       // Agréger par agent
       const agg: Record<string, { calls: number; cost: number }> = {};
-      data.forEach((ev) => {
+      data.forEach((ev: any) => {
         const agent = (ev.payload as Record<string, string>)?.agent ?? "unknown";
         if (!agg[agent]) agg[agent] = { calls: 0, cost: 0 };
         agg[agent].calls++;

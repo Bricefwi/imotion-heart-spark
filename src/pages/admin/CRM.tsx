@@ -88,7 +88,7 @@ function LeadsIAPreview() {
   });
 
   const gradeCount = ["A", "B", "C", "D"].reduce((acc, g) => {
-    acc[g] = leads.filter((l) => l.lead_grade === g).length;
+    acc[g] = leads.filter((l: any) => l.lead_grade === g).length;
     return acc;
   }, {} as Record<string, number>);
 
@@ -114,7 +114,7 @@ function LeadsIAPreview() {
         ))}
       </div>
       <div className="space-y-2">
-        {leads.slice(0, 8).map((lead) => (
+        {leads.slice(0, 8).map((lead: any) => (
           <div key={lead.id} className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-card hover:border-border transition-colors">
             <div className={`h-8 w-8 rounded-lg flex items-center justify-center font-bold text-sm border shrink-0 ${lead.lead_grade ? GRADE_COLORS[lead.lead_grade] : "bg-muted text-muted-foreground border-border"}`}>
               {lead.lead_grade ?? "?"}

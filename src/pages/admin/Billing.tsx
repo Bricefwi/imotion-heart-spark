@@ -74,7 +74,7 @@ export default function AdminBilling() {
         .from("jobs")
         .select("cost_eur")
         .gte("created_at", startOfMonth.toISOString());
-      return (data ?? []).reduce((sum, j) => sum + (j.cost_eur ?? 0), 0);
+      return (data ?? []).reduce((sum: number, j: any) => sum + (j.cost_eur ?? 0), 0);
     },
     refetchInterval: 300000,
   });
