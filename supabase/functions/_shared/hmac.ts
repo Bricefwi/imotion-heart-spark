@@ -1,4 +1,4 @@
-// HMAC-SHA256 helpers shared across paperclip + marketing webhooks.
+// HMAC-SHA256 helpers shared across incoming webhooks (e.g. marketing).
 // Signature input: `${timestamp}.${nonce}.${rawBody}`
 
 export async function hmacSha256Hex(secret: string, data: string): Promise<string> {
