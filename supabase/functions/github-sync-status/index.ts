@@ -26,6 +26,24 @@ type RequestBody = {
   branch?: string;
 };
 
+type GithubRepoPayload = {
+  name?: string;
+  full_name?: string;
+  default_branch?: string;
+  private?: boolean;
+  html_url?: string;
+  owner?: { login?: string };
+};
+
+type RepoCandidate = {
+  name: string;
+  fullName: string;
+  owner: string;
+  defaultBranch: string | null;
+  private: boolean | null;
+  htmlUrl: string | null;
+};
+
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
@@ -43,6 +61,31 @@ const normalizeRepo = (input: string): string | null => {
   const parts = cleaned.split("/").filter(Boolean);
   if (parts.length < 2) return null;
   return `${parts[0]}/${parts[1]}`;
+};
+
+const toRepoCandidate = (repo: GithubRepoPayload): RepoCandidate | null => {
+  if (!repo.name || !repo.full_name) return null;
+  return {
+    name: repo.name,
+    fullName: repo.full_name,
+    owner: repo.owner?.login ?? repo.full_name.split("/")[0] ?? "",
+    defaultBranch: typeof repo.default_branch === "string" ? repo.default_branch : null,
+    private: typeof repo.private === "boolean" ? repo.private : null,
+    htmlUrl: typeof repo.html_url === "string" ? repo.html_url : null,
+  };
+};
+
+const listVisibleRepoCandidates = async (headers: HeadersInit, requestedRepo: string): Promise<RepoCandidate[]> => {
+  const requestedName = requestedRepo.split("/")[1]?.toLowerCase();
+  if (!requestedName) return [];
+  const res = await fetch("https://api.github.com/user/repos?per_page=100&affiliation=owner,collaborator,organization_member&sort=updated", { headers });
+  if (!res.ok) return [];
+  const repos = (await res.json()) as GithubRepoPayload[];
+  return repos
+    .map(toRepoCandidate)
+    .filter((candidate): candidate is RepoCandidate => Boolean(candidate))
+    .filter((candidate) => candidate.name.toLowerCase() === requestedName || candidate.fullName.toLowerCase() === requestedRepo.toLowerCase())
+    .slice(0, 10);
 };
 
 Deno.serve(async (req) => {
