@@ -105,7 +105,7 @@ const App = () => (
   <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <>
+      
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -262,7 +262,6 @@ const App = () => (
         </ErrorBoundary>
         <CookieConsent />
       </TooltipProvider>
-      >
     </AuthProvider>
   </QueryClientProvider>
   </ThemeProvider>
