@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
+import { z } from "zod";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { ProfessionalDocument } from "@/components/ProfessionalDocument";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Loader2, FileText, RotateCcw } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Loader2, FileText, RotateCcw, AlertCircle, CheckCircle2 } from "lucide-react";
 
 interface Template {
   id: string;
