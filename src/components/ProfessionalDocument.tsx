@@ -203,27 +203,21 @@ export function ProfessionalDocument({
         className="bg-white text-foreground shadow-lg rounded-lg overflow-hidden"
         style={{ fontFamily: "'Inter', 'Helvetica Neue', Arial, sans-serif" }}
       >
-        {/* Header bar — bande sombre (logo) + dégradé flame (titre doc) */}
-        <div className="flex items-stretch">
-          {/* Zone logo : fond sombre contrasté pour respecter l'identité du site */}
-          <div
-            className="flex items-center px-6 py-5 shrink-0"
-            style={{ background: "#0F0D0B" }}
-          >
+        {/* Header bar — un seul dégradé continu noir → coral → amber (transition fondue) */}
+        <div
+          className="flex items-center justify-between px-6 py-5"
+          style={{ background: GRADIENTS.headerBand }}
+        >
+          <div className="flex items-center shrink-0">
             <Logo variant="flux" size="md" showText tone="light" decorative />
           </div>
-          {/* Zone titre : dégradé flame coral→amber */}
-          <div
-            className="flex-1 px-6 py-5 flex items-center justify-end"
-            style={{ background: GRADIENTS.flameSubtle }}
-          >
-            <div className="text-right text-white">
-              <p className="font-semibold text-base leading-tight">{documentName}</p>
-              {projectCode && <p className="text-white/90 text-xs mt-0.5">Ref. {projectCode}</p>}
-              <p className="text-white/85 text-xs">{currentDate}</p>
-            </div>
+          <div className="text-right text-white">
+            <p className="font-semibold text-base leading-tight">{documentName}</p>
+            {projectCode && <p className="text-white/90 text-xs mt-0.5">Ref. {projectCode}</p>}
+            <p className="text-white/85 text-xs">{currentDate}</p>
           </div>
         </div>
+
 
         {/* Meta info bar */}
         <div className="px-8 py-3 bg-muted border-b border-border flex items-center justify-between text-xs text-muted-foreground">
