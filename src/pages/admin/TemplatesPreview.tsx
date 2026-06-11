@@ -294,7 +294,41 @@ export default function TemplatesPreview() {
         </Card>
 
         {/* Preview */}
-        <section>
+        <section onClickCapture={handleExportCapture}>
+          {current && usedKeys.size > 0 && (
+            <Alert
+              variant={isValid ? "default" : "destructive"}
+              className={`mb-4 ${isValid ? "border-emerald-500/50 bg-emerald-50 dark:bg-emerald-950/20" : ""}`}
+            >
+              {isValid ? (
+                <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+              ) : (
+                <AlertCircle className="h-4 w-4" />
+              )}
+              <AlertTitle className={isValid ? "text-emerald-800 dark:text-emerald-300" : ""}>
+                {isValid
+                  ? "Toutes les variables sont valides — prêt pour l'export PDF"
+                  : `${issues.length} variable(s) à corriger avant l'export PDF`}
+              </AlertTitle>
+              {!isValid && (
+                <AlertDescription>
+                  <ul className="mt-1 space-y-0.5 text-xs">
+                    {issues.map((i) => (
+                      <li key={i.key}>
+                        <strong>{i.label}</strong>{" "}
+                        <span className="opacity-80">— {i.message}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  {(missingCount > 0 || formatCount > 0) && (
+                    <p className="mt-2 text-[11px] opacity-80">
+                      {missingCount} manquante(s) · {formatCount} format invalide
+                    </p>
+                  )}
+                </AlertDescription>
+              )}
+            </Alert>
+          )}
           {current ? (
             current.type === "email" || current.type === "system_prompt" ? (
               <Card className="p-6">
@@ -311,16 +345,18 @@ export default function TemplatesPreview() {
                 </pre>
               </Card>
             ) : (
-              <ProfessionalDocument
-                content={rendered}
-                documentName={TYPE_LABELS[current.type] ?? current.name}
-                projectName={vars.project_name}
-                projectCode={vars.project_code}
-                clientName={vars.client_name}
-                clientCompany={vars.client_company}
-                date={vars.date}
-                status="draft"
-              />
+              <div className={!isValid ? "[&_[data-pdf-export]]:opacity-50" : ""}>
+                <ProfessionalDocument
+                  content={rendered}
+                  documentName={TYPE_LABELS[current.type] ?? current.name}
+                  projectName={vars.project_name}
+                  projectCode={vars.project_code}
+                  clientName={vars.client_name}
+                  clientCompany={vars.client_company}
+                  date={vars.date}
+                  status="draft"
+                />
+              </div>
             )
           ) : (
             <Card className="p-12 text-center text-muted-foreground">
