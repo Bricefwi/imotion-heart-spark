@@ -260,6 +260,7 @@ const sidebarGroups: SidebarGroupDef[] = [
       { title: "Actions programmées", url: "/admin/scheduled-actions", icon: Activity },
       { title: "Bridge Secret", url: "/admin/bridge-secret", icon: Shield },
       { title: "Debug SSO", url: "/admin/sso-debug", icon: ScrollText },
+      { title: "GitHub Sync", url: "/admin/github-sync", icon: GitBranch, badge: "NEW" as const },
     ],
   },
 ];

@@ -102,6 +102,7 @@ const AdminOperationsHealth = lazy(() => import("@/pages/admin/OperationsHealth"
 const AdminBridgeSecret = lazy(() => import("@/pages/admin/BridgeSecret"));
 const AdminSsoDebug = lazy(() => import("@/pages/admin/SsoDebug"));
 const AdminMarketingLeads = lazy(() => import("@/pages/admin/MarketingLeads"));
+const AdminGithubSync = lazy(() => import("@/pages/admin/GithubSync"));
 
 
 const queryClient = new QueryClient();
@@ -258,6 +259,7 @@ const App = () => (
               <Route path="/admin/bridge-secret" element={<AdminBridgeSecret />} />
               <Route path="/admin/sso-debug" element={<AdminSsoDebug />} />
               <Route path="/admin/marketing-leads" element={<AdminMarketingLeads />} />
+              <Route path="/admin/github-sync" element={<AdminGithubSync />} />
               <Route path="/admin/logs" element={<AdminDashboard />} />
               <Route path="/admin/operations" element={<AdminOperations />} />
               <Route path="/admin/agents" element={<AdminAgentsPilot />} />
