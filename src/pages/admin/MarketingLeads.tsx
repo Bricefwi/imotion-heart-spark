@@ -260,11 +260,35 @@ export default function MarketingLeads() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatTile label="Total audits" value={stats.total} icon={Inbox} />
-        <StatTile label="Complétés" value={stats.completed} icon={CheckCircle2} tone="success" />
-        <StatTile label="Convertis" value={stats.linked} icon={LinkIcon} tone="primary" />
-        <StatTile label="Orphelins" value={stats.orphans} icon={AlertCircle} tone="warning" />
+        <StatTile
+          label="Total audits"
+          value={stats.total}
+          icon={Inbox}
+          onClick={() => { setStatusFilter("all"); setLinkFilter("all"); setSearch(""); }}
+        />
+        <StatTile
+          label="Complétés"
+          value={stats.completed}
+          icon={CheckCircle2}
+          tone="success"
+          onClick={() => { setStatusFilter("completed"); setLinkFilter("all"); }}
+        />
+        <StatTile
+          label="Convertis"
+          value={stats.linked}
+          icon={LinkIcon}
+          tone="primary"
+          onClick={() => { setLinkFilter("linked"); setStatusFilter("all"); }}
+        />
+        <StatTile
+          label="Orphelins"
+          value={stats.orphans}
+          icon={AlertCircle}
+          tone="warning"
+          onClick={() => { setLinkFilter("orphan"); setStatusFilter("all"); }}
+        />
       </div>
+
 
       {/* Filtres */}
       <Card>
@@ -484,12 +508,13 @@ export default function MarketingLeads() {
 }
 
 function StatTile({
-  label, value, icon: Icon, tone = "default",
+  label, value, icon: Icon, tone = "default", onClick,
 }: {
   label: string;
   value: number;
   icon: any;
   tone?: "default" | "primary" | "success" | "warning";
+  onClick?: () => void;
 }) {
   const toneClasses = {
     default: "text-muted-foreground",
@@ -497,8 +522,8 @@ function StatTile({
     success: "text-green-600",
     warning: "text-amber-600",
   }[tone];
-  return (
-    <Card>
+  const content = (
+    <Card className={onClick ? "cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5 hover:border-primary/30" : undefined}>
       <CardContent className="p-4 flex items-center justify-between">
         <div>
           <p className="text-xs text-muted-foreground uppercase tracking-wide">{label}</p>
@@ -508,4 +533,13 @@ function StatTile({
       </CardContent>
     </Card>
   );
+  if (onClick) {
+    return (
+      <button type="button" onClick={onClick} aria-label={`Filtrer : ${label}`} className="text-left w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-lg">
+        {content}
+      </button>
+    );
+  }
+  return content;
 }
+
