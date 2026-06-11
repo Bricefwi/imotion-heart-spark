@@ -13,22 +13,17 @@ interface DocumentHeaderProps {
  */
 export function DocumentHeader({ documentName, projectCode, date }: DocumentHeaderProps) {
   return (
-    <div className="flex items-stretch">
-      <div
-        className="flex items-center px-6 py-5 shrink-0"
-        style={{ background: "#0F0D0B" }}
-      >
+    <div
+      className="flex items-center justify-between px-6 py-5"
+      style={{ background: GRADIENTS.headerBand }}
+    >
+      <div className="flex items-center shrink-0">
         <Logo variant="flux" size="md" showText tone="light" decorative />
       </div>
-      <div
-        className="flex-1 px-6 py-5 flex items-center justify-end"
-        style={{ background: GRADIENTS.flameSubtle }}
-      >
-        <div className="text-right text-white">
-          <p className="font-semibold text-base leading-tight">{documentName}</p>
-          {projectCode && <p className="text-white/90 text-xs mt-0.5">Ref. {projectCode}</p>}
-          <p className="text-white/85 text-xs">{date}</p>
-        </div>
+      <div className="text-right text-white">
+        <p className="font-semibold text-base leading-tight">{documentName}</p>
+        {projectCode && <p className="text-white/90 text-xs mt-0.5">Ref. {projectCode}</p>}
+        <p className="text-white/85 text-xs">{date}</p>
       </div>
     </div>
   );

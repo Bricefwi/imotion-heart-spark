@@ -60,6 +60,8 @@ export const GRADIENTS = {
   flame: `linear-gradient(135deg, ${COLORS.coral500} 0%, ${COLORS.amber400} 100%)`,
   /** Dégradé flame adouci (documents, bandeaux PDF) — transition progressive coral→amber. */
   flameSubtle: `linear-gradient(100deg, #E85A2A 0%, #ED7A1F 55%, #F08A00 100%)`,
+  /** Bandeau document complet : noir cabinet → coral → amber, transition longue et fondue (aucune cassure). */
+  headerBand: `linear-gradient(90deg, #0F0D0B 0%, #0F0D0B 26%, #2A1108 33%, #6B2210 40%, #B23E1A 50%, #D9591F 62%, #EB7A1F 78%, #F08A00 100%)`,
   ember: `linear-gradient(135deg, ${COLORS.coral600} 0%, ${COLORS.amber500} 50%, ${COLORS.amber300} 100%)`,
   brand: `linear-gradient(135deg, ${COLORS.coral600}, ${COLORS.amber500})`,
 } as const;
