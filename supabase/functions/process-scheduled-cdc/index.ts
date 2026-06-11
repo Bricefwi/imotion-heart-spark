@@ -12,18 +12,22 @@ serve(async (req) => {
   }
 
   try {
-    // Verify cron secret
+    // Vérification stricte : CRON_SECRET uniquement (plus d'anon key fallback)
     const authHeader = req.headers.get("Authorization");
     const cronSecret = Deno.env.get("CRON_SECRET");
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-      // Also allow service role key
-      const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
-      if (!authHeader?.includes(supabaseAnonKey || "___")) {
-        return new Response(JSON.stringify({ error: "Unauthorized" }), {
-          status: 401,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
+    const serviceKey  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+
+    const validBearer = cronSecret
+      ? `Bearer ${cronSecret}`
+      : serviceKey
+      ? `Bearer ${serviceKey}`
+      : null;
+
+    if (!validBearer || authHeader !== validBearer) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
