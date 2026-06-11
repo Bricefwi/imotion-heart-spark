@@ -353,6 +353,7 @@ export type Database = {
         Row: {
           action_config: Json
           action_type: string
+          conditions: Json
           created_at: string
           created_by: string | null
           description: string | null
@@ -360,6 +361,8 @@ export type Database = {
           is_active: boolean
           last_triggered_at: string | null
           name: string
+          schedule_config: Json
+          target_config: Json
           trigger_config: Json
           trigger_count: number
           trigger_event: string
@@ -369,6 +372,7 @@ export type Database = {
         Insert: {
           action_config?: Json
           action_type?: string
+          conditions?: Json
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -376,6 +380,8 @@ export type Database = {
           is_active?: boolean
           last_triggered_at?: string | null
           name: string
+          schedule_config?: Json
+          target_config?: Json
           trigger_config?: Json
           trigger_count?: number
           trigger_event: string
@@ -385,6 +391,7 @@ export type Database = {
         Update: {
           action_config?: Json
           action_type?: string
+          conditions?: Json
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -392,6 +399,8 @@ export type Database = {
           is_active?: boolean
           last_triggered_at?: string | null
           name?: string
+          schedule_config?: Json
+          target_config?: Json
           trigger_config?: Json
           trigger_count?: number
           trigger_event?: string
