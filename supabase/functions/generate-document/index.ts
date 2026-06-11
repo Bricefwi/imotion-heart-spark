@@ -365,10 +365,15 @@ INSTRUCTIONS :
     const aiResponse = await response.json();
     const content = aiResponse.choices?.[0]?.message?.content || "";
 
+    if (!content) {
+      throw new Error("Le modèle IA n'a retourné aucun contenu. Vérifiez la configuration LOVABLE_API_KEY et réessayez.");
+    }
+
     const docName = getDocName(docType, project.name);
     const { data: doc, error: docErr } = await supabase.from("documents").insert({
       project_id: projectId, type: docType, name: docName,
       description: `Généré automatiquement le ${new Date().toLocaleDateString("fr-FR")}`,
+      content_markdown: content,
       storage_path: `${projectId}/${docType}_${Date.now()}.md`,
       status: "draft", created_by: userData.user.id,
       requires_signature: docType === "contract" || docType === "contract_fr" || docType === "proposal" || docType === "pricing" || docType === "pv_reception",
@@ -376,19 +381,19 @@ INSTRUCTIONS :
 
     if (docErr) throw docErr;
 
-    // Also save to generated_documents if estimate exists
-    if (estimate) {
-      await supabase.from("generated_documents").insert({
-        project_id: projectId,
-        estimate_id: estimate.id,
-        document_type: docType,
-        template_code: pricingTemplate ? docType : null,
-        content_markdown: content,
-        variables_snapshot: { estimate, pricingConfig, maintenancePlan },
-        status: "draft",
-        requires_signature: docType === "contrat" || docType === "devis",
-      });
-    }
+    // Always save to generated_documents for history and cross-reference
+    await supabase.from("generated_documents").insert({
+      project_id: projectId,
+      estimate_id: estimate?.id ?? null,
+      document_type: docType,
+      template_code: pricingTemplate ? docType : null,
+      content_markdown: content,
+      variables_snapshot: { estimate, pricingConfig, maintenancePlan },
+      status: "draft",
+      requires_signature: docType === "contrat" || docType === "devis",
+    }).then(({ error }) => {
+      if (error) console.warn("generated_documents insert warning:", error.message);
+    });
 
     const statusMap: Record<string, string> = {
       cdc: "cdc_draft", proposal: "proposal_sent", contract: "contract_pending", pv_reception: "delivered",
@@ -442,21 +447,24 @@ INSTRUCTIONS :
 
 function getSystemPrompt(type: string): string {
   const prompts: Record<string, string> = {
-    cdc: `Tu es un directeur de projet digital senior chez IMOTION Creator Studio, agence digitale premium specialisee en solutions no-code et IA. Tu rediges des Cahiers des Charges exhaustifs, professionnels et immediatement exploitables.
+    cdc: `Tu es un directeur de projet digital senior chez IMOTION Creator Studio, agence digitale premium specialisee en solutions no-code et IA. Tu rediges des Cahiers des Charges COMPLETS, exhaustifs, personnalises et immediatement livrables au client.
 
-REGLES DE REDACTION :
-- Ton professionnel mais accessible, jamais de jargon inutile
-- Chaque section doit apporter de la valeur concrete et actionnable
-- Utilise des tableaux Markdown pour structurer les donnees comparatives
-- Utilise des listes a puces pour les specifications
-- Inclus des metriques, KPIs et criteres de succes mesurables
-- Personnalise chaque section avec les donnees reelles du client
-- Le document doit etre pret a etre envoye au client tel quel
-- Redige en francais impeccable
-- Format Markdown structure avec titres hierarchiques (# ## ### ####)
+MISSION CRITIQUE : Tu DOIS exploiter INTEGRALEMENT l'historique des echanges client fourni pour produire un CDC sur-mesure. Chaque section doit reflechir les besoins REELS exprimes pendant l'audit. Aucune section generique ou vide n'est acceptable.
+
+REGLES IMPERATIVES :
+- LIRE et EXPLOITER chaque message de l'historique des echanges pour extraire : besoins, contraintes, inspirations, budget, delais, fonctionnalites
+- CITER des verbatim clients quand pertinent (entre guillemets) pour ancrer le document dans la realite
+- PERSONALISER chaque section avec les donnees reelles du projet — aucun placeholder "[A completer]" dans le livrable
+- Chaque section DOIT contenir du contenu substantiel base sur les echanges (minimum 3-5 lignes par sous-section)
+- Ton professionnel, structure, convainquant — ce document sera lu par le decideur client
+- Utilise des tableaux Markdown pour les specs, fonctionnalites, KPIs, risques, planning
+- Utilise des listes a puces pour les details
+- Format Markdown avec titres hierarchiques (# ## ### ####)
 - NE JAMAIS utiliser d'emojis
-- Le prestataire est "IMOTION Creator Studio" (pas "IMOTION Conseil")
-- Site web : www.imotion-conseils.fr`,
+- Redige en francais impeccable
+- Le prestataire est "IMOTION Creator Studio"
+- Site web : www.imotion-conseils.fr
+- LONGUEUR CIBLE : 3000-5000 mots minimum pour un CDC professionnel`,
 
     devis: `Tu es le directeur commercial senior d'IMOTION Creator Studio, agence digitale premium specialisee en solutions no-code et IA. Tu rediges des devis detailles, professionnels, competitifs et conformes au droit commercial francais.
 
@@ -603,7 +611,7 @@ ${conversationContext}
 `;
 
   if (type === "cdc") {
-    return `Genere un Cahier des Charges professionnel, exhaustif et immediatement exploitable pour ce projet. Utilise TOUTES les informations issues des echanges client ci-dessous pour personnaliser chaque section au maximum.
+    return `Genere un Cahier des Charges COMPLET, professionnel et personnalise pour ce projet. OBLIGATION : chaque section doit refleter les echanges reels avec le client. Si le client a mentionne un outil, une contrainte, une inspiration ou un objectif specifique dans les echanges, tu DOIS l'inclure dans la section appropriee. Un CDC generique sera refuse.
 
 ${base}
 
