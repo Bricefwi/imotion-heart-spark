@@ -12,7 +12,7 @@ const isAppRole = (value: unknown): value is AppRole =>
   typeof value === "string" && APP_ROLES.includes(value as AppRole);
 
 const extractRolesFromMetadata = (currentUser: User): AppRole[] => {
-  const metadata = currentUser.app_metadata as Record<string, unknown>;
+  const metadata = (currentUser.app_metadata ?? {}) as Record<string, unknown>;
 
   const rolesFromArray = Array.isArray(metadata.roles)
     ? metadata.roles.filter(isAppRole)
