@@ -187,7 +187,28 @@ const GithubSync = () => {
             </div>
             <div className="space-y-2">
               <Label htmlFor="branch">Branche</Label>
-              <Input id="branch" value={branch} onChange={(e) => setBranch(e.target.value.trim())} />
+              <Input
+                id="branch"
+                placeholder="auto-détectée"
+                value={branch}
+                onChange={(e) => {
+                  const v = e.target.value.trim();
+                  setBranch(v);
+                  if (v) localStorage.setItem(BRANCH_KEY, v); else localStorage.removeItem(BRANCH_KEY);
+                }}
+              />
+              {detectedDefaultBranch && detectedDefaultBranch !== branch && (
+                <button
+                  type="button"
+                  className="text-xs text-primary hover:underline"
+                  onClick={() => {
+                    setBranch(detectedDefaultBranch);
+                    localStorage.setItem(BRANCH_KEY, detectedDefaultBranch);
+                  }}
+                >
+                  Utiliser la branche par défaut : {detectedDefaultBranch}
+                </button>
+              )}
             </div>
           </CardContent>
         </Card>
