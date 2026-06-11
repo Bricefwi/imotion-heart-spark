@@ -198,7 +198,7 @@ const GithubSync = () => {
                 </div>
                 <div>
                   <div className="text-xs text-muted-foreground uppercase tracking-wide">Auteur</div>
-                  <div className="text-sm mt-1">{latest.author?.login ?? latest.commit.author.name}</div>
+                  <div className="text-sm mt-1">{latest.author?.login ?? latest.commit.author?.name ?? "Auteur inconnu"}</div>
                   <div className="text-xs text-muted-foreground mt-1">{latestDate?.toLocaleString("fr-FR")}</div>
                 </div>
                 <div>
@@ -210,6 +210,11 @@ const GithubSync = () => {
                   {lastCheck && (
                     <div className="text-xs text-muted-foreground mt-2">
                       Vérifié : {new Date(lastCheck).toLocaleString("fr-FR")}
+                    </div>
+                  )}
+                  {tokenConfigured !== null && (
+                    <div className="text-xs text-muted-foreground mt-1">
+                      Accès GitHub : {tokenConfigured ? "token backend" : "public"}
                     </div>
                   )}
                 </div>
@@ -236,8 +241,8 @@ const GithubSync = () => {
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-medium truncate">{c.commit.message.split("\n")[0]}</div>
                       <div className="text-xs text-muted-foreground">
-                        <span className="font-mono">{c.sha.slice(0, 8)}</span> · {c.author?.login ?? c.commit.author.name} ·{" "}
-                        {new Date(c.commit.author.date).toLocaleString("fr-FR")}
+                        <span className="font-mono">{c.sha.slice(0, 8)}</span> · {c.author?.login ?? c.commit.author?.name ?? "Auteur inconnu"} ·{" "}
+                        {c.commit.author?.date ? new Date(c.commit.author.date).toLocaleString("fr-FR") : "date inconnue"}
                       </div>
                     </div>
                     <a
@@ -260,8 +265,8 @@ const GithubSync = () => {
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Comment ça marche ?</AlertTitle>
           <AlertDescription className="text-sm space-y-1">
-            <p>Cette page interroge l'API publique GitHub pour lire les derniers commits de ton dépôt. Elle ne déclenche pas la sync Lovable elle-même (qui est automatique côté plateforme).</p>
-            <p>Si le dernier commit ici est plus récent que ce que tu vois dans l'éditeur Lovable, attends 30 s puis recharge ; sinon reconnecte l'app GitHub via le menu <strong>+ → GitHub → Manage</strong>.</p>
+            <p>Cette page interroge GitHub via le backend Lovable Cloud pour éviter le blocage réseau du navigateur. Elle ne déclenche pas la sync Lovable elle-même, qui reste automatique côté plateforme.</p>
+            <p>Pour un dépôt privé, configure un secret backend <strong>GITHUB_TOKEN</strong> avec un token GitHub en lecture seule, puis relance la vérification.</p>
           </AlertDescription>
         </Alert>
       </main>
