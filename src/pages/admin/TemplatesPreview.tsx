@@ -4,7 +4,7 @@ import { ProfessionalDocument } from "@/components/ProfessionalDocument";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, FileText } from "lucide-react";
-import { Helmet } from "react-helmet-async";
+
 
 interface Template {
   id: string;
@@ -76,9 +76,6 @@ export default function TemplatesPreview() {
 
   return (
     <>
-      <Helmet>
-        <title>Prévisualisation des templates — Clarivi Admin</title>
-      </Helmet>
       <main className="container mx-auto px-4 py-6 max-w-7xl">
         <header className="mb-6">
           <h1 className="text-2xl font-bold mb-1">Prévisualisation des templates</h1>
