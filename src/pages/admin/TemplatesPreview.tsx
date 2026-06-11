@@ -246,6 +246,7 @@ export default function TemplatesPreview() {
           <div className="space-y-3">
             {VAR_FIELDS.map((f) => {
               const isUsed = usedKeys.has(f.key);
+              const issue = issueByKey.get(f.key);
               return (
                 <div key={f.key} className="space-y-1">
                   <Label
@@ -256,7 +257,12 @@ export default function TemplatesPreview() {
                   >
                     {f.label}
                     {isUsed && (
-                      <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" title="Utilisé dans ce template" />
+                      <span className="text-destructive font-semibold" aria-label="obligatoire">
+                        *
+                      </span>
+                    )}
+                    {isUsed && !issue && vars[f.key]?.trim() && (
+                      <CheckCircle2 className="h-3 w-3 text-emerald-600" />
                     )}
                   </Label>
                   <Input
@@ -268,14 +274,22 @@ export default function TemplatesPreview() {
                       setVars((prev) => ({ ...prev, [f.key]: e.target.value }))
                     }
                     maxLength={500}
-                    className="h-8 text-sm"
+                    aria-invalid={!!issue}
+                    className={`h-8 text-sm ${
+                      issue ? "border-destructive focus-visible:ring-destructive/30" : ""
+                    }`}
                   />
+                  {issue && (
+                    <p className="text-[11px] text-destructive flex items-center gap-1">
+                      <AlertCircle className="h-3 w-3" /> {issue.message}
+                    </p>
+                  )}
                 </div>
               );
             })}
           </div>
           <p className="text-[10px] text-muted-foreground mt-4">
-            Le point coloré indique les variables présentes dans le template sélectionné.
+            <span className="text-destructive font-semibold">*</span> variables obligatoires dans ce template.
           </p>
         </Card>
 
