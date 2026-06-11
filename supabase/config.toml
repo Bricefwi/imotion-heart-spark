@@ -35,4 +35,6 @@ project_id = "npmkzqxoxobfqdqpnsgf"
     verify_jwt = false
   [functions.github-sync-status]
     verify_jwt = true
+  [functions.call-mistral-agent]
+    verify_jwt = true
 

@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getDocName, formatConversationForPrompt, buildPromptFromTemplate } from "./helpers.ts";
+import { callMistralAgent, type MistralAgentKey } from "../_shared/mistral-agents.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -244,10 +245,45 @@ INSTRUCTIONS :
 `;
     }
 
+    // ─── Enrichissement agents Mistral (savant mélange : skip silencieux si non configurés) ───
+    // STRATOS analyse la stratégie pour les docs de cadrage, FINANCIX challenge le chiffrage
+    // pour les docs financiers. Leur analyse est injectée dans le contexte du prompt final.
+    const ENRICHMENT_AGENTS: Record<string, { agent: MistralAgentKey; label: string; brief: string }> = {
+      cdc: { agent: "stratos", label: "ANALYSE STRATÉGIQUE STRATOS", brief: "Analyse la stratégie business de ce projet : positionnement, enjeux hiérarchisés, opportunités de différenciation, risques marché. Sois factuel et synthétique (max 600 mots)." },
+      conseil_technique: { agent: "stratos", label: "ANALYSE STRATÉGIQUE STRATOS", brief: "Analyse les enjeux stratégiques et le ROI attendu de ce projet pour orienter les choix techniques (max 500 mots)." },
+      proposal: { agent: "financix", label: "ANALYSE FINANCIÈRE FINANCIX", brief: "Analyse la cohérence budgétaire de cette proposition : structure de prix, échelonnement, risques financiers, arguments de valeur (max 500 mots)." },
+      devis: { agent: "financix", label: "ANALYSE FINANCIÈRE FINANCIX", brief: "Vérifie la cohérence du chiffrage : postes, marges implicites, conditions de paiement, conformité commerciale française (max 500 mots)." },
+      pricing: { agent: "financix", label: "ANALYSE FINANCIÈRE FINANCIX", brief: "Analyse le chiffrage proposé et suggère une structure tarifaire en 3 options compétitive (max 500 mots)." },
+    };
+
+    let agentContext = "";
+    const enrichment = ENRICHMENT_AGENTS[docType];
+    if (enrichment) {
+      const agentBrief = `${enrichment.brief}
+
+## Projet : ${project.name}
+- Client : ${client?.company_name || client?.full_name || "N/A"} — Secteur : ${client?.industry || "Non spécifié"}
+- Budget : ${project.estimated_budget_min || "?"} - ${project.estimated_budget_max || "?"}€
+## Données de découverte :
+${JSON.stringify(discoveryData).slice(0, 4000)}
+## Échanges client (extrait) :
+${conversationContext.slice(0, 4000)}${pricingContext}`;
+
+      const agentResult = await callMistralAgent(enrichment.agent, [{ role: "user", content: agentBrief }], { maxTokens: 2000, timeoutMs: 45_000 });
+      if (agentResult) {
+        agentContext = `
+
+## ${enrichment.label} (agent expert — à exploiter dans les sections pertinentes, sans le citer comme source)
+${agentResult.content}
+`;
+      }
+    }
+
     const activeTemplate = pricingTemplate ?? template;
+    const fullContext = conversationContext + pricingContext + agentContext;
     const prompt = activeTemplate
-      ? buildPromptFromTemplate(activeTemplate, project, client, discoveryData, conversationContext + pricingContext)
-      : buildDocumentPrompt(docType, project, client, discoveryData, conversationContext + pricingContext);
+      ? buildPromptFromTemplate(activeTemplate, project, client, discoveryData, fullContext)
+      : buildDocumentPrompt(docType, project, client, discoveryData, fullContext);
 
     // Common AI call setup
     const aiBody = {
