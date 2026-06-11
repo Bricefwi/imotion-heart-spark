@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const db = supabase as any;
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -23,13 +25,13 @@ export default function NewProject() {
     setLoading(true);
 
     try {
+      // 1. Create the project
       const { data: project, error: projError } = await supabase
         .from("projects")
         .insert({
           name: name.trim(),
           client_id: user.id,
-          status: "discovery",
-          current_phase: 1,
+          status: "draft",
           discovery_data: {
             initial_description: description.trim() || null,
           },
@@ -39,15 +41,36 @@ export default function NewProject() {
 
       if (projError) throw projError;
 
+      // 2. Create a discovery_audit job linked to the project
+      const { data: job, error: jobError } = await db
+        .from("jobs")
+        .insert({
+          client_id: user.id,
+          project_id: project.id,
+          type: "discovery_audit",
+          status: "queued",
+          agent_phase: "intake",
+          payload: {
+            project_name: name.trim(),
+            initial_description: description.trim() || null,
+          },
+          created_by: user.id,
+        })
+        .select("id")
+        .single();
+
+      if (jobError) throw jobError;
+
+      // 3. Log activity
       await supabase.from("activities").insert({
         user_id: user.id,
         project_id: project.id,
         action: "project",
-        description: `Projet "${name}" créé`,
+        description: `Projet "${name}" créé + diagnostic IA lancé`,
       });
 
-      toast.success("Projet créé — démarrage de la découverte !");
-      navigate(`/client/projects/${project.id}/conversation`);
+      toast.success("Projet créé — analyse IA en cours !");
+      navigate(`/client/jobs/${job.id}`);
     } catch (error: unknown) {
       toast.error(error instanceof Error ? error.message : "Erreur lors de la création du projet");
     } finally {
