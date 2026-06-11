@@ -1,4 +1,4 @@
-import { useState, type ComponentProps } from "react";
+import { useMemo, useState, type ComponentProps } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -13,6 +13,13 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
+  DropdownMenuSeparator, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 import { StatsCard } from "@/components/StatsCard";
 import { ClientDetailDrawer } from "@/components/admin/ClientDetailDrawer";
 import { AutomationRulesTab } from "@/components/admin/AutomationRulesTab";
@@ -25,6 +32,7 @@ import {
   Users, FolderKanban, Euro, TrendingUp, Search, Eye,
   MessageSquare, FileText, Clock, Mail, Phone, Building2, Globe,
   Activity, BarChart3, Target, Zap, Star, Megaphone, Flame, ArrowRight,
+  Filter, Download, MoreHorizontal, CheckSquare, Square, Send, Tag, X,
 } from "lucide-react";
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bgClass: string }> = {
