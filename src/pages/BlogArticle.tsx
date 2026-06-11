@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import { Calendar, Clock, ArrowLeft, Share2, Linkedin, Twitter, LinkIcon } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Logo } from "@/components/Logo";
+
 import ReactMarkdown from "react-markdown";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
