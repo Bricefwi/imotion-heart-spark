@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { StatsCard } from "@/components/StatsCard";
+import { ClientsBoard } from "@/components/admin/ClientsBoard";
 import { ClientDetailDrawer } from "@/components/admin/ClientDetailDrawer";
 import { AutomationRulesTab } from "@/components/admin/AutomationRulesTab";
 import { CampaignsTab } from "@/components/admin/CampaignsTab";
