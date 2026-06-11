@@ -447,143 +447,22 @@ export default function AdminCRM() {
 
         {/* ── CRM 360 / CLIENTS ── */}
         <TabsContent value="clients" className="space-y-4">
-          {/* Client count & sort info */}
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <span>
-              {profiles.filter(
-                (p) =>
-                  !search ||
-                  p.full_name?.toLowerCase().includes(search.toLowerCase()) ||
-                  p.email?.toLowerCase().includes(search.toLowerCase()) ||
-                  p.company_name?.toLowerCase().includes(search.toLowerCase())
-              ).length}{" "}
-              client{profiles.length !== 1 ? "s" : ""}
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {profiles
-              .filter(
-                (p) =>
-                  !search ||
-                  p.full_name?.toLowerCase().includes(search.toLowerCase()) ||
-                  p.email?.toLowerCase().includes(search.toLowerCase()) ||
-                  p.company_name?.toLowerCase().includes(search.toLowerCase())
-              )
-              .map((profile) => {
-                const clientProjects = projects.filter((pr) => pr.client_id === profile.id);
-                const activeCount = clientProjects.filter((p) => !["archived", "lost", "cancelled"].includes(p.status)).length;
-                const signedCount = clientProjects.filter((p) => ["signed", "completed", "delivered"].includes(p.status)).length;
-                const score = computeClientScore(profile, clientProjects);
-                const totalBudget = clientProjects.reduce((s, p) => s + (p.contract_amount || p.proposal_amount || p.estimated_budget_max || 0), 0);
-                const daysSinceLastSeen = profile.last_seen_at
-                  ? Math.floor((Date.now() - new Date(profile.last_seen_at).getTime()) / 86400000)
-                  : null;
-                const scoreColor = score >= 70 ? "text-green-600" : score >= 40 ? "text-yellow-600" : "text-muted-foreground";
-                const scoreBg = score >= 70 ? "bg-green-50 dark:bg-green-900/20" : score >= 40 ? "bg-yellow-50 dark:bg-yellow-900/20" : "bg-muted/50";
-
-                return (
-                  <Card
-                    key={profile.id}
-                    className="border shadow-sm hover:shadow-lg transition-all cursor-pointer group"
-                    onClick={() => openClientDetail(profile.id)}
-                  >
-                    <CardContent className="p-0">
-                      {/* Card header with gradient accent */}
-                      <div className="p-4 pb-3">
-                        <div className="flex items-start gap-3">
-                          <Avatar className="h-11 w-11 ring-2 ring-primary/10 group-hover:ring-primary/30 transition-all">
-                            <AvatarFallback className="gradient-primary text-primary-foreground font-semibold text-sm">
-                              {profile.full_name?.charAt(0) || "?"}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-sm truncate group-hover:text-primary transition-colors">
-                              {profile.full_name || "Sans nom"}
-                            </h3>
-                            {profile.company_name && (
-                              <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                                <Building2 className="h-3 w-3 shrink-0" /> {profile.company_name}
-                                {profile.company_role && <span className="opacity-50">· {profile.company_role}</span>}
-                              </p>
-                            )}
-                          </div>
-                          <div className="flex flex-col items-end gap-1">
-                            <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${scoreBg} ${scoreColor}`}>
-                              <Star className="h-2.5 w-2.5" /> {score}
-                            </div>
-                            {daysSinceLastSeen !== null && daysSinceLastSeen > 14 && (
-                              <Badge variant="destructive" className="text-[9px]">Inactif {daysSinceLastSeen}j</Badge>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Contact info */}
-                      <div className="px-4 pb-3 space-y-1.5 text-xs text-muted-foreground">
-                        <div className="flex items-center gap-2">
-                          <Mail className="h-3 w-3 shrink-0" />
-                          <span className="truncate">{profile.email}</span>
-                        </div>
-                        {profile.phone && (
-                          <div className="flex items-center gap-2">
-                            <Phone className="h-3 w-3 shrink-0" />
-                            <span>{profile.phone}</span>
-                          </div>
-                        )}
-                        {profile.industry && (
-                          <div className="flex items-center gap-2">
-                            <Target className="h-3 w-3 shrink-0" />
-                            <span>{profile.industry}</span>
-                          </div>
-                        )}
-                        {profile.website && (
-                          <div className="flex items-center gap-2">
-                            <Globe className="h-3 w-3 shrink-0" />
-                            <span className="truncate">{profile.website?.replace(/^https?:\/\//, "")}</span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Stats footer */}
-                      <div className="px-4 py-2.5 border-t bg-muted/20 flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-2">
-                          <span className="flex items-center gap-1">
-                            <FolderKanban className="h-3 w-3" />
-                            {clientProjects.length}
-                          </span>
-                          {activeCount > 0 && (
-                            <Badge className="gradient-primary border-0 text-[10px] h-5">
-                              {activeCount} actif{activeCount > 1 ? "s" : ""}
-                            </Badge>
-                          )}
-                          {signedCount > 0 && (
-                            <Badge variant="outline" className="text-[10px] h-5 text-green-600 border-green-300">
-                              {signedCount} signe{signedCount > 1 ? "s" : ""}
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {totalBudget > 0 && (
-                            <span className="font-semibold text-foreground flex items-center gap-0.5">
-                              <Euro className="h-3 w-3" />{(totalBudget / 1000).toFixed(0)}k
-                            </span>
-                          )}
-                          <span className="text-muted-foreground">
-                            {profile.last_seen_at
-                              ? formatDistanceToNow(new Date(profile.last_seen_at), { addSuffix: true, locale: fr })
-                              : profile.created_at
-                              ? formatDistanceToNow(new Date(profile.created_at), { addSuffix: true, locale: fr })
-                              : "—"}
-                          </span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-          </div>
+          <ClientsBoard
+            profiles={profiles}
+            projects={projects}
+            search={search}
+            industryFilter={industryFilter}
+            setIndustryFilter={setIndustryFilter}
+            scoreFilter={scoreFilter}
+            setScoreFilter={setScoreFilter}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+            selectedIds={selectedIds}
+            setSelectedIds={setSelectedIds}
+            onOpen={openClientDetail}
+          />
         </TabsContent>
+
 
         {/* ── AUTOMATIONS ── */}
         <TabsContent value="automations">
