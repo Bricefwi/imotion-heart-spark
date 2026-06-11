@@ -1,4 +1,4 @@
-import { lovable } from "@/integrations/lovable/index";
+import { supabase } from "@/integrations/supabase/client";
 
 const GOOGLE_REDIRECT_STORAGE_KEY = "google-oauth-redirect-path";
 
@@ -30,16 +30,19 @@ export async function startGoogleOAuth({
   prompt = "select_account",
 }: StartGoogleOAuthOptions): Promise<void> {
   const safeRedirectPath = sanitizeRedirectPath(redirectPath);
-  const redirectUri = `${window.location.origin}/login`;
+  const redirectTo = `${window.location.origin}/login`;
 
   window.sessionStorage.setItem(GOOGLE_REDIRECT_STORAGE_KEY, safeRedirectPath);
 
-  const result = await lovable.auth.signInWithOAuth("google", {
-    redirect_uri: redirectUri,
-    extraParams: { prompt },
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo,
+      queryParams: { prompt },
+    },
   });
 
-  if (result?.error) {
-    throw result.error;
+  if (error) {
+    throw error;
   }
 }

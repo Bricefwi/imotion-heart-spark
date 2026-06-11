@@ -9,8 +9,23 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Brain, Zap, MessageSquare, DollarSign, Activity, Save, RefreshCw, ToggleLeft, ToggleRight } from "lucide-react";
+import { Brain, Zap, MessageSquare, DollarSign, Activity, Save, RefreshCw, ToggleLeft, ToggleRight, CheckCircle2, XCircle, KeyRound } from "lucide-react";
 import { toast } from "sonner";
+
+// Agents Mistral (La Plateforme) — secrets à saisir dans Lovable Cloud → Secrets
+const MISTRAL_AGENTS = [
+  { key: "maestro",  secret: "MISTRAL_AGENT_MAESTRO",  role: "Orchestrateur maître multi-agents" },
+  { key: "titan",    secret: "MISTRAL_AGENT_TITAN",    role: "Orchestrateur nested — tâches complexes multi-étapes" },
+  { key: "stratos",  secret: "MISTRAL_AGENT_STRATOS",  role: "Stratégie business — enrichit CDC & conseil technique" },
+  { key: "marketix", secret: "MISTRAL_AGENT_MARKETIX", role: "Stratégie marketing & acquisition" },
+  { key: "literix",  secret: "MISTRAL_AGENT_LITERIX",  role: "Rédaction éditoriale — enrichit les articles de blog" },
+  { key: "financix", secret: "MISTRAL_AGENT_FINANCIX", role: "Analyse financière — enrichit devis & propositions" },
+  { key: "juridix",  secret: "MISTRAL_AGENT_JURIDIX",  role: "Expert juridique — enrichit contrats & PV de réception" },
+  { key: "pixel",    secret: "MISTRAL_AGENT_PIXEL",    role: "Vibes Coder — enrichit prompts de build & reco technique" },
+  { key: "nexus",    secret: "MISTRAL_AGENT_NEXUS",    role: "Workflow Builder — conception de workflows" },
+  { key: "focus",    secret: "MISTRAL_AGENT_FOCUS",    role: "Sub-agent d'exécution — extraction, classification" },
+  { key: "n8nix",    secret: "MISTRAL_AGENT_N8NIX",    role: "Automatisations & workflows n8n" },
+] as const;
 
 // Agents et leurs tiers/modèles par défaut
 const AGENTS = [
@@ -144,6 +159,19 @@ export default function AdminAgentsPilot() {
   const getConfig = (agentName: string): AgentConfig | undefined =>
     configs.find((c) => c.name === agentName);
 
+  // État de configuration des secrets Mistral (booleans uniquement, jamais les valeurs)
+  const { data: mistralStatus, refetch: refetchMistral, isFetching: mistralFetching } = useQuery<Record<string, boolean> | null>({
+    queryKey: ["mistral-agents-status"],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke("call-mistral-agent", {
+        body: { mode: "status" },
+      });
+      if (error || !data?.success) return null;
+      return data.agents as Record<string, boolean>;
+    },
+    staleTime: 60_000,
+  });
+
   return (
     <div className="space-y-6">
       <div>
@@ -273,6 +301,52 @@ export default function AdminAgentsPilot() {
           );
         })}
       </div>
+
+      {/* Agents Mistral — état des secrets */}
+      <Card className="border-border/60">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between gap-2">
+            <div>
+              <CardTitle className="text-base flex items-center gap-2">
+                <KeyRound className="h-4 w-4 text-[hsl(var(--imo-coral-600))]" />
+                Agents Mistral — configuration des secrets
+              </CardTitle>
+              <p className="text-xs text-muted-foreground mt-1">
+                Saisissez les secrets dans <span className="font-semibold">Lovable Cloud → Secrets</span> (jamais dans l'application).
+                Les agents non configurés sont simplement ignorés par le pipeline.
+              </p>
+            </div>
+            <Button size="sm" variant="outline" className="h-7 text-xs gap-1 shrink-0"
+              onClick={() => refetchMistral()} disabled={mistralFetching}>
+              <RefreshCw className={`h-3 w-3 ${mistralFetching ? "animate-spin" : ""}`} /> Vérifier
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <div className="flex items-center gap-2 text-xs py-1.5 px-2 rounded-md bg-muted/40">
+            {mistralStatus?.api_key
+              ? <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+              : <XCircle className="h-4 w-4 text-destructive shrink-0" />}
+            <span className="font-mono font-semibold">MISTRAL_API_KEY</span>
+            <span className="text-muted-foreground">— clé API principale (obligatoire pour tous les agents)</span>
+          </div>
+          {MISTRAL_AGENTS.map(({ key, secret, role }) => (
+            <div key={key} className="flex items-center gap-2 text-xs py-1.5 px-2 rounded-md hover:bg-muted/30">
+              {mistralStatus?.[key]
+                ? <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                : <XCircle className="h-4 w-4 text-muted-foreground shrink-0" />}
+              <span className="font-mono font-semibold uppercase">{key}</span>
+              <span className="font-mono text-muted-foreground">{secret}</span>
+              <span className="text-muted-foreground hidden sm:inline">— {role}</span>
+            </div>
+          ))}
+          {!mistralStatus && (
+            <p className="text-xs text-muted-foreground italic pt-1">
+              Statut indisponible — la fonction <span className="font-mono">call-mistral-agent</span> doit être déployée.
+            </p>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { callMistralAgent } from "../_shared/mistral-agents.ts";
 
 const ALLOWED_ORIGINS = [
   "https://imotion-conseils.fr",
@@ -118,6 +119,25 @@ STRUCTURE DE L'ARTICLE :
    - Conclusion avec call-to-action vers IMOTION Discovery Pro
 4. TEMPS DE LECTURE estimé (en minutes)`;
 
+        // Enrichissement LITERIX (agent éditorial Mistral) : produit un brouillon
+        // éditorial qui sert de matière première. Skip silencieux si non configuré.
+        let literixDraft = "";
+        const literixResult = await callMistralAgent("literix", [{
+          role: "user",
+          content: `Rédige un brouillon d'article de blog (1000-1300 mots) pour IMOTION Conseil sur :
+TITRE : ${post.title}
+CATÉGORIE : ${post.category}
+ANGLE : ${post.angle}
+MOTS-CLÉS : ${(post.keywords || []).join(", ")}
+Ton accessible, exemples concrets en scénarios illustratifs, jamais de statistiques inventées ni de noms d'entreprises fictifs présentés comme réels.`,
+        }], { maxTokens: 3000, timeoutMs: 60_000 });
+        if (literixResult) {
+          literixDraft = `
+
+BROUILLON ÉDITORIAL LITERIX (à retravailler, structurer et améliorer — ne pas copier tel quel) :
+${literixResult.content}`;
+        }
+
         const userPrompt = `Rédige un article de blog sur le sujet suivant :
 
 TITRE PRÉVU : ${post.title}
@@ -126,7 +146,7 @@ ANGLE : ${post.angle}
 MOTS-CLÉS À INTÉGRER : ${(post.keywords || []).join(", ")}
 
 L'article doit faire environ 1200-1500 mots et apporter une vraie valeur au lecteur.
-À la fin, inclus un appel à l'action vers IMOTION Discovery Pro pour aider le lecteur à clarifier son projet.`;
+À la fin, inclus un appel à l'action vers IMOTION Discovery Pro pour aider le lecteur à clarifier son projet.${literixDraft}`;
 
         // Retry with model fallback on transient errors (429 / 5xx)
         const modelsToTry = [
