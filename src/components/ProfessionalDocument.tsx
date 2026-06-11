@@ -78,7 +78,7 @@ export function ProfessionalDocument({
           format: "a4",
           orientation: "portrait" as const,
         },
-        pagebreak: { mode: ["avoid-all", "css", "legacy"] },
+        pagebreak: { mode: ["css", "legacy"] },
       };
 
       interface PdfDoc {
@@ -311,7 +311,10 @@ export function ProfessionalDocument({
                       paddingBottom: "0.75rem",
                       marginTop: "2.5rem",
                       marginBottom: "1.25rem",
+                      pageBreakBefore: "always",
                       pageBreakAfter: "avoid",
+                      breakBefore: "page",
+                      breakAfter: "avoid",
                     }}
                   >
                     {children}
@@ -328,6 +331,9 @@ export function ProfessionalDocument({
                     marginTop: "2rem",
                     marginBottom: "1rem",
                     pageBreakAfter: "avoid",
+                    breakAfter: "avoid",
+                    pageBreakInside: "avoid",
+                    breakInside: "avoid",
                   }}>
                     {children}
                   </h2>
@@ -341,6 +347,9 @@ export function ProfessionalDocument({
                     marginTop: "1.5rem",
                     marginBottom: "0.75rem",
                     pageBreakAfter: "avoid",
+                    breakAfter: "avoid",
+                    pageBreakInside: "avoid",
+                    breakInside: "avoid",
                   }}>
                     {children}
                   </h3>
@@ -374,6 +383,8 @@ export function ProfessionalDocument({
                     paddingLeft: "1.25rem",
                     marginBottom: "0.75rem",
                     listStyleType: "disc",
+                    pageBreakInside: "avoid",
+                    breakInside: "avoid",
                   }}>
                     {children}
                   </ul>
@@ -386,6 +397,8 @@ export function ProfessionalDocument({
                     paddingLeft: "1.25rem",
                     marginBottom: "0.75rem",
                     listStyleType: "decimal",
+                    pageBreakInside: "avoid",
+                    breakInside: "avoid",
                   }}>
                     {children}
                   </ol>
@@ -397,12 +410,20 @@ export function ProfessionalDocument({
                   <strong style={{ fontWeight: 600, color: "#1a1a1a" }}>{children}</strong>
                 ),
                 table: ({ children }) => (
-                  <div style={{ overflowX: "auto", marginTop: "1rem", marginBottom: "1rem" }}>
+                  <div style={{
+                    overflowX: "auto",
+                    marginTop: "1rem",
+                    marginBottom: "1rem",
+                    pageBreakInside: "avoid",
+                    breakInside: "avoid",
+                  }}>
                     <table style={{
                       width: "100%",
                       fontSize: "0.8rem",
                       borderCollapse: "collapse",
                       border: "1px solid #e5e7eb",
+                      pageBreakInside: "avoid",
+                      breakInside: "avoid",
                     }}>
                       {children}
                     </table>
@@ -446,6 +467,8 @@ export function ProfessionalDocument({
                     fontSize: "0.875rem",
                     color: "#555",
                     fontStyle: "italic",
+                    pageBreakInside: "avoid",
+                    breakInside: "avoid",
                   }}>
                     {children}
                   </blockquote>
@@ -471,6 +494,8 @@ export function ProfessionalDocument({
                         fontSize: "0.8rem",
                         lineHeight: 1.6,
                         margin: "1rem 0",
+                        pageBreakInside: "avoid",
+                        breakInside: "avoid",
                       }}>
                         <code>{children}</code>
                       </pre>
