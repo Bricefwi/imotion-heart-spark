@@ -92,8 +92,32 @@ export function ProfessionalDocument({
         setFontSize: (s: number) => void;
         setTextColor: (r: number, g: number, b: number) => void;
         text: (t: string, x: number, y: number, opts?: { align?: string }) => void;
+        addImage: (data: string, format: string, x: number, y: number, w: number, h: number) => void;
         save: () => void;
       }
+
+      // Charge le logo en dataURL pour l'afficher dans l'en-tête de chaque page
+      const loadLogo = (): Promise<{ dataUrl: string; ratio: number } | null> =>
+        new Promise((resolve) => {
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.onload = () => {
+            try {
+              const canvas = window.document.createElement("canvas");
+              canvas.width = img.naturalWidth;
+              canvas.height = img.naturalHeight;
+              const ctx = canvas.getContext("2d");
+              if (!ctx) return resolve(null);
+              ctx.drawImage(img, 0, 0);
+              resolve({ dataUrl: canvas.toDataURL("image/png"), ratio: img.naturalWidth / img.naturalHeight });
+            } catch {
+              resolve(null);
+            }
+          };
+          img.onerror = () => resolve(null);
+          img.src = logoImotion;
+        });
+      const logo = await loadLogo();
       type Html2PdfWorker = {
         set: (opt: unknown) => Html2PdfWorker;
         from: (el: HTMLElement) => Html2PdfWorker;
@@ -109,6 +133,9 @@ export function ProfessionalDocument({
         const pageWidth = pdf.internal.pageSize.getWidth();
         const pageHeight = pdf.internal.pageSize.getHeight();
 
+        const logoH = 5;
+        const logoW = logo ? logoH * logo.ratio : 0;
+
         for (let i = 1; i <= totalPages; i++) {
           pdf.setPage(i);
           // Top rule — coral-600 (token partagé)
@@ -117,7 +144,12 @@ export function ProfessionalDocument({
           pdf.line(12, 10, pageWidth - 12, 10);
           pdf.setFontSize(7);
           pdf.setTextColor(...RGB.ink500);
-          pdf.text(documentName, 12, 8);
+          if (logo) {
+            pdf.addImage(logo.dataUrl, "PNG", 12, 3.5, logoW, logoH);
+            pdf.text(documentName, 12 + logoW + 3, 8);
+          } else {
+            pdf.text(documentName, 12, 8);
+          }
           const headerRight = `${projectCode ? "Ref. " + projectCode + " | " : ""}${currentDate}`;
           pdf.text(headerRight, pageWidth - 12, 8, { align: "right" });
           // Bottom rule — amber-500 (token partagé)
