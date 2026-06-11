@@ -3427,17 +3427,6 @@ export type Database = {
         Returns: Json
       }
       get_active_model: { Args: { _scope?: string }; Returns: string }
-      get_my_client_job_statuses: {
-        Args: never
-        Returns: {
-          audit_id: string
-          client_status: string
-          has_document: boolean
-          id: string
-          project_id: string
-          updated_at: string
-        }[]
-      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
