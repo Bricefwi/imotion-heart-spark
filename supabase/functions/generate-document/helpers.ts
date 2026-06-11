@@ -47,13 +47,24 @@ export function formatConversationForPrompt(messages: Message[]): string {
     byPhase[phase].push(m);
   }
 
+  const MAX_CHARS_PER_MESSAGE = 2000;
+  const MAX_TOTAL_CHARS = 60000;
   let result = "";
+  let totalChars = 0;
   for (const [phase, msgs] of Object.entries(byPhase)) {
     const pNum = Number(phase);
     result += `\n### Phase ${pNum} — ${phaseNames[pNum] || "Autre"}\n`;
     for (const m of msgs) {
+      if (totalChars >= MAX_TOTAL_CHARS) {
+        result += `\n*[Conversation tronquée — ${messages.length} messages au total]*\n`;
+        return result;
+      }
       const label = m.role === "user" ? "CLIENT" : "ASSISTANT";
-      result += `**${label}** : ${m.content.substring(0, 500)}\n\n`;
+      const truncated = m.content.length > MAX_CHARS_PER_MESSAGE
+        ? m.content.substring(0, MAX_CHARS_PER_MESSAGE) + "…"
+        : m.content;
+      result += `**${label}** : ${truncated}\n\n`;
+      totalChars += truncated.length;
     }
   }
   return result;
