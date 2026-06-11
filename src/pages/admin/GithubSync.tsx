@@ -26,6 +26,12 @@ type GithubRateLimit = {
   reset: string | null;
 };
 
+type GithubRepoCandidate = {
+  fullName: string;
+  defaultBranch: string | null;
+  htmlUrl: string | null;
+};
+
 type GithubSyncResponse = {
   ok?: boolean;
   error?: "github_error" | "network_error" | "invalid_repo" | "invalid_json" | "forbidden" | "invalid_session" | "missing_authorization" | "method_not_allowed" | "backend_not_configured";
@@ -39,6 +45,7 @@ type GithubSyncResponse = {
   tokenConfigured?: boolean;
   repoDefaultBranch?: string | null;
   branchAutoDetected?: boolean;
+  candidateRepos?: GithubRepoCandidate[];
 };
 
 const STORAGE_KEY = "admin.github-sync.repo";
@@ -86,6 +93,7 @@ const GithubSync = () => {
   const [lastCheck, setLastCheck] = useState<string | null>(() => localStorage.getItem(LAST_CHECK_KEY));
   const [tokenConfigured, setTokenConfigured] = useState<boolean | null>(null);
   const [detectedDefaultBranch, setDetectedDefaultBranch] = useState<string | null>(null);
+  const [suggestedRepo, setSuggestedRepo] = useState<GithubRepoCandidate | null>(null);
 
   const fetchCommits = useCallback(async (opts?: { autoBranch?: boolean }) => {
     const cleaned = normalizeRepo(repo);
@@ -111,9 +119,13 @@ const GithubSync = () => {
         }
       }
 
+      const firstCandidate = data?.candidateRepos?.[0] ?? null;
+      setSuggestedRepo(firstCandidate);
+
       if (!data?.ok || !data.commits) throw new Error(getGithubErrorMessage(data ?? { error: "network_error" }));
 
       setCommits(data.commits);
+      setSuggestedRepo(null);
       setTokenConfigured(Boolean(data.tokenConfigured));
       if (data.branch) {
         setBranch(data.branch);
@@ -184,6 +196,22 @@ const GithubSync = () => {
                 value={repo}
                 onChange={(e) => setRepo(e.target.value.trim())}
               />
+              {suggestedRepo && suggestedRepo.fullName !== normalizeRepo(repo) && (
+                <button
+                  type="button"
+                  className="text-xs text-primary hover:underline"
+                  onClick={() => {
+                    setRepo(suggestedRepo.fullName);
+                    localStorage.setItem(STORAGE_KEY, suggestedRepo.fullName);
+                    if (suggestedRepo.defaultBranch) {
+                      setBranch(suggestedRepo.defaultBranch);
+                      localStorage.setItem(BRANCH_KEY, suggestedRepo.defaultBranch);
+                    }
+                  }}
+                >
+                  Utiliser le dépôt détecté : {suggestedRepo.fullName}
+                </button>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="branch">Branche</Label>
