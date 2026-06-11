@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { StatsCard } from "@/components/StatsCard";
 import { ClientsBoard } from "@/components/admin/ClientsBoard";
 import { ClientDetailDrawer } from "@/components/admin/ClientDetailDrawer";
