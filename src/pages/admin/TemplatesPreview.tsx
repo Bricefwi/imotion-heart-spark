@@ -3,6 +3,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { ProfessionalDocument } from "@/components/ProfessionalDocument";
+import { EmailPreview } from "@/components/EmailPreview";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -330,7 +331,9 @@ export default function TemplatesPreview() {
             </Alert>
           )}
           {current ? (
-            current.type === "email" || current.type === "system_prompt" ? (
+            current.type === "email" ? (
+              <EmailPreview content={rendered} recipientEmail={vars.client_email} />
+            ) : current.type === "system_prompt" ? (
               <Card className="p-6">
                 <div className="flex items-center justify-between mb-4 pb-4 border-b">
                   <div>
