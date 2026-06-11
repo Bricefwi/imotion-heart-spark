@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
+import { z } from "zod";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { ProfessionalDocument } from "@/components/ProfessionalDocument";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Loader2, FileText, RotateCcw } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Loader2, FileText, RotateCcw, AlertCircle, CheckCircle2 } from "lucide-react";
 
 interface Template {
   id: string;
@@ -61,6 +64,67 @@ function interpolate(content: string, vars: Record<string, string>): string {
   return content.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, key) => vars[key] ?? `{{${key}}}`);
 }
 
+// Schémas zod par clé — appliqués uniquement si la variable est utilisée dans le template
+const VAR_SCHEMAS: Record<string, z.ZodString> = {
+  client_name: z.string().trim().min(2, "Nom trop court").max(100),
+  client_company: z.string().trim().min(2, "Société requise").max(150),
+  client_email: z.string().trim().email("Email invalide").max(255),
+  project_name: z.string().trim().min(3, "Nom de projet trop court").max(150),
+  project_code: z
+    .string()
+    .trim()
+    .regex(/^[A-Z]{2,5}-\d{3,4}-\d{3,5}$/, "Format attendu : IM-2603-4789"),
+  project_description: z.string().trim().min(10, "Description trop courte").max(1000),
+  date: z
+    .string()
+    .trim()
+    .min(6, "Date requise")
+    .regex(/\d/, "La date doit contenir un chiffre"),
+  consultant_name: z.string().trim().min(2).max(100),
+  amount: z
+    .string()
+    .trim()
+    .regex(/^[\d\s.,]+\s?[€$]?$/, "Format attendu : 24 500 €"),
+  duration: z.string().trim().min(2).max(50),
+  document_name: z.string().trim().min(2).max(150),
+  document_url: z.string().trim().url("URL invalide").max(500),
+};
+
+interface ValidationIssue {
+  key: string;
+  label: string;
+  message: string;
+  type: "missing" | "format";
+}
+
+function validateVars(
+  usedKeys: Set<string>,
+  vars: Record<string, string>
+): ValidationIssue[] {
+  const issues: ValidationIssue[] = [];
+  for (const f of VAR_FIELDS) {
+    if (!usedKeys.has(f.key)) continue;
+    const value = vars[f.key] ?? "";
+    if (!value.trim()) {
+      issues.push({ key: f.key, label: f.label, message: "Champ obligatoire", type: "missing" });
+      continue;
+    }
+    const schema = VAR_SCHEMAS[f.key];
+    if (schema) {
+      const res = schema.safeParse(value);
+      if (!res.success) {
+        issues.push({
+          key: f.key,
+          label: f.label,
+          message: res.error.issues[0]?.message ?? "Format invalide",
+          type: "format",
+        });
+      }
+    }
+  }
+  return issues;
+}
+
 export default function TemplatesPreview() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
@@ -97,6 +161,29 @@ export default function TemplatesPreview() {
     while ((m = re.exec(current.content)) !== null) set.add(m[1]);
     return set;
   }, [current]);
+
+  const issues = useMemo(() => validateVars(usedKeys, vars), [usedKeys, vars]);
+  const issueByKey = useMemo(() => {
+    const map = new Map<string, ValidationIssue>();
+    issues.forEach((i) => map.set(i.key, i));
+    return map;
+  }, [issues]);
+  const missingCount = issues.filter((i) => i.type === "missing").length;
+  const formatCount = issues.filter((i) => i.type === "format").length;
+  const isValid = issues.length === 0;
+
+  // Bloque l'export PDF si la validation échoue (capture phase intercepte avant ProfessionalDocument)
+  const handleExportCapture = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (!target.closest?.("[data-pdf-export]")) return;
+    if (!isValid) {
+      e.preventDefault();
+      e.stopPropagation();
+      toast.error("Impossible de générer le PDF", {
+        description: `${issues.length} variable(s) à corriger avant l'export.`,
+      });
+    }
+  };
 
   if (loading) {
     return (
@@ -159,6 +246,7 @@ export default function TemplatesPreview() {
           <div className="space-y-3">
             {VAR_FIELDS.map((f) => {
               const isUsed = usedKeys.has(f.key);
+              const issue = issueByKey.get(f.key);
               return (
                 <div key={f.key} className="space-y-1">
                   <Label
@@ -169,7 +257,12 @@ export default function TemplatesPreview() {
                   >
                     {f.label}
                     {isUsed && (
-                      <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" title="Utilisé dans ce template" />
+                      <span className="text-destructive font-semibold" aria-label="obligatoire">
+                        *
+                      </span>
+                    )}
+                    {isUsed && !issue && vars[f.key]?.trim() && (
+                      <CheckCircle2 className="h-3 w-3 text-emerald-600" />
                     )}
                   </Label>
                   <Input
@@ -181,19 +274,61 @@ export default function TemplatesPreview() {
                       setVars((prev) => ({ ...prev, [f.key]: e.target.value }))
                     }
                     maxLength={500}
-                    className="h-8 text-sm"
+                    aria-invalid={!!issue}
+                    className={`h-8 text-sm ${
+                      issue ? "border-destructive focus-visible:ring-destructive/30" : ""
+                    }`}
                   />
+                  {issue && (
+                    <p className="text-[11px] text-destructive flex items-center gap-1">
+                      <AlertCircle className="h-3 w-3" /> {issue.message}
+                    </p>
+                  )}
                 </div>
               );
             })}
           </div>
           <p className="text-[10px] text-muted-foreground mt-4">
-            Le point coloré indique les variables présentes dans le template sélectionné.
+            <span className="text-destructive font-semibold">*</span> variables obligatoires dans ce template.
           </p>
         </Card>
 
         {/* Preview */}
-        <section>
+        <section onClickCapture={handleExportCapture}>
+          {current && usedKeys.size > 0 && (
+            <Alert
+              variant={isValid ? "default" : "destructive"}
+              className={`mb-4 ${isValid ? "border-emerald-500/50 bg-emerald-50 dark:bg-emerald-950/20" : ""}`}
+            >
+              {isValid ? (
+                <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+              ) : (
+                <AlertCircle className="h-4 w-4" />
+              )}
+              <AlertTitle className={isValid ? "text-emerald-800 dark:text-emerald-300" : ""}>
+                {isValid
+                  ? "Toutes les variables sont valides — prêt pour l'export PDF"
+                  : `${issues.length} variable(s) à corriger avant l'export PDF`}
+              </AlertTitle>
+              {!isValid && (
+                <AlertDescription>
+                  <ul className="mt-1 space-y-0.5 text-xs">
+                    {issues.map((i) => (
+                      <li key={i.key}>
+                        <strong>{i.label}</strong>{" "}
+                        <span className="opacity-80">— {i.message}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  {(missingCount > 0 || formatCount > 0) && (
+                    <p className="mt-2 text-[11px] opacity-80">
+                      {missingCount} manquante(s) · {formatCount} format invalide
+                    </p>
+                  )}
+                </AlertDescription>
+              )}
+            </Alert>
+          )}
           {current ? (
             current.type === "email" || current.type === "system_prompt" ? (
               <Card className="p-6">
@@ -210,16 +345,18 @@ export default function TemplatesPreview() {
                 </pre>
               </Card>
             ) : (
-              <ProfessionalDocument
-                content={rendered}
-                documentName={TYPE_LABELS[current.type] ?? current.name}
-                projectName={vars.project_name}
-                projectCode={vars.project_code}
-                clientName={vars.client_name}
-                clientCompany={vars.client_company}
-                date={vars.date}
-                status="draft"
-              />
+              <div className={!isValid ? "[&_[data-pdf-export]]:opacity-50" : ""}>
+                <ProfessionalDocument
+                  content={rendered}
+                  documentName={TYPE_LABELS[current.type] ?? current.name}
+                  projectName={vars.project_name}
+                  projectCode={vars.project_code}
+                  clientName={vars.client_name}
+                  clientCompany={vars.client_company}
+                  date={vars.date}
+                  status="draft"
+                />
+              </div>
             )
           ) : (
             <Card className="p-12 text-center text-muted-foreground">
