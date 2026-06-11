@@ -1,135 +1,154 @@
+# Refonte orchestration multi-agents + Control Tower admin
 
-# Plan : suppression de Paperclip + refonte multi-agents vers AI SDK
+## Verdict : réalisable et viable, sans casser la prod
 
-Objectif : revenir à une architecture 100% Lovable/Supabase, propre, où l'orchestrateur et ses sub-agents spécialisés tournent en Edge Functions via le **Vercel AI SDK** + **tool calling** + **Lovable AI Gateway**. Plus de double stack, plus de webhooks signés, plus de DLQ pour rien.
+On garde le contrat front actuel (le JSON Marc : `message`, `suggestions`, `extracted_data`, `phase_progress`, `ready_for_next_phase`, `consultant_alert`). On réécrit **uniquement** ce qui se passe à l'intérieur de `ai-chat` : au lieu d'un seul prompt monolithique de 1080 lignes, on a un **orchestrateur AI SDK** qui appelle des **sub-agents spécialisés** via tool calling, et chaque étape produit un **événement** persisté qui alimente le Control Tower.
 
----
-
-## Phase 1 — Suppression complète de Paperclip
-
-### 1.1 Code
-Supprimer :
-- `supabase/functions/paperclip-intake/`
-- `supabase/functions/paperclip-webhook/`
-- `supabase/functions/scripts/mock-webhook.ts`
-- `supabase/functions/sql/webhook_nonces_delta.sql`
-- entrées `paperclip-*` dans `supabase/config.toml`
-
-Côté `_shared/` : auditer `hmac.ts`, `nonce.ts`, `status.ts` → garder uniquement ce qui sert encore à `marketing-webhook` (HMAC + nonces restent utiles pour lovelib). Supprimer `status.ts` (spécifique Paperclip).
-
-### 1.2 Base de données (migration destructive)
-Vérifier d'abord en Live : `SELECT count(*) FROM paperclip_jobs;` etc. Si vide (cas mock), drop direct. Sinon prévenir l'utilisateur avant.
-
-Migration :
-- `DROP TABLE public.paperclip_documents CASCADE;`
-- `DROP TABLE public.paperclip_job_events CASCADE;`
-- `DROP TABLE public.paperclip_jobs CASCADE;`
-- `DROP FUNCTION` éventuelles (`v_client_job_status`, helpers RLS Paperclip)
-- Conserver `webhook_nonces` (utilisée par `marketing-webhook`)
-
-### 1.3 Secrets
-Supprimer : `PAPERCLIP_MOCK`, `PAPERCLIP_MOCK_ENABLED`, `PAPERCLIP_WEBHOOK_SECRET`, `PAPERCLIP_API_URL`, `PAPERCLIP_API_KEY` (s'ils existent).
-
-### 1.4 Types
-`src/integrations/supabase/types.ts` sera régénéré automatiquement après la migration.
+Aucune migration front obligatoire. `ProjectConversation.tsx` continue de recevoir le même JSON.
 
 ---
 
-## Phase 2 — Refonte des agents vers AI SDK + tool calling
-
-### 2.1 Nouveau socle partagé
-Créer `supabase/functions/_shared/ai-gateway.ts` : helper `createLovableAiGatewayProvider` (pattern officiel knowledge `ai-sdk-lovable-gateway`), utilisé par **toutes** les fonctions IA. Plus de `fetch` brut vers Anthropic ou OpenAI, plus de clé Opus directe.
-
-Dépendances Edge Functions (via `npm:` imports Deno) :
-- `npm:ai` (streamText, generateText, tool, Output, stepCountIs)
-- `npm:@ai-sdk/openai-compatible`
-- `npm:zod`
-
-### 2.2 Architecture cible
+## 1. Architecture cible
 
 ```text
-                    ┌──────────────────────────┐
-                    │   ai-chat (front-facing) │  ← appelée depuis React
-                    │   streamText + tools     │
-                    └────────────┬─────────────┘
-                                 │ tool calls (AI SDK loop, stepCountIs=50)
-         ┌───────────────────────┼────────────────────────────┐
-         ▼                       ▼                            ▼
-   tool: intake            tool: need_analysis        tool: scoping
-   (P1 identité +          (P2 vision + outils)       (P3 budget + délai)
-    douleur)
-         │                       │                            │
-         └───────────┬───────────┘                            │
-                     ▼                                        ▼
-              tool: critic_validate ──────► tool: generate_cdc
-                     │                       tool: generate_quote
-                     ▼                       tool: notify_consultant
-              (anti-hallu + score)
+                ┌─────────────────────────────────────────────┐
+                │  Frontend ProjectConversation (inchangé)    │
+                │  envoie {project_id, messages}              │
+                │  reçoit JSON Marc                           │
+                └────────────────────┬────────────────────────┘
+                                     │
+                                     ▼
+        ┌────────────────────────────────────────────────────┐
+        │  edge: ai-chat  (façade, contrat préservé)         │
+        │  - charge contexte projet + phase                  │
+        │  - appelle orchestrator.run()                      │
+        │  - reformatte la sortie en JSON Marc               │
+        └────────────────────┬───────────────────────────────┘
+                             │
+                             ▼
+        ┌────────────────────────────────────────────────────┐
+        │  Orchestrator (AI SDK streamText + tools)          │
+        │  modèle : google/gemini-3-flash-preview            │
+        │  stopWhen: stepCountIs(50)                         │
+        │  décide quel sub-agent invoquer                    │
+        └─┬──────┬──────┬───────┬───────┬───────┬────────────┘
+          │      │      │       │       │       │
+          ▼      ▼      ▼       ▼       ▼       ▼
+       intake  need  scoping critic extract  consultant
+       phase 1  2-3    4-5    qualité données  alert
+        (tools, chaque sub-agent = generateText avec prompt court + schema Zod)
+
+        Chaque appel sub-agent écrit dans:
+        ─ agent_runs  (1 ligne par invocation, in/out/tokens/coût/latence)
+        ─ project_events  (timeline horodatée, lisible par admin)
 ```
 
-**Clé** : l'orchestration disparaît en tant qu'Edge Function séparée. Le **modèle lui-même** orchestre via tool calling natif (pattern recommandé par AI SDK). Un seul point d'entrée : `ai-chat`.
+---
 
-### 2.3 Fonctions à refondre (1 seule fonction = `ai-chat` enrichi)
+## 2. Modèle de données (3 tables neuves, RLS stricte)
 
-`supabase/functions/ai-chat/index.ts` devient :
-- `streamText({ model: gateway("google/gemini-3-pro-preview"), system: PROMPT_MARC, messages, tools, stopWhen: stepCountIs(50) })`
-- `tools` = `{ extract_intake, extract_need, extract_scoping, validate_completeness, generate_cdc, generate_quote, notify_consultant, save_phase_progress }`
-- Chaque tool a `inputSchema` Zod + `execute` qui fait le job (souvent un simple `update projects.discovery_data` ou un sous-appel à `generateText` avec `Output.object`).
-- Persistance des messages dans `messages` à la fin du stream (pattern `chat-agent-ui-contract`).
+### `agent_runs` — trace technique de chaque appel modèle
+- `id`, `project_id`, `message_id` (nullable), `agent_name` (orchestrator|intake|need|scoping|critic|extractor|consultant_alert), `model`, `input_tokens`, `output_tokens`, `latency_ms`, `cost_estimate`, `status` (success|error|killed), `error`, `aig_run_id`, `created_at`
+- RLS : lecture admin + consultant assigné ; insert service_role uniquement.
 
-### 2.4 Fonctions à supprimer après migration
-Une fois `ai-chat` v2 stable :
-- `orchestrator/`
-- `intake-agent/`
-- `need-analyzer/`
-- `scoping-agent/`
-- `critic-agent/`
-- `extractor/`
-- `_shared/agent-runner.ts`
-- `_shared/agents/prompts.ts` → migré inline dans `ai-chat` (prompt système Marc unique + descriptions de tools)
+### `project_events` — timeline métier visible Control Tower
+- `id`, `project_id`, `event_type` (message_in, message_out, phase_advanced, data_extracted, document_generated, consultant_alert, agent_invoked, agent_failed, manual_intervention, kill_switch), `actor` (user|agent|system|admin), `actor_id`, `payload` (jsonb), `phase`, `created_at`
+- RLS : lecture admin + client/consultant du projet ; insert service_role + RPC.
+- Realtime activé.
 
-À garder (utilitaires asynchrones légitimes, pas du conversationnel) :
-- `doc-generator/`, `quote-builder/`, `notifier/` → restent comme **fallback async** déclenchables hors chat (cron, action admin manuelle). Mais le tool calling de `ai-chat` les appellera **directement** via HTTP interne (ou code partagé dans `_shared/deliverables/`).
-
-### 2.5 Frontend
-`src/lib/ai-chat.ts` + `src/pages/client/ProjectConversation.tsx` :
-- Migrer vers `@ai-sdk/react` `useChat` + `DefaultChatTransport` pointant sur `/functions/v1/ai-chat`.
-- Rendre `message.parts` (text + tool-invocation) au lieu de `content` plat.
-- Garder `react-markdown` pour le rendu texte.
-- Persistance threads : la conversation est déjà liée à `project_id` → 1 conversation par projet (pas de threads multiples), pattern "single conversation".
+### `agent_config` — pilotage admin (modèle, prompt, kill-switch)
+- `id`, `agent_name` (unique), `model`, `system_prompt`, `is_enabled` (bool, kill-switch), `temperature`, `updated_by`, `updated_at`
+- RLS : lecture authenticated ; write admin/super_admin seulement.
+- Seed initial : 1 ligne par agent avec le prompt actuel extrait des 1080 lignes.
 
 ---
 
-## Phase 3 — Validation
+## 3. Refonte `ai-chat` (façade + orchestrateur)
 
-1. Tests manuels du flux 7 phases en preview (un projet complet de bout en bout).
-2. Vérifier que `discovery_data` est bien rempli phase par phase.
-3. Vérifier la génération CDC + devis via tool calls.
-4. Vérifier les coûts Lovable AI Gateway (Gemini Pro vs Flash selon tool).
-5. Supprimer les anciennes Edge Functions via `supabase--delete_edge_functions`.
+Découpage de `supabase/functions/ai-chat/index.ts` en :
+
+```text
+supabase/functions/ai-chat/
+  index.ts                  ← façade HTTP, contrat JSON Marc préservé
+  orchestrator.ts           ← AI SDK streamText + tool registry
+  agents/
+    intake.ts               ← phase 1 accueil
+    need-analyzer.ts        ← phases 2-3 besoin/vision
+    scoping.ts              ← phases 4-5 écosystème/contraintes
+    critic.ts               ← QA réponse avant envoi
+    extractor.ts            ← extraction discovery_data structurée
+    consultant-alert.ts     ← détection signaux faibles → alerte admin
+  tools.ts                  ← définitions AI SDK (tool, inputSchema, execute)
+  events.ts                 ← helper insertProjectEvent + insertAgentRun
+  formatter.ts              ← convertit sortie orchestrateur → JSON Marc
+```
+
+Règles :
+- Provider unifié via `_shared/ai-gateway.ts` (déjà créé).
+- Chaque sub-agent = `generateText` avec `Output.object` Zod, sortie compacte.
+- L'orchestrateur lit `agent_config` en début de requête (cache 30s) pour appliquer kill-switch et modèle dynamique.
+- Si un agent est désactivé, l'orchestrateur skip et l'événement `agent_skipped` est loggé.
+- Toute exception sub-agent → `project_events.agent_failed` + fallback gracieux (Marc répond quand même, juste sans cette capacité).
 
 ---
 
-## Détails techniques
+## 4. Control Tower admin — 4 surfaces
 
-**Modèle par défaut** : `google/gemini-3-pro-preview` pour le chat principal (raisonnement multi-tool) ; `google/gemini-3-flash-preview` pour les extractions simples dans les tools.
+### A. `/admin/control-tower` — vue temps réel (nouveau)
+Liste live de tous les projets actifs (status ≠ archived) :
+- Code projet, client, phase courante (1-7), progress %, dernier message (extrait), dernière activité, badge alerte consultant.
+- Realtime sur `project_events` → la ligne clignote quand un nouvel event arrive.
+- Filtres : phase, consultant assigné, projets en alerte, projets inactifs >24h.
+- Tri : dernière activité desc par défaut.
 
-**stopWhen** : `stepCountIs(50)` minimum (règle AI SDK pour agents).
+### B. `/admin/projects/:id/timeline` — timeline événements (extension `ProjectDetail` existant)
+- Liste verticale des `project_events` du projet, groupée par jour.
+- Chaque event affiche : icône type, acteur, payload formaté, latence si agent.
+- Bouton "Voir run agent" → drawer avec input/output/tokens/coût du `agent_runs` lié.
 
-**Anti-hallucination** : le tool `validate_completeness` (ex critic-agent) reste obligatoire avant `generate_cdc`. Le modèle ne peut pas générer le CDC sans avoir d'abord appelé `validate_completeness` et reçu `is_valid: true`.
+### C. `/admin/agents` — pilotage (nouveau)
+- Tableau des `agent_config` : nom, modèle actif, statut (enabled/killed), dernière modif.
+- Édition inline : changer le modèle (select des modèles Lovable AI), éditer le system prompt (textarea + preview), toggle kill-switch.
+- Graphes : invocations/24h, latence p50/p95, taux d'erreur, coût cumulé du jour (depuis `agent_runs`).
+- Bouton "Tester ce prompt" → envoi d'un message factice à l'agent isolé.
 
-**Persistance** : fin du stream → insert dans `messages` (user + assistant.parts JSON).
-
-**Streaming UI** : `toUIMessageStreamResponse` + headers CORS Supabase Edge.
-
-**Mémoire mise à jour** : ajouter mémoire `mem://tech/architecture.md` pour acter "agents via AI SDK tool calling, plus de DAG orchestrator Edge Function" + retirer toute trace Paperclip de `mem://index.md`.
+### D. Intervention manuelle sur projet (extension `ProjectDetail`)
+Actions admin :
+- **Forcer transition de phase** : RPC `admin_advance_phase(project_id, target_phase)` → écrit event `manual_intervention`.
+- **Injecter message système** : ajoute un `messages.role='system'` qui guide Marc au prochain tour.
+- **Rejouer dernier tour** : recharge le dernier user message, relance l'orchestrateur en mode dry-run, affiche le diff de réponse.
+- **Réassigner consultant** : update `projects.consultant_id` + notif Brevo.
+- **Kill-switch projet** : flag `projects.ai_paused = true`, `ai-chat` renvoie alors un message "Un consultant prend le relais" jusqu'à reprise.
 
 ---
 
-## Ce que tu valides avant que je code
+## 5. Plan d'exécution (5 lots, livrables intermédiaires)
 
-1. Migration destructive sur les 3 tables `paperclip_*` (je vérifie d'abord qu'elles sont vides en Live).
-2. Suppression définitive des Edge Functions `orchestrator`, `intake-agent`, `need-analyzer`, `scoping-agent`, `critic-agent`, `extractor` (après que `ai-chat` v2 marche).
-3. Migration du frontend `ProjectConversation` vers `@ai-sdk/react` `useChat`.
+| Lot | Contenu | Durée | Risque |
+|-----|---------|-------|--------|
+| 1 | Migration BDD : 3 tables + RLS + realtime + seed `agent_config` | 0.5j | nul |
+| 2 | Refactor `ai-chat` en orchestrator + sub-agents, sortie identique, tests unitaires sur le formatter | 3j | moyen — testé en preview avant publish |
+| 3 | Page `/admin/control-tower` + realtime + filtres | 1.5j | faible |
+| 4 | Page `/admin/agents` + édition prompts + métriques | 1.5j | faible |
+| 5 | Timeline + interventions manuelles dans `ProjectDetail` | 1.5j | faible |
 
-Si ces 3 points sont OK, j'attaque dans cet ordre : suppression Paperclip → nouveau `ai-chat` v2 avec tools → bascule frontend → suppression anciens agents.
+**Total : ~8 jours.** Lot 2 livré derrière feature flag `orchestrator_v2` (localStorage admin) → on bascule progressivement, rollback instantané en remettant l'ancien `ai-chat` (gardé en `ai-chat-legacy/index.ts` pendant 2 semaines).
+
+---
+
+## 6. Viabilité — points de vigilance
+
+- **Coût LLM** : 5 sub-agents par tour au lieu d'1 = ~3-5× le coût. Mitigation : sub-agents critic/extractor en `gemini-2.5-flash-lite`, seul l'orchestrateur en `gemini-3-flash-preview`. Estimation +40 % de coût pour +qualité mesurable.
+- **Latence** : sub-agents en parallèle via `Promise.all` quand indépendants (extractor + consultant-alert peuvent tourner pendant que l'orchestrateur stream). Objectif p95 < 4s (vs ~2s aujourd'hui).
+- **Format Marc préservé** : non négociable, sinon `ProjectConversation.tsx` casse. Le `formatter.ts` est le garde-fou — tests unitaires obligatoires sur 20 cas réels extraits de la prod.
+- **Rollback** : feature flag + `ai-chat-legacy` gardé 14 jours.
+
+---
+
+## 7. Ce qu'on NE fait pas (et pourquoi)
+
+- Pas de refonte du front chat (`useChat` AI SDK) → casserait le contrat Marc, gain UX nul.
+- Pas de DAG persisté type Paperclip avec états `queued/processing/waiting_validation` → la conversation Clarivi est synchrone par tour, pas un job long. Les `project_events` couvrent le besoin de traçabilité sans complexité de queue.
+- Pas de réintroduction du tunnel agences B2B supprimé (mémoire `removals.md`).
+
+Validation attendue avant build : OK sur l'architecture, OK sur le périmètre Control Tower (4 surfaces A/B/C/D), OK sur le plan en 5 lots.

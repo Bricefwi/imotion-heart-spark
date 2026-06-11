@@ -110,6 +110,121 @@ export type Database = {
           },
         ]
       }
+      agent_config: {
+        Row: {
+          agent_name: string
+          created_at: string
+          description: string | null
+          id: string
+          is_enabled: boolean
+          model: string
+          system_prompt: string
+          temperature: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          agent_name: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_enabled?: boolean
+          model?: string
+          system_prompt?: string
+          temperature?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          agent_name?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_enabled?: boolean
+          model?: string
+          system_prompt?: string
+          temperature?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      agent_runs: {
+        Row: {
+          agent_name: string
+          aig_run_id: string | null
+          cost_estimate: number | null
+          created_at: string
+          error: string | null
+          id: string
+          input_preview: string | null
+          input_tokens: number | null
+          latency_ms: number | null
+          message_id: string | null
+          model: string
+          output_preview: string | null
+          output_tokens: number | null
+          project_id: string | null
+          status: string
+        }
+        Insert: {
+          agent_name: string
+          aig_run_id?: string | null
+          cost_estimate?: number | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          input_preview?: string | null
+          input_tokens?: number | null
+          latency_ms?: number | null
+          message_id?: string | null
+          model: string
+          output_preview?: string | null
+          output_tokens?: number | null
+          project_id?: string | null
+          status?: string
+        }
+        Update: {
+          agent_name?: string
+          aig_run_id?: string | null
+          cost_estimate?: number | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          input_preview?: string | null
+          input_tokens?: number | null
+          latency_ms?: number | null
+          message_id?: string | null
+          model?: string
+          output_preview?: string | null
+          output_tokens?: number | null
+          project_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_runs_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_runs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_runs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_high_score_leads"
+            referencedColumns: ["project_id"]
+          },
+        ]
+      }
       agent_state: {
         Row: {
           created_at: string
@@ -2876,8 +2991,68 @@ export type Database = {
           },
         ]
       }
+      project_events: {
+        Row: {
+          actor: string
+          actor_id: string | null
+          agent_run_id: string | null
+          created_at: string
+          event_type: string
+          id: string
+          payload: Json
+          phase: number | null
+          project_id: string
+        }
+        Insert: {
+          actor: string
+          actor_id?: string | null
+          agent_run_id?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          payload?: Json
+          phase?: number | null
+          project_id: string
+        }
+        Update: {
+          actor?: string
+          actor_id?: string | null
+          agent_run_id?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          payload?: Json
+          phase?: number | null
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_events_agent_run_id_fkey"
+            columns: ["agent_run_id"]
+            isOneToOne: false
+            referencedRelation: "agent_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_events_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_events_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_high_score_leads"
+            referencedColumns: ["project_id"]
+          },
+        ]
+      }
       projects: {
         Row: {
+          ai_paused: boolean
+          ai_paused_reason: string | null
           client_id: string
           code: string | null
           completed_at: string | null
@@ -2914,6 +3089,8 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          ai_paused?: boolean
+          ai_paused_reason?: string | null
           client_id: string
           code?: string | null
           completed_at?: string | null
@@ -2950,6 +3127,8 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          ai_paused?: boolean
+          ai_paused_reason?: string | null
           client_id?: string
           code?: string | null
           completed_at?: string | null
