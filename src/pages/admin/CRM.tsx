@@ -156,6 +156,12 @@ export default function AdminCRM() {
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
+  // CRM 360 – filtres & sélection
+  const [industryFilter, setIndustryFilter] = useState<string>("all");
+  const [scoreFilter, setScoreFilter] = useState<string>("all"); // all | hot | warm | cold | dormant
+  const [sortBy, setSortBy] = useState<string>("recent"); // recent | score | projects | ca | name
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
   const { data: profiles = [] } = useQuery({
     queryKey: ["crm-profiles"],
     queryFn: async () => {
