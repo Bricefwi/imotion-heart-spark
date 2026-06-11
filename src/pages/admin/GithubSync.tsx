@@ -162,7 +162,7 @@ const GithubSync = () => {
               Vérifie le dernier commit publié sur GitHub et compare avec l'état de Lovable.
             </p>
           </div>
-          <Button onClick={fetchCommits} disabled={loading} size="lg" className="bg-gradient-to-r from-primary to-secondary">
+          <Button onClick={() => fetchCommits()} disabled={loading} size="lg" className="bg-gradient-to-r from-primary to-secondary">
             <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             Vérifier depuis GitHub
           </Button>
