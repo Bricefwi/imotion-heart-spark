@@ -89,6 +89,34 @@ Deno.serve(async (req) => {
   };
   if (token) headers.Authorization = `Bearer ${token}`;
 
+  // Diagnostic: which GitHub account does the token belong to?
+  let tokenLogin: string | null = null;
+  if (token) {
+    try {
+      const meRes = await fetch("https://api.github.com/user", { headers });
+      if (meRes.ok) {
+        const me = await meRes.json();
+        tokenLogin = typeof me?.login === "string" ? me.login : null;
+      } else {
+        await meRes.text();
+      }
+    } catch { /* diagnostic only */ }
+  }
+
+  // Diagnostic: detect repo default branch (only works if token can see the repo)
+  let repoDefaultBranch: string | null = null;
+  let repoVisible = false;
+  try {
+    const repoRes = await fetch(`https://api.github.com/repos/${repo}`, { headers });
+    if (repoRes.ok) {
+      const r = await repoRes.json();
+      repoDefaultBranch = typeof r?.default_branch === "string" ? r.default_branch : null;
+      repoVisible = true;
+    } else {
+      await repoRes.text();
+    }
+  } catch { /* diagnostic only */ }
+
   const githubUrl = `https://api.github.com/repos/${repo}/commits?sha=${encodeURIComponent(branch)}&per_page=10`;
 
   try {
@@ -101,14 +129,21 @@ Deno.serve(async (req) => {
 
     if (!res.ok) {
       const payload = await res.json().catch(() => ({ message: "GitHub ne répond pas correctement." }));
-      const message = typeof payload.message === "string" ? payload.message : "GitHub ne répond pas correctement.";
-      return json({ error: "github_error", status: res.status, message, repo, branch, rateLimit, tokenConfigured: Boolean(token) }, 200);
+      let message = typeof payload.message === "string" ? payload.message : "GitHub ne répond pas correctement.";
+      if (res.status === 404) {
+        if (token && tokenLogin && !repoVisible) {
+          message = `Le token appartient au compte GitHub « ${tokenLogin} » qui n'a pas accès au dépôt ${repo}. Vérifie : (1) que le token a bien été créé sur le compte propriétaire du dépôt, (2) pour un Fine-grained PAT, que ce dépôt est inclus dans "Repository access" avec la permission Contents: Read-only, (3) pour un Classic PAT, que le scope "repo" est coché.`;
+        } else if (token && repoVisible && repoDefaultBranch && repoDefaultBranch !== branch) {
+          message = `La branche « ${branch} » n'existe pas sur ${repo}. Branche par défaut détectée : « ${repoDefaultBranch} ».`;
+        }
+      }
+      return json({ error: "github_error", status: res.status, message, repo, branch, rateLimit, tokenConfigured: Boolean(token), tokenLogin, repoDefaultBranch }, 200);
     }
 
     const commits = (await res.json()) as GithubCommitPayload[];
-    return json({ ok: true, repo, branch, commits, checkedAt: new Date().toISOString(), rateLimit, tokenConfigured: Boolean(token) });
+    return json({ ok: true, repo, branch, commits, checkedAt: new Date().toISOString(), rateLimit, tokenConfigured: Boolean(token), tokenLogin, repoDefaultBranch });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Erreur réseau inconnue.";
-    return json({ error: "network_error", message, repo, branch, tokenConfigured: Boolean(token) }, 200);
+    return json({ error: "network_error", message, repo, branch, tokenConfigured: Boolean(token), tokenLogin, repoDefaultBranch }, 200);
   }
 });
