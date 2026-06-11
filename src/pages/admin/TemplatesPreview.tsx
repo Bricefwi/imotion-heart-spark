@@ -3,6 +3,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { ProfessionalDocument } from "@/components/ProfessionalDocument";
+import { EmailPreview } from "@/components/EmailPreview";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
