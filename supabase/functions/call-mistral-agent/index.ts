@@ -18,7 +18,10 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const VALID_AGENTS: MistralAgentKey[] = ["maestro", "stratos", "marketix", "literix", "financix", "n8nix"];
+const VALID_AGENTS: MistralAgentKey[] = [
+  "maestro", "titan", "stratos", "marketix", "literix",
+  "financix", "juridix", "pixel", "nexus", "focus", "n8nix",
+];
 const MAX_PROMPT_LENGTH = 50_000;
 
 const json = (body: unknown, status = 200) =>

@@ -254,6 +254,11 @@ INSTRUCTIONS :
       proposal: { agent: "financix", label: "ANALYSE FINANCIÈRE FINANCIX", brief: "Analyse la cohérence budgétaire de cette proposition : structure de prix, échelonnement, risques financiers, arguments de valeur (max 500 mots)." },
       devis: { agent: "financix", label: "ANALYSE FINANCIÈRE FINANCIX", brief: "Vérifie la cohérence du chiffrage : postes, marges implicites, conditions de paiement, conformité commerciale française (max 500 mots)." },
       pricing: { agent: "financix", label: "ANALYSE FINANCIÈRE FINANCIX", brief: "Analyse le chiffrage proposé et suggère une structure tarifaire en 3 options compétitive (max 500 mots)." },
+      contrat: { agent: "juridix", label: "ANALYSE JURIDIQUE JURIDIX", brief: "Identifie les clauses sensibles et points de vigilance juridiques pour ce contrat de prestation numérique : responsabilité, propriété intellectuelle, RGPD, clause pénale, conditions de résiliation. Cite les articles du Code civil pertinents (max 600 mots)." },
+      contract_fr: { agent: "juridix", label: "ANALYSE JURIDIQUE JURIDIX", brief: "Identifie les clauses sensibles et points de vigilance juridiques pour ce contrat de prestation numérique : responsabilité, propriété intellectuelle, RGPD, clause pénale, conditions de résiliation. Cite les articles du Code civil pertinents (max 600 mots)." },
+      pv_reception: { agent: "juridix", label: "ANALYSE JURIDIQUE JURIDIX", brief: "Liste les points juridiques à sécuriser dans ce PV de réception : opposabilité, réserves, garantie de conformité, transfert de propriété des livrables, délais de recours (max 500 mots)." },
+      build_prompts: { agent: "pixel", label: "ANALYSE TECHNIQUE PIXEL", brief: "Propose l'architecture de build optimale pour ce projet : stack précise, découpage en composants, schéma de données, points techniques critiques et pièges à éviter pour un build IA (Lovable/Cursor). Sois concret et actionnable (max 600 mots)." },
+      tech_recommendation: { agent: "pixel", label: "ANALYSE TECHNIQUE PIXEL", brief: "Analyse les choix techniques optimaux pour ce projet : comparaison no-code/low-code/custom, stack recommandée avec justifications, risques techniques (max 600 mots)." },
     };
 
     let agentContext = "";

@@ -14,12 +14,17 @@ import { toast } from "sonner";
 
 // Agents Mistral (La Plateforme) — secrets à saisir dans Lovable Cloud → Secrets
 const MISTRAL_AGENTS = [
-  { key: "maestro",  secret: "MISTRAL_AGENT_MAESTRO",  role: "Orchestrateur multi-agents" },
+  { key: "maestro",  secret: "MISTRAL_AGENT_MAESTRO",  role: "Orchestrateur maître multi-agents" },
+  { key: "titan",    secret: "MISTRAL_AGENT_TITAN",    role: "Orchestrateur nested — tâches complexes multi-étapes" },
   { key: "stratos",  secret: "MISTRAL_AGENT_STRATOS",  role: "Stratégie business — enrichit CDC & conseil technique" },
   { key: "marketix", secret: "MISTRAL_AGENT_MARKETIX", role: "Stratégie marketing & acquisition" },
   { key: "literix",  secret: "MISTRAL_AGENT_LITERIX",  role: "Rédaction éditoriale — enrichit les articles de blog" },
   { key: "financix", secret: "MISTRAL_AGENT_FINANCIX", role: "Analyse financière — enrichit devis & propositions" },
-  { key: "n8nix",    secret: "MISTRAL_AGENT_N8NIX",    role: "Automatisations & workflows" },
+  { key: "juridix",  secret: "MISTRAL_AGENT_JURIDIX",  role: "Expert juridique — enrichit contrats & PV de réception" },
+  { key: "pixel",    secret: "MISTRAL_AGENT_PIXEL",    role: "Vibes Coder — enrichit prompts de build & reco technique" },
+  { key: "nexus",    secret: "MISTRAL_AGENT_NEXUS",    role: "Workflow Builder — conception de workflows" },
+  { key: "focus",    secret: "MISTRAL_AGENT_FOCUS",    role: "Sub-agent d'exécution — extraction, classification" },
+  { key: "n8nix",    secret: "MISTRAL_AGENT_N8NIX",    role: "Automatisations & workflows n8n" },
 ] as const;
 
 // Agents et leurs tiers/modèles par défaut

@@ -9,18 +9,28 @@
 
 export type MistralAgentKey =
   | "maestro"   // Orchestrateur multi-agents
+  | "titan"     // Orchestrateur nested — tâches complexes multi-étapes
   | "stratos"   // Stratégie business & positionnement
   | "marketix"  // Stratégie marketing & acquisition
   | "literix"   // Rédaction éditoriale & copywriting
   | "financix"  // Analyse financière, pricing, budgets
+  | "juridix"   // Expert juridique — droit immo/succession, contrats français
+  | "pixel"     // Vibes Coder — transforme les idées en code/prompts de build
+  | "nexus"     // Workflow Builder — conçoit et documente des workflows
+  | "focus"     // Sub-agent d'exécution précise — extraction, classification
   | "n8nix";    // Automatisations & workflows n8n
 
 const AGENT_ENV_VARS: Record<MistralAgentKey, string> = {
   maestro: "MISTRAL_AGENT_MAESTRO",
+  titan: "MISTRAL_AGENT_TITAN",
   stratos: "MISTRAL_AGENT_STRATOS",
   marketix: "MISTRAL_AGENT_MARKETIX",
   literix: "MISTRAL_AGENT_LITERIX",
   financix: "MISTRAL_AGENT_FINANCIX",
+  juridix: "MISTRAL_AGENT_JURIDIX",
+  pixel: "MISTRAL_AGENT_PIXEL",
+  nexus: "MISTRAL_AGENT_NEXUS",
+  focus: "MISTRAL_AGENT_FOCUS",
   n8nix: "MISTRAL_AGENT_N8NIX",
 };
 
