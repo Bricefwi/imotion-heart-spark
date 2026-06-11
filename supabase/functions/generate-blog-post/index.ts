@@ -56,10 +56,11 @@ serve(async (req) => {
 
     // Get pending posts from editorial calendar
     const today = new Date().toISOString().split("T")[0];
+    // Pick up both 'planned' (due) and previously 'failed' entries so retries happen automatically
     const { data: pendingPosts, error } = await supabase
       .from("blog_editorial_calendar")
       .select("*")
-      .eq("status", "planned")
+      .in("status", ["planned", "failed"])
       .lte("planned_date", today)
       .order("planned_date", { ascending: true })
       .limit(2);
