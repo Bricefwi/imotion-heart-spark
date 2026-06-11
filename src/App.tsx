@@ -82,6 +82,9 @@ const ConsultantAnalytics = lazy(() => import("@/pages/consultant/Analytics"));
 const ConsultantDocumentEditor = lazy(() => import("@/pages/consultant/DocumentEditor"));
 
 // Admin pages (lazy)
+const AdminOperations = lazy(() => import("@/pages/admin/Operations"));
+const AdminAgentsPilot = lazy(() => import("@/pages/admin/AgentsPilot"));
+const AdminBilling = lazy(() => import("@/pages/admin/Billing"));
 const AdminDashboard = lazy(() => import("@/pages/admin/Dashboard"));
 const AdminUsers = lazy(() => import("@/pages/admin/Users"));
 const AdminSettings = lazy(() => import("@/pages/admin/Settings"));
@@ -252,6 +255,9 @@ const App = () => (
               <Route path="/admin/sso-debug" element={<AdminSsoDebug />} />
               <Route path="/admin/marketing-leads" element={<AdminMarketingLeads />} />
               <Route path="/admin/logs" element={<AdminDashboard />} />
+              <Route path="/admin/operations" element={<AdminOperations />} />
+              <Route path="/admin/agents" element={<AdminAgentsPilot />} />
+              <Route path="/admin/billing" element={<AdminBilling />} />
             </Route>
 
 
