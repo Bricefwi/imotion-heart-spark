@@ -1,8 +1,8 @@
 import { useRef, useCallback, useState, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
-import logoImotion from "@/assets/logo-imotion.png";
 import { Loader2 } from "lucide-react";
 import { RGB, GRADIENTS, BRAND } from "@/lib/brand-tokens";
+import { Logo } from "@/components/Logo";
 
 interface ProfessionalDocumentProps {
   content: string;
@@ -170,19 +170,25 @@ export function ProfessionalDocument({
         className="bg-white text-foreground shadow-lg rounded-lg overflow-hidden"
         style={{ fontFamily: "'Inter', 'Helvetica Neue', Arial, sans-serif" }}
       >
-        {/* Header bar — coral→amber flame gradient v2 */}
-        <div
-          className="px-8 py-5 flex items-center justify-between"
-          style={{ background: GRADIENTS.flame }}
-        >
-          <div className="flex items-center gap-4">
-            <img src={logoImotion} alt="IMOTION" className="h-10 w-auto" crossOrigin="anonymous" />
-            <span className="text-white/85 text-[11px] font-medium tracking-wide uppercase">Creator Studio</span>
+        {/* Header bar — bande sombre (logo) + dégradé flame (titre doc) */}
+        <div className="flex items-stretch">
+          {/* Zone logo : fond sombre contrasté pour respecter l'identité du site */}
+          <div
+            className="flex items-center px-6 py-5 shrink-0"
+            style={{ background: "#0F0D0B" }}
+          >
+            <Logo variant="flux" size="md" showText tone="light" decorative />
           </div>
-          <div className="text-right text-white/90 text-xs">
-            <p className="font-semibold text-white text-sm">{documentName}</p>
-            {projectCode && <p>Ref. {projectCode}</p>}
-            <p>{currentDate}</p>
+          {/* Zone titre : dégradé flame coral→amber */}
+          <div
+            className="flex-1 px-6 py-5 flex items-center justify-end"
+            style={{ background: GRADIENTS.flame }}
+          >
+            <div className="text-right text-white">
+              <p className="font-semibold text-base leading-tight">{documentName}</p>
+              {projectCode && <p className="text-white/90 text-xs mt-0.5">Ref. {projectCode}</p>}
+              <p className="text-white/85 text-xs">{currentDate}</p>
+            </div>
           </div>
         </div>
 
@@ -467,9 +473,8 @@ export function ProfessionalDocument({
           className="px-8 py-4 border-t border-border flex items-center justify-between text-[10px] text-muted-foreground"
           style={{ background: "#fafafa" }}
         >
-          <div className="flex items-center gap-2">
-            <img src={logoImotion} alt="IMOTION" className="h-5 w-auto opacity-50" crossOrigin="anonymous" />
-            <span>IMOTION Creator Studio</span>
+          <div className="flex items-center gap-2 opacity-70">
+            <Logo variant="flux" size="xs" showText tone="dark" decorative />
           </div>
           <div className="text-right">
             <p>Document confidentiel - {currentDate}</p>
