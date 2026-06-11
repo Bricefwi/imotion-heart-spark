@@ -30,15 +30,40 @@ const GithubSync = () => {
   const [commits, setCommits] = useState<GithubCommit[]>([]);
   const [lastCheck, setLastCheck] = useState<string | null>(() => localStorage.getItem(LAST_CHECK_KEY));
 
+  const normalizeRepo = (input: string): string | null => {
+    if (!input) return null;
+    let s = input.trim();
+    // Accepte URL complète (https://github.com/owner/repo[.git]) ou git@github.com:owner/repo.git
+    s = s.replace(/^https?:\/\/(www\.)?github\.com\//i, "")
+         .replace(/^git@github\.com:/i, "")
+         .replace(/\.git$/i, "")
+         .replace(/\/+$/, "");
+    const parts = s.split("/").filter(Boolean);
+    if (parts.length < 2) return null;
+    return `${parts[0]}/${parts[1]}`;
+  };
+
   const fetchCommits = useCallback(async () => {
-    if (!repo || !repo.includes("/")) {
-      setError("Renseigne le dépôt au format owner/repo (ex: imotion/clarivi).");
+    const cleaned = normalizeRepo(repo);
+    if (!cleaned) {
+      setError("Format invalide. Utilise owner/repo (ex: Bricefwi/imotion-heart-spark) ou colle l'URL GitHub complète.");
       return;
     }
     setLoading(true);
     setError(null);
     try {
-      const url = `https://api.github.com/repos/${repo}/commits?sha=${encodeURIComponent(branch)}&per_page=10`;
+      const url = `https://api.github.com/repos/${cleaned}/commits?sha=${encodeURIComponent(branch)}&per_page=10`;
+      const res = await fetch(url, { headers: { Accept: "application/vnd.github+json" } });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        if (res.status === 404) {
+          throw new Error(`Dépôt ou branche introuvable (${cleaned}@${branch}). S'il est privé, l'API publique GitHub ne peut pas y accéder sans token.`);
+        }
+        if (res.status === 403) {
+          throw new Error(`Limite GitHub atteinte (60 requêtes/h en anonyme). Réessaie dans quelques minutes.`);
+        }
+        throw new Error(body.message || `GitHub API: ${res.status}`);
+      }
       const res = await fetch(url, { headers: { Accept: "application/vnd.github+json" } });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
