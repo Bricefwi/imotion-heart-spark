@@ -33,4 +33,6 @@ project_id = "npmkzqxoxobfqdqpnsgf"
     verify_jwt = true
   [functions.verify-email]
     verify_jwt = false
+  [functions.github-sync-status]
+    verify_jwt = true
 
