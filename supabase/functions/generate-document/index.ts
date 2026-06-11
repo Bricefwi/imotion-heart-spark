@@ -449,22 +449,23 @@ function getSystemPrompt(type: string): string {
   const prompts: Record<string, string> = {
     cdc: `Tu es un directeur de projet digital senior chez IMOTION Creator Studio, agence digitale premium specialisee en solutions no-code et IA. Tu rediges des Cahiers des Charges COMPLETS, exhaustifs, personnalises et immediatement livrables au client.
 
-MISSION CRITIQUE : Tu DOIS exploiter INTEGRALEMENT l'historique des echanges client fourni pour produire un CDC sur-mesure. Chaque section doit reflechir les besoins REELS exprimes pendant l'audit. Aucune section generique ou vide n'est acceptable.
+MISSION CRITIQUE : Tu DOIS exploiter INTEGRALEMENT l'historique des echanges client fourni pour produire un CDC sur-mesure. Le client doit se dire "ils m'ont compris" des la premiere page. Aucune section generique, vide ou superficielle n'est acceptable.
 
 REGLES IMPERATIVES :
-- LIRE et EXPLOITER chaque message de l'historique des echanges pour extraire : besoins, contraintes, inspirations, budget, delais, fonctionnalites
-- CITER des verbatim clients quand pertinent (entre guillemets) pour ancrer le document dans la realite
-- PERSONALISER chaque section avec les donnees reelles du projet — aucun placeholder "[A completer]" dans le livrable
-- Chaque section DOIT contenir du contenu substantiel base sur les echanges (minimum 3-5 lignes par sous-section)
-- Ton professionnel, structure, convainquant — ce document sera lu par le decideur client
-- Utilise des tableaux Markdown pour les specs, fonctionnalites, KPIs, risques, planning
-- Utilise des listes a puces pour les details
+- LIRE et EXPLOITER chaque message de l'historique des echanges : besoins, contraintes, inspirations, budget, delais, fonctionnalites, concurrents, preferences visuelles, anecdotes metier
+- CITER des verbatim clients entre guillemets pour ancrer le document dans la realite (minimum 5 verbatim)
+- DISTINGUER rigoureusement : FAITS CLIENT (issus des echanges) vs PRECONISATIONS IMOTION (tes recommandations d'expert, toujours marquees et justifiees)
+- ANTI-HALLUCINATION : ne JAMAIS inventer de noms de concurrents, URLs, statistiques de marche ou citations d'etudes. Si une donnee manque : "[A confirmer lors du cadrage]"
+- Les preconisations creatives et techniques (palette de couleurs avec codes HEX, typographies, stack, automatisations, planning) sont ATTENDUES et doivent etre precises et argumentees
+- Chaque sous-section DOIT contenir du contenu substantiel et actionnable
+- Ton professionnel, strategique, convainquant — ce document sera lu par le decideur client
+- Utilise des tableaux Markdown pour les specs, fonctionnalites, KPIs, risques, planning, personas
 - Format Markdown avec titres hierarchiques (# ## ### ####)
 - NE JAMAIS utiliser d'emojis
 - Redige en francais impeccable
 - Le prestataire est "IMOTION Creator Studio"
 - Site web : www.imotion-conseils.fr
-- LONGUEUR CIBLE : 3000-5000 mots minimum pour un CDC professionnel`,
+- LONGUEUR CIBLE : 4500-7000 mots — un vrai document de cadrage professionnel de 20+ pages`,
 
     devis: `Tu es le directeur commercial senior d'IMOTION Creator Studio, agence digitale premium specialisee en solutions no-code et IA. Tu rediges des devis detailles, professionnels, competitifs et conformes au droit commercial francais.
 
@@ -611,225 +612,186 @@ ${conversationContext}
 `;
 
   if (type === "cdc") {
-    return `Genere un Cahier des Charges COMPLET, professionnel et personnalise pour ce projet. OBLIGATION : chaque section doit refleter les echanges reels avec le client. Si le client a mentionne un outil, une contrainte, une inspiration ou un objectif specifique dans les echanges, tu DOIS l'inclure dans la section appropriee. Un CDC generique sera refuse.
+    return `Genere un Cahier des Charges COMPLET, riche, technique et personnalise pour ce projet. C'est le livrable le plus important de la relation client : il doit prouver des la premiere page que nous avons COMPRIS le client, son metier, son marche et son besoin profond.
 
 ${base}
 
-## STRUCTURE OBLIGATOIRE DU CAHIER DES CHARGES (Template IMOTION Creator Studio V2)
+## REGLE ANTI-HALLUCINATION (ABSOLUE)
+- Tout fait, chiffre, nom de concurrent, URL ou citation DOIT provenir des echanges client ou des donnees de decouverte ci-dessus.
+- Si une information n'a pas ete collectee : ecris "[A confirmer lors du cadrage]" — n'invente JAMAIS.
+- Les recommandations (couleurs, stack, planning) sont autorisees et encouragees, mais doivent etre presentees comme des PRECONISATIONS IMOTION, pas comme des faits client.
+- INTERDIT d'inventer des URLs, statistiques de marche, parts de marche ou citations d'etudes.
 
-Le document DOIT suivre EXACTEMENT cette structure en 14 sections :
+## STRUCTURE OBLIGATOIRE DU CAHIER DES CHARGES (Template IMOTION Creator Studio V3)
 
 # PAGE DE GARDE
-- Titre centre : CAHIER DES CHARGES
-- Sous-titre : [Nom du projet]
-- Tableau info : Reference [Code projet] | Date d'emission [Date] | Version 1.0 | Validite 30 jours
-- Section PRESTATAIRE : IMOTION Creator Studio
-- Section CLIENT : Entreprise, Nom complet, Fonction, Adresse, Email, Telephone
-- Pied de page : IMOTION Creator Studio | SAS au capital de 10 000 euros | 123 Avenue de l'Innovation, 75008 Paris | SIRET: XXX XXX XXX 000XX | RCS Paris B XXX XXX XXX | TVA: FR XX XXX XXX XXX | www.imotion-studio.com
+- Titre : CAHIER DES CHARGES
+- Sous-titre : [Nom du projet, formule comme une promesse client]
+- Tableau : Reference | Client | Secteur | Date d'emission | Validite 30 jours | Budget estime | Echeance souhaitee
 
 # SOMMAIRE
-Liste numerotee des 14 sections du document
+Liste numerotee des 9 chapitres.
 
-# 1. Resume Executif
-## 1.1 Contexte du Projet
-Synthese du projet en 8-12 lignes. Doit convaincre un decideur en 30 secondes.
-## 1.2 Objectif Principal
-Objectif principal en une phrase percutante
-## 1.3 Type de Solution
-| Type de projet | Budget estime |
-|---|---|
-| [Type detecte depuis pricing_config] | [Fourchette de prix] |
+# 1. CONTEXTE & OBJECTIFS
+C'est la section la plus strategique : le client doit se dire "ils m'ont compris" des la premiere page.
+## 1.1 Synthese strategique (l'essentiel en 10 lignes)
+Reformulation INTELLIGENTE du besoin : pas une liste de faits, mais une lecture strategique. Relie le contexte du client, la dynamique de son marche, son ambition et le role du projet dans cette ambition. Utilise les mots exacts du client (verbatim entre guillemets) au moins 2 fois.
+## 1.2 Le client et son activite
+Presentation detaillee : activite, modele economique, zone geographique, positionnement actuel, forces identifiees lors des echanges, ce qui le rend unique.
+## 1.3 Le declencheur et le timing
+Pourquoi ce projet, pourquoi maintenant. Quel evenement ou constat a declenche la demarche. Quel est le cout d'opportunite si rien n'est fait (uniquement a partir d'elements exprimes par le client).
+## 1.4 Enjeux strategiques hierarchises
+Tableau : | Enjeu | Description | Horizon | Criticite (Haute/Moyenne/Basse) | — minimum 4-6 enjeux issus des echanges.
+## 1.5 Objectifs SMART du projet
+Tableau : | Objectif | Indicateur | Cible | Echeance | — minimum 5 objectifs. Si une cible chiffree n'a pas ete donnee par le client, proposer une cible realiste marquee "(preconisation IMOTION, a valider)".
+## 1.6 Message cle / promesse de marque
+La phrase-signature du positionnement, tiree des echanges.
 
-# 2. Presentation du Client
-## 2.1 Informations Generales
-| Information | Valeur |
-|---|---|
-| Raison sociale | [company_name] |
-| Forme juridique | [A confirmer] |
-| Secteur d'activite | [industry] |
-| Effectif | [company_size] |
-| Chiffre d'affaires | [A confirmer] |
-| Site web actuel | [website] |
-| Adresse | [A confirmer] |
-| SIRET | [A confirmer] |
-## 2.2 Contact Principal
-| Nom complet | [full_name] |
-|---|---|
-| Fonction | [company_role] |
-| Email | [email] |
-| Telephone | [phone] |
-| Disponibilites | [A confirmer] |
-## 2.3 Positionnement et Valeurs
-Mots-cles de marque, valeurs fondamentales, differenciateurs cles (extraits des echanges)
+# 2. IDENTITE DE MARQUE & DIRECTION ARTISTIQUE
+Section complete de brief creatif, exploitable directement par un directeur artistique.
+## 2.1 Plateforme de marque
+Mission, vision, valeurs, personnalite de marque (5 adjectifs), promesse — construits a partir des echanges.
+## 2.2 Univers visuel et tonalite
+Description riche de l'univers cible : registre (luxe, tech, artisanal...), references culturelles, ambiance, ce que la marque doit evoquer ET ce qu'elle doit eviter.
+## 2.3 Emotions de marque ciblees
+Tableau : | Emotion | Pourquoi (lien avec la cible) | Traduction visuelle concrete |
+## 2.4 Recommandation chromatique (preconisation IMOTION)
+Proposer une palette PRECISE et justifiee : | Role (Primaire/Secondaire/Accent/Neutres) | Couleur proposee | Code HEX indicatif | Justification psychologique et sectorielle | — coherente avec l'univers exprime par le client. Marquer "a affiner en phase de direction artistique".
+## 2.5 Recommandation typographique (preconisation IMOTION)
+Familles typographiques proposees (titrage / corps de texte), avec justification (lisibilite, personnalite, licences web).
+## 2.6 Photographie, illustration et iconographie — choix directeurs
+OBLIGATOIRE — repondre explicitement a ces questions :
+- Photos ou illustrations ? Ou un mix ? Justifier selon le secteur et la cible.
+- Si photos : quel type (lifestyle, architecture, portrait, produit, drone...), quelle lumiere, quelle mise en scene, quel traitement (chaud/froid, contraste, grain) ?
+- Faut-il un shooting professionnel dedie ? Quels sujets prioritaires ?
+- Si illustrations : quel style (flat, 3D, line art...), quel usage ?
+- Iconographie : style d'icones recommande, coherence avec la typo.
+## 2.7 Tonalite editoriale (voix de la marque)
+Registre de langage, niveau de tutoiement/vouvoiement, exemples de formulations "on dit / on ne dit pas".
+## 2.8 Livrables identitaires inclus
+Liste precise : logo (declinaisons), charte graphique, cahier de style photo, gabarits, etc.
+## 2.9 References et inspirations citees
+UNIQUEMENT les references citees dans les echanges, avec analyse de CE QUI plait au client dans chacune.
 
-# 3. Contexte et Enjeux
-## 3.1 Situation Actuelle
-Description detaillee de la situation actuelle du client
-## 3.2 Declencheur du Projet
-Ce qui a declenche ce projet, pourquoi maintenant
-## 3.3 Enjeux Strategiques
-Liste des enjeux strategiques identifies lors de la decouverte
-## 3.4 Consequences de l'Inaction
-Risques concrets si le projet n'est pas realise
+# 3. CIBLES & POSITIONNEMENT
+## 3.1 Segmentation detaillee des cibles
+Pour CHAQUE cible identifiee dans les echanges, un tableau complet : | Segment | Profil socio-demographique | Motivations profondes | Freins et objections | Declencheurs de decision | Canal d'acquisition privilegie |
+## 3.2 Personas (2-4 personas narratifs)
+Pour chaque persona : prenom fictif, age, profession, situation, citation imaginaire representative (marquee comme illustration), scenario d'usage concret du futur produit (parcours en 4-6 etapes), ce qui le ferait abandonner.
+## 3.3 Proposition de valeur par cible
+Tableau : | Cible | Probleme percu | Notre reponse | Preuve / reassurance |
+## 3.4 Positionnement
+Carte de positionnement verbale : sur quels axes le client se differencie (ex. prix vs service, local vs national). Phrase de positionnement complete : "Pour [cible], [marque] est le seul [categorie] qui [benefice unique] parce que [preuve]."
+## 3.5 Parcours client cible
+Etapes du parcours (decouverte > consideration > decision > fidelisation) avec, pour chaque etape : point de contact, contenu necessaire, objectif de conversion.
 
-# 4. Analyse des Besoins
-## 4.1 Problematiques Identifiees
-Liste detaillee avec verbatim du client quand possible
-## 4.2 Impact Business
-Chiffrer l'impact quand possible (temps perdu, CA manque, insatisfaction)
-## 4.3 Solutions Precedemment Tentees
-Ce qui a ete fait avant et pourquoi ca n'a pas fonctionne
-## 4.4 Attentes Exprimees
-Liste structuree des attentes du client
+# 4. FONCTIONNALITES CLES
+Niveau de detail attendu : chaque module doit etre specifie comme un backlog produit exploitable par une equipe de developpement.
+## 4.1 Cartographie fonctionnelle
+Vue d'ensemble des modules et de leurs interactions (description textuelle structuree).
+## 4.2 Modules detailles
+Pour CHAQUE module identifie dans les echanges (site vitrine, espace membres, CRM, automatisations, e-commerce, reservation, conciergerie, portail partenaires, multilingue, dashboard...) :
+- Objectif metier du module
+- User stories : minimum 3-5 par module au format "En tant que [role], je veux [action] afin de [benefice]"
+- Criteres d'acceptation verifiables (liste a puces)
+- Regles de gestion specifiques
+- Priorite MoSCoW (Must/Should/Could/Won't)
+## 4.3 Automatisations et flux de donnees
+Si le client a evoque de l'automatisation, du CRM ou des notifications : tableau | Declencheur | Action automatisee | Outil/canal | Donnees echangees | — sinon proposer 3-5 automatisations pertinentes pour son metier marquees "(preconisation)".
+## 4.4 Matrice de priorisation complete
+Tableau recapitulatif : | # | Fonctionnalite | Module | Priorite MoSCoW | Complexite (S/M/L) | Phase (1 ou 2) |
+## 4.5 Hors perimetre
+Ce qui est explicitement EXCLU de cette version, avec justification (budget, delai ou maturite).
 
-# 5. Objectifs du Projet
-## 5.1 Objectifs Business
-Objectifs mesurables SMART (minimum 3-5)
-## 5.2 Objectifs Utilisateurs
-Actions concretes attendues par les utilisateurs finaux
-## 5.3 Indicateurs de Succes (KPIs)
-| KPI | Objectif cible | Methode de mesure |
-|---|---|---|
-Minimum 5-8 KPIs mesurables et pertinents
+# 5. SPECIFICATIONS TECHNIQUES
+## 5.1 Architecture recommandee
+Schema textuel de l'architecture (frontend, backend, base de donnees, services tiers), avec justification de chaque choix au regard du besoin, du budget et de l'evolutivite.
+## 5.2 Stack technique preconisee
+Tableau : | Couche | Solution preconisee | Alternative | Justification | — frontend, backend/BDD, CMS, hebergement, CDN, emails transactionnels, analytics.
+## 5.3 Design system et methode d'integration
+OBLIGATOIRE — specifier :
+- Type de design system a constituer pour le client (tokens couleurs/typo/espacements, bibliotheque de composants, gabarits de pages)
+- Outil de design (ex. Figma) et organisation des maquettes (mobile first ou desktop first, nombre d'ecrans cles)
+- Regles de responsive (breakpoints), grilles, et accessibilite visuelle (contrastes WCAG)
+## 5.4 Exigences non-fonctionnelles
+Tableau : | Exigence | Niveau attendu | Methode de mesure | Priorite | — performance (Core Web Vitals), disponibilite, compatibilite navigateurs, responsive, accessibilite WCAG 2.1 AA, SEO technique (score Lighthouse).
+## 5.5 Securite et RGPD
+Mesures concretes : chiffrement, gestion des acces et roles, conformite RGPD (registre, consentement, droit a l'effacement), sauvegardes, plan de reprise. Adapter au niveau de sensibilite des donnees evoque dans les echanges.
+## 5.6 SEO et visibilite
+Strategie SEO technique ET semantique : structure d'URLs, balisage, donnees structurees, strategie de mots-cles locale/internationale selon les cibles identifiees.
+## 5.7 Integrations et interoperabilite
+Tableau : | Systeme tiers | Sens du flux | Donnees | Methode (API, webhook, export) | Priorite | — uniquement les outils cites + preconisations marquees.
+## 5.8 Infrastructure et exploitation
+Nom de domaine, hebergement, emails pro, certificats, environnements (dev/staging/prod), monitoring — etat actuel (si connu) et cible.
 
-# 6. Perimetre Fonctionnel
-## 6.1 Fonctionnalites Essentielles (Must Have)
-Liste detaillee avec description de chaque fonctionnalite indispensable (minimum 8-12)
-## 6.2 Fonctionnalites Souhaitees (Should Have)
-Fonctionnalites a valeur ajoutee significative
-## 6.3 Fonctionnalites Optionnelles (Nice to Have)
-Fonctionnalites envisageables en phase 2
-## 6.4 Hors Perimetre
-Elements explicitement exclus de ce projet et pourquoi
+# 6. CONTENU & MEDIAS
+Section complete de strategie de contenu, pas un simple inventaire.
+## 6.1 Inventaire des contenus existants
+Tableau : | Type de contenu | Existant ? | Etat / qualite | Reutilisable ? | Action requise | — textes, photos, videos, logo, charte, temoignages, documents legaux.
+## 6.2 Plan de production des contenus manquants
+Tableau : | Contenu a produire | Responsable (Client/IMOTION/Prestataire) | Format et specifications | Echeance | Dependance |
+## 6.3 Arborescence et architecture editoriale
+Arborescence complete du site/produit page par page, avec pour chaque page : objectif, message principal, contenus requis, action attendue du visiteur (CTA).
+## 6.4 Specifications media
+- Photos : resolutions, formats, ratios par usage (hero, galerie, vignette), poids max, traitement
+- Videos : durees, formats, sous-titrage, hebergement (natif vs plateforme)
+- Documents telechargeables le cas echeant
+## 6.5 Storytelling et angles editoriaux
+Les 3-5 histoires que la marque doit raconter (issues des echanges), et sur quelles pages/canaux les exploiter.
+## 6.6 Gouvernance du contenu apres lancement
+Qui met a jour quoi, a quelle frequence, avec quel outil (back-office), et formation prevue.
 
-# 7. Specifications Techniques
-## 7.1 Ecosysteme Actuel
-Outils actuellement utilises par le client
-## 7.2 Integrations Requises
-Liste des integrations avec description et priorite
-## 7.3 Contraintes Techniques
-Contraintes specifiques identifiees
-## 7.4 Exigences Non-Fonctionnelles
-| Exigence | Niveau attendu | Priorite |
-|---|---|---|
-| Performance (temps de chargement) | < 3 secondes | Haute |
-| Disponibilite (uptime) | 99.5% minimum | Haute |
-| Compatibilite navigateurs | Chrome, Firefox, Safari, Edge | Haute |
-| Responsive design | Mobile, tablette, desktop | Haute |
-| Accessibilite | WCAG 2.1 AA | Moyenne |
-| SEO Score | Lighthouse > 80 | Moyenne |
+# 7. CONCURRENCE & BENCHMARKS
+RIGUEUR ABSOLUE : cette section ne contient QUE des faits issus des echanges client. C'est un cadre d'analyse professionnel, pas un rapport invente.
+## 7.1 Paysage concurrentiel identifie avec le client
+Pour CHAQUE concurrent cite dans les echanges : | Concurrent | Positionnement percu | Forces (selon le client) | Faiblesses (selon le client) | Menace pour le projet |
+Si le client n'a cite aucun concurrent : l'indiquer honnetement et recommander un atelier benchmark en phase de cadrage.
+## 7.2 Grille d'analyse comparative (a completer en cadrage)
+Fournir la grille methodologique que IMOTION utilisera : axes d'analyse (UX, offre, preuve sociale, SEO, tunnel de conversion, identite), bareme, livrable attendu. Les cases concurrents restent "[A evaluer]" si non documentees.
+## 7.3 Enseignements des references inspirantes
+Pour chaque site/marque d'inspiration cite par le client : ce qui plait, ce qui est transposable, ce qui ne l'est pas (et pourquoi).
+## 7.4 Opportunites de differenciation
+Synthese strategique : ou se situe l'espace libre pour le client, en croisant ses forces (section 1) et les faiblesses concurrentielles exprimees. Chaque opportunite reliee a une fonctionnalite ou un choix de DA du present CDC.
+## 7.5 Benchmark complementaire recommande
+Perimetre, methodologie et livrable du benchmark approfondi que IMOTION recommande de mener en phase de cadrage (inclus ou en option selon le budget).
 
-# 8. Identite Visuelle et UX
-## 8.1 Image Souhaitee
-Univers visuel, ton, ambiance souhaites
-## 8.2 Sites d'Inspiration
-References citees par le client avec analyse de ce qui plait
-## 8.3 Charte Graphique Existante
-Elements existants a respecter ou a creer
-## 8.4 Personas Utilisateurs
-2-4 personas detailles : nom fictif, age, profession, objectif, frustration principale
+# 8. BUDGET & PLANNING
+## 8.1 Enveloppe budgetaire et repartition
+Budget confirme + tableau de repartition indicative par poste : | Poste | Part indicative | Montant indicatif | Commentaire | (identite, conception UX/UI, developpement, contenu, tests, pilotage).
+## 8.2 Planning detaille semaine par semaine
+Tableau OBLIGATOIRE semaine par semaine sur toute la duree du projet : | Semaine | Phase | Activites | Livrables | Action requise du CLIENT | — minimum 10 lignes. Les actions client (validations, fourniture de contenus) doivent etre explicites.
+## 8.3 Jalons contractuels
+Tableau : | Jalon | Critere de passage | Date previsionnelle | Consequence si glissement |
+## 8.4 Matrice des responsabilites (RACI simplifiee)
+Tableau : | Activite | IMOTION | Client | — avec R (realise), A (approuve), C (consulte), I (informe).
+## 8.5 Dependances et risques planning
+Tableau : | Risque | Probabilite | Impact | Mitigation | — minimum 5 risques REALISTES lies a CE projet (contenus, validations, complexite technique identifiee).
+## 8.6 Echeancier de paiement
+Acompte 30% a la signature, 20% validation maquettes, 35% recette, 15% mise en production — avec montants calcules si le budget est connu.
 
-# 9. Contraintes et Risques
-## 9.1 Contraintes Projet
-- Budget : Estimation [final_price] euros HT | Fourchette [price_range]
-- Delai : Echeance souhaitee [deadline] | Duree estimee [duration_weeks_min]-[duration_weeks_max] semaines
-- Ressources : Ressources internes disponibles
-## 9.2 Analyse des Risques
-| Risque | Probabilite | Impact | Mitigation |
-|---|---|---|---|
-| Retard de fourniture contenus | Moyenne | Eleve | Planning contenus dedie |
-| Evolutions de perimetre | Elevee | Moyen | Process de change request |
-| Indisponibilite decideurs | Faible | Eleve | Points de validation planifies |
-| Problemes techniques imprevus | Faible | Moyen | Architecture robuste + tests |
-Minimum 5-8 risques identifies avec plans de mitigation concrets
-
-# 10. Planning Previsionnel
-## 10.1 Phases du Projet
-| Phase | Description | Duree | Livrable |
-|---|---|---|---|
-| 1. Cadrage | Kickoff, planning detaille | 1 semaine | Backlog valide |
-| 2. Conception UX/UI | Wireframes, maquettes | 2-3 semaines | Maquettes validees |
-| 3. Developpement | Sprints de developpement | [duration] sem. | Recette client |
-| 4. Tests et QA | Tests fonctionnels, corrections | 1-2 semaines | PV de recette |
-| 5. Deploiement | Mise en production | 1 semaine | Go Live |
-| 6. Garantie | Support post-lancement | 3 mois | Fin de garantie |
-## 10.2 Jalons Cles
-Liste des jalons avec dates previsionnelles
-
-# 11. Budget et Estimation
-## 11.1 Detail de l'Estimation
-| Poste | Montant HT |
-|---|---|
-| [Type projet] - Forfait de base | [base_price] euros |
-| Options additionnelles : | |
-| - [Nom option] ([prix] euros) | |
-| TOTAL ESTIMATION HT | [final_price] euros |
-## 11.2 Forfait Maintenance Recommande
-| Forfait | Prix mensuel | SLA garanti |
-|---|---|---|
-| [Nom forfait] | [prix] euros/mois | [SLA]% |
-
-# 12. Gouvernance Projet
-## 12.1 Decideurs et Parties Prenantes
-Liste des decideurs et parties prenantes identifies
-## 12.2 Processus de Validation
-Circuit de validation decrit
-## 12.3 Organisation des Echanges
-| Type | Frequence | Participants | Format |
-|---|---|---|---|
-| Point de suivi | Hebdomadaire | Chef de projet + Client | Visio 30 min |
-| Demo sprint | Bi-mensuel | Equipe + Decideurs | Visio 1h |
-| Comite de pilotage | Mensuel | Direction + Sponsors | Reunion |
-| Recette | A chaque livraison | Client + QA | Atelier |
-
-# 13. Conditions de Realisation
-## 13.1 Prerequis
-- Validation du present Cahier des Charges
-- Signature du devis et du contrat
-- Versement de l'acompte (30%)
-- Designation d'un interlocuteur unique
-- Fourniture des elements de depart (contenus, acces, charte...)
-## 13.2 Garanties
-- Garantie de bon fonctionnement : 3 mois apres mise en production
-- Correction des anomalies bloquantes et majeures
-- Support par email pendant la periode de garantie
-- Documentation technique et guide utilisateur
-## 13.3 Responsabilites du Client
-- Fournir les contenus dans les delais convenus
-- Valider les livrables sous 5 jours ouvres maximum
-- Participer activement aux points de suivi
-- Regler les factures aux echeances prevues
-
-# 14. Annexes
-## 14.1 Documents de Reference
-1. Transcript de la session de decouverte
-2. Elements visuels fournis par le client
-3. Benchmark concurrentiel (si realise)
-## 14.2 Glossaire
-| Terme | Definition |
-|---|---|
-| CDC | Cahier des Charges - Document de reference du projet |
-| MVP | Minimum Viable Product - Version minimale fonctionnelle |
-| Sprint | Cycle de developpement de 2 semaines |
-| Recette | Phase de tests et validation par le client |
-| Go Live | Mise en production definitive |
-| SLA | Service Level Agreement - Niveau de service garanti |
-
-# VALIDATION DU CAHIER DES CHARGES
-Espace signatures : Pour le Prestataire (IMOTION Creator Studio) | Pour le Client ([Entreprise])
-Date : _______________
-Document genere automatiquement par IMOTION Creator Studio le [date]
-Ce document est valable 30 jours a compter de sa date d'emission.
+# 9. LIVRABLES, GOUVERNANCE & PROCHAINES ETAPES
+## 9.1 Liste exhaustive des livrables
+Tableau : | Livrable | Format | Phase | Critere d'acceptation |
+## 9.2 Gouvernance projet
+Rituels (point hebdo, demos, comite), outils de suivi, regles de validation (delai client 5 jours ouvres), gestion des demandes de changement.
+## 9.3 Garanties
+Garantie de conformite 3 mois, delais de correction par criticite, perimetre et exclusions.
+## 9.4 Prochaines etapes
+1. Validation du present CDC (delai souhaite)
+2. Proposition commerciale et devis detaille
+3. Signature et acompte
+4. Kickoff
+## 9.5 Validation
+Espace signatures : Pour IMOTION Creator Studio | Pour le client — Date, mention "Lu et approuve".
 
 ---
-
 INSTRUCTIONS FINALES :
-- Utilise les VRAIS mots du client tires des echanges, pas du generique
-- Si une information manque, propose une hypothese raisonnable identifiee avec [A CONFIRMER]
-- Sois precis sur les chiffres : delais en jours ouvres, budgets en euros
-- Le document doit faire entre 15 et 25 pages imprimees (minimum 20 sections/sous-sections detaillees)
-- Chaque section doit apporter de la valeur concrete
-- NE JAMAIS utiliser d'emojis
+- EXPLOITE CHAQUE information des echanges : si le client a mentionne un detail (outil, contrainte, anecdote metier, preference), il DOIT apparaitre dans la section pertinente.
+- Cite des verbatim client entre guillemets dans les sections 1, 2, 3 et 7 (minimum 5 verbatim au total).
+- Toute preconisation IMOTION (couleurs, stack, automatisations) est marquee comme telle et justifiee.
+- Aucune section ne doit faire moins de 15 lignes de contenu reel. Aucun placeholder vide.
+- Longueur cible : 4500-7000 mots.
+- NE JAMAIS utiliser d'emojis.
 - Pied de page : IMOTION Creator Studio | SAS au capital de 10 000 euros | 123 Avenue de l'Innovation, 75008 Paris | www.imotion-studio.com`;
   }
 

@@ -192,8 +192,8 @@ function validateExtractedData(data: Record<string, unknown>, phase: number): Va
   const allowedFields: Record<number, string[]> = {
     1: ["contact_info", "company_context", "trigger_event", "initial_mood", "company_name", "role", "sector", "team_size", "activity", "motivation"],
     2: ["problem_description", "pain_points", "impact", "previous_attempts", "desired_outcome", "current_process", "urgency", "needs_crm", "needs_dashboard", "needs_ecommerce", "needs_cms", "needs_booking", "needs_chat", "needs_notifications", "needs_analytics", "functional_needs"],
-    3: ["brand_adjectives", "positioning", "inspirations", "values", "tone_of_voice", "target_audience", "competitors", "vision", "success_criteria", "innovative_ideas", "proposed_solutions"],
-    4: ["current_tools", "crm_status", "integrations_needed", "user_profiles", "tech_comfort_level", "hosting", "existing_systems", "domain_name", "has_domain", "has_hosting", "hosting_provider", "has_pro_emails", "email_provider", "needs_ssl", "needs_mobile_app", "mobile_first", "needs_multilingual", "languages", "needs_backoffice", "needs_control_tower", "needs_reporting", "needs_document_management", "needs_user_management", "user_roles_needed", "data_migration", "migration_source", "accessibility_needs"],
+    3: ["brand_adjectives", "positioning", "inspirations", "values", "tone_of_voice", "target_audience", "competitors", "competitor_strengths", "competitor_weaknesses", "vision", "success_criteria", "innovative_ideas", "proposed_solutions", "color_preferences", "colors_to_avoid", "visual_style", "photo_style", "wants_photos", "wants_illustrations", "brand_emotions", "editorial_tone", "references_liked", "references_disliked", "key_message"],
+    4: ["current_tools", "crm_status", "integrations_needed", "user_profiles", "tech_comfort_level", "hosting", "existing_systems", "domain_name", "has_domain", "has_hosting", "hosting_provider", "has_pro_emails", "email_provider", "needs_ssl", "needs_mobile_app", "mobile_first", "needs_multilingual", "languages", "needs_backoffice", "needs_control_tower", "needs_reporting", "needs_document_management", "needs_user_management", "user_roles_needed", "data_migration", "migration_source", "accessibility_needs", "has_logo", "has_brand_guidelines", "existing_photos", "existing_videos", "existing_content", "content_to_produce", "needs_photoshoot", "needs_copywriting", "needs_automation", "automation_needs", "needs_crm"],
     5: ["budget_range", "budget_min", "budget_max", "deadline", "deployment_preference", "constraints", "timeline", "resources", "budget_phased", "mvp_preferred", "security_requirements", "rgpd_compliance", "sensitive_data", "launch_date", "blocking_event"],
     6: ["decision_maker", "stakeholders", "decision_style", "priority_level", "blocking_factors", "approval_process", "additional_features_proposed"],
     7: ["summary_validation", "clarifications_needed", "next_steps", "client_questions", "final_notes", "coverage_percentage", "missing_info"],
@@ -497,15 +497,29 @@ Challenge ses réponses avec bienveillance. Rebondis sur chaque réponse.
 - S'il parle de "vendre en ligne" → pense e-commerce, paiement, logistique, stock
 Ne les liste pas tous d'un coup ! Amène-les naturellement quand le contexte s'y prête.
 ⚠️ Ne quantifie pas l'impact toi-même. Reformule ce que le client dit.`,
-    3: `Tu comprends le problème. Explore maintenant la VISION et commence à PROPOSER.
+    3: `Tu comprends le problème. Explore maintenant la VISION, l'IDENTITÉ DE MARQUE et le PAYSAGE CONCURRENTIEL. Ces données alimentent directement le Cahier des Charges : sois exhaustif sans être scolaire.
+
+🎯 VISION & POSITIONNEMENT :
 - "Si dans 6 mois tout est en place et ça marche parfaitement, ça ressemble à quoi ?"
 - "Comment tu veux que tes clients te perçoivent ?"
-- "Y a des boîtes dont tu admires la façon de faire ?"
-Aide le client à verbaliser sa vision, même s'il ne l'a pas encore formalisée.
+- "Qu'est-ce qui fait que quelqu'un devrait te choisir TOI plutôt qu'un autre ?"
 
-💡 C'est le bon moment pour PROPOSER des idées innovantes :
+🏁 CONCURRENCE — collecte INDISPENSABLE pour le benchmark du CDC :
+- "Qui sont tes concurrents directs ? Tu peux me citer 2-3 noms ?"
+- Pour chaque concurrent cité : "Qu'est-ce qu'ils font bien selon toi ? Et qu'est-ce qui te déçoit chez eux ?"
+- "Y a des boîtes (même hors de ton secteur) dont tu admires le site ou la communication ?"
+- Note les NOMS EXACTS dans extracted_data.competitors, leurs forces dans competitor_strengths, faiblesses dans competitor_weaknesses.
+
+🎨 DIRECTION ARTISTIQUE — collecte INDISPENSABLE pour le brief créatif du CDC :
+- "Côté image, tu imagines quoi ? Plutôt photos ou illustrations ? Si photos : quel genre — lifestyle, produit, architecture ?"
+- "Des couleurs qui te parlent ? Et des couleurs à éviter absolument ?"
+- "Si ta marque était une personne, elle parlerait comment ? Plutôt formelle, complice, experte ?"
+- "Montre-moi 1-2 sites que tu trouves beaux — qu'est-ce qui te plaît dedans exactement ?"
+- Note tout : color_preferences, colors_to_avoid, photo_style, wants_illustrations, editorial_tone, references_liked (avec CE QUI plaît), brand_emotions.
+N'enchaîne PAS ces questions comme un questionnaire : étale-les sur plusieurs échanges, rebondis naturellement.
+
+💡 C'est aussi le bon moment pour PROPOSER des idées innovantes :
 - "Tu sais quoi, pour un projet comme le tien, j'ai vu un truc qui marchait super bien : [solution]. Ça te parle ?"
-- "Est-ce que t'as déjà pensé à [fonctionnalité] ? Parce que dans ton secteur, c'est souvent un game-changer."
 - Propose des solutions auxquelles il n'a pas pensé, mais qui répondent à un VRAI besoin détecté
 - Reste pragmatique : pas d'usine à gaz, mais des solutions qui apportent de la valeur
 ⚠️ N'invente pas de positionnement. Note les mots exacts du client.`,
@@ -531,6 +545,16 @@ Aide le client à verbaliser sa vision, même s'il ne l'a pas encore formalisée
 - "Qui va l'utiliser concrètement et quel est leur niveau tech ?"
 - "Combien de personnes côté admin/gestion ?"
 
+📦 CONTENUS & ASSETS EXISTANTS — collecte INDISPENSABLE pour le plan de production du CDC :
+- "T'as déjà un logo ? Une charte graphique ?"
+- "Côté photos et vidéos, t'as du stock de qualité ou il faudra prévoir un shooting ?"
+- "Les textes du site (présentation, fiches, témoignages clients), t'as déjà ça quelque part ou c'est à écrire ?"
+- Note : has_logo, has_brand_guidelines, existing_photos, existing_videos, existing_content, needs_photoshoot, needs_copywriting.
+
+⚙️ AUTOMATISATIONS — creuse si pertinent pour son métier :
+- "Y a des tâches répétitives que tu fais à la main aujourd'hui et que la solution pourrait automatiser ? Relances, confirmations, rappels ?"
+- Note : needs_automation, automation_needs (liste précise).
+
 Rends ça concret et simple, pas technique pour le plaisir.
 ⚠️ Ne suppose PAS les outils. Demande la liste exacte.`,
     5: `Aborde les contraintes avec tact mais franchise. C'est aussi le moment de VÉRIFIER qu'on n'a rien oublié.
@@ -555,6 +579,9 @@ Rends ça concret et simple, pas technique pour le plaisir.
 - Gestion utilisateurs ✓/✗ ?
 - Mobile/responsive ✓/✗ ?
 - Sécurité/RGPD ✓/✗ ?
+- Concurrents nommés + forces/faiblesses ✓/✗ ?
+- Préférences visuelles (couleurs, photos vs illustrations, références) ✓/✗ ?
+- Contenus existants (logo, photos, textes) ✓/✗ ?
 Si des sujets n'ont pas été abordés et sont pertinents, c'est le moment de les glisser naturellement :
 "Ah, un truc qu'on n'a pas évoqué : côté sécurité des données, t'as des contraintes particulières ? RGPD, données sensibles ?"
 
