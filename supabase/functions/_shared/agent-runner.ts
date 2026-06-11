@@ -1,7 +1,7 @@
 // supabase/functions/_shared/agent-runner.ts
-// Runner commun pour tous les agents Clarivi V2.
+// Runner commun pour tous les agents — utilise le LLM gateway multi-provider.
 
-import Anthropic from "npm:@anthropic-ai/sdk@^0.30.0";
+import { callLLM, type LLMTier } from "./llm-gateway.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import type { AgentName, AgentOutput } from "./types.ts";
 
@@ -12,41 +12,50 @@ export interface AgentInput {
   systemPrompt: string;
   userMessage: string;
   context?: Record<string, unknown>;
-  model: string;
-  temperature: number;
+  model?: string;       // override optionnel (bypass tier)
+  temperature?: number; // conservé pour compatibilité API, ignoré par Gemini/Mistral
   maxTokens: number;
 }
 
-const PRICING_PER_1M_TOKENS_EUR = {
-  "claude-opus-4-7":           { in: 14,  out: 70  },
-  "claude-sonnet-4-6":         { in: 2.8, out: 14  },
-  "claude-haiku-4-5-20251001": { in: 0.7, out: 3.5 },
-} as const;
+// Chaque agent est mappé à un tier de coût
+const AGENT_TIER: Record<AgentName, LLMTier> = {
+  // Routing / JSON pur → Gemini Flash (0,14 € / 1M in)
+  "ORCHESTRATOR":  "routing",
+  "EXTRACTOR":     "routing",
+  "NOTIFIER":      "routing",
+
+  // Conversations empathiques FR → Mistral Small (0,18 € / 1M in, hébergé EU)
+  "INTAKE-AGENT":  "conversational",
+  "NEED-ANALYZER": "conversational",
+  "SCOPING-AGENT": "conversational",
+
+  // Qualité critique + génération longue → Claude Sonnet (2,75 € / 1M in)
+  "CRITIC-AGENT":  "strategic",
+  "DOC-GENERATOR": "strategic",
+  "QUOTE-BUILDER": "strategic",
+};
 
 export async function runAgent(input: AgentInput): Promise<AgentOutput> {
-  const client = new Anthropic({ apiKey: Deno.env.get("ANTHROPIC_API_KEY")! });
-
   const userContent = input.context
     ? `${input.userMessage}\n\nCONTEXTE:\n${JSON.stringify(input.context, null, 2)}`
     : input.userMessage;
 
-  const response = await client.messages.create({
-    model: input.model,
-    max_tokens: input.maxTokens,
-    temperature: input.temperature,
-    system: input.systemPrompt,
-    messages: [{ role: "user", content: userContent }],
+  const tier = AGENT_TIER[input.agent] ?? "conversational";
+
+  const response = await callLLM({
+    tier,
+    systemPrompt: input.systemPrompt,
+    userMessage: userContent,
+    maxTokens: input.maxTokens,
+    modelOverride: input.model,
   });
 
-  const raw = response.content
-    .filter((b) => b.type === "text")
-    .map((b) => (b as { text: string }).text)
-    .join("\n");
+  const raw = response.content;
 
   let parsed: Partial<AgentOutput>;
   try {
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error("No JSON in response");
+    if (!jsonMatch) throw new Error("No JSON found in response");
     parsed = JSON.parse(jsonMatch[0]);
   } catch (e) {
     return {
@@ -58,14 +67,9 @@ export async function runAgent(input: AgentInput): Promise<AgentOutput> {
     };
   }
 
-  const pricing = PRICING_PER_1M_TOKENS_EUR[input.model as keyof typeof PRICING_PER_1M_TOKENS_EUR];
-  const tokensIn = response.usage?.input_tokens ?? 0;
-  const tokensOut = response.usage?.output_tokens ?? 0;
-  const costEur = pricing
-    ? (tokensIn * pricing.in + tokensOut * pricing.out) / 1_000_000
-    : 0;
-
-  console.log(`[${input.agent}] tokens_in=${tokensIn} tokens_out=${tokensOut} cost_eur=${costEur.toFixed(4)}`);
+  console.log(
+    `[${input.agent}] tier=${tier} provider=${response.provider} model=${response.model} cost=${response.cost_eur.toFixed(5)}€`,
+  );
 
   return {
     agent: input.agent,
@@ -78,9 +82,9 @@ export async function runAgent(input: AgentInput): Promise<AgentOutput> {
     next_action: parsed.next_action,
     next_agent: parsed.next_agent,
     raw,
-    tokens_in: tokensIn,
-    tokens_out: tokensOut,
-    cost_eur: costEur,
+    tokens_in: response.tokens_in,
+    tokens_out: response.tokens_out,
+    cost_eur: response.cost_eur,
   };
 }
 
@@ -88,7 +92,7 @@ export function supabaseAdmin() {
   return createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-    { auth: { persistSession: false } }
+    { auth: { persistSession: false } },
   );
 }
 
