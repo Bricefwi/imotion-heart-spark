@@ -56,10 +56,11 @@ serve(async (req) => {
 
     // Get pending posts from editorial calendar
     const today = new Date().toISOString().split("T")[0];
+    // Pick up both 'planned' (due) and previously 'failed' entries so retries happen automatically
     const { data: pendingPosts, error } = await supabase
       .from("blog_editorial_calendar")
       .select("*")
-      .eq("status", "planned")
+      .in("status", ["planned", "failed"])
       .lte("planned_date", today)
       .order("planned_date", { ascending: true })
       .limit(2);
@@ -127,44 +128,65 @@ MOTS-CLÉS À INTÉGRER : ${(post.keywords || []).join(", ")}
 L'article doit faire environ 1200-1500 mots et apporter une vraie valeur au lecteur.
 À la fin, inclus un appel à l'action vers IMOTION Discovery Pro pour aider le lecteur à clarifier son projet.`;
 
-        const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${LOVABLE_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "google/gemini-3-flash-preview",
-            messages: [
-              { role: "system", content: systemPrompt },
-              { role: "user", content: userPrompt },
-            ],
-            tools: [{
-              type: "function",
-              function: {
-                name: "create_blog_article",
-                description: "Create a structured blog article",
-                parameters: {
-                  type: "object",
-                  properties: {
-                    title: { type: "string", description: "Article title, max 60 chars" },
-                    excerpt: { type: "string", description: "Engaging excerpt, 150-200 chars" },
-                    content: { type: "string", description: "Full article content in Markdown" },
-                    reading_time: { type: "number", description: "Estimated reading time in minutes" },
-                  },
-                  required: ["title", "excerpt", "content", "reading_time"],
-                  additionalProperties: false,
+        // Retry with model fallback on transient errors (429 / 5xx)
+        const modelsToTry = [
+          "google/gemini-3-flash-preview",
+          "google/gemini-2.5-flash",
+          "google/gemini-2.5-pro",
+        ];
+        const aiBody = {
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+          tools: [{
+            type: "function",
+            function: {
+              name: "create_blog_article",
+              description: "Create a structured blog article",
+              parameters: {
+                type: "object",
+                properties: {
+                  title: { type: "string", description: "Article title, max 60 chars" },
+                  excerpt: { type: "string", description: "Engaging excerpt, 150-200 chars" },
+                  content: { type: "string", description: "Full article content in Markdown" },
+                  reading_time: { type: "number", description: "Estimated reading time in minutes" },
                 },
+                required: ["title", "excerpt", "content", "reading_time"],
+                additionalProperties: false,
               },
-            }],
-            tool_choice: { type: "function", function: { name: "create_blog_article" } },
-          }),
-        });
+            },
+          }],
+          tool_choice: { type: "function", function: { name: "create_blog_article" } },
+        };
 
-        if (!aiResponse.ok) {
-          const errText = await aiResponse.text();
-          throw new Error(`AI error ${aiResponse.status}: ${errText}`);
+        let aiResponse: Response | null = null;
+        let lastErrText = "";
+        let lastStatus = 0;
+        outer: for (const model of modelsToTry) {
+          for (let attempt = 0; attempt < 3; attempt++) {
+            const r = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${LOVABLE_API_KEY}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ model, ...aiBody }),
+            });
+            if (r.ok) { aiResponse = r; break outer; }
+            lastStatus = r.status;
+            lastErrText = await r.text();
+            console.warn(`[generate-blog-post] AI ${model} attempt ${attempt + 1} → ${r.status}: ${lastErrText.slice(0, 200)}`);
+            // 4xx (sauf 429) = inutile de re-tenter ce modèle
+            if (r.status !== 429 && r.status < 500) break;
+            await new Promise((res) => setTimeout(res, 1500 * (attempt + 1)));
+          }
         }
+
+        if (!aiResponse) {
+          throw new Error(`AI error ${lastStatus}: ${lastErrText}`);
+        }
+
 
         const aiData = await aiResponse.json();
         const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
