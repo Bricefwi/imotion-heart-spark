@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { type LucideIcon } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface StatsCardProps {
   label: string;
@@ -10,12 +11,16 @@ interface StatsCardProps {
   change?: string;
   changeType?: "up" | "down" | "neutral";
   className?: string;
+  to?: string;
+  onClick?: () => void;
 }
 
-export function StatsCard({ label, value, icon: Icon, change, changeType = "neutral", className }: StatsCardProps) {
-  return (
+export function StatsCard({ label, value, icon: Icon, change, changeType = "neutral", className, to, onClick }: StatsCardProps) {
+  const isInteractive = Boolean(to || onClick);
+  const card = (
     <Card className={cn(
-      "group relative overflow-hidden border border-border/40 bg-gradient-to-br from-card to-muted/20 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300",
+      "group relative overflow-hidden border border-border/40 bg-gradient-to-br from-card to-muted/20 shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1",
+      isInteractive && "cursor-pointer hover:border-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
       className
     )}>
       {/* Subtle gradient glow on hover */}
@@ -49,4 +54,20 @@ export function StatsCard({ label, value, icon: Icon, change, changeType = "neut
       </CardContent>
     </Card>
   );
+
+  if (to) {
+    return (
+      <Link to={to} aria-label={`Voir détail : ${label}`} className="block focus:outline-none">
+        {card}
+      </Link>
+    );
+  }
+  if (onClick) {
+    return (
+      <button type="button" onClick={onClick} aria-label={`Voir détail : ${label}`} className="block w-full text-left focus:outline-none">
+        {card}
+      </button>
+    );
+  }
+  return card;
 }
