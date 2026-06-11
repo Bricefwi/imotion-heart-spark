@@ -35,28 +35,24 @@ export function EmailPreview({ content, recipientEmail }: EmailPreviewProps) {
         className="max-w-[680px] mx-auto bg-white rounded-xl overflow-hidden shadow-lg border border-border"
         style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
       >
-        {/* Bandeau : logo (fond sombre) + dégradé flame subtil */}
-        <div className="flex">
-          <div
-            className="flex items-center px-6 py-5 shrink-0"
-            style={{ background: "#0F0D0B", minWidth: 220 }}
-          >
+        {/* Bandeau : un seul dégradé continu noir → coral → amber (transition fondue) */}
+        <div
+          className="flex items-center justify-between px-6 py-5"
+          style={{ background: GRADIENTS.headerBand }}
+        >
+          <div className="flex items-center shrink-0">
             <Logo variant="flux" showText tone="light" decorative />
           </div>
-          <div
-            className="flex-1 flex items-center px-6 py-5"
-            style={{ background: GRADIENTS.flameSubtle }}
-          >
-            <div className="text-white">
-              <div className="text-[11px] uppercase tracking-[0.18em] opacity-90 font-semibold">
-                Cabinet Conseil
-              </div>
-              <div className="text-lg font-semibold leading-tight">
-                Espace projet IMOTION
-              </div>
+          <div className="text-right text-white">
+            <div className="text-[11px] uppercase tracking-[0.18em] opacity-90 font-semibold">
+              Cabinet Conseil
+            </div>
+            <div className="text-lg font-semibold leading-tight">
+              Espace projet IMOTION
             </div>
           </div>
         </div>
+
 
         {/* Corps */}
         <div className="px-8 py-7 text-[15px] leading-relaxed" style={{ color: "#2a2a2a" }}>
