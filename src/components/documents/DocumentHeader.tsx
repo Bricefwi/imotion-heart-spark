@@ -22,7 +22,7 @@ export function DocumentHeader({ documentName, projectCode, date }: DocumentHead
       </div>
       <div
         className="flex-1 px-6 py-5 flex items-center justify-end"
-        style={{ background: GRADIENTS.flame }}
+        style={{ background: "linear-gradient(100deg, #E85A2A 0%, #ED7A1F 55%, #F08A00 100%)" }}
       >
         <div className="text-right text-white">
           <p className="font-semibold text-base leading-tight">{documentName}</p>
