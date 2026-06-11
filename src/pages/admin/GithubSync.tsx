@@ -75,7 +75,7 @@ const getGithubErrorMessage = (response: GithubSyncResponse): string => {
 
 const GithubSync = () => {
   const [repo, setRepo] = useState<string>(() => localStorage.getItem(STORAGE_KEY) ?? "");
-  const [branch, setBranch] = useState<string>("main");
+  const [branch, setBranch] = useState<string>("principal");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [commits, setCommits] = useState<GithubCommit[]>([]);
