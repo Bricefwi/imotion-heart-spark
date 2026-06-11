@@ -162,6 +162,29 @@ export default function TemplatesPreview() {
     return set;
   }, [current]);
 
+  const issues = useMemo(() => validateVars(usedKeys, vars), [usedKeys, vars]);
+  const issueByKey = useMemo(() => {
+    const map = new Map<string, ValidationIssue>();
+    issues.forEach((i) => map.set(i.key, i));
+    return map;
+  }, [issues]);
+  const missingCount = issues.filter((i) => i.type === "missing").length;
+  const formatCount = issues.filter((i) => i.type === "format").length;
+  const isValid = issues.length === 0;
+
+  // Bloque l'export PDF si la validation échoue (capture phase intercepte avant ProfessionalDocument)
+  const handleExportCapture = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (!target.closest?.("[data-pdf-export]")) return;
+    if (!isValid) {
+      e.preventDefault();
+      e.stopPropagation();
+      toast.error("Impossible de générer le PDF", {
+        description: `${issues.length} variable(s) à corriger avant l'export.`,
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
