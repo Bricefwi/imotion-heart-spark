@@ -73,9 +73,11 @@ const RetrieveLovelibAudit = lazy(() => import("@/pages/client/RetrieveLovelibAu
 const ClaimAudit = lazy(() => import("@/pages/ClaimAudit"));
 const MyAudits = lazy(() => import("@/pages/client/MyAudits"));
 const AuditTransition = lazy(() => import("@/pages/client/AuditTransition"));
+const ClientJobProgress = lazy(() => import("@/pages/client/JobProgress"));
 
 // Consultant pages (lazy)
 const ConsultantDashboard = lazy(() => import("@/pages/consultant/Dashboard"));
+const ConsultantLeads = lazy(() => import("@/pages/consultant/Leads"));
 const ConsultantProjects = lazy(() => import("@/pages/consultant/Projects"));
 const ConsultantProjectDetail = lazy(() => import("@/pages/consultant/ProjectDetail"));
 const ConsultantAnalytics = lazy(() => import("@/pages/consultant/Analytics"));
@@ -223,11 +225,13 @@ const App = () => (
               <Route path="/client/lovelib-audit" element={<RetrieveLovelibAudit />} />
               <Route path="/client/audits" element={<MyAudits />} />
               <Route path="/client/audits/:id" element={<AuditTransition />} />
+              <Route path="/client/jobs/:jobId" element={<ClientJobProgress />} />
             </Route>
 
             {/* Consultant */}
             <Route element={<ProtectedRoute requiredRole="consultant"><ConsultantLayout /></ProtectedRoute>}>
               <Route path="/consultant/dashboard" element={<ConsultantDashboard />} />
+              <Route path="/consultant/leads" element={<ConsultantLeads />} />
               <Route path="/consultant/projects" element={<ConsultantProjects />} />
               <Route path="/consultant/projects/:id" element={<ConsultantProjectDetail />} />
               <Route path="/consultant/documents/:id/edit" element={<ConsultantDocumentEditor />} />

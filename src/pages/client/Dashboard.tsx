@@ -195,7 +195,7 @@ export default function ClientDashboard() {
           </div>
           <Button asChild className="bg-white text-slate-900 hover:bg-white/90 shadow-lg hover:shadow-xl transition-all duration-300 border-0">
             <Link to="/client/projects/new">
-              <Plus className="mr-2 h-4 w-4" /> Nouveau projet
+              <Plus className="mr-2 h-4 w-4" /> Nouveau diagnostic
             </Link>
           </Button>
         </div>
@@ -260,19 +260,30 @@ export default function ClientDashboard() {
               </CardFooter>
             </Card>
           ) : (
-            <Card className="border border-border/40 shadow-sm">
-              <CardContent className="p-8 text-center">
-                <FolderKanban className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="font-display font-semibold text-lg mb-2">Aucun projet en cours</h3>
-                <p className="text-muted-foreground text-sm mb-4">
-                  Créez votre premier projet pour démarrer la conversation avec Marc.
-                </p>
-                <Button asChild className="gradient-primary border-0">
-                  <Link to="/client/projects/new">
-                    <Plus className="mr-2 h-4 w-4" /> Créer un projet
-                  </Link>
-                </Button>
-              </CardContent>
+            <Card className="border-0 shadow-sm overflow-hidden">
+              <div className="bg-gradient-to-br from-[hsl(var(--imo-coral-600)/0.06)] via-transparent to-[hsl(var(--imo-amber-500)/0.04)] p-8 text-center space-y-4">
+                <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl gradient-primary mx-auto">
+                  <BarChart3 className="h-8 w-8 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-display font-semibold text-xl mb-1">Démarrez votre diagnostic IA</h3>
+                  <p className="text-muted-foreground text-sm max-w-sm mx-auto">
+                    En 5 minutes, nos agents analysent votre projet et produisent un rapport complet avec un cahier des charges.
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Button asChild className="gradient-primary border-0 shadow-lg">
+                    <Link to="/client/projects/new">
+                      <Plus className="mr-2 h-4 w-4" /> Lancer le diagnostic
+                    </Link>
+                  </Button>
+                  <Button variant="outline" asChild>
+                    <Link to="/client/projects">
+                      <FolderKanban className="mr-2 h-4 w-4" /> Mes projets
+                    </Link>
+                  </Button>
+                </div>
+              </div>
             </Card>
           )}
 

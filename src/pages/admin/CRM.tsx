@@ -22,7 +22,7 @@ import { fr } from "date-fns/locale";
 import {
   Users, FolderKanban, Euro, TrendingUp, Search, Eye,
   MessageSquare, FileText, Clock, Mail, Phone, Building2, Globe,
-  Activity, BarChart3, Target, Zap, Star, Megaphone,
+  Activity, BarChart3, Target, Zap, Star, Megaphone, Flame, ArrowRight,
 } from "lucide-react";
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bgClass: string }> = {
@@ -62,6 +62,79 @@ function computeClientScore(profile: Profile, clientProjects: Project[]): number
   const totalMsgs = clientProjects.reduce((s: number, p: Project & { total_messages?: number }) => s + (p.total_messages || 0), 0);
   score += Math.min(totalMsgs, 20);
   return Math.min(score, 100);
+}
+
+const GRADE_COLORS: Record<string, string> = {
+  A: "bg-[hsl(var(--imo-coral-600)/0.12)] text-[hsl(var(--imo-coral-600))] border-[hsl(var(--imo-coral-600)/0.3)]",
+  B: "bg-[hsl(var(--imo-amber-500)/0.12)] text-[hsl(var(--imo-amber-700))] border-[hsl(var(--imo-amber-500)/0.3)]",
+  C: "bg-blue-500/10 text-blue-700 border-blue-500/20",
+  D: "bg-muted text-muted-foreground border-border",
+};
+
+function LeadsIAPreview() {
+  const { data: leads = [], isLoading } = useQuery({
+    queryKey: ["crm-leads-preview"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("jobs_admin_view")
+        .select("id, lead_grade, status, agent_phase, quality_score, cost_eur, client_name, company_name, project_name, created_at")
+        .order("created_at", { ascending: false })
+        .limit(20);
+      return data ?? [];
+    },
+    refetchInterval: 30000,
+  });
+
+  const gradeCount = ["A", "B", "C", "D"].reduce((acc, g) => {
+    acc[g] = leads.filter((l) => l.lead_grade === g).length;
+    return acc;
+  }, {} as Record<string, number>);
+
+  if (isLoading) return <div className="flex justify-center py-8"><div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" /></div>;
+
+  if (leads.length === 0) return (
+    <Card className="border-border/60">
+      <CardContent className="p-8 text-center text-muted-foreground">
+        <Flame className="h-10 w-10 mx-auto mb-3 opacity-20" />
+        <p className="text-sm">Aucun lead qualifié pour l'instant. Les diagnostics IA alimenteront ce pipeline automatiquement.</p>
+      </CardContent>
+    </Card>
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-4 gap-3">
+        {["A", "B", "C", "D"].map((g) => (
+          <div key={g} className={`rounded-xl p-3 border text-center ${GRADE_COLORS[g]}`}>
+            <p className="text-xs font-semibold mb-0.5">Grade {g}</p>
+            <p className="text-2xl font-bold tabular-nums">{gradeCount[g] ?? 0}</p>
+          </div>
+        ))}
+      </div>
+      <div className="space-y-2">
+        {leads.slice(0, 8).map((lead) => (
+          <div key={lead.id} className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-card hover:border-border transition-colors">
+            <div className={`h-8 w-8 rounded-lg flex items-center justify-center font-bold text-sm border shrink-0 ${lead.lead_grade ? GRADE_COLORS[lead.lead_grade] : "bg-muted text-muted-foreground border-border"}`}>
+              {lead.lead_grade ?? "?"}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">{lead.client_name ?? "—"}</p>
+              <p className="text-xs text-muted-foreground truncate">{lead.company_name ?? lead.project_name ?? "—"}</p>
+            </div>
+            {lead.quality_score != null && (
+              <div className="hidden sm:flex flex-col items-end gap-0.5 shrink-0 w-20">
+                <span className="text-xs font-mono">{lead.quality_score}/100</span>
+                <Progress value={lead.quality_score} className="h-1 w-full" />
+              </div>
+            )}
+            <Badge variant="outline" className={`text-[10px] shrink-0 ${lead.status === "ready" ? "text-emerald-700 border-emerald-500/30" : "text-muted-foreground"}`}>
+              {lead.status}
+            </Badge>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export default function AdminCRM() {
@@ -211,6 +284,10 @@ export default function AdminCRM() {
           </TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
           <TabsTrigger value="activity">Activité</TabsTrigger>
+          <TabsTrigger value="leads-ia">
+            <Flame className="h-3.5 w-3.5 mr-1.5 text-[hsl(var(--imo-coral-600))]" />
+            Leads IA
+          </TabsTrigger>
         </TabsList>
 
         {/* ── PIPELINE ── */}
@@ -615,6 +692,22 @@ export default function AdminCRM() {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* ── LEADS IA ── */}
+        <TabsContent value="leads-ia" className="space-y-4">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              Vue consolidée des leads qualifiés par les agents IA. Gérez-les depuis l'espace Consultant.
+            </p>
+            <Button asChild variant="outline" size="sm" className="gap-1.5">
+              <Link to="/consultant/leads">
+                Ouvrir vue complète
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </Button>
+          </div>
+          <LeadsIAPreview />
         </TabsContent>
       </Tabs>
 

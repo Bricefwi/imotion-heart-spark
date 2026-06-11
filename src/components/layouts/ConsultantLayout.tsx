@@ -9,17 +9,18 @@ import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, useSidebar,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, FolderKanban, Users, BarChart3, FileStack, LogOut, Search } from "lucide-react";
+import { LayoutDashboard, FolderKanban, Users, BarChart3, FileStack, LogOut, Search, Flame } from "lucide-react";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 
 const consultantNav = [
-  { title: "Dashboard", url: "/consultant/dashboard", icon: LayoutDashboard },
-  { title: "Projets", url: "/consultant/projects", icon: FolderKanban },
-  { title: "Clients", url: "/consultant/clients", icon: Users },
-  { title: "Analytics", url: "/consultant/analytics", icon: BarChart3 },
-  { title: "Templates", url: "/consultant/templates", icon: FileStack },
+  { title: "Dashboard",  url: "/consultant/dashboard", icon: LayoutDashboard },
+  { title: "Leads IA",   url: "/consultant/leads",     icon: Flame },
+  { title: "Projets",    url: "/consultant/projects",  icon: FolderKanban },
+  { title: "Clients",    url: "/consultant/clients",   icon: Users },
+  { title: "Analytics",  url: "/consultant/analytics", icon: BarChart3 },
+  { title: "Templates",  url: "/consultant/templates", icon: FileStack },
 ];
 
 function ConsultantSidebar() {
