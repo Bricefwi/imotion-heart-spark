@@ -64,17 +64,13 @@ const GithubSync = () => {
         }
         throw new Error(body.message || `GitHub API: ${res.status}`);
       }
-      const res = await fetch(url, { headers: { Accept: "application/vnd.github+json" } });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.message || `GitHub API: ${res.status}`);
-      }
       const data: GithubCommit[] = await res.json();
       setCommits(data);
       const now = new Date().toISOString();
       setLastCheck(now);
       localStorage.setItem(LAST_CHECK_KEY, now);
-      localStorage.setItem(STORAGE_KEY, repo);
+      localStorage.setItem(STORAGE_KEY, cleaned);
+      setRepo(cleaned);
       toast.success("Synchronisation vérifiée depuis GitHub");
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Erreur inconnue";
