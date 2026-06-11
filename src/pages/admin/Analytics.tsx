@@ -127,18 +127,19 @@ export default function AdminAnalytics() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <StatsCard label="Clients total" value={totalClients} icon={Users} />
-        <StatsCard label="Taux conversion" value={`${conversionRate}%`} icon={Target} />
-        <StatsCard label="Pipeline total" value={pipelineValue > 0 ? `${(pipelineValue / 1000).toFixed(0)}k€` : "0€"} icon={TrendingUp} />
-        <StatsCard label="CA signé" value={contractValue > 0 ? `${(contractValue / 1000).toFixed(0)}k€` : "0€"} icon={Euro} />
+        <StatsCard label="Clients total" value={totalClients} icon={Users} to="/admin/users" />
+        <StatsCard label="Taux conversion" value={`${conversionRate}%`} icon={Target} to="/admin/crm" />
+        <StatsCard label="Pipeline total" value={pipelineValue > 0 ? `${(pipelineValue / 1000).toFixed(0)}k€` : "0€"} icon={TrendingUp} to="/admin/crm" />
+        <StatsCard label="CA signé" value={contractValue > 0 ? `${(contractValue / 1000).toFixed(0)}k€` : "0€"} icon={Euro} to="/admin/billing" />
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <StatsCard label="Projets total" value={totalProjects} icon={FolderKanban} />
-        <StatsCard label="Msg / projet" value={avgMessages} icon={MessageSquare} />
-        <StatsCard label="Progression moy." value={`${avgProgress}%`} icon={Clock} />
-        <StatsCard label="Projets signés" value={signedProjects.length} icon={FileText} />
+        <StatsCard label="Projets total" value={totalProjects} icon={FolderKanban} to="/admin/crm" />
+        <StatsCard label="Msg / projet" value={avgMessages} icon={MessageSquare} to="/admin/operations" />
+        <StatsCard label="Progression moy." value={`${avgProgress}%`} icon={Clock} to="/admin/operations-health" />
+        <StatsCard label="Projets signés" value={signedProjects.length} icon={FileText} to="/admin/crm?status=signed" />
       </div>
+
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Monthly activity */}
