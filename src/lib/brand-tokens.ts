@@ -56,7 +56,10 @@ export const RGB = {
 };
 
 export const GRADIENTS = {
+  /** Dégradé flame officiel (CTAs UI, hero) — fort contraste. */
   flame: `linear-gradient(135deg, ${COLORS.coral500} 0%, ${COLORS.amber400} 100%)`,
+  /** Dégradé flame adouci (documents, bandeaux PDF) — transition progressive coral→amber. */
+  flameSubtle: `linear-gradient(100deg, #E85A2A 0%, #ED7A1F 55%, #F08A00 100%)`,
   ember: `linear-gradient(135deg, ${COLORS.coral600} 0%, ${COLORS.amber500} 50%, ${COLORS.amber300} 100%)`,
   brand: `linear-gradient(135deg, ${COLORS.coral600}, ${COLORS.amber500})`,
 } as const;
