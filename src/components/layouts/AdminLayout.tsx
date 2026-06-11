@@ -239,6 +239,7 @@ const sidebarGroups: SidebarGroupDef[] = [
       { title: "Utilisateurs", url: "/admin/users", icon: Users },
       { title: "Blog", url: "/admin/blog", icon: BookOpen },
       { title: "Templates", url: "/admin/templates", icon: FileText },
+      { title: "Documents", url: "/admin/documents", icon: FileText, badge: "NEW" },
     ],
   },
   {
