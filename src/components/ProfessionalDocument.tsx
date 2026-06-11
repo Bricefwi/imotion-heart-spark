@@ -473,9 +473,8 @@ export function ProfessionalDocument({
           className="px-8 py-4 border-t border-border flex items-center justify-between text-[10px] text-muted-foreground"
           style={{ background: "#fafafa" }}
         >
-          <div className="flex items-center gap-2">
-            <img src={logoImotion} alt="IMOTION" className="h-5 w-auto opacity-50" crossOrigin="anonymous" />
-            <span>IMOTION Creator Studio</span>
+          <div className="flex items-center gap-2 opacity-70">
+            <Logo variant="flux" size="xs" showText tone="dark" decorative />
           </div>
           <div className="text-right">
             <p>Document confidentiel - {currentDate}</p>
