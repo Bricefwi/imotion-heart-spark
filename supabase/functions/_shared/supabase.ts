@@ -31,15 +31,3 @@ export function userClient(authHeader: string): SupabaseClient {
   );
 }
 
-/**
- * Mock mode is enabled if EITHER PAPERCLIP_MOCK or PAPERCLIP_MOCK_ENABLED is "true".
- * Default = true (safe), so a missing env never falls back to a real outbound call.
- */
-export function isPaperclipMockEnabled(): boolean {
-  const a = (Deno.env.get("PAPERCLIP_MOCK") ?? "").toLowerCase();
-  const b = (Deno.env.get("PAPERCLIP_MOCK_ENABLED") ?? "").toLowerCase();
-  if (a === "true" || b === "true") return true;
-  if (a === "false" && b === "false") return false;
-  // Either unset → safe default = mock ON.
-  return a !== "false" && b !== "false";
-}
