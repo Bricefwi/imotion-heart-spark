@@ -806,7 +806,6 @@ export type Database = {
       }
       documents: {
         Row: {
-          content_markdown: string | null
           created_at: string | null
           created_by: string | null
           description: string | null
@@ -828,7 +827,6 @@ export type Database = {
           version_history: Json | null
         }
         Insert: {
-          content_markdown?: string | null
           created_at?: string | null
           created_by?: string | null
           description?: string | null
@@ -850,7 +848,6 @@ export type Database = {
           version_history?: Json | null
         }
         Update: {
-          content_markdown?: string | null
           created_at?: string | null
           created_by?: string | null
           description?: string | null

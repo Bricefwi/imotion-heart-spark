@@ -114,7 +114,7 @@ function WordmarkFlux({
         <text
           x="30"
           y="46"
-          fontFamily='"General Sans", "Inter", system-ui, -apple-system, sans-serif'
+          fontFamily='"Inter", system-ui, -apple-system, sans-serif'
           fontWeight="700"
           fontSize="44"
           letterSpacing="-1.5"

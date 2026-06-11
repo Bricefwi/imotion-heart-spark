@@ -186,12 +186,19 @@ export default function AdminTemplates() {
             Gérez les modèles de documents, prompts IA et emails.
           </p>
         </div>
-        <Button
-          className="gradient-primary border-0"
-          onClick={() => { resetForm(); setDialogOpen(true); }}
-        >
-          <Plus className="mr-2 h-4 w-4" /> Nouveau template
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" asChild>
+            <a href="/admin/templates/preview">
+              <FileText className="mr-2 h-4 w-4" /> Prévisualiser
+            </a>
+          </Button>
+          <Button
+            className="gradient-primary border-0"
+            onClick={() => { resetForm(); setDialogOpen(true); }}
+          >
+            <Plus className="mr-2 h-4 w-4" /> Nouveau template
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}

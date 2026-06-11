@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import { Calendar, Clock, ArrowLeft, Share2, Linkedin, Twitter, LinkIcon } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Logo } from "@/components/Logo";
+
 import ReactMarkdown from "react-markdown";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -140,7 +140,7 @@ export default function BlogArticle() {
   } : undefined;
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <>
       {post && (
         <SEOHead
           title={post.title}
@@ -163,19 +163,12 @@ export default function BlogArticle() {
         <div className="h-full gradient-primary transition-all duration-150" style={{ width: `${readProgress}%` }} />
       </div>
 
-      {/* Header */}
-      <header className="sticky top-0 z-50 glass">
-        <div className="container flex h-16 items-center justify-between">
-          <Link to="/" className="flex items-center"><Logo size="md" /></Link>
-          <nav className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/blog"><ArrowLeft className="h-4 w-4 mr-1" />Blog</Link>
-            </Button>
-          </nav>
-        </div>
-      </header>
-
       <main className="flex-1">
+        <div className="container max-w-4xl pt-6">
+          <Button variant="ghost" size="sm" asChild>
+            <Link to="/blog"><ArrowLeft className="h-4 w-4 mr-1" />Retour au blog</Link>
+          </Button>
+        </div>
         {/* Article header */}
         <section className="py-12 md:py-20 bg-muted/30">
           <div className="container max-w-4xl">
@@ -353,12 +346,6 @@ export default function BlogArticle() {
           </section>
         )}
       </main>
-
-      <footer className="border-t bg-muted/30 py-8">
-        <div className="container text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} IMOTION Conseil. Tous droits réservés.
-        </div>
-      </footer>
-    </div>
+    </>
   );
 }

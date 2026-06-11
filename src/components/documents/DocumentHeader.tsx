@@ -1,5 +1,5 @@
-import logoImotion from "@/assets/logo-imotion.png";
 import { GRADIENTS } from "@/lib/brand-tokens";
+import { Logo } from "@/components/Logo";
 
 interface DocumentHeaderProps {
   documentName: string;
@@ -7,23 +7,28 @@ interface DocumentHeaderProps {
   date: string;
 }
 
-/** Header standard partagé par tous les documents commerciaux (CDC, devis, BC, facture). */
+/**
+ * Header standard partagé par tous les documents commerciaux (CDC, devis, BC, facture).
+ * Bande sombre (logo lisible) + dégradé flame (titre doc) pour respecter l'identité du site.
+ */
 export function DocumentHeader({ documentName, projectCode, date }: DocumentHeaderProps) {
   return (
-    <div
-      className="px-8 py-5 flex items-center justify-between"
-      style={{ background: GRADIENTS.flame }}
-    >
-      <div className="flex items-center gap-4">
-        <img src={logoImotion} alt="i-MOTION Conseil" className="h-10 w-auto" crossOrigin="anonymous" />
-        <span className="text-white/85 text-[11px] font-medium tracking-wide uppercase">
-          Cabinet IA &amp; NoCode
-        </span>
+    <div className="flex items-stretch">
+      <div
+        className="flex items-center px-6 py-5 shrink-0"
+        style={{ background: "#0F0D0B" }}
+      >
+        <Logo variant="flux" size="md" showText tone="light" decorative />
       </div>
-      <div className="text-right text-white/90 text-xs">
-        <p className="font-semibold text-white text-sm">{documentName}</p>
-        {projectCode && <p>Ref. {projectCode}</p>}
-        <p>{date}</p>
+      <div
+        className="flex-1 px-6 py-5 flex items-center justify-end"
+        style={{ background: GRADIENTS.flame }}
+      >
+        <div className="text-right text-white">
+          <p className="font-semibold text-base leading-tight">{documentName}</p>
+          {projectCode && <p className="text-white/90 text-xs mt-0.5">Ref. {projectCode}</p>}
+          <p className="text-white/85 text-xs">{date}</p>
+        </div>
       </div>
     </div>
   );

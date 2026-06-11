@@ -222,7 +222,7 @@ export default function DocumentViewer() {
 
         <TabsContent value="document" className="mt-4">
           <ProfessionalDocument
-            content={document.content_markdown || document.description || "Le contenu du document sera disponible une fois la generation terminee."}
+            content={(document as unknown as { content_markdown?: string }).content_markdown || document.description || "Le contenu du document sera disponible une fois la generation terminee."}
             documentName={document.name}
             projectName={project?.name}
             projectCode={project?.code || undefined}
