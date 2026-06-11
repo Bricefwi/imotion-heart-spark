@@ -508,12 +508,13 @@ export default function MarketingLeads() {
 }
 
 function StatTile({
-  label, value, icon: Icon, tone = "default",
+  label, value, icon: Icon, tone = "default", onClick,
 }: {
   label: string;
   value: number;
   icon: any;
   tone?: "default" | "primary" | "success" | "warning";
+  onClick?: () => void;
 }) {
   const toneClasses = {
     default: "text-muted-foreground",
@@ -521,8 +522,8 @@ function StatTile({
     success: "text-green-600",
     warning: "text-amber-600",
   }[tone];
-  return (
-    <Card>
+  const content = (
+    <Card className={onClick ? "cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5 hover:border-primary/30" : undefined}>
       <CardContent className="p-4 flex items-center justify-between">
         <div>
           <p className="text-xs text-muted-foreground uppercase tracking-wide">{label}</p>
@@ -532,4 +533,13 @@ function StatTile({
       </CardContent>
     </Card>
   );
+  if (onClick) {
+    return (
+      <button type="button" onClick={onClick} aria-label={`Filtrer : ${label}`} className="text-left w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-lg">
+        {content}
+      </button>
+    );
+  }
+  return content;
 }
+
