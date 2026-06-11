@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ProfessionalDocument } from "@/components/ProfessionalDocument";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+
 import { Loader2, FileText } from "lucide-react";
 
 
