@@ -331,7 +331,9 @@ export default function TemplatesPreview() {
             </Alert>
           )}
           {current ? (
-            current.type === "email" || current.type === "system_prompt" ? (
+            current.type === "email" ? (
+              <EmailPreview content={rendered} recipientEmail={vars.client_email} />
+            ) : current.type === "system_prompt" ? (
               <Card className="p-6">
                 <div className="flex items-center justify-between mb-4 pb-4 border-b">
                   <div>
