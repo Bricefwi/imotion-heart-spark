@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+// Tables agent_state / job_events are not yet in generated types — cast only the from() call.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const db = supabase as any;
+const fromUntyped = (table: string) => (supabase as any).from(table);
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -91,8 +92,7 @@ export default function AdminAgentsPilot() {
   const { data: configs = [] } = useQuery<AgentConfig[]>({
     queryKey: ["agent-configs"],
     queryFn: async () => {
-      const { data } = await db
-        .from("agent_state")
+      const { data } = await fromUntyped("agent_state")
         .select("key, value")
         .eq("scope", "agent-config");
       if (!data) return [];
@@ -107,8 +107,7 @@ export default function AdminAgentsPilot() {
   const { data: metrics = [] } = useQuery<JobMetrics[]>({
     queryKey: ["agent-metrics"],
     queryFn: async () => {
-      const { data } = await db
-        .from("job_events")
+      const { data } = await fromUntyped("job_events")
         .select("payload, tokens_in, tokens_out, cost_eur, created_at")
         .eq("event_type", "phase_end")
         .gte("created_at", new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString())
@@ -135,7 +134,7 @@ export default function AdminAgentsPilot() {
 
   const saveConfig = useMutation({
     mutationFn: async ({ agentName, model, enabled }: { agentName: string; model: string; enabled: boolean }) => {
-      await db.from("agent_state").upsert({
+      await fromUntyped("agent_state").upsert({
         key: agentName,
         scope: "agent-config",
         value: { model, enabled, prompt_override: null },
@@ -150,7 +149,7 @@ export default function AdminAgentsPilot() {
   const savePrompt = useMutation({
     mutationFn: async ({ agentName, prompt }: { agentName: string; prompt: string }) => {
       const existing = configs.find((c) => c.name === agentName);
-      await db.from("agent_state").upsert({
+      await fromUntyped("agent_state").upsert({
         key: agentName,
         scope: "agent-config",
         value: { ...(existing ?? {}), prompt_override: prompt || null },

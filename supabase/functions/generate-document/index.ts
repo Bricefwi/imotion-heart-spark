@@ -373,6 +373,22 @@ ${agentResult.content}
         }).catch((err: unknown) => console.error("Failed to send CDC email (streaming):", err));
       }
 
+      // Send invoice email notification (streaming path — fire-and-forget, non-blocking)
+      if (docType === "invoice" && client?.email) {
+        const invoiceUrl = `https://imotion-conseils.fr/client/documents/${doc.id}`;
+        supabase.functions.invoke("send-transactional-email", {
+          body: {
+            template: "invoice_issued",
+            to: client.email,
+            data: {
+              clientName: client.full_name || "Client",
+              projectName: project.name,
+              documentUrl: invoiceUrl,
+            },
+          },
+        }).catch((err: unknown) => console.error("Failed to send invoice email (streaming):", err));
+      }
+
       const encoder = new TextEncoder();
       const readable = new ReadableStream({
         async start(controller) {
@@ -485,6 +501,22 @@ ${agentResult.content}
         console.error("Failed to send CDC email:", emailErr);
         // Non-blocking: don't fail document generation if email fails
       }
+    }
+
+    // Send invoice email notification to client
+    if (docType === "invoice" && client?.email) {
+      const invoiceUrl = `https://imotion-conseils.fr/client/documents/${doc.id}`;
+      supabase.functions.invoke("send-transactional-email", {
+        body: {
+          template: "invoice_issued",
+          to: client.email,
+          data: {
+            clientName: client.full_name || "Client",
+            projectName: project.name,
+            documentUrl: invoiceUrl,
+          },
+        },
+      }).catch((emailErr) => console.error("Failed to send invoice email:", emailErr));
     }
 
     // ─── Guide Technique Opérationnel compagnon du CDC (non-bloquant) ──────────
