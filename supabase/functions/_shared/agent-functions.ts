@@ -196,12 +196,12 @@ async function getCrmPipeline(args: Json): Promise<Json> {
 async function getPendingDocuments(args: Json): Promise<Json> {
   const docTypes = Array.isArray(args.doc_types) && args.doc_types.length
     ? args.doc_types.filter((t): t is string => typeof t === "string").slice(0, 6)
-    : ["devis", "proposal"];
+    : ["proposal", "pricing"];
   const { data, error } = await db()
     .from("documents")
     .select("name, type, status, project_id, created_at, requires_signature")
     .in("type", docTypes)
-    .in("status", ["draft", "sent", "pending"])
+    .in("status", ["draft", "sent", "review"])
     .order("created_at", { ascending: false })
     .limit(50);
   if (error) return { error: error.message };
@@ -311,7 +311,7 @@ async function getCompanyKpis(): Promise<Json> {
     db().from("projects").select("status, estimated_budget_max, proposal_amount").limit(200),
     db().from("agent_missions").select("cost_eur, status").gte("created_at", daysAgo(30)).limit(200),
     db().from("projects").select("id").in("status", ["discovery", "qualification"]).gte("created_at", daysAgo(30)).limit(200),
-    db().from("documents").select("type, status").in("type", ["devis", "proposal", "contrat"]).in("status", ["draft", "sent", "pending"]).limit(100),
+    db().from("documents").select("type, status").in("type", ["proposal", "pricing", "contract", "contract_fr"]).in("status", ["draft", "sent", "review"]).limit(100),
   ]);
 
   const projectList = projects.data || [];
