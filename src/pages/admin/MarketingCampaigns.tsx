@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sparkles, Megaphone, Loader2, Eye, AlertCircle, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
-import { Helmet } from "react-helmet-async";
+import { useEffect } from "react";
 
 const CHANNEL_OPTIONS = ["LinkedIn", "Email", "Google Ads", "SEO", "Instagram", "Facebook", "YouTube", "Webinar", "Podcast", "Print"];
 const TONE_OPTIONS = ["Expert chaleureux (IMOTION)", "Direct & punchy", "Pédagogique", "Inspirationnel", "Premium / luxe"];
