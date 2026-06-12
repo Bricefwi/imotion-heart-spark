@@ -109,13 +109,12 @@ export default function AdminMarketingCampaigns() {
 
   const canSubmit = form.title.trim() && form.objective.trim() && form.target_audience.trim() && form.channels.length > 0;
 
+  useEffect(() => {
+    document.title = "Campagnes MARKETIX — Admin IMOTION";
+  }, []);
+
   return (
     <>
-      <Helmet>
-        <title>Campagnes MARKETIX — Admin IMOTION</title>
-        <meta name="description" content="Génération manuelle de campagnes marketing via l'agent MARKETIX." />
-      </Helmet>
-
       <div className="space-y-6">
         <div className="flex items-start gap-3">
           <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-[hsl(var(--imo-coral-600))] to-[hsl(var(--imo-amber-500))] flex items-center justify-center shrink-0">
