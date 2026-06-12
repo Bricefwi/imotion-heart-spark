@@ -521,3 +521,71 @@ function ActionButtons({
     </>
   );
 }
+
+interface AuditEntry {
+  id: string;
+  previous_status: string | null;
+  new_status: string;
+  changed_by_email: string | null;
+  note: string | null;
+  created_at: string;
+}
+
+function AuditTimeline({ campaignId }: { campaignId: string }) {
+  const { data: entries = [], isLoading } = useQuery<AuditEntry[]>({
+    queryKey: ["marketix-campaign-audit", campaignId],
+    queryFn: async () => {
+      const { data } = await db
+        .from("mkt_marketix_campaign_audit")
+        .select("id, previous_status, new_status, changed_by_email, note, created_at")
+        .eq("campaign_id", campaignId)
+        .order("created_at", { ascending: false });
+      return (data ?? []) as AuditEntry[];
+    },
+  });
+
+  return (
+    <div className="pt-4 border-t border-border/60">
+      <div className="flex items-center gap-2 mb-3">
+        <History className="h-4 w-4 text-muted-foreground" />
+        <h4 className="font-semibold text-sm">Journal d'audit</h4>
+        <Badge variant="secondary" className="text-[10px]">
+          {entries.length} évènement{entries.length > 1 ? "s" : ""}
+        </Badge>
+      </div>
+      {isLoading ? (
+        <Skeleton className="h-16 w-full" />
+      ) : entries.length === 0 ? (
+        <p className="text-xs text-muted-foreground italic">Aucun évènement enregistré.</p>
+      ) : (
+        <ol className="space-y-2">
+          {entries.map((e) => (
+            <li
+              key={e.id}
+              className="flex flex-wrap items-center gap-2 text-xs p-2.5 rounded-md bg-muted/40 border border-border/40"
+            >
+              <span className="text-muted-foreground tabular-nums">
+                {format(new Date(e.created_at), "dd MMM yyyy · HH:mm", { locale: fr })}
+              </span>
+              <div className="flex items-center gap-1.5">
+                {e.previous_status && (
+                  <>
+                    <StatusBadge status={e.previous_status} />
+                    <span className="text-muted-foreground">→</span>
+                  </>
+                )}
+                <StatusBadge status={e.new_status} />
+              </div>
+              <span className="ml-auto text-muted-foreground">
+                {e.changed_by_email ?? "système"}
+              </span>
+              {e.note && (
+                <p className="w-full text-muted-foreground italic mt-1">{e.note}</p>
+              )}
+            </li>
+          ))}
+        </ol>
+      )}
+    </div>
+  );
+}
