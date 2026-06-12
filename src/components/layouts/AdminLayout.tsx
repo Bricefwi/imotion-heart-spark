@@ -22,7 +22,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { LayoutDashboard, Users, Settings, Plug, ScrollText, LogOut, Shield, FileText, BookOpen, Radar, BarChart3, Globe, ExternalLink, ChevronRight, Home, Bell, Check, CheckCheck, Inbox, Sun, Moon, RefreshCw, Activity, Target, Cpu, Euro, Play, GitBranch } from "lucide-react";
+import { LayoutDashboard, Users, Settings, Plug, ScrollText, LogOut, Shield, FileText, BookOpen, Radar, BarChart3, Globe, ExternalLink, ChevronRight, Home, Bell, Check, CheckCheck, Inbox, Sun, Moon, RefreshCw, Activity, Target, Cpu, Euro, Play, GitBranch, Building2 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
@@ -245,10 +245,11 @@ const sidebarGroups: SidebarGroupDef[] = [
   {
     label: "Outils IA",
     items: [
-      { title: "Opérations live",  url: "/admin/operations", icon: Play,       badge: "NEW" as const },
-      { title: "Agents IA",        url: "/admin/agents",     icon: Cpu,        badge: "AI"  as const },
-      { title: "MRR & Billing",    url: "/admin/billing",    icon: Euro,       badge: "NEW" as const },
-      { title: "Diagnostics",      url: "/admin/logs",       icon: ScrollText, badge: "AI"  as const },
+      { title: "Tour de Contrôle",  url: "/admin/control-tower", icon: Building2, badge: "NEW" as const },
+      { title: "Opérations live",   url: "/admin/operations",    icon: Play,      badge: "NEW" as const },
+      { title: "Agents IA",         url: "/admin/agents",        icon: Cpu,       badge: "AI"  as const },
+      { title: "MRR & Billing",     url: "/admin/billing",       icon: Euro,      badge: "NEW" as const },
+      { title: "Diagnostics",       url: "/admin/logs",          icon: ScrollText, badge: "AI" as const },
     ],
   },
   {
@@ -400,9 +401,10 @@ const breadcrumbLabels: Record<string, string> = {
   "sync-queue":  "Sync Queue",
   "logs":        "Logs",
   "projects":    "Projets",
-  "operations":  "Opérations live",
-  "agents":      "Agents IA",
-  "billing":     "MRR & Billing",
+  "operations":     "Opérations live",
+  "agents":         "Agents IA",
+  "billing":        "MRR & Billing",
+  "control-tower":  "Tour de Contrôle",
 };
 
 function BreadcrumbNavigation() {

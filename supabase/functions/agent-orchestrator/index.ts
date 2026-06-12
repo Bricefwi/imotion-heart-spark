@@ -69,6 +69,9 @@ serve(async (req) => {
     const objective = typeof body.objective === "string" ? body.objective.trim().slice(0, 2000) : "";
     if (!objective) return json({ error: "Le champ 'objective' est requis" }, 400);
 
+    // Spécialiste C-suite optionnel — écrit un rapport dans control_tower_messages si fourni
+    const specialist = typeof body.specialist === "string" ? body.specialist.trim().slice(0, 40) : null;
+
     const maxCostEur = Math.min(
       typeof body.max_cost_eur === "number" && body.max_cost_eur > 0 ? body.max_cost_eur : preset.defaultMaxCostEur,
       HARD_COST_CAP,
@@ -150,6 +153,33 @@ ${conv.slice(0, 5000)}`;
       agents_used: result.agents_used,
       completed_at: new Date().toISOString(),
     }).eq("id", mission.id);
+
+    // ─── Rapport Control Tower (si specialist fourni) ──────────────────────
+    if (specialist && result.synthesis_markdown && result.status !== "failed") {
+      const priority = result.quality_score !== undefined && result.quality_score < 60
+        ? "high"
+        : result.status === "budget_exceeded" ? "high" : "normal";
+      const dateLabel = new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long" });
+      await db.from("control_tower_messages").insert({
+        specialist,
+        direction: "to_dg",
+        category: "report",
+        title: `${preset.description} — ${dateLabel}`,
+        content_markdown: result.synthesis_markdown,
+        priority,
+        mission_id: mission.id,
+        project_id: body.project_id ?? null,
+        created_by: userData.user.id,
+        kpis: {
+          quality_score: result.quality_score ?? null,
+          cost_eur: result.cost_eur,
+          status: result.status,
+          agents_used: result.agents_used,
+        },
+      }).then(({ error }) => {
+        if (error) console.warn("[agent-orchestrator] control_tower write failed:", error.message);
+      });
+    }
 
     return json({
       success: true,

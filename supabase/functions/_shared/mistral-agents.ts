@@ -8,17 +8,23 @@
 // reçoit `null` (jamais d'exception) et le pipeline continue sans enrichissement.
 
 export type MistralAgentKey =
-  | "maestro"   // Orchestrateur multi-agents
-  | "titan"     // Orchestrateur nested — tâches complexes multi-étapes
-  | "stratos"   // Stratégie business & positionnement
-  | "marketix"  // Stratégie marketing & acquisition
-  | "literix"   // Rédaction éditoriale & copywriting
-  | "financix"  // Analyse financière, pricing, budgets
-  | "juridix"   // Expert juridique — droit immo/succession, contrats français
-  | "pixel"     // Vibes Coder — transforme les idées en code/prompts de build
-  | "nexus"     // Workflow Builder — conçoit et documente des workflows
-  | "focus"     // Sub-agent d'exécution précise — extraction, classification
-  | "n8nix";    // Automatisations & workflows n8n
+  | "maestro"         // Orchestrateur multi-agents
+  | "titan"           // Orchestrateur nested — tâches complexes multi-étapes
+  | "stratos"         // Stratégie business & positionnement
+  | "marketix"        // Stratégie marketing & acquisition
+  | "literix"         // Rédaction éditoriale & copywriting
+  | "financix"        // Analyse financière, pricing, budgets
+  | "juridix"         // Expert juridique — droit numérique, contrats français
+  | "pixel"           // Vibes Coder — transforme les idées en code/prompts de build
+  | "nexus"           // Workflow Builder — conçoit et documente des workflows
+  | "focus"           // Sub-agent d'exécution précise — extraction, classification
+  | "n8nix"           // Automatisations & workflows n8n
+  // C-suite IMOTION (optionnels — fallback LLM gateway si non configurés)
+  | "daf"             // Directeur Administratif et Financier
+  | "marketing_dir"   // Directeur Marketing Système
+  | "commercial_dir"  // Directeur Commercial
+  | "rh"              // Directeur Ressources Humaines
+  | "dg";             // Directeur Général
 
 const AGENT_ENV_VARS: Record<MistralAgentKey, string> = {
   maestro: "MISTRAL_AGENT_MAESTRO",
@@ -32,6 +38,11 @@ const AGENT_ENV_VARS: Record<MistralAgentKey, string> = {
   nexus: "MISTRAL_AGENT_NEXUS",
   focus: "MISTRAL_AGENT_FOCUS",
   n8nix: "MISTRAL_AGENT_N8NIX",
+  daf: "MISTRAL_AGENT_DAF",
+  marketing_dir: "MISTRAL_AGENT_MARKETING_DIR",
+  commercial_dir: "MISTRAL_AGENT_COMMERCIAL_DIR",
+  rh: "MISTRAL_AGENT_RH",
+  dg: "MISTRAL_AGENT_DG",
 };
 
 export interface MistralAgentMessage {

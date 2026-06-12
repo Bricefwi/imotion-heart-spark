@@ -113,6 +113,173 @@ export const MISSION_PRESETS: Record<string, MissionPreset> = {
         role: "Analyste financier senior", task: "Revue financière : conditions de paiement, pénalités, garanties, exposition financière. Max 400 mots." },
     ]],
   },
+
+  // ─── Circuit IMOTION complet ─────────────────────────────────────────────────
+
+  // Phase 1-3 : Diagnostic (Identification → Analyse besoins → Cadrage)
+  diagnostic_audit: {
+    type: "diagnostic_audit",
+    description: "Diagnostic complet : analyse du besoin client, douleurs, contexte marché, cadrage et qualification du lead",
+    defaultMaxCostEur: 0.80,
+    waves: [
+      [
+        { id: "intake_analysis", fallbackTier: "conversational", maxTokens: 1200,
+          role: "Business analyst senior", task: "Analyse l'identité du prospect, sa douleur principale et le déclencheur de la démarche depuis les échanges. Synthèse structurée avec verbatims clients identifiés. Max 400 mots." },
+        { id: "need_analysis", fallbackTier: "conversational", maxTokens: 1500,
+          role: "Analyste des besoins senior", task: "Transforme les douleurs exprimées en besoins fonctionnels hiérarchisés (must/should/could). Qualifie la maturité digitale du prospect. Max 500 mots." },
+        { id: "market_context", mistralAgent: "stratos", fallbackTier: "conversational", maxTokens: 1200, optional: true,
+          role: "Stratège marché senior", task: "Analyse la dynamique du marché du prospect, les concurrents identifiés et les opportunités de différenciation pour IMOTION. Max 400 mots." },
+      ],
+      [
+        { id: "scoping", fallbackTier: "conversational", maxTokens: 1500,
+          role: "Chef de projet senior", task: "Confronte besoins, budget et contraintes pour produire un périmètre réaliste (in/out), un grade de lead (A/B/C/D) et les prochaines étapes. Max 500 mots." },
+      ],
+    ],
+  },
+
+  // Phase 2 : Conseil Stratégique
+  conseil_strategique: {
+    type: "conseil_strategique",
+    description: "Conseil stratégique 360° : analyse business, financière et cadre juridique en parallèle, puis recommandation de solution",
+    defaultMaxCostEur: 1.20,
+    waves: [
+      [
+        { id: "strategie", mistralAgent: "stratos", fallbackTier: "strategic", maxTokens: 1800,
+          role: "Stratège business senior", task: "Analyse stratégique : positionnement IMOTION pour ce client, enjeux hiérarchisés, ROI attendu, risques marché. Max 600 mots." },
+        { id: "finance", mistralAgent: "financix", fallbackTier: "conversational", maxTokens: 1400,
+          role: "Directeur financier senior", task: "Analyse financière : cohérence budget/périmètre, structure de coûts recommandée, échelonnement, arguments de valeur pour défendre le prix. Max 500 mots." },
+        { id: "cadre_juridique", mistralAgent: "juridix", fallbackTier: "conversational", maxTokens: 1200, optional: true,
+          role: "Juriste droit du numérique", task: "Points juridiques à sécuriser en amont : protection IP, responsabilité, clauses essentielles pour ce type de projet. Max 400 mots." },
+      ],
+      [
+        { id: "recommandation", mistralAgent: "maestro", fallbackTier: "strategic", maxTokens: 2000,
+          role: "Directeur de mission senior", task: "Synthétise les analyses et formule une recommandation de solution (périmètre, approche technique, tarification) avec justification stratégique. Max 600 mots." },
+      ],
+    ],
+  },
+
+  // Phase 3 : Build — planification technique complète + guide opérationnel
+  build_planning: {
+    type: "build_planning",
+    description: "Planification build : architecture technique, guide opérationnel étape par étape, supervision financière",
+    defaultMaxCostEur: 1.50,
+    waves: [
+      [
+        { id: "architecture", mistralAgent: "pixel", fallbackTier: "strategic", maxTokens: 2000,
+          role: "Architecte technique senior", task: "Architecture technique : stack précise avec justifications, découpage composants, schéma de données, intégrations, pièges à éviter. Max 700 mots." },
+        { id: "guide_execution", mistralAgent: "pixel", fallbackTier: "strategic", maxTokens: 2000,
+          role: "Tech Lead senior", task: "Guide d'exécution opérationnel : outils à déployer avec étapes de configuration, prompts Lovable/Cursor/Claude prêts à l'emploi, séquence de build en jalons. Max 700 mots." },
+        { id: "supervision_financiere", mistralAgent: "financix", fallbackTier: "conversational", maxTokens: 1200,
+          role: "DAF senior", task: "Supervision financière build : TCO 12 mois, coûts IA estimés, seuil de rentabilité, recommandation pricing maintenance. Max 400 mots." },
+      ],
+      [
+        { id: "plan_execution", fallbackTier: "strategic", maxTokens: 2000,
+          role: "Directeur de production senior", task: "Plan d'exécution : planning détaillé jalons/livrables, matrice RACI, critères de recette, points de contrôle qualité. Max 700 mots." },
+      ],
+    ],
+  },
+
+  // Phase 4 : RUN — monitoring et maintenance proactive
+  run_monitoring: {
+    type: "run_monitoring",
+    description: "Bilan RUN : performance en production, maintenance proactive, satisfaction client et recommandations d'évolution",
+    defaultMaxCostEur: 0.60,
+    waves: [[
+      { id: "performance_review", fallbackTier: "conversational", maxTokens: 1200,
+        role: "Directeur technique senior", task: "Analyse des indicateurs de performance en production : uptime, Core Web Vitals, erreurs, utilisation réelle vs cibles CDC. Max 400 mots." },
+      { id: "maintenance_planning", mistralAgent: "pixel", fallbackTier: "conversational", maxTokens: 1200,
+        role: "Architecte technique senior", task: "Plan de maintenance proactive : tâches planifiées, mises à jour critiques, dette technique identifiée, recommandations d'évolution. Max 400 mots." },
+      { id: "finance_run", mistralAgent: "financix", fallbackTier: "conversational", maxTokens: 1000, optional: true,
+        role: "Analyste financier senior", task: "Bilan financier RUN : coûts réels vs estimés, ROI observé, recommandation de révision tarifaire si nécessaire. Max 350 mots." },
+    ]],
+  },
+
+  // Track Marketing : audit complet + plan acquisition
+  marketing_audit: {
+    type: "marketing_audit",
+    description: "Audit marketing complet : présence digitale, pipeline contenu, automatisations et plan d'action acquisition",
+    defaultMaxCostEur: 1.00,
+    waves: [
+      [
+        { id: "presence_digitale", mistralAgent: "marketix", fallbackTier: "conversational", maxTokens: 1500,
+          role: "Stratège marketing digital senior", task: "Audit présence digitale : SEO, réseaux sociaux, positionnement message/marché, forces et lacunes. Recommandations prioritaires. Max 500 mots." },
+        { id: "contenu_editorial", mistralAgent: "literix", fallbackTier: "conversational", maxTokens: 1500,
+          role: "Directeur éditorial senior", task: "Audit éditorial : qualité du contenu existant, trous de couverture, 10 sujets à haute valeur pour les 90 prochains jours. Max 500 mots." },
+        { id: "automatisation_mkg", mistralAgent: "n8nix", fallbackTier: "routing", maxTokens: 1000, optional: true,
+          role: "Expert automatisation marketing", task: "Automatisations marketing à mettre en place : séquences email, scoring leads, nurturing. Format tableau actionnable. Max 350 mots." },
+      ],
+      [
+        { id: "plan_acquisition", mistralAgent: "marketix", fallbackTier: "conversational", maxTokens: 1800,
+          role: "Directeur acquisition senior", task: "Plan d'acquisition 90 jours : canaux prioritaires avec budget indicatif, séquencement, KPIs cibles, quick wins. Max 600 mots." },
+      ],
+    ],
+  },
+
+  // ─── Missions C-suite (spécialistes → rapport au DG) ────────────────────────
+
+  daf_analysis: {
+    type: "daf_analysis",
+    description: "Analyse DAF : rentabilité projets, coûts IA, trésorerie, directives budgétaires",
+    defaultMaxCostEur: 0.80,
+    waves: [[
+      { id: "rentabilite_projets", mistralAgent: "financix", fallbackTier: "conversational", maxTokens: 1500,
+        role: "DAF senior", task: "Analyse la rentabilité des projets actifs : marges, dépassements, projets à risque financier. Tableau récapitulatif et recommandations. Max 500 mots." },
+      { id: "couts_ia", fallbackTier: "conversational", maxTokens: 1200,
+        role: "DAF expert coûts IA", task: "Analyse les coûts IA : budget LLM consommé, coût par projet, projections, seuil de rentabilité. Recommandations pour optimiser la marge. Max 400 mots." },
+      { id: "tresorerie_previsions", mistralAgent: "financix", fallbackTier: "conversational", maxTokens: 1200,
+        role: "DAF senior", task: "Prévisions trésorerie : pipe commercial vs facturation, délais encaissements, recommandations de politique tarifaire. Max 400 mots." },
+    ]],
+  },
+
+  marketing_system: {
+    type: "marketing_system",
+    description: "Système marketing IMOTION : acquisition, notoriété, pipeline contenu, automatisations",
+    defaultMaxCostEur: 0.80,
+    waves: [[
+      { id: "acquisition_pipeline", mistralAgent: "marketix", fallbackTier: "conversational", maxTokens: 1500,
+        role: "Directeur Marketing senior", task: "Pipeline acquisition IMOTION : état actuel des leads, canaux performants, actions pour générer 3-5 nouveaux projets/mois. Max 500 mots." },
+      { id: "notoriete_contenu", mistralAgent: "literix", fallbackTier: "conversational", maxTokens: 1500,
+        role: "Directeur éditorial senior", task: "Stratégie de notoriété : contenu LinkedIn, articles de fond, cas clients à produire, angle différenciant IMOTION. Plan éditorial 30 jours. Max 500 mots." },
+      { id: "automatisations_growth", mistralAgent: "n8nix", fallbackTier: "routing", maxTokens: 1000, optional: true,
+        role: "Growth hacker automatisation", task: "Automatisations growth : séquences nurturing, alertes signaux d'achat, outils recommandés. Max 350 mots." },
+    ]],
+  },
+
+  commercial_action: {
+    type: "commercial_action",
+    description: "Actions commerciales : analyse du pipe, stratégie de closing, recommandations pricing",
+    defaultMaxCostEur: 0.80,
+    waves: [[
+      { id: "analyse_pipe", mistralAgent: "stratos", fallbackTier: "conversational", maxTokens: 1500,
+        role: "Directeur Commercial senior", task: "Analyse du pipeline commercial : leads par stade, taux de conversion, durée du cycle, projets à relancer en priorité. Max 500 mots." },
+      { id: "strategie_closing", fallbackTier: "conversational", maxTokens: 1500,
+        role: "Directeur Commercial senior", task: "Stratégie de closing pour les leads actifs : objections à anticiper, arguments de valeur, calendrier d'actions. Max 500 mots." },
+      { id: "pricing_competitive", mistralAgent: "financix", fallbackTier: "conversational", maxTokens: 1200, optional: true,
+        role: "Dir. Commercial & DAF senior", task: "Revue pricing : cohérence des devis en cours vs marché, marge à défendre, conditions de paiement recommandées. Max 400 mots." },
+    ]],
+  },
+
+  rh_assessment: {
+    type: "rh_assessment",
+    description: "Bilan RH : capacités équipe, besoins en agents IA spécialisés, recommandations d'intégration",
+    defaultMaxCostEur: 0.50,
+    waves: [[
+      { id: "capacites_equipe", fallbackTier: "conversational", maxTokens: 1500,
+        role: "DRH senior", task: "Analyse des capacités actuelles : agents IA déployés vs besoins exprimés par les équipes Build et Marketing, écarts identifiés, priorisation. Max 500 mots." },
+      { id: "besoins_agents", fallbackTier: "conversational", maxTokens: 1200,
+        role: "DRH expert tech", task: "Recommandations d'agents IA à intégrer : rôle, cas d'usage, intégration pipeline, coût estimé. Format tableau avec priorité. Max 400 mots." },
+    ]],
+  },
+
+  dg_synthesis: {
+    type: "dg_synthesis",
+    description: "Synthèse DG : vision consolidée des rapports spécialistes, décisions stratégiques à prendre",
+    defaultMaxCostEur: 1.00,
+    waves: [[
+      { id: "synthese_executive", fallbackTier: "strategic", maxTokens: 3000,
+        role: "Directeur Général senior", task: "Synthèse executive depuis les rapports des spécialistes (DAF, Marketing, Commercial, RH, Juridique). Tableau de bord : KPIs clés, alertes, décisions prioritaires, cap stratégique 30/90 jours. Max 1000 mots." },
+    ]],
+  },
 };
 
 // ─── Exécution d'un step (agent Mistral d'abord, fallback gateway) ───────────

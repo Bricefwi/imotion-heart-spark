@@ -470,6 +470,24 @@ ${agentResult.content}
       }
     }
 
+    // ─── Guide Technique Opérationnel compagnon du CDC (non-bloquant) ──────────
+    // Génère automatiquement un document interne de type guide_technique pour
+    // guider l'équipe build étape par étape, enrichi par l'agent PIXEL.
+    if (docType === "cdc") {
+      generateTechGuide({
+        supabase,
+        lovableApiKey: LOVABLE_API_KEY,
+        projectId,
+        project,
+        client,
+        discoveryData,
+        pricingContext,
+        stratosContext: agentContext,
+        parentDocId: doc.id,
+        userId: userData.user.id,
+      }).catch((err) => console.error("[cdc-companion] guide technique error:", err));
+    }
+
     return new Response(JSON.stringify({ success: true, document_id: doc.id, content, estimate: estimate ? { final_price: estimate.final_price, duration: `${estimate.duration_weeks_min}-${estimate.duration_weeks_max} semaines` } : null }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
@@ -607,6 +625,29 @@ REGLES :
 - Chaque prompt doit referencer le CDC et les donnees client reelles
 - Redige en francais technique
 - NE JAMAIS utiliser d'emojis`,
+
+    guide_technique: `Tu es le CTO d'IMOTION Creator Studio. Tu rediges le Guide Technique Operationnel — le document interne qui permet a l'equipe de livrer exactement ce qui a ete promis dans le CDC. Ce guide est POUR L'EQUIPE BUILD, pas pour le client.
+
+MISSION : transformer le CDC et les analyses agents en feuille de route technique immediatement actionnable.
+
+REGLES :
+- Chaque outil mentionne doit avoir ses etapes de configuration (pas de "configurer X" sans dire COMMENT)
+- Chaque prompt fourni doit etre COMPLET et pret a copier-coller dans Lovable, Cursor ou Claude
+- Identifier explicitement les risques techniques et les points de blocage potentiels
+- Donner la sequence de build DANS L'ORDRE : on ne configure pas l'auth avant la BDD, etc.
+- Chaque etape a un critere de validation clair ("cette etape est terminee quand...")
+- Mentionner les couts IA et les quotas a surveiller
+- Redige en francais technique, ton d'expert interne
+- NE JAMAIS utiliser d'emojis
+- STRUCTURE OBLIGATOIRE :
+  1. Synthese technique du besoin (3-5 lignes)
+  2. Stack retenue et justifications
+  3. Outils a deployer (tableau : outil / usage / etapes de configuration)
+  4. Prompts de build (section par section, prets a l'emploi)
+  5. Schema de donnees (tables et relations cles)
+  6. Sequence d'execution (jalons avec criteres de validation)
+  7. Points d'attention et pieges a eviter
+  8. Checklist de recette avant PV de reception`,
   };
 
 
@@ -2034,4 +2075,101 @@ Structure obligatoire :
 15. Signatures (espace reserve)
 
 NE JAMAIS utiliser d'emojis.`;
+}
+
+// ─── Guide Technique Opérationnel — compagnon du CDC ──────────────────────────
+// Généré en arrière-plan après chaque CDC, non-bloquant pour la réponse client.
+// Utilise PIXEL (architecture build) + contexte STRATOS existant.
+async function generateTechGuide(params: {
+  supabase: ReturnType<typeof createClient>;
+  lovableApiKey: string;
+  projectId: string;
+  project: Record<string, unknown>;
+  client: Record<string, unknown> | null;
+  discoveryData: Record<string, unknown>;
+  pricingContext: string;
+  stratosContext: string;
+  parentDocId: string;
+  userId: string;
+}): Promise<void> {
+  const { supabase, lovableApiKey, projectId, project, client, discoveryData, pricingContext, stratosContext, parentDocId, userId } = params;
+
+  let pixelContext = "";
+  const pixelBrief = `Tu es PIXEL, architecte IA senior. Produis une analyse technique complète et un guide de build pour ce projet.
+
+## Projet : ${project.name}
+- Client : ${(client as Record<string, unknown>)?.company_name || (client as Record<string, unknown>)?.full_name || "N/A"} — Secteur : ${(client as Record<string, unknown>)?.industry || "Non spécifié"}
+- Budget : ${project.estimated_budget_min || "?"} - ${project.estimated_budget_max || "?"}€
+## Données de découverte :
+${JSON.stringify(discoveryData).slice(0, 4000)}
+${pricingContext}
+
+LIVRABLE : Stack recommandée + tableau outils/configuration + prompts build complets (Lovable/Cursor) + schéma données + pièges + checklist recette. Max 1500 mots.`;
+
+  try {
+    const pixelResult = await callMistralAgent("pixel", [{ role: "user", content: pixelBrief }], {
+      maxTokens: 2500, timeoutMs: 50_000,
+    });
+    if (pixelResult?.content) pixelContext = pixelResult.content;
+  } catch (err) {
+    console.warn("[guide-technique] PIXEL call failed:", err);
+  }
+
+  const guidePrompt = `Génère le Guide Technique Opérationnel pour ce projet (document INTERNE équipe build).
+
+## PROJET : ${project.name} (Réf. ${project.code})
+- Client : ${(client as Record<string, unknown>)?.full_name || "N/A"} — ${(client as Record<string, unknown>)?.company_name || "N/A"}
+- Secteur : ${(client as Record<string, unknown>)?.industry || "Non spécifié"}
+- Budget build : ${project.estimated_budget_min || "?"} - ${project.estimated_budget_max || "?"}€
+
+## DONNÉES DE DÉCOUVERTE
+${JSON.stringify(discoveryData, null, 2).slice(0, 3000)}
+
+${pricingContext}
+${stratosContext ? `## ANALYSE STRATÉGIQUE (STRATOS)\n${stratosContext}` : ""}
+${pixelContext ? `## ANALYSE TECHNIQUE ET GUIDE BUILD (PIXEL)\n${pixelContext}` : ""}
+
+Référence le CDC parent ID: ${parentDocId}. Document CONFIDENTIEL — usage interne IMOTION uniquement.`;
+
+  const aiBody = {
+    model: "openai/gpt-5",
+    messages: [
+      { role: "system", content: getSystemPrompt("guide_technique") },
+      { role: "user", content: guidePrompt },
+    ],
+    stream: false,
+  };
+
+  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${lovableApiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify(aiBody),
+  });
+
+  if (!response.ok) {
+    console.error("[guide-technique] AI call failed:", response.status);
+    return;
+  }
+
+  const aiData = await response.json();
+  const content = aiData.choices?.[0]?.message?.content || "";
+  if (!content) return;
+
+  const { error } = await supabase.from("documents").insert({
+    project_id: projectId,
+    type: "guide_technique",
+    name: `Guide Technique Opérationnel — ${project.name}`,
+    description: `Document interne compagnon du CDC — généré le ${new Date().toLocaleDateString("fr-FR")}`,
+    content_markdown: content,
+    storage_path: `${projectId}/guide_technique_${Date.now()}.md`,
+    status: "draft",
+    created_by: userId,
+    requires_signature: false,
+  });
+
+  if (error) {
+    console.error("[guide-technique] DB insert failed:", error.message);
+  } else {
+    console.log(`[guide-technique] Document créé pour projet ${projectId}`);
+  }
 }
