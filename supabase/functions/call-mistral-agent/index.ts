@@ -21,6 +21,7 @@ const corsHeaders = {
 const VALID_AGENTS: MistralAgentKey[] = [
   "maestro", "titan", "stratos", "marketix", "literix",
   "financix", "juridix", "pixel", "nexus", "focus", "n8nix",
+  "daf", "marketing_dir", "commercial_dir", "rh", "dg",
 ];
 const MAX_PROMPT_LENGTH = 50_000;
 
@@ -96,6 +97,7 @@ serve(async (req) => {
       agent: result.agent,
       content: result.content,
       usage: { tokens_in: result.tokens_in, tokens_out: result.tokens_out },
+      functions_called: result.functions_called ?? [],
     });
   } catch (e) {
     console.error("call-mistral-agent error:", e);
