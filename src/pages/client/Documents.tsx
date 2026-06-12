@@ -73,6 +73,7 @@ export default function ClientDocuments() {
         .from("documents")
         .select("*")
         .in("project_id", projects.map((p) => p.id))
+        .not("type", "in", '("guide_technique","build_prompts")')
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data || []).map((d) => ({
@@ -142,6 +143,7 @@ export default function ClientDocuments() {
 
   const handleSign = async (signatureDataUrl: string) => {
     if (!signingDoc || !user) return;
+    const docRecord = documents.find((d) => d.id === signingDoc.id);
     const { error } = await supabase
       .from("documents")
       .update({
@@ -160,6 +162,15 @@ export default function ClientDocuments() {
     if (error) {
       toast.error("Erreur lors de la signature.");
       throw error;
+    }
+    // Notify consultant via activity log (visible dans le dashboard consultant)
+    if (docRecord?.project_id) {
+      supabase.from("activities").insert({
+        user_id: user.id,
+        project_id: docRecord.project_id,
+        action: "signature",
+        description: `${signingDoc.name} signé par le client`,
+      }).catch((e: unknown) => console.warn("Activity log failed:", e));
     }
     toast.success("Document signé avec succès !");
     queryClient.invalidateQueries({ queryKey: ["client-documents", user.id] });
