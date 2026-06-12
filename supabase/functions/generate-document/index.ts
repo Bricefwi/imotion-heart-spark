@@ -259,6 +259,7 @@ INSTRUCTIONS :
       pv_reception: { agent: "juridix", label: "ANALYSE JURIDIQUE JURIDIX", brief: "Liste les points juridiques à sécuriser dans ce PV de réception : opposabilité, réserves, garantie de conformité, transfert de propriété des livrables, délais de recours (max 500 mots)." },
       build_prompts: { agent: "pixel", label: "ANALYSE TECHNIQUE PIXEL", brief: "Propose l'architecture de build optimale pour ce projet : stack précise, découpage en composants, schéma de données, points techniques critiques et pièges à éviter pour un build IA (Lovable/Cursor). Sois concret et actionnable (max 600 mots)." },
       tech_recommendation: { agent: "pixel", label: "ANALYSE TECHNIQUE PIXEL", brief: "Analyse les choix techniques optimaux pour ce projet : comparaison no-code/low-code/custom, stack recommandée avec justifications, risques techniques (max 600 mots)." },
+      invoice: { agent: "financix", label: "ANALYSE FINANCIÈRE FINANCIX", brief: "Vérifie la conformité de cette facture : mentions légales obligatoires (art. L441-9 Code de commerce), calcul TVA, conditions de paiement, cohérence avec le devis/contrat associé. Signale les omissions critiques (max 400 mots)." },
     };
 
     let agentContext = "";
@@ -355,6 +356,22 @@ ${agentResult.content}
         user_id: userData.user.id, project_id: projectId,
         action: "document", description: `${docName} généré pour "${project.name}"`,
       });
+
+      // Send CDC email notification (streaming path — fire-and-forget, non-blocking)
+      if (docType === "cdc" && client?.email) {
+        const projectUrl = `https://imotion-conseils.fr/client/documents/${doc.id}`;
+        supabase.functions.invoke("send-transactional-email", {
+          body: {
+            template: "cdc_ready",
+            to: client.email,
+            data: {
+              clientName: client.full_name || "Client",
+              projectName: project.name,
+              documentUrl: projectUrl,
+            },
+          },
+        }).catch((err: unknown) => console.error("Failed to send CDC email (streaming):", err));
+      }
 
       const encoder = new TextEncoder();
       const readable = new ReadableStream({
@@ -625,6 +642,29 @@ REGLES :
 - Chaque prompt doit referencer le CDC et les donnees client reelles
 - Redige en francais technique
 - NE JAMAIS utiliser d'emojis`,
+
+    invoice: `Tu es le directeur financier et comptable d'IMOTION Creator Studio, agence digitale premium (SAS). Tu rediges des factures conformes au droit commercial francais et aux obligations comptables strictes.
+
+REGLES JURIDIQUES ET COMPTABLES IMPERATIVES :
+- Mentions OBLIGATOIRES (art. L441-9 Code de commerce) : numero de facture sequentiel unique, date d'emission, identite complete prestataire (denomination, adresse, SIRET, RCS, numero TVA intracom), identite complete client (nom/denomination, adresse, SIRET si B2B), description precise des prestations, prix unitaires HT, taux TVA (20% standard), montant TVA, total TTC, modalites de reglement
+- Numero de facture : format FAC-AAAA-NNNN — obligatoirement unique et sequentiel
+- Delai de paiement par defaut : 30 jours nets a compter de la date de facture (art. L441-10 Code de commerce)
+- Penalites de retard : taux de refinancement BCE + 10 points, exigibles des le lendemain de l'echeance sans relance prealable + indemnite forfaitaire de 40 euros (art. D441-5)
+- Indiquer "TVA non applicable, art. 293B CGI" si micro-entreprise (sinon TVA 20%)
+- NE JAMAIS inventer de SIRET, RCS, TVA ou coordonnees bancaires
+- Redige en francais comptable et juridique precis
+- NE JAMAIS utiliser d'emojis
+- Prestataire : "IMOTION Creator Studio" (SAS) — SIRET: [A RENSEIGNER] | RCS Paris B [A RENSEIGNER] | Capital: 10 000 euros | TVA: FR [A RENSEIGNER]
+- STRUCTURE OBLIGATOIRE :
+  1. En-tete : coordonnees completes prestataire (gauche) + client (droite)
+  2. Bloc facture : "FACTURE N° FAC-AAAA-NNNN" + date d'emission + date d'echeance
+  3. Reference : numero devis/contrat associe
+  4. Tableau des prestations (designation | quantite | prix unit. HT | montant HT)
+  5. Total HT | TVA 20% | Total TTC
+  6. Echeancier si paiement fractionne (acompte / intermediaire / solde avec montants et dates)
+  7. Modalites de reglement (virement, cheque, IBAN/BIC si connu — sinon "[IBAN A RENSEIGNER]")
+  8. Mentions legales penalites de retard + indemnite 40 euros
+  9. Mentions finales : "Merci de votre confiance" — nom, qualite et signature autorisee`,
 
     guide_technique: `Tu es le CTO d'IMOTION Creator Studio. Tu rediges le Guide Technique Operationnel — le document interne qui permet a l'equipe de livrer exactement ce qui a ete promis dans le CDC. Ce guide est POUR L'EQUIPE BUILD, pas pour le client.
 

@@ -41,7 +41,7 @@ const qualityGates = [
 export default function MarketingAuditMethodologie() {
   const seo = buildSEO({
     title: "Méthodologie d'audit – IMOTION",
-    description: "Collecte, scoring, analyse, restitution : notre méthodologie d'audit propulsée par MANUS IA 2.0 avec 17 agents spécialisés.",
+    description: "Collecte, scoring, analyse, restitution : notre méthodologie d'audit propulsée par MANUS IA 2.0 avec 16 agents spécialisés.",
     url: "/marketing/audit-methodologie",
   });
 
@@ -59,7 +59,7 @@ export default function MarketingAuditMethodologie() {
             pour des audits marketing & commerciaux d'une précision chirurgicale.
           </p>
           <div className="inline-flex flex-wrap items-center justify-center gap-2 px-6 py-3 bg-muted rounded-full text-sm font-semibold">
-            <Brain className="w-4 h-4 text-primary" /> 17 agents IA
+            <Brain className="w-4 h-4 text-primary" /> 16 agents IA
             <span className="opacity-30">•</span>
             <Zap className="w-4 h-4 text-primary" /> Zéro hallucination
             <span className="opacity-30">•</span>

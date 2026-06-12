@@ -10,7 +10,7 @@ import { BRAND } from "@/lib/brand";
 
 const steps = [
   { n: 1, icon: Users, title: "Inscrivez-vous", desc: "Créez votre compte en 30 secondes. Confirmez votre email et identifiez votre entreprise avec votre SIRET.", points: ["Validation SIRET automatique", "Données légales pré-remplies", "Score de confiance calculé"] },
-  { n: 2, icon: Sparkles, title: "Lancez l'audit", desc: "Saisissez l'URL de votre site. Nos 17 agents IA analysent votre entreprise en profondeur.", points: ["3 audits gratuits inclus", "Analyse multi-sources (web, social, presse)", "Suivi temps réel de la progression"] },
+  { n: 2, icon: Sparkles, title: "Lancez l'audit", desc: "Saisissez l'URL de votre site. Nos 16 agents IA analysent votre entreprise en profondeur.", points: ["3 audits gratuits inclus", "Analyse multi-sources (web, social, presse)", "Suivi temps réel de la progression"] },
   { n: 3, icon: BarChart3, title: "Recevez le rapport", desc: "Consultez votre rapport ultra-détaillé par email. Téléchargez-le en PDF et passez à l'action.", points: ["Rapport de 50+ pages", "4 scénarios chiffrés avec ROI", "Plan d'action prioritaire"] },
 ];
 
@@ -81,7 +81,7 @@ export default function MarketingMethode() {
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-3">Ce que vous obtenez</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Un rapport complet généré par 17 agents IA spécialisés, orchestrés par notre système MANUS IA 2.0.
+              Un rapport complet généré par 16 agents IA spécialisés, orchestrés par notre système MANUS IA 2.0.
             </p>
           </div>
           <div className="grid md:grid-cols-2 gap-5">

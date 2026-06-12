@@ -12,7 +12,7 @@ import { buildSEO } from "@/lib/marketing/seo";
 
 const benefits = [
   { icon: Zap, title: "Analyse rapide", description: "Collecte automatique des données de votre site en 10 minutes." },
-  { icon: Brain, title: "17 agents IA spécialisés", description: "Technologie MANUS IA 2.0 pour une analyse complète." },
+  { icon: Brain, title: "16 agents IA spécialisés", description: "Technologie MANUS IA 2.0 pour une analyse complète." },
   { icon: Target, title: "Opportunités identifiées", description: "Rapport préliminaire avec quick wins et axes d'amélioration." },
   { icon: TrendingUp, title: "4 scénarios chiffrés", description: "Projections ROI : ambitieux, raisonné, opportuniste, mix." },
 ];
@@ -33,7 +33,7 @@ const freeFeatures = [
 ];
 
 const premiumFeatures = [
-  "17 agents IA orchestrés (MANUS IA 2.0)",
+  "16 agents IA orchestrés (MANUS IA 2.0)",
   "Analyse approfondie (CRM, Analytics, Ads)",
   "Plan stratégique 12-24 mois",
   "Roadmap trimestrielle détaillée",
@@ -46,7 +46,7 @@ export default function MarketingAuditGratuit() {
   const seo = buildSEO({
     title: "Audit Digital Gratuit – IMOTION",
     description:
-      "Audit digital gratuit en 10 minutes. Analyse IA avec 17 agents spécialisés. Rapport préliminaire, opportunités et scénarios chiffrés.",
+      "Audit digital gratuit en 10 minutes. Analyse IA avec 16 agents spécialisés. Rapport préliminaire, opportunités et scénarios chiffrés.",
     url: "/marketing/audit-gratuit",
   });
 
@@ -133,7 +133,7 @@ export default function MarketingAuditGratuit() {
               <div className="text-center mb-6">
                 <h3 className="text-2xl font-bold mb-2">Audit premium</h3>
                 <p className="text-4xl font-extrabold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Sur devis</p>
-                <p className="text-sm text-muted-foreground mt-2">Analyse complète (2 sem.) • 17 agents IA</p>
+                <p className="text-sm text-muted-foreground mt-2">Analyse complète (2 sem.) • 16 agents IA</p>
               </div>
               <ul className="space-y-3 mb-6">
                 {premiumFeatures.map((f) => (

@@ -241,6 +241,7 @@ export default function ConsultantProjectDetail() {
         docType === "pricing" ? "Proposition tarifaire generee !" :
         docType === "contract_fr" ? "Contrat genere !" :
         docType === "pv_reception" ? "PV de reception genere !" :
+        docType === "invoice" ? "Facture generee !" :
         "Document genere !"
       );
     } catch (err: unknown) {
@@ -561,6 +562,10 @@ export default function ConsultantProjectDetail() {
                           {isGenerating && generatingType === "pv_reception" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <FileText className="h-4 w-4 mr-2" />}
                           PV Reception
                         </Button>
+                        <Button variant="outline" onClick={() => generateDocument("invoice")} disabled={isGenerating}>
+                          {isGenerating && generatingType === "invoice" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <FileText className="h-4 w-4 mr-2" />}
+                          Facture
+                        </Button>
                       </div>
                     </div>
                   ) : (
@@ -857,6 +862,15 @@ export default function ConsultantProjectDetail() {
                 disabled={isGenerating}
               >
                 <FileText className="h-3.5 w-3.5 mr-2" />PV de Reception
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-start text-xs"
+                onClick={() => generateDocument("invoice")}
+                disabled={isGenerating}
+              >
+                <FileText className="h-3.5 w-3.5 mr-2" />Émettre Facture
               </Button>
               <Button
                 variant="outline"
