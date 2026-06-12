@@ -417,6 +417,8 @@ export default function AdminMarketingCampaigns() {
               ) : (
                 <p className="text-muted-foreground italic">Aucun contenu généré.</p>
               )}
+
+              <AuditTimeline campaignId={preview.id} />
             </div>
           )}
         </DialogContent>
