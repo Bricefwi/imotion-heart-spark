@@ -2038,6 +2038,94 @@ export type Database = {
         }
         Relationships: []
       }
+      mkt_marketix_campaigns: {
+        Row: {
+          audit_id: string | null
+          budget_range: string | null
+          channels: string[]
+          created_at: string
+          created_by: string
+          error_message: string | null
+          extra_brief: string | null
+          generated_content: Json | null
+          id: string
+          objective: string
+          project_id: string | null
+          raw_response: string | null
+          status: string
+          target_audience: string
+          title: string
+          tokens_in: number | null
+          tokens_out: number | null
+          tone: string | null
+          updated_at: string
+        }
+        Insert: {
+          audit_id?: string | null
+          budget_range?: string | null
+          channels?: string[]
+          created_at?: string
+          created_by: string
+          error_message?: string | null
+          extra_brief?: string | null
+          generated_content?: Json | null
+          id?: string
+          objective: string
+          project_id?: string | null
+          raw_response?: string | null
+          status?: string
+          target_audience: string
+          title: string
+          tokens_in?: number | null
+          tokens_out?: number | null
+          tone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          audit_id?: string | null
+          budget_range?: string | null
+          channels?: string[]
+          created_at?: string
+          created_by?: string
+          error_message?: string | null
+          extra_brief?: string | null
+          generated_content?: Json | null
+          id?: string
+          objective?: string
+          project_id?: string | null
+          raw_response?: string | null
+          status?: string
+          target_audience?: string
+          title?: string
+          tokens_in?: number | null
+          tokens_out?: number | null
+          tone?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mkt_marketix_campaigns_audit_id_fkey"
+            columns: ["audit_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_audits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mkt_marketix_campaigns_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mkt_marketix_campaigns_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_high_score_leads"
+            referencedColumns: ["project_id"]
+          },
+        ]
+      }
       mkt_messages: {
         Row: {
           audit_id: string | null
