@@ -248,6 +248,7 @@ const sidebarGroups: SidebarGroupDef[] = [
       { title: "Tour de Contrôle",  url: "/admin/control-tower", icon: Building2, badge: "NEW" as const },
       { title: "Opérations live",   url: "/admin/operations",    icon: Play,      badge: "NEW" as const },
       { title: "Agents IA",         url: "/admin/agents",        icon: Cpu,       badge: "AI"  as const },
+      { title: "Campagnes MARKETIX",url: "/admin/marketing-campaigns", icon: Megaphone, badge: "AI" as const },
       { title: "MRR & Billing",     url: "/admin/billing",       icon: Euro,      badge: "NEW" as const },
       { title: "Diagnostics",       url: "/admin/logs",          icon: ScrollText, badge: "AI" as const },
     ],
