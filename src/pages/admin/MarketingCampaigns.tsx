@@ -12,7 +12,10 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Sparkles, Megaphone, Loader2, Eye, AlertCircle, CheckCircle2 } from "lucide-react";
+import {
+  Sparkles, Megaphone, Loader2, Eye, AlertCircle, CheckCircle2,
+  Archive, ArchiveRestore, Check, FilterX, RotateCcw,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useEffect } from "react";
 
@@ -38,6 +41,32 @@ interface Campaign {
   project_id: string | null;
 }
 
+const WORKFLOW_STATUSES = ["draft", "generating", "ready", "ready_unparsed", "failed", "validated", "archived"] as const;
+type CampaignStatus = (typeof WORKFLOW_STATUSES)[number];
+
+const STATUS_FILTERS: { key: CampaignStatus | "all"; label: string }[] = [
+  { key: "all", label: "Tout" },
+  { key: "draft", label: "Brouillon" },
+  { key: "ready", label: "Générée" },
+  { key: "ready_unparsed", label: "Générée (brut)" },
+  { key: "validated", label: "Validée" },
+  { key: "archived", label: "Archivée" },
+  { key: "failed", label: "Échec" },
+];
+
+function statusToWorkflowLabel(status: string): string {
+  switch (status) {
+    case "draft": return "Brouillon";
+    case "generating": return "Génération…";
+    case "ready": return "Générée";
+    case "ready_unparsed": return "Générée (brut)";
+    case "validated": return "Validée";
+    case "archived": return "Archivée";
+    case "failed": return "Échec";
+    default: return status;
+  }
+}
+
 export default function AdminMarketingCampaigns() {
   const queryClient = useQueryClient();
   const [form, setForm] = useState({
@@ -51,6 +80,7 @@ export default function AdminMarketingCampaigns() {
     project_id: "",
   });
   const [preview, setPreview] = useState<Campaign | null>(null);
+  const [statusFilter, setStatusFilter] = useState<CampaignStatus | "all">("all");
 
   const { data: campaigns = [], isLoading } = useQuery<Campaign[]>({
     queryKey: ["marketix-campaigns"],
@@ -59,7 +89,7 @@ export default function AdminMarketingCampaigns() {
         .from("mkt_marketix_campaigns")
         .select("*")
         .order("created_at", { ascending: false })
-        .limit(50);
+        .limit(200);
       return (data ?? []) as Campaign[];
     },
   });
@@ -99,6 +129,26 @@ export default function AdminMarketingCampaigns() {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  const updateStatus = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const { error } = await db
+        .from("mkt_marketix_campaigns")
+        .update({ status })
+        .eq("id", id);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: (_, vars) => {
+      toast.success(`Statut mis à jour : ${statusToWorkflowLabel(vars.status)}`);
+      queryClient.invalidateQueries({ queryKey: ["marketix-campaigns"] });
+      setPreview(p => (p && p.id === vars.id ? { ...p, status: vars.status } : p));
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const filteredCampaigns = statusFilter === "all"
+    ? campaigns
+    : campaigns.filter(c => c.status === statusFilter);
 
   const toggleChannel = (ch: string) => {
     setForm(f => ({
@@ -241,21 +291,52 @@ export default function AdminMarketingCampaigns() {
         {/* Historique */}
         <Card className="border-border/60">
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">Historique ({campaigns.length})</CardTitle>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <CardTitle className="text-base">Historique ({filteredCampaigns.length})</CardTitle>
+              <div className="flex flex-wrap gap-1.5">
+                {STATUS_FILTERS.map(f => {
+                  const active = statusFilter === f.key;
+                  return (
+                    <button
+                      key={f.key}
+                      onClick={() => setStatusFilter(f.key)}
+                      className={`px-2.5 py-1 rounded-full text-[11px] font-medium border transition-all ${
+                        active
+                          ? "bg-gradient-to-r from-[hsl(var(--imo-coral-600))] to-[hsl(var(--imo-amber-500))] text-white border-transparent"
+                          : "bg-background text-muted-foreground border-border/60 hover:border-[hsl(var(--imo-coral-600)/0.5)]"
+                      }`}
+                    >
+                      {f.label}
+                    </button>
+                  );
+                })}
+                {statusFilter !== "all" && (
+                  <button
+                    onClick={() => setStatusFilter("all")}
+                    className="px-2 py-1 rounded-full text-[11px] font-medium border border-border/60 text-muted-foreground hover:text-foreground transition-colors"
+                    title="Réinitialiser"
+                  >
+                    <FilterX className="h-3 w-3" />
+                  </button>
+                )}
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             {isLoading ? (
               <div className="space-y-2">
                 {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}
               </div>
-            ) : campaigns.length === 0 ? (
+            ) : filteredCampaigns.length === 0 ? (
               <div className="text-center py-10 text-muted-foreground">
                 <Megaphone className="h-10 w-10 mx-auto mb-3 opacity-40" />
-                <p className="text-sm">Aucune campagne générée pour le moment.</p>
+                <p className="text-sm">
+                  {statusFilter === "all" ? "Aucune campagne générée pour le moment." : "Aucune campagne ne correspond à ce filtre."}
+                </p>
               </div>
             ) : (
               <div className="space-y-2">
-                {campaigns.map(c => (
+                {filteredCampaigns.map(c => (
                   <div key={c.id} className="flex items-start gap-3 p-3 rounded-lg border border-border/60 hover:bg-muted/30 transition-colors">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-1">
@@ -270,9 +351,16 @@ export default function AdminMarketingCampaigns() {
                         {new Date(c.created_at).toLocaleString("fr-FR")} · {c.tokens_in + c.tokens_out} tokens
                       </p>
                     </div>
-                    <Button size="sm" variant="outline" onClick={() => setPreview(c)} disabled={c.status === "generating"}>
-                      <Eye className="h-3.5 w-3.5 mr-1" />Voir
-                    </Button>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <ActionButtons
+                        campaign={c}
+                        onStatusChange={(status) => updateStatus.mutate({ id: c.id, status })}
+                        isPending={updateStatus.isPending}
+                      />
+                      <Button size="sm" variant="outline" onClick={() => setPreview(c)} disabled={c.status === "generating"}>
+                        <Eye className="h-3.5 w-3.5 mr-1" />Voir
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -292,10 +380,21 @@ export default function AdminMarketingCampaigns() {
           </DialogHeader>
           {preview && (
             <div className="space-y-4 text-sm">
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <StatusBadge status={preview.status} />
                 {preview.channels.map(ch => <Badge key={ch} variant="outline">{ch}</Badge>)}
               </div>
+
+              {/* Actions rapides dans la modale */}
+              <div className="flex flex-wrap gap-2">
+                <ActionButtons
+                  campaign={preview}
+                  onStatusChange={(status) => updateStatus.mutate({ id: preview.id, status })}
+                  isPending={updateStatus.isPending}
+                  size="sm"
+                />
+              </div>
+
               {preview.error_message && (
                 <div className="flex gap-2 p-3 rounded-md bg-destructive/10 text-destructive text-xs">
                   <AlertCircle className="h-4 w-4 shrink-0" />
@@ -327,15 +426,94 @@ export default function AdminMarketingCampaigns() {
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; cls: string; icon?: React.ReactNode }> = {
     generating: { label: "Génération…", cls: "bg-blue-500/10 text-blue-700 border-blue-500/20", icon: <Loader2 className="h-3 w-3 mr-1 animate-spin" /> },
-    ready: { label: "Prête", cls: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20", icon: <CheckCircle2 className="h-3 w-3 mr-1" /> },
-    ready_unparsed: { label: "Prête (brut)", cls: "bg-amber-500/10 text-amber-700 border-amber-500/20" },
+    ready: { label: "Générée", cls: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20", icon: <CheckCircle2 className="h-3 w-3 mr-1" /> },
+    ready_unparsed: { label: "Générée (brut)", cls: "bg-amber-500/10 text-amber-700 border-amber-500/20" },
     failed: { label: "Échec", cls: "bg-destructive/10 text-destructive border-destructive/20", icon: <AlertCircle className="h-3 w-3 mr-1" /> },
     draft: { label: "Brouillon", cls: "bg-muted text-muted-foreground border-border" },
+    validated: { label: "Validée", cls: "bg-emerald-600/10 text-emerald-800 border-emerald-600/30", icon: <Check className="h-3 w-3 mr-1" /> },
+    archived: { label: "Archivée", cls: "bg-slate-500/10 text-slate-700 border-slate-500/20", icon: <Archive className="h-3 w-3 mr-1" /> },
   };
   const m = map[status] ?? map.draft;
   return (
     <Badge variant="outline" className={`text-[10px] px-1.5 py-0 flex items-center ${m.cls}`}>
       {m.icon}{m.label}
     </Badge>
+  );
+}
+
+function ActionButtons({
+  campaign,
+  onStatusChange,
+  isPending,
+  size = "icon",
+}: {
+  campaign: Campaign;
+  onStatusChange: (status: string) => void;
+  isPending: boolean;
+  size?: "sm" | "icon";
+}) {
+  const s = campaign.status;
+
+  const btnClass =
+    size === "sm"
+      ? "h-7 px-2 text-[11px]"
+      : "h-7 w-7";
+
+  const common = `inline-flex items-center justify-center rounded-md border border-border/60 bg-background text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors disabled:opacity-50 ${btnClass}`;
+
+  return (
+    <>
+      {/* Valider */}
+      {(s === "draft" || s === "ready" || s === "ready_unparsed") && (
+        <button
+          className={common}
+          onClick={() => onStatusChange("validated")}
+          disabled={isPending}
+          title="Valider la campagne"
+        >
+          <Check className="h-3.5 w-3.5" />
+          {size === "sm" && <span className="ml-1.5">Valider</span>}
+        </button>
+      )}
+
+      {/* Désarchiver */}
+      {s === "archived" && (
+        <button
+          className={common}
+          onClick={() => onStatusChange("validated")}
+          disabled={isPending}
+          title="Désarchiver"
+        >
+          <ArchiveRestore className="h-3.5 w-3.5" />
+          {size === "sm" && <span className="ml-1.5">Désarchiver</span>}
+        </button>
+      )}
+
+      {/* Archiver */}
+      {s !== "archived" && s !== "generating" && (
+        <button
+          className={common}
+          onClick={() => onStatusChange("archived")}
+          disabled={isPending}
+          title="Archiver"
+        >
+          <Archive className="h-3.5 w-3.5" />
+          {size === "sm" && <span className="ml-1.5">Archiver</span>}
+        </button>
+      )}
+
+      {/* Repasser en brouillon depuis validée */}
+      {s === "validated" && (
+        <button
+          className={common}
+          onClick={() => onStatusChange("draft")}
+          disabled={isPending}
+          title="Repasser en brouillon"
+        >
+          <RotateCcw className="h-3.5 w-3.5" />
+          {size === "sm" && <span className="ml-1.5">Brouillon</span>}
+        </button>
+      )}
+    </>
   );
 }
