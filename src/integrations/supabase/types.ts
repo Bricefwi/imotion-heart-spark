@@ -2038,6 +2038,50 @@ export type Database = {
         }
         Relationships: []
       }
+      mkt_marketix_campaign_audit: {
+        Row: {
+          campaign_id: string
+          campaign_snapshot: Json | null
+          changed_by: string | null
+          changed_by_email: string | null
+          created_at: string
+          id: string
+          new_status: string
+          note: string | null
+          previous_status: string | null
+        }
+        Insert: {
+          campaign_id: string
+          campaign_snapshot?: Json | null
+          changed_by?: string | null
+          changed_by_email?: string | null
+          created_at?: string
+          id?: string
+          new_status: string
+          note?: string | null
+          previous_status?: string | null
+        }
+        Update: {
+          campaign_id?: string
+          campaign_snapshot?: Json | null
+          changed_by?: string | null
+          changed_by_email?: string | null
+          created_at?: string
+          id?: string
+          new_status?: string
+          note?: string | null
+          previous_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mkt_marketix_campaign_audit_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "mkt_marketix_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mkt_marketix_campaigns: {
         Row: {
           audit_id: string | null
