@@ -14,8 +14,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Sparkles, Megaphone, Loader2, Eye, AlertCircle, CheckCircle2,
-  Archive, ArchiveRestore, Check, FilterX, RotateCcw,
+  Archive, ArchiveRestore, Check, FilterX, RotateCcw, History,
 } from "lucide-react";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 import { useEffect } from "react";
 
