@@ -37,4 +37,6 @@ project_id = "npmkzqxoxobfqdqpnsgf"
     verify_jwt = true
   [functions.call-mistral-agent]
     verify_jwt = true
+  [functions.agent-orchestrator]
+    verify_jwt = true
 
