@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, X, Send, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SafeMarkdown } from "@/components/SafeMarkdown";
-import leaAvatar from "@/assets/avatar-marie.jpg";
+import leaAvatar from "@/assets/avatar-lea.jpg";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
