@@ -13,6 +13,8 @@ function getCorsHeaders(req: Request) {
   const isAllowed =
     ALLOWED_ORIGINS.includes(origin) ||
     /^https:\/\/[a-z0-9-]+\.lovable\.app$/.test(origin) ||
+    /^https:\/\/[a-z0-9-]+\.lovableproject\.com$/.test(origin) ||
+    /^https:\/\/id-preview--[a-z0-9-]+\.lovable\.app$/.test(origin) ||
     origin === "http://localhost:8080" ||
     origin === "http://localhost:5173" ||
     origin === "http://localhost:3000";
