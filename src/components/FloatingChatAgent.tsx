@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, X, Send, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SafeMarkdown } from "@/components/SafeMarkdown";
+import leaAvatar from "@/assets/avatar-marie.jpg";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -164,11 +165,15 @@ export function FloatingChatAgent() {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setOpen(true)}
-            className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full gradient-primary shadow-xl flex items-center justify-center text-primary-foreground hover:shadow-2xl transition-shadow"
-            aria-label="Ouvrir l'assistant"
+            className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full shadow-xl overflow-hidden ring-2 ring-primary/40 hover:shadow-2xl transition-shadow"
+            aria-label="Discuter avec Léa, conseillère IMOTION"
           >
-            <MessageCircle className="h-6 w-6" />
-            <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-secondary animate-pulse" />
+            <img src={leaAvatar} alt="Léa" className="h-full w-full object-cover" />
+            {/* Petit badge chat + statut en ligne */}
+            <span className="absolute bottom-0 right-0 h-5 w-5 rounded-full gradient-primary flex items-center justify-center border-2 border-background">
+              <MessageCircle className="h-2.5 w-2.5 text-primary-foreground" />
+            </span>
+            <span className="absolute -top-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-emerald-400 border-2 border-background animate-pulse" />
           </motion.button>
         )}
       </AnimatePresence>
@@ -186,16 +191,18 @@ export function FloatingChatAgent() {
             {/* Header */}
             <div className="gradient-primary px-4 py-3 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
-                {/* Léa avatar — initiales stylisées */}
-                <div className="h-9 w-9 rounded-full bg-primary-foreground/20 border-2 border-primary-foreground/30 flex items-center justify-center shrink-0 overflow-hidden">
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-white/30 to-white/10">
-                    <span className="text-sm font-bold text-primary-foreground select-none">L</span>
-                  </div>
+                {/* Léa avatar — photo */}
+                <div className="relative h-9 w-9 shrink-0">
+                  <img
+                    src={leaAvatar}
+                    alt="Léa, conseillère IMOTION"
+                    className="h-9 w-9 rounded-full object-cover border-2 border-primary-foreground/40"
+                  />
+                  <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-emerald-400 border-2 border-[hsl(var(--primary))]" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-primary-foreground">Léa — IMOTION</p>
-                  <p className="text-xs text-primary-foreground/70 flex items-center gap-1">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 inline-block" />
+                  <p className="text-xs text-primary-foreground/70">
                     Conseillère commerciale IA • En ligne
                   </p>
                 </div>
@@ -212,15 +219,17 @@ export function FloatingChatAgent() {
             <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
               {messages.map((msg, i) => (
                 <div key={`${msg.role}-${i}`} className={`flex gap-2.5 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
-                  <div
-                    className={`shrink-0 h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold ${
-                      msg.role === "assistant"
-                        ? "gradient-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground"
-                    }`}
-                  >
-                    {msg.role === "assistant" ? "L" : <User className="h-3.5 w-3.5" />}
-                  </div>
+                  {msg.role === "assistant" ? (
+                    <img
+                      src={leaAvatar}
+                      alt="Léa"
+                      className="shrink-0 h-7 w-7 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="shrink-0 h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold bg-muted text-muted-foreground">
+                      <User className="h-3.5 w-3.5" />
+                    </div>
+                  )}
                   <div
                     className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
                       msg.role === "assistant"
@@ -240,9 +249,11 @@ export function FloatingChatAgent() {
               ))}
               {loading && messages[messages.length - 1]?.role === "user" && (
                 <div className="flex gap-2.5">
-                  <div className="shrink-0 h-7 w-7 rounded-full gradient-primary flex items-center justify-center font-bold text-xs text-primary-foreground">
-                    L
-                  </div>
+                  <img
+                    src={leaAvatar}
+                    alt="Léa"
+                    className="shrink-0 h-7 w-7 rounded-full object-cover"
+                  />
                   <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-3">
                     <div className="flex gap-1">
                       <span className="h-2 w-2 rounded-full bg-muted-foreground/40 animate-bounce [animation-delay:0ms]" />
