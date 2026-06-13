@@ -165,12 +165,17 @@ export default function ClientDocuments() {
     }
     // Notify consultant via activity log (visible dans le dashboard consultant)
     if (docRecord?.project_id) {
-      supabase.from("activities").insert({
-        user_id: user.id,
-        project_id: docRecord.project_id,
-        action: "signature",
-        description: `${signingDoc.name} signé par le client`,
-      }).catch((e: unknown) => console.warn("Activity log failed:", e));
+      supabase
+        .from("activities")
+        .insert({
+          user_id: user.id,
+          project_id: docRecord.project_id,
+          action: "signature",
+          description: `${signingDoc.name} signé par le client`,
+        })
+        .then(({ error: e }) => {
+          if (e) console.warn("Activity log failed:", e);
+        });
     }
     toast.success("Document signé avec succès !");
     queryClient.invalidateQueries({ queryKey: ["client-documents", user.id] });

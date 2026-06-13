@@ -6,7 +6,7 @@ project_id = "npmkzqxoxobfqdqpnsgf"
   [functions.auth-email-hook]
     verify_jwt = false
   [functions.commercial-agent]
-    verify_jwt = true
+    verify_jwt = false
   [functions.generate-blog-post]
     verify_jwt = true
   [functions.generate-document]
