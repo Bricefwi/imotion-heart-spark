@@ -4,10 +4,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Send, Bot, User, Sparkles, MessageCircle } from "lucide-react";
 import { SafeMarkdown } from "@/components/SafeMarkdown";
+import { env } from "@/lib/env";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/commercial-agent`;
+const CHAT_URL = `${env.SUPABASE_URL}/functions/v1/commercial-agent`;
 
 const WELCOME_MESSAGE: Msg = {
   role: "assistant",
@@ -39,7 +40,7 @@ async function streamChat({
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+      Authorization: `Bearer ${env.SUPABASE_ANON_KEY}`,
     },
     body: JSON.stringify({ messages }),
   });
