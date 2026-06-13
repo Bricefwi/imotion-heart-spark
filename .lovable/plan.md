@@ -1,101 +1,43 @@
 ## Objectif
+Résoudre le blocage de publication persistant en distinguant clairement :
+- un problème de projet/code,
+- un problème de configuration de publication,
+- un incident d’infrastructure Lovable,
+- ou un décalage Preview vs Live / cache CDN.
 
-Transformer l'onglet **Automatisations** (`/admin/crm`) en véritable centre de pilotage : plus de modèles intelligents, paramétrage fin par règle, et un éditeur d'emails qui rend exactement le même visuel que la page **Templates** (bandeau dégradé flame + logo IMOTION).
+## Plan d’action proposé
 
----
+### 1. Vérifier l’état réel du projet publié
+- Contrôler les URLs connues : Preview, URL publiée Lovable, éventuels domaines personnalisés.
+- Vérifier les paramètres de publication : visibilité publique/privée, slug publié, état du badge si pertinent.
+- Comparer ce qui est servi en Preview vs ce qui est servi en Live pour confirmer si Live pointe encore vers une ancienne version.
 
-## 1. Plus d'automatisations intelligentes
+### 2. Faire les préchecks obligatoires avant toute publication
+- Vérifier les métadonnées du site : title, description, Open Graph/Twitter, favicon, canonical.
+- Vérifier le scan sécurité récent pour s’assurer qu’aucune faille critique ne bloque la publication.
+- Vérifier l’état Lovable Cloud du backend, car un backend en redémarrage peut provoquer des erreurs confuses côté déploiement/fonctions.
 
-Ajouter 8 nouveaux modèles rapides à `QUICK_TEMPLATES` (en plus des 7 existants) :
+### 3. Lancer une publication via l’API interne Lovable
+- Utiliser l’outil interne de publication qui contourne le bouton UI.
+- Capturer le résultat exact : succès planifié, URL retournée, ou erreur réelle si la publication échoue.
+- Si l’outil réussit, annoncer que la publication est planifiée et vérifier ensuite si Live se met à jour.
 
-| Nom | Déclencheur | Action |
-|---|---|---|
-| Bienvenue + 1er pas | `user_registered` (+ délai 1h) | Email guidé "votre 1er CDC" |
-| Discovery démarrée | `phase_completed` (phase=1) | Email de félicitations + récap |
-| Discovery complète → CDC | `cdc_generated` | Email client "CDC prêt à signer" |
-| Signature contrat | `project_signed` | Email merci + kickoff |
-| Livraison projet | `status_changed` (status=delivered) | Email "votre projet est en ligne" + demande d'avis J+7 |
-| Demande d'avis automatique | `inactivity_7d` après `delivered` | Email NPS |
-| Anniversaire client | `user_registered` (+ délai 365j) | Email cadeau / réduction |
-| Pipeline froid | `inactivity_30d` (statut=proposal) | Notif admin + email relance |
+### 4. Si la publication réussit mais Live reste ancien
+- Inspecter si le problème vient du cache navigateur/CDN ou d’un mauvais environnement.
+- Vérifier si la version publiée correspond au bon commit/front.
+- Tester avec un accès direct à l’URL publiée et, si nécessaire, conseiller un hard refresh ou une fenêtre privée uniquement après preuve.
 
-Nouveaux déclencheurs (`TRIGGER_EVENTS`) : `project_delivered`, `nps_requested`, `client_anniversary`, `proposal_stale_30d`.
+### 5. Si l’API interne échoue aussi
+- Produire un bloc prêt à copier-coller pour le support Lovable avec :
+  - URL Preview,
+  - URL publiée,
+  - description du symptôme,
+  - heure de tentative,
+  - résultat API interne,
+  - confirmation que le build/scans projet ne bloquent pas.
+- Ouvrir les actions utiles : historique projet et documentation troubleshooting.
 
----
-
-## 2. Paramétrage fin par règle
-
-Étendre `automation_rules.trigger_config` et `action_config` avec un éditeur visuel :
-
-**Déclenchement**
-- `delay_minutes` (slider 0 → 30 j)
-- `send_window` (jour de la semaine, plage horaire 9-18h)
-- `frequency_cap` (max N envois / 30 j par destinataire)
-
-**Conditions (toutes optionnelles, combinables ET)**
-- Rôle utilisateur (`client` / `consultant`)
-- Statut projet (multi-select)
-- Phase courante ≥ X
-- Tag CRM contient
-- Montant proposal min/max
-
-**Cible**
-- Destinataire : client du projet / consultant assigné / admin / email custom
-- CC / BCC
-
-**Action**
-- Aperçu live de l'email à droite du formulaire
-- Variables disponibles affichées en chips cliquables (insertion au curseur)
-- Bouton "Envoi test à mon email"
-
----
-
-## 3. Visualiser & modifier les mails (rendu Templates)
-
-Nouvelle section onglet **Emails** dans `AutomationRulesTab` :
-- Liste de toutes les règles `send_email` actives
-- Pour chacune : carte avec aperçu miniature + bouton "Voir le rendu"
-- Modal d'aperçu utilisant `<EmailPreview>` (déjà créé pour Templates) → garantit :
-  - Bandeau dégradé flame `GRADIENTS.headerBand` + logo IMOTION
-  - Typographie Inter, couleurs Coral/Amber
-  - Pied de page "IMOTION Cabinet Conseil"
-- Bouton "Modifier" → ouvre le formulaire pré-rempli (subject + body markdown)
-
-Avantage : un seul composant de rendu (`EmailPreview`) partagé entre `/admin/templates/preview` et `/admin/crm` (onglet Automatisations) → cohérence visuelle garantie. Les envois réels passent par `send-transactional-email` qui utilise déjà les templates React Email avec la même charte.
-
----
-
-## 4. Détails techniques
-
-**Migration SQL**
-- Ajouter colonnes JSON sur `automation_rules` : `conditions` (jsonb), `schedule_config` (jsonb), `target_config` (jsonb). Aucun breaking change : valeurs par défaut `{}`.
-- Pas de nouvelle table.
-
-**Fichiers touchés**
-- `src/components/admin/AutomationRulesTab.tsx` : +8 templates, formulaire enrichi avec onglets (Déclencheur / Conditions / Action / Aperçu), sous-onglet "Emails" pour la galerie d'aperçus.
-- `src/components/automation/AutomationEmailPreviewModal.tsx` (nouveau) : wrapper autour de `EmailPreview` pour pré-visualiser un `automation_rules.action_config`.
-- `src/lib/automation-variables.ts` (nouveau) : registry des variables `{{nom}}, {{email}}, …` + helper `renderTemplate(body, vars)` partagé client/edge.
-- `supabase/functions/_shared/email-templates/automation-generic.tsx` (nouveau) : template React Email générique appliquant la charte (bandeau, logo, footer) qui enrobe le markdown rendu.
-- `supabase/functions/send-transactional-email/index.ts` : ajouter le mapping `automation-generic` → ce nouveau template (réutilisé par le worker d'automatisation).
-- Worker (`process-email-queue` ou ajout d'un job `run-automation-rule` si besoin) : déjà en place, branchera sur le nouveau template.
-
-**Composants UI**
-- `Tabs` shadcn pour la modal de création (Déclencheur • Conditions • Action • Aperçu)
-- `Slider` shadcn pour `delay_minutes` et `frequency_cap`
-- `Badge` cliquable pour insertion de variables
-
-**Aucune fonctionnalité retirée** : les règles existantes restent compatibles (champs nouveaux optionnels avec defaults).
-
----
-
-## 5. Ordre d'exécution
-
-1. Migration SQL (3 colonnes JSON sur `automation_rules`)
-2. Template React Email `automation-generic` (côté serveur, charte Templates)
-3. Composant `EmailPreview` réutilisé côté admin + `AutomationEmailPreviewModal`
-4. Refonte UI `AutomationRulesTab` : modèles enrichis, formulaire à onglets, sous-onglet Emails
-5. Helper `renderTemplate` + chips variables
-6. Branchement worker → template générique
-7. Test : créer 1 règle, prévisualiser, envoi test, vérifier rendu identique à `/admin/templates/preview`
-
-Confirmer pour démarrer.
+## Ce que je ne ferai pas sans validation
+- Pas de rollback automatique.
+- Pas de modification de code tant que le problème est identifié comme publication/infrastructure.
+- Pas de changement de visibilité publique/privée sans accord explicite.
