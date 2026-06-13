@@ -22,7 +22,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow, format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
-import { SignaturePad } from "@/components/SignaturePad";
+import { SignaturePad, type SignatureContextLine } from "@/components/SignaturePad";
 import { DocumentPreviewModal } from "@/components/DocumentPreviewModal";
 import { getDocumentMissingInfo } from "@/lib/document-missing-info";
 
@@ -55,7 +55,7 @@ const statusLabels: Record<
 export default function ClientDocuments() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [signingDoc, setSigningDoc] = useState<{ id: string; name: string } | null>(null);
+  const [signingDoc, setSigningDoc] = useState<{ id: string; name: string; contextLines?: SignatureContextLine[] } | null>(null);
   const [previewId, setPreviewId] = useState<string | null>(null);
 
   const { data: documents = [], isLoading } = useQuery({
@@ -63,7 +63,7 @@ export default function ClientDocuments() {
     queryFn: async () => {
       const { data: projects } = await supabase
         .from("projects")
-        .select("id, name, code")
+        .select("id, name, code, proposal_amount, contract_amount, estimated_budget_min, estimated_budget_max, currency")
         .eq("client_id", user!.id);
 
       if (!projects || projects.length === 0) return [];
@@ -206,7 +206,24 @@ export default function ClientDocuments() {
             const isSigned = doc.status === "signed";
             const needsSignature = doc.requires_signature && !isSigned;
             const issues = getDocumentMissingInfo(doc);
-            const project = (doc as { _project?: { name: string; code: string | null } | null })._project;
+            const project = (doc as { _project?: { name: string; code: string | null; proposal_amount?: number | null; contract_amount?: number | null; estimated_budget_min?: number | null; estimated_budget_max?: number | null; currency?: string | null } | null })._project;
+
+            const buildContextLines = (): SignatureContextLine[] => {
+              const lines: SignatureContextLine[] = [
+                { label: "Document", value: doc.name },
+                { label: "Type", value: typeLabels[doc.type] || doc.type },
+                { label: "Date", value: format(new Date(), "dd MMMM yyyy", { locale: fr }) },
+              ];
+              const currency = project?.currency || "EUR";
+              const amt = project?.contract_amount || project?.proposal_amount;
+              if (amt) lines.push({ label: "Montant", value: `${amt.toLocaleString("fr-FR")} ${currency}` });
+              else if (project?.estimated_budget_min || project?.estimated_budget_max) {
+                const min = project.estimated_budget_min;
+                const max = project.estimated_budget_max;
+                lines.push({ label: "Estimation", value: min && max ? `${min.toLocaleString("fr-FR")} – ${max.toLocaleString("fr-FR")} ${currency}` : `${(max || min)?.toLocaleString("fr-FR")} ${currency}` });
+              }
+              return lines;
+            };
 
             return (
               <Card
@@ -293,6 +310,17 @@ export default function ClientDocuments() {
                           <FileDown className="h-4 w-4 text-muted-foreground" />
                         )}
                       </Button>
+                      {needsSignature && (
+                        <Button
+                          variant="default"
+                          size="sm"
+                          className="h-8 px-3 text-xs gradient-primary border-0 gap-1"
+                          title="Signer le document"
+                          onClick={() => setSigningDoc({ id: doc.id, name: doc.name, contextLines: buildContextLines() })}
+                        >
+                          <PenLine className="h-3.5 w-3.5" /> Signer
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="icon"
@@ -344,6 +372,7 @@ export default function ClientDocuments() {
         onOpenChange={(open) => !open && setSigningDoc(null)}
         documentName={signingDoc?.name || ""}
         onSign={handleSign}
+        contextLines={signingDoc?.contextLines}
       />
     </div>
   );

@@ -338,18 +338,31 @@ ${agentResult.content}
 
       if (docErr) throw docErr;
 
-      // Also save to generated_documents if estimate exists
-      if (estimate) {
-        await supabase.from("generated_documents").insert({
+      // Also save to generated_documents if estimate exists; for invoices read back number
+      if (estimate || docType === "invoice") {
+        const { data: genDocStream } = await supabase.from("generated_documents").insert({
           project_id: projectId,
-          estimate_id: estimate.id,
+          estimate_id: estimate?.id ?? null,
           document_type: docType,
           template_code: pricingTemplate ? docType : null,
           content_markdown: "(streaming - content saved after completion)",
           variables_snapshot: { estimate, pricingConfig, maintenancePlan },
           status: "draft",
           requires_signature: docType === "contrat" || docType === "devis",
-        });
+        }).select("id, document_number").single();
+
+        if (docType === "invoice" && genDocStream?.document_number) {
+          const dueDate = new Date();
+          dueDate.setDate(dueDate.getDate() + 30);
+          await supabase.from("documents")
+            .update({
+              name: `${genDocStream.document_number} — ${docName}`,
+              invoice_number: genDocStream.document_number,
+              payment_due_date: dueDate.toISOString().split("T")[0],
+            })
+            .eq("id", doc.id)
+            .then(({ error }) => { if (error) console.warn("invoice stream enrichment warning:", error.message); });
+        }
       }
 
       await supabase.from("activities").insert({
@@ -456,7 +469,8 @@ ${agentResult.content}
     if (docErr) throw docErr;
 
     // Always save to generated_documents for history and cross-reference
-    await supabase.from("generated_documents").insert({
+    // For invoices, read back the auto-generated document_number and update documents.name
+    const { data: genDocInserted, error: genDocErr } = await supabase.from("generated_documents").insert({
       project_id: projectId,
       estimate_id: estimate?.id ?? null,
       document_type: docType,
@@ -465,9 +479,22 @@ ${agentResult.content}
       variables_snapshot: { estimate, pricingConfig, maintenancePlan },
       status: "draft",
       requires_signature: docType === "contrat" || docType === "devis",
-    }).then(({ error }) => {
-      if (error) console.warn("generated_documents insert warning:", error.message);
-    });
+    }).select("id, document_number").single();
+    if (genDocErr) console.warn("generated_documents insert warning:", genDocErr.message);
+
+    // Prefix invoice document name with FAC number; populate compliance fields
+    if (docType === "invoice" && genDocInserted?.document_number) {
+      const dueDate = new Date();
+      dueDate.setDate(dueDate.getDate() + 30);
+      await supabase.from("documents")
+        .update({
+          name: `${genDocInserted.document_number} — ${docName}`,
+          invoice_number: genDocInserted.document_number,
+          payment_due_date: dueDate.toISOString().split("T")[0],
+        })
+        .eq("id", doc.id)
+        .then(({ error }) => { if (error) console.warn("invoice enrichment update warning:", error.message); });
+    }
 
     const statusMap: Record<string, string> = {
       cdc: "cdc_draft", proposal: "proposal_sent", contract: "contract_pending", pv_reception: "delivered",

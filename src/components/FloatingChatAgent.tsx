@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, X, Send, Bot, User, Sparkles } from "lucide-react";
+import { MessageCircle, X, Send, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SafeMarkdown } from "@/components/SafeMarkdown";
 
@@ -11,14 +11,14 @@ const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/commercial-a
 const WELCOME_MESSAGE: Msg = {
   role: "assistant",
   content:
-    "👋 Bonjour ! Je suis l'assistant IA d'IMOTION Creator Studio. Posez-moi vos questions sur nos offres, le processus de création de CDC, les tarifs ou toute autre information. Je suis là pour vous aider !",
+    "Bonjour ! Je suis **Léa**, votre conseillère IMOTION. Spécialiste en transformation digitale et projets IA, je suis là pour vous renseigner, vous conseiller et vous accompagner vers la meilleure solution — qu'il s'agisse d'un site web, d'une application, d'une automatisation ou d'une stratégie digitale complète. Comment puis-je vous aider aujourd'hui ?",
 };
 
 const SUGGESTIONS = [
-  "Comment ça marche ?",
-  "Le CDC est vraiment gratuit ?",
-  "Quels types de projets ?",
-  "Combien coûte la réalisation ?",
+  "Comment fonctionne le CDC IA ?",
+  "Le diagnostic est vraiment gratuit ?",
+  "Quels types de projets réalisez-vous ?",
+  "Quels sont vos tarifs ?",
 ];
 
 async function streamChat({
@@ -186,12 +186,18 @@ export function FloatingChatAgent() {
             {/* Header */}
             <div className="gradient-primary px-4 py-3 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-full bg-primary-foreground/20 flex items-center justify-center">
-                  <Sparkles className="h-5 w-5 text-primary-foreground" />
+                {/* Léa avatar — initiales stylisées */}
+                <div className="h-9 w-9 rounded-full bg-primary-foreground/20 border-2 border-primary-foreground/30 flex items-center justify-center shrink-0 overflow-hidden">
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-white/30 to-white/10">
+                    <span className="text-sm font-bold text-primary-foreground select-none">L</span>
+                  </div>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-primary-foreground">Assistant IMOTION</p>
-                  <p className="text-xs text-primary-foreground/70">En ligne • Répond instantanément</p>
+                  <p className="text-sm font-semibold text-primary-foreground">Léa — IMOTION</p>
+                  <p className="text-xs text-primary-foreground/70 flex items-center gap-1">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 inline-block" />
+                    Conseillère commerciale IA • En ligne
+                  </p>
                 </div>
               </div>
               <button
@@ -207,13 +213,13 @@ export function FloatingChatAgent() {
               {messages.map((msg, i) => (
                 <div key={`${msg.role}-${i}`} className={`flex gap-2.5 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
                   <div
-                    className={`shrink-0 h-7 w-7 rounded-full flex items-center justify-center text-xs ${
+                    className={`shrink-0 h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold ${
                       msg.role === "assistant"
                         ? "gradient-primary text-primary-foreground"
                         : "bg-muted text-muted-foreground"
                     }`}
                   >
-                    {msg.role === "assistant" ? <Bot className="h-3.5 w-3.5" /> : <User className="h-3.5 w-3.5" />}
+                    {msg.role === "assistant" ? "L" : <User className="h-3.5 w-3.5" />}
                   </div>
                   <div
                     className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
@@ -234,8 +240,8 @@ export function FloatingChatAgent() {
               ))}
               {loading && messages[messages.length - 1]?.role === "user" && (
                 <div className="flex gap-2.5">
-                  <div className="shrink-0 h-7 w-7 rounded-full gradient-primary flex items-center justify-center">
-                    <Bot className="h-3.5 w-3.5 text-primary-foreground" />
+                  <div className="shrink-0 h-7 w-7 rounded-full gradient-primary flex items-center justify-center font-bold text-xs text-primary-foreground">
+                    L
                   </div>
                   <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-3">
                     <div className="flex gap-1">

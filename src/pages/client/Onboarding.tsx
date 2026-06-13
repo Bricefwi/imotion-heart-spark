@@ -530,6 +530,32 @@ export default function Onboarding() {
         <Progress value={progress} className="h-1.5" />
       </div>
 
+      {/* Mobile step indicator — name + navigation dots */}
+      <div className="md:hidden px-4 pt-3 pb-1 flex flex-col gap-2">
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span className="flex items-center gap-1.5 font-medium text-foreground">
+            {(() => { const Icon = STEPS[step].icon; return <Icon className="h-3.5 w-3.5 text-primary" />; })()}
+            {STEPS[step].label}
+          </span>
+          <span>{step + 1} / {STEPS.length}</span>
+        </div>
+        <div className="flex gap-1">
+          {STEPS.map((_, i) => (
+            <div
+              key={i}
+              className={`h-1 flex-1 rounded-full transition-all ${
+                i < step ? "bg-primary" : i === step ? "bg-primary/70" : "bg-border"
+              }`}
+            />
+          ))}
+        </div>
+        {step < STEPS.length - 1 && (
+          <p className="text-[11px] text-muted-foreground">
+            Suivant : {STEPS[step + 1].label}
+          </p>
+        )}
+      </div>
+
       {/* Step indicators (desktop) */}
       <div className="hidden md:flex justify-center gap-1 py-4">
         {STEPS.map((s, i) => {

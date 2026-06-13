@@ -291,19 +291,38 @@ export default function ClientDashboard() {
           {currentProject && (
             <Card className="border border-border/40 shadow-sm">
               <CardHeader className="pb-3">
-                <CardTitle className="font-display text-base">Suivi avancement</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="font-display text-base">Suivi avancement</CardTitle>
+                  {(() => {
+                    const activeStep = PROJECT_MILESTONES.find(m => getMilestoneStatus(currentProject.status)[m.key] === "active");
+                    const statusMessages: Record<string, string> = {
+                      discovery: "Conversation en cours avec Marc",
+                      cdc: "CDC en cours de génération",
+                      proposal: "Devis envoyé — en attente de validation",
+                      contract: "Contrat en attente de signature",
+                      development: "Projet en développement",
+                      delivery: "Livraison en cours",
+                    };
+                    return activeStep ? (
+                      <Badge variant="outline" className="text-[10px] font-normal gap-1 hidden sm:flex">
+                        <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse inline-block" />
+                        {statusMessages[activeStep.key]}
+                      </Badge>
+                    ) : null;
+                  })()}
+                </div>
               </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between gap-2">
+              <CardContent className="space-y-3">
+                <div className="flex items-center justify-between gap-1 sm:gap-2">
                   {PROJECT_MILESTONES.map((milestone, idx) => {
                     const statuses = getMilestoneStatus(currentProject.status);
                     const status = statuses[milestone.key];
                     const Icon = milestone.icon;
                     return (
-                      <div key={milestone.key} className="flex items-center gap-2 flex-1">
-                        <div className="flex flex-col items-center gap-1.5 flex-1">
+                      <div key={milestone.key} className="flex items-center gap-1 sm:gap-2 flex-1">
+                        <div className="flex flex-col items-center gap-1 flex-1">
                           <div
-                            className={`h-10 w-10 rounded-full flex items-center justify-center transition-all ${
+                            className={`h-8 w-8 sm:h-10 sm:w-10 rounded-full flex items-center justify-center transition-all ${
                               status === "done"
                                 ? "gradient-primary text-white"
                                 : status === "active"
@@ -312,19 +331,19 @@ export default function ClientDashboard() {
                             }`}
                           >
                             {status === "done" ? (
-                              <CheckCircle className="h-5 w-5" />
+                              <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />
                             ) : (
-                              <Icon className="h-4 w-4" />
+                              <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                             )}
                           </div>
-                          <span className={`text-[10px] font-medium text-center ${
-                            status === "done" ? "text-primary" : status === "active" ? "text-primary" : "text-muted-foreground"
+                          <span className={`text-[9px] sm:text-[10px] font-medium text-center leading-tight ${
+                            status === "done" ? "text-primary" : status === "active" ? "text-primary" : "text-muted-foreground/60"
                           }`}>
                             {milestone.label}
                           </span>
                         </div>
                         {idx < PROJECT_MILESTONES.length - 1 && (
-                          <div className={`h-0.5 flex-1 -mt-5 ${
+                          <div className={`h-0.5 flex-1 -mt-4 sm:-mt-5 ${
                             status === "done" ? "bg-primary" : "bg-muted"
                           }`} />
                         )}
@@ -332,6 +351,30 @@ export default function ClientDashboard() {
                     );
                   })}
                 </div>
+                {/* Mobile: plain-language status */}
+                {(() => {
+                  const activeStep = PROJECT_MILESTONES.find(m => getMilestoneStatus(currentProject.status)[m.key] === "active");
+                  const statusMessages: Record<string, { msg: string; cta?: { label: string; to: string } }> = {
+                    discovery: { msg: "Votre consultation est en cours. Continuez à répondre aux questions de Marc pour avancer vers le CDC.", cta: { label: "Continuer", to: `/client/projects/${currentProject.id}/conversation` } },
+                    cdc: { msg: "Votre Cahier des Charges est en cours de génération.", cta: { label: "Voir mes documents", to: "/client/documents" } },
+                    proposal: { msg: "Votre devis est prêt — consultez-le et revenez vers nous pour valider.", cta: { label: "Voir le devis", to: "/client/documents" } },
+                    contract: { msg: "Le contrat vous attend. Vous pouvez le signer directement depuis vos documents.", cta: { label: "Signer le contrat", to: "/client/documents" } },
+                    development: { msg: "Votre projet est en cours de développement. L'équipe IMOTION travaille pour vous.", },
+                    delivery: { msg: "La livraison est en cours — votre projet sera bientôt entre vos mains.", },
+                  };
+                  if (!activeStep) return null;
+                  const info = statusMessages[activeStep.key];
+                  return (
+                    <div className="sm:hidden rounded-lg bg-primary/5 border border-primary/10 px-3 py-2 text-xs text-muted-foreground leading-relaxed flex items-start justify-between gap-2">
+                      <span>{info.msg}</span>
+                      {info.cta && (
+                        <Button asChild variant="link" size="sm" className="h-auto p-0 text-xs text-primary shrink-0">
+                          <Link to={info.cta.to}>{info.cta.label} →</Link>
+                        </Button>
+                      )}
+                    </div>
+                  );
+                })()}
               </CardContent>
             </Card>
           )}

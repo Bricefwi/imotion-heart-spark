@@ -4,8 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
   Users, FolderKanban, FileText, Euro, TrendingUp, Activity,
-  MessageSquare, Clock, Star, CheckCircle2, XCircle, Eye,
-  Search, Filter, ArrowRight, Sparkles, Building2,
+  MessageSquare, Clock, Star, CheckCircle2, XCircle,
+  Search, ArrowRight, Sparkles, Building2, Bell, AlertCircle,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -90,6 +90,44 @@ export default function AdminDashboard() {
       return data || [];
     },
     enabled: !!user,
+  });
+
+  // Real-time alerts: contracts signed in last 7 days
+  const { data: recentlySigned = [] } = useQuery({
+    queryKey: ["admin-recently-signed"],
+    queryFn: async () => {
+      const since = new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString();
+      const { data } = await supabase
+        .from("documents")
+        .select("id, name, type, signed_at, project_id")
+        .in("type", ["contract", "contract_fr"])
+        .eq("status", "signed")
+        .gte("signed_at", since)
+        .order("signed_at", { ascending: false })
+        .limit(10);
+      return data || [];
+    },
+    enabled: !!user,
+    refetchInterval: 60_000,
+  });
+
+  // Real-time alerts: overdue invoices (sent > 30 days ago, not signed/archived)
+  const { data: overdueInvoices = [] } = useQuery({
+    queryKey: ["admin-overdue-invoices"],
+    queryFn: async () => {
+      const cutoff = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString();
+      const { data } = await supabase
+        .from("documents")
+        .select("id, name, created_at, project_id")
+        .eq("type", "invoice")
+        .in("status", ["sent", "draft"])
+        .lt("created_at", cutoff)
+        .order("created_at", { ascending: true })
+        .limit(10);
+      return data || [];
+    },
+    enabled: !!user,
+    refetchInterval: 60_000,
   });
 
   // ── Review moderation ──
@@ -200,7 +238,19 @@ export default function AdminDashboard() {
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Vue d'ensemble</h1>
           <p className="text-muted-foreground mt-1 text-sm">Bienvenue dans votre Tour de Contrôle</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap justify-end">
+          {recentlySigned.length > 0 && (
+            <Badge className="bg-emerald-600 text-white text-xs px-2.5 py-1 gap-1.5 cursor-default">
+              <Bell className="h-3 w-3 animate-pulse" />
+              {recentlySigned.length} contrat{recentlySigned.length > 1 ? "s" : ""} signé{recentlySigned.length > 1 ? "s" : ""}
+            </Badge>
+          )}
+          {overdueInvoices.length > 0 && (
+            <Badge className="bg-destructive text-destructive-foreground text-xs px-2.5 py-1 gap-1.5 cursor-default">
+              <AlertCircle className="h-3 w-3" />
+              {overdueInvoices.length} facture{overdueInvoices.length > 1 ? "s" : ""} en retard
+            </Badge>
+          )}
           {pendingReviewCount > 0 && (
             <Badge className="bg-secondary text-secondary-foreground text-sm px-3 py-1.5">
               {pendingReviewCount} avis en attente

@@ -1,16 +1,22 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Eraser, PenLine, Check, Loader2 } from "lucide-react";
+import { Eraser, PenLine, Check, Loader2, AlertCircle } from "lucide-react";
+
+export interface SignatureContextLine {
+  label: string;
+  value: string;
+}
 
 interface SignaturePadProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   documentName: string;
   onSign: (signatureDataUrl: string) => Promise<void>;
+  contextLines?: SignatureContextLine[];
 }
 
-export function SignaturePad({ open, onOpenChange, documentName, onSign }: SignaturePadProps) {
+export function SignaturePad({ open, onOpenChange, documentName, onSign, contextLines }: SignaturePadProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [hasSignature, setHasSignature] = useState(false);
@@ -143,6 +149,23 @@ export function SignaturePad({ open, onOpenChange, documentName, onSign }: Signa
         </DialogHeader>
 
         <div className="space-y-3">
+          {/* Pre-sign summary */}
+          {contextLines && contextLines.length > 0 && (
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 space-y-2">
+              <p className="text-xs font-semibold text-amber-800 flex items-center gap-1.5">
+                <AlertCircle className="h-3.5 w-3.5" />
+                Vous êtes sur le point de signer
+              </p>
+              <div className="divide-y divide-amber-100">
+                {contextLines.map((line) => (
+                  <div key={line.label} className="flex items-center justify-between py-1 text-xs">
+                    <span className="text-amber-700/80">{line.label}</span>
+                    <span className="font-semibold text-amber-900">{line.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           <p className="text-xs text-muted-foreground">
             Dessinez votre signature dans la zone ci-dessous. En signant, vous acceptez les termes du document.
           </p>
