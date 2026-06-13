@@ -1,26 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
-const ALLOWED_ORIGINS = [
-  "https://imotion-conseils.fr",
-  "https://www.imotion-conseils.fr",
-  "https://app.imotion-conseils.fr",
-  "https://marketing.imotion-conseils.fr",
-];
-
-function getCorsHeaders(req: Request) {
-  const origin = req.headers.get("Origin") || "";
-  const isAllowed =
-    ALLOWED_ORIGINS.includes(origin) ||
-    /^https:\/\/[a-z0-9-]+\.lovable\.app$/.test(origin) ||
-    /^https:\/\/[a-z0-9-]+\.lovableproject\.com$/.test(origin) ||
-    /^https:\/\/id-preview--[a-z0-9-]+\.lovable\.app$/.test(origin) ||
-    origin === "http://localhost:8080" ||
-    origin === "http://localhost:5173" ||
-    origin === "http://localhost:3000";
-  const allowedOrigin = isAllowed ? origin : ALLOWED_ORIGINS[0];
+// Commercial agent is a public endpoint (no user data, no cookies).
+// Wildcard CORS: works from Lovable preview, lovable.dev, localhost, any embedding.
+// Rate limiting in-process protects against abuse.
+function getCorsHeaders() {
   return {
-    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   };
 }
@@ -58,6 +44,7 @@ const STATIC_KNOWLEDGE = `
 Tu es **Léa**, conseillère commerciale IA d'**IMOTION Conseils** (imotion-conseils.fr).
 Ton rôle : accueillir chaleureusement, comprendre le besoin, et **orienter le prospect vers la bonne solution** parmi nos deux pôles : **BUILD (Clarivi)** et **MARKETING (lovelib)**.
 Tu es une **conseillère qui vend avec bienveillance** : tu écoutes, tu rassures, tu démontres la valeur, et tu proposes toujours une prochaine étape concrète (CDC gratuit ou Audit Marketing gratuit).
+Tu es spécialisée en transformation digitale, projets web, IA et NoCode — tu es capable de répondre à des questions techniques dans tous ces domaines.
 
 ## NOS DEUX POLES
 
@@ -194,7 +181,7 @@ async function fetchDynamicContext(): Promise<string> {
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: getCorsHeaders(req) });
+    return new Response(null, { headers: getCorsHeaders() });
   }
 
   try {
@@ -203,7 +190,7 @@ serve(async (req) => {
     if (isRateLimited(clientIp)) {
       return new Response(
         JSON.stringify({ error: "Trop de requêtes, réessayez dans un instant." }),
-        { status: 429, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
+        { status: 429, headers: { ...getCorsHeaders(), "Content-Type": "application/json" } }
       );
     }
 
@@ -214,7 +201,7 @@ serve(async (req) => {
     if (!sanitizedMessages) {
       return new Response(
         JSON.stringify({ error: "Format de messages invalide." }),
-        { status: 400, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
+        { status: 400, headers: { ...getCorsHeaders(), "Content-Type": "application/json" } }
       );
     }
 
@@ -248,31 +235,31 @@ serve(async (req) => {
       if (response.status === 429) {
         return new Response(
           JSON.stringify({ error: "Trop de requêtes, réessayez dans un instant." }),
-          { status: 429, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
+          { status: 429, headers: { ...getCorsHeaders(), "Content-Type": "application/json" } }
         );
       }
       if (response.status === 402) {
         return new Response(
           JSON.stringify({ error: "Service temporairement indisponible." }),
-          { status: 402, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
+          { status: 402, headers: { ...getCorsHeaders(), "Content-Type": "application/json" } }
         );
       }
       const t = await response.text();
       console.error("AI gateway error:", response.status, t);
       return new Response(
         JSON.stringify({ error: "Erreur du service IA" }),
-        { status: 500, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
+        { status: 500, headers: { ...getCorsHeaders(), "Content-Type": "application/json" } }
       );
     }
 
     return new Response(response.body, {
-      headers: { ...getCorsHeaders(req), "Content-Type": "text/event-stream" },
+      headers: { ...getCorsHeaders(), "Content-Type": "text/event-stream" },
     });
   } catch (e) {
     console.error("commercial-agent error:", e);
     return new Response(
       JSON.stringify({ error: "Une erreur est survenue. Veuillez réessayer." }),
-      { status: 500, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
+      { status: 500, headers: { ...getCorsHeaders(), "Content-Type": "application/json" } }
     );
   }
 });
