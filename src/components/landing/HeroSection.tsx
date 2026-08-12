@@ -36,7 +36,7 @@ function AuditMockup() {
 
   return (
     <div className="relative">
-      {/* Halo derrière — discret */
+      {/* Halo derrière — discret */}
       <div
         aria-hidden
         className="absolute -inset-12 blur-3xl opacity-40 pointer-events-none"
