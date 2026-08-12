@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/Logo";
 import { toast } from "sonner";
-import { Loader2, ShieldCheck, Check, X } from "lucide-react";
+import { Loader2, ShieldCheck, Check, X, AlertTriangle } from "lucide-react";
 import { z } from "zod";
 
 const passwordSchema = z
@@ -51,9 +51,39 @@ export default function ResetPassword() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
+  // Finding M6 : le formulaire n'est affiché que si une session de récupération
+  // (événement PASSWORD_RECOVERY, émis par le SDK à l'arrivée via le lien
+  // de reset) est effectivement détectée. Sinon, état « lien invalide/expiré ».
+  const [recoveryState, setRecoveryState] = useState<"checking" | "ready" | "invalid">("checking");
+
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setRecoveryState("ready");
+      }
+    });
+
+    // Filet de sécurité : si aucun événement PASSWORD_RECOVERY ne survient
+    // (lien expiré, déjà consommé, ou visite directe de la page), on affiche
+    // un état explicite au lieu d'un formulaire non autorisé.
+    const timer = setTimeout(() => {
+      setRecoveryState((current) => (current === "checking" ? "invalid" : current));
+    }, 5000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timer);
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (recoveryState !== "ready") {
+      toast.error("Lien de récupération invalide ou expiré.");
+      return;
+    }
     if (password !== confirm) {
       toast.error("Les mots de passe ne correspondent pas.");
       return;
@@ -72,6 +102,43 @@ export default function ResetPassword() {
     }
     setLoading(false);
   };
+
+  if (recoveryState === "checking") {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Vérification du lien de récupération…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (recoveryState === "invalid") {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <div className="w-full max-w-md space-y-6 text-center">
+          <Logo size="lg" className="justify-center mb-6" />
+          <div className="flex justify-center">
+            <AlertTriangle className="h-8 w-8 text-amber-500" />
+          </div>
+          <h1 className="font-display text-2xl font-bold">Lien invalide ou expiré</h1>
+          <p className="text-muted-foreground">
+            Ce lien de réinitialisation est expiré, a déjà été utilisé, ou est invalide.
+            Demandez un nouveau lien pour continuer.
+          </p>
+          <div className="flex flex-col gap-2">
+            <Button asChild className="w-full gradient-primary border-0 h-11">
+              <Link to="/forgot-password">Demander un nouveau lien</Link>
+            </Button>
+            <Button asChild variant="outline" className="w-full h-11">
+              <Link to="/login">Retour à la connexion</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">

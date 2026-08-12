@@ -23,6 +23,15 @@ const extractRolesFromMetadata = (currentUser: User): AppRole[] => {
   return Array.from(new Set([...rolesFromArray, ...roleFromSingle]));
 };
 
+/**
+ * Les logs exposant les rôles et l'identifiant utilisateur sont limités au
+ * mode développement (`import.meta.env.DEV`) — en production, la console ne
+ * doit pas révéler les privilèges du compte courant (reconnaissance).
+ */
+const devLog = (...args: unknown[]): void => {
+  if (import.meta.env.DEV) console.info(...args);
+};
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
@@ -87,7 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // This unblocks rendering instantly if metadata contains roles.
     const metadataRoles = extractRolesFromMetadata(user);
     if (metadataRoles.length > 0) {
-      console.info("[useAuth] Immediate roles from metadata:", metadataRoles);
+      devLog("[useAuth] Immediate roles from metadata:", metadataRoles);
       setRoles(metadataRoles);
       setLoading(false);
     } else {
@@ -118,7 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (rolesResult.error) {
           console.warn("[useAuth] Roles fetch error:", rolesResult.error.message);
         } else if (rolesResult.data && rolesResult.data.length === 0) {
-          console.warn("[useAuth] user_roles returned empty for user:", user.id);
+          devLog("[useAuth] user_roles returned empty for user:", user.id);
         }
 
         // Step 3: Fallback to metadata if DB returned nothing
@@ -136,7 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (!isActive) return;
             if (!error && data === true) {
               resolvedRoles = ["admin"];
-              console.info("[useAuth] Admin role confirmed via RPC");
+              devLog("[useAuth] Admin role confirmed via RPC");
             }
           } catch {
             console.warn("[useAuth] has_role RPC unavailable");
@@ -146,7 +155,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!isActive) return;
 
         const finalRoles = resolvedRoles.length > 0 ? resolvedRoles : ["client" as AppRole];
-        console.info("[useAuth] Final roles:", finalRoles, "for user:", user.id);
+        devLog("[useAuth] Final roles:", finalRoles, "for user:", user.id);
         setRoles(finalRoles);
       } catch (error) {
         if (!isActive) return;

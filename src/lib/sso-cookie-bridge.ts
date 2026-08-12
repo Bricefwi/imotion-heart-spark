@@ -13,10 +13,22 @@
  *     cookie pour propager l'état à l'autre sous-domaine.
  *
  * Sécurité :
- *  - Cookie `Secure; SameSite=Lax` (Lax permet la navigation entre sous-
- *    domaines tout en bloquant le CSRF cross-site).
+ *  - Cookie `Secure; SameSite=Lax` (Lax explicite : permet la navigation entre
+ *    sous-domaines tout en bloquant le CSRF cross-site).
+ *  - `Max-Age` limité à 24 h (réduit depuis 30 jours — finding H1) pour
+ *    borner la fenêtre d'exploitation d'un cookie volé.
  *  - HttpOnly impossible : le SDK Supabase est purement client et doit pouvoir
- *    rafraîchir le token. Compensé par RLS strict + flow PKCE (déjà actifs).
+ *    rafraîchir le token.
+ *
+ * ⚠️ RISQUE RÉSIDUEL (documenté, non résolu par ce durcissement) :
+ *  le cookie contient `access_token` + `refresh_token` en clair, lisible par
+ *  tout JavaScript exécuté sur N'IMPORTE QUEL sous-domaine de
+ *  `.imotion-conseils.fr`. Une XSS sur un sous-domaine quelconque permet
+ *  toujours le vol de session. Compensations actuelles : CSP stricte
+ *  (Caddyfile/nginx.conf), RLS strict, flow PKCE, fenêtre de validité
+ *  désormais limitée à 24 h. À terme, privilégier un handoff serveur-à-
+ *  serveur (issue/consume-bridge-token) ou un cookie HttpOnly posé par un
+ *  backend (pattern BFF) plutôt qu'un cookie de session partagé.
  *
  * Activation conditionnelle :
  *  - Actif uniquement sur les hôtes `*.imotion-conseils.fr`.
@@ -31,6 +43,12 @@ import { supabase } from "@/integrations/supabase/client";
 const COOKIE_NAME = "imotion-sso";
 const PARENT_DOMAIN = ".imotion-conseils.fr";
 const SSO_HOST_SUFFIX = ".imotion-conseils.fr";
+
+/**
+ * Durée de vie du cookie SSO : 24 h maximum (finding H1 — réduit depuis
+ * 30 jours). Borne la fenêtre d'exploitation en cas de vol du cookie.
+ */
+const SSO_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24;
 
 /** Le SSO cookie n'est utile que si on est sur un sous-domaine du domaine custom. */
 function isSsoEligibleHost(): boolean {
@@ -132,14 +150,14 @@ export async function initSsoCookieBridge(): Promise<void> {
           if (error) {
             console.warn("[SSO] setSession from cookie failed:", error.message);
             deleteCookie(COOKIE_NAME);
-          } else {
+          } else if (import.meta.env.DEV) {
             console.info("[SSO] Session restaurée depuis le cookie partagé");
           }
         }
       }
     } else {
       // Session locale présente : on s'assure que le cookie est à jour.
-      writeCookie(COOKIE_NAME, serialize(data.session), 60 * 60 * 24 * 30);
+      writeCookie(COOKIE_NAME, serialize(data.session), SSO_COOKIE_MAX_AGE_SECONDS);
     }
   } catch (err) {
     console.warn("[SSO] Hydration error:", err);
@@ -153,7 +171,7 @@ export async function initSsoCookieBridge(): Promise<void> {
     }
     if (session) {
       // Couvre SIGNED_IN, TOKEN_REFRESHED, USER_UPDATED, INITIAL_SESSION.
-      writeCookie(COOKIE_NAME, serialize(session), 60 * 60 * 24 * 30);
+      writeCookie(COOKIE_NAME, serialize(session), SSO_COOKIE_MAX_AGE_SECONDS);
     }
   });
 }

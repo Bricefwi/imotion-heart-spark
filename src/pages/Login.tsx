@@ -12,6 +12,17 @@ import { Loader2, Mail, Wand2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { consumePendingGoogleRedirect, startGoogleOAuth } from "@/lib/google-auth";
 
+/**
+ * Validation anti open-redirect (finding M5) : n'accepte que des chemins
+ * internes stricts. Refuse notamment `//evil.com` (protocol-relative) et
+ * `/\evil.com` (backslash interprété comme séparateur par certains navigateurs).
+ */
+const isSafeInternalPath = (value: string | null | undefined): value is string =>
+  typeof value === "string" &&
+  value.startsWith("/") &&
+  !value.startsWith("//") &&
+  !value.includes("\\");
+
 const getSmartRedirect = async (userId: string | undefined, fallback: string): Promise<string> => {
   if (!userId || (fallback !== "/client/dashboard" && fallback !== "/")) return fallback;
   const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId);
@@ -34,11 +45,11 @@ export default function Login() {
 
   const requestedPath = (location.state as { from?: string } | null)?.from;
   const queryNext = new URLSearchParams(location.search).get("next");
-  const redirectPath = queryNext && queryNext.startsWith("/")
+  const redirectPath = isSafeInternalPath(queryNext)
     ? queryNext
-    : requestedPath && requestedPath.startsWith("/")
+    : isSafeInternalPath(requestedPath)
       ? requestedPath
-      : pendingGoogleRedirect && pendingGoogleRedirect.startsWith("/")
+      : isSafeInternalPath(pendingGoogleRedirect)
         ? pendingGoogleRedirect
       : "/client/dashboard";
 
