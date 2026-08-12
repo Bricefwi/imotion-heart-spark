@@ -1,4 +1,5 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap");
+/* Les fontes (Inter, Inter Tight, Fraunces, JetBrains Mono) sont chargées
+   via <link> dans index.html — ne PAS les @importer ici (double chargement). */
 
 /* IMOTION Brand v2 — primitive tokens (--imo-*). MUST come before design-tokens.css and shadcn mapping. */
 @import "./styles/imo-tokens.css";
@@ -54,7 +55,7 @@
     --input:                var(--imo-border);
     --ring:                 var(--imo-ring);
 
-    --radius:               0.625rem;
+    --radius:               0.5rem;
 
     /* Sidebar — dark by default (ink-900 surface) */
     --sidebar-background:           var(--imo-ink-900);
@@ -73,10 +74,10 @@
     --background:           var(--imo-bg);
     --foreground:           var(--imo-fg);
 
-    --card:                 var(--imo-ink-800);
+    --card:                 var(--imo-bg-elevated);
     --card-foreground:      var(--imo-fg);
 
-    --popover:              var(--imo-ink-800);
+    --popover:              var(--imo-bg-elevated);
     --popover-foreground:   var(--imo-fg);
 
     --primary:              var(--imo-brand);
@@ -88,15 +89,15 @@
     --accent:               var(--imo-amber-500);
     --accent-foreground:    var(--imo-fg-on-brand);
 
-    --muted:                var(--imo-ink-700);
-    --muted-foreground:     var(--imo-ink-300);
+    --muted:                var(--imo-bg-muted);
+    --muted-foreground:     var(--imo-fg-muted);
 
     --destructive:          var(--imo-coral-600);
     --destructive-foreground: var(--imo-fg-on-brand);
 
-    --border:               var(--imo-ink-700);
-    --input:                var(--imo-ink-700);
-    --ring:                 var(--imo-brand);
+    --border:               var(--imo-border);
+    --input:                var(--imo-border);
+    --ring:                 var(--imo-ring);
 
     --sidebar-background:           var(--imo-ink-900);
     --sidebar-foreground:           var(--imo-ink-100);
@@ -132,7 +133,7 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: var(--imo-font-display);
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: 1.2;
@@ -145,16 +146,16 @@
   h1 { letter-spacing: -0.03em; }
   h2 { letter-spacing: -0.025em; }
 
-  /* Smooth scrolling */
+  /* Smooth scrolling (désactivé si prefers-reduced-motion, voir plus bas) */
   html {
     scroll-behavior: smooth;
   }
 
-  /* Better focus visible */
+  /* Focus visible uniformisé : ring coral 2px + offset */
   :focus-visible {
     outline: 2px solid hsl(var(--ring));
     outline-offset: 2px;
-    border-radius: var(--radius-sm);
+    border-radius: var(--imo-radius-sm, 5px);
   }
 
   /* Selection */
@@ -189,12 +190,12 @@
   .glass {
     backdrop-filter: blur(16px) saturate(180%);
     background: hsl(0 0% 100% / 0.75);
-    border: 1px solid hsl(220 13% 91% / 0.5);
+    border: 1px solid hsl(var(--imo-ink-200) / 0.6);
   }
 
   .dark .glass {
-    background: hsl(220 20% 6% / 0.75);
-    border: 1px solid hsl(220 15% 18% / 0.5);
+    background: hsl(var(--imo-ink-900) / 0.75);
+    border: 1px solid hsl(var(--imo-ink-700) / 0.6);
   }
 
   /* ---- Shimmer Skeleton Effect ---- */
@@ -291,10 +292,6 @@
   /* RTL support for Arabic */
   [dir="rtl"] .glass {
     direction: rtl;
-  }
-
-  [dir="rtl"] .gradient-primary {
-    background: linear-gradient(-135deg, hsl(0, 68%, 51%), hsl(30, 100%, 49%));
   }
 }
 
@@ -394,7 +391,7 @@
   content: "";
   position: absolute;
   inset: -20px;
-  background: radial-gradient(60% 60% at 50% 100%, hsl(var(--imo-coral-500) / 0.14) 0%, transparent 70%);
+  background: radial-gradient(60% 60% at 50% 100%, hsl(var(--imo-coral-500) / 0.10) 0%, transparent 70%);
   opacity: 0;
   transition: opacity var(--imo-duration-slower) var(--imo-ease-glide);
   pointer-events: none;
@@ -408,7 +405,7 @@
 }
 .imo-ember-card:hover {
   transform: translateY(-2px);
-  box-shadow: var(--imo-shadow-lg), var(--imo-shadow-glow);
+  box-shadow: var(--imo-shadow-lg);
 }
 
 /* Ember pulse : indicateur "live" coral qui pulse */
@@ -424,20 +421,6 @@
 }
 .imo-ember-pulse {
   animation: imo-ember-pulse 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* Shimmer flame : passage de lumière sur les CTA premium */
-@keyframes imo-flame-shimmer {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-.imo-flame-shimmer {
-  background-size: 200% 100%;
-  animation: imo-flame-shimmer 4s ease-in-out infinite;
 }
 
 /* Vertical accent bar : ligne fine qui cite le "|" du wordmark */
@@ -474,26 +457,6 @@
   background: linear-gradient(to right, hsl(var(--imo-ink-300)) 0%, transparent 100%);
 }
 
-/* Grain subtil — texture papier sur les surfaces claires */
-.imo-grain {
-  position: relative;
-  isolation: isolate;
-}
-.imo-grain::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.4;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
-}
-.imo-grain > * {
-  position: relative;
-  z-index: 1;
-}
-
 /* Stamp wobble : petite oscillation pour les badges tampons */
 @keyframes imo-stamp-wobble {
   0%, 100% { transform: rotate(-2deg); }
@@ -505,9 +468,16 @@
 
 /* Display heading style : tracking serré + leading court typique de la marque */
 .imo-display {
-  font-weight: 800;
+  font-family: var(--imo-font-display);
+  font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 1.05;
+}
+
+/* Accent éditorial : serif italique pour 1–2 mots de chaleur « cabinet » */
+.imo-accent-serif {
+  font-family: var(--imo-font-accent);
+  font-style: italic;
 }
 
 /* Ruban coral : barre à gauche d'un bloc (comme les documents commerciaux) */
@@ -524,4 +494,23 @@
   width: 3px;
   border-radius: 999px;
   background: var(--imo-gradient-coral);
+}
+
+/* ============================================================
+   Accessibilité — reduced motion global
+   Désactive animations, transitions et smooth-scroll pour les
+   utilisateurs qui préfèrent un mouvement réduit.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
