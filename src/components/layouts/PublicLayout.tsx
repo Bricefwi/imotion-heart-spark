@@ -73,7 +73,7 @@ export function PublicLayout() {
                       : isActive
                         ? "text-foreground"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                  } after:content-[''] after:absolute after:left-3 after:right-3 after:bottom-1 after:h-[2px] after:rounded-full after:bg-gradient-flame after:transition-transform after:duration-200 ${
+                  } after:content-[''] after:absolute after:left-3 after:right-3 after:bottom-1 after:h-[2px] after:rounded-full after:bg-imo-coral-600 after:transition-transform after:duration-200 ${
                     "after:scale-x-0"
                   } ${isActive ? "after:!scale-x-100" : "hover:after:scale-x-50"}`
                 }
@@ -85,7 +85,7 @@ export function PublicLayout() {
             {/* Légal dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger
-                className={`flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-[var(--radius-md)] transition-all duration-200 outline-none ${
+                className={`flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-[var(--radius-md)] transition-all duration-200 ${
                   isHome
                     ? "text-white/70 hover:text-white hover:bg-white/5"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -165,19 +165,23 @@ export function PublicLayout() {
                 >
                   <Link to="/login">{t("nav.login")}</Link>
                 </Button>
-                <Button asChild variant="flame">
+                <Button asChild>
                   <Link to="/register">{t("nav.register")}</Link>
                 </Button>
               </>
             )}
           </div>
 
-          {/* Mobile toggle */}
+          {/* Mobile toggle — cible tactile ≥ 44px (p-3) + état annoncé aux lecteurs d'écran */}
           <div className="flex md:hidden items-center gap-2">
             <LanguageSelector />
             <button
+              type="button"
               onClick={() => setMobileOpen(!mobileOpen)}
-              className={`p-2 rounded-[var(--radius-md)] transition-colors ${
+              aria-expanded={mobileOpen}
+              aria-controls="mobile-nav"
+              aria-label={mobileOpen ? "Fermer le menu de navigation" : "Ouvrir le menu de navigation"}
+              className={`p-3 rounded-[var(--radius-md)] transition-colors ${
                 isHome
                   ? "text-white hover:bg-white/10"
                   : "hover:bg-muted/50"
@@ -190,7 +194,7 @@ export function PublicLayout() {
 
         {/* Mobile menu */}
         {mobileOpen && (
-          <div className="md:hidden border-t border-border/30 bg-background/95 backdrop-blur-xl p-4 space-y-1 animate-fade-in">
+          <div id="mobile-nav" className="md:hidden border-t border-border/30 bg-background/95 backdrop-blur-xl p-4 space-y-1 animate-fade-in">
             {navLinks.map((link) => (
               <Link
                 key={link.to}
@@ -244,7 +248,7 @@ export function PublicLayout() {
             ) : (
               <div className="flex flex-col gap-2 pt-3 px-3">
                 <Button variant="outline" asChild className="rounded-[var(--radius-md)]"><Link to="/login">{t("nav.login")}</Link></Button>
-                <Button asChild variant="flame"><Link to="/register">{t("nav.register")}</Link></Button>
+                <Button asChild><Link to="/register">{t("nav.register")}</Link></Button>
               </div>
             )}
           </div>
@@ -267,13 +271,13 @@ export function PublicLayout() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
             <div className="space-y-4">
               <Logo size="md" showText />
-              <p className="text-sm text-muted-foreground/70 leading-relaxed">
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 {t("footer.tagline")}
               </p>
             </div>
             <div>
               <h4 className="font-semibold text-sm mb-4">{t("footer.product")}</h4>
-              <ul className="space-y-2.5 text-sm text-muted-foreground/70">
+              <ul className="space-y-2.5 text-sm text-muted-foreground">
                 <li><Link to="/diagnostic" className="hover:text-foreground transition-colors duration-150">Diagnostic gratuit</Link></li>
                 <li><Link to="/methode" className="hover:text-foreground transition-colors duration-150">Méthode</Link></li>
                 <li><Link to="/offres" className="hover:text-foreground transition-colors duration-150">Offres</Link></li>
@@ -283,7 +287,7 @@ export function PublicLayout() {
             </div>
             <div>
               <h4 className="font-semibold text-sm mb-4">{t("footer.company")}</h4>
-              <ul className="space-y-2.5 text-sm text-muted-foreground/70">
+              <ul className="space-y-2.5 text-sm text-muted-foreground">
                 <li><Link to="/a-propos" className="hover:text-foreground transition-colors duration-150">{t("nav.about")}</Link></li>
                 <li><Link to="/contact" className="hover:text-foreground transition-colors duration-150">{t("nav.contact")}</Link></li>
                 <li><Link to="/faq" className="hover:text-foreground transition-colors duration-150">{t("nav.faq")}</Link></li>
@@ -292,7 +296,7 @@ export function PublicLayout() {
             </div>
             <div>
               <h4 className="font-semibold text-sm mb-4">{t("nav.legal")}</h4>
-              <ul className="space-y-2.5 text-sm text-muted-foreground/70">
+              <ul className="space-y-2.5 text-sm text-muted-foreground">
                 <li><Link to="/mentions-legales" className="hover:text-foreground transition-colors duration-150">{t("nav.legalNotice")}</Link></li>
                 <li><Link to="/cgu" className="hover:text-foreground transition-colors duration-150">{t("nav.cgu")}</Link></li>
                 <li><Link to="/cgv" className="hover:text-foreground transition-colors duration-150">{t("nav.cgv")}</Link></li>
@@ -301,7 +305,7 @@ export function PublicLayout() {
               </ul>
             </div>
           </div>
-          <div className="border-t border-border/30 mt-10 pt-6 text-center text-sm text-muted-foreground/50">
+          <div className="border-t border-border/30 mt-10 pt-6 text-center text-sm text-muted-foreground">
             © {new Date().getFullYear()} i-MOTION Conseil. {t("footer.rights")}
           </div>
         </div>
