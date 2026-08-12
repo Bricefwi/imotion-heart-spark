@@ -11,25 +11,13 @@ import { toast } from "sonner";
 import { Loader2, Mail, Wand2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { consumePendingGoogleRedirect, startGoogleOAuth } from "@/lib/google-auth";
-
-/**
- * Validation anti open-redirect (finding M5) : n'accepte que des chemins
- * internes stricts. Refuse notamment `//evil.com` (protocol-relative) et
- * `/\evil.com` (backslash interprété comme séparateur par certains navigateurs).
- */
-const isSafeInternalPath = (value: string | null | undefined): value is string =>
-  typeof value === "string" &&
-  value.startsWith("/") &&
-  !value.startsWith("//") &&
-  !value.includes("\\");
+import { getRoleHome } from "@/lib/utils";
 
 const getSmartRedirect = async (userId: string | undefined, fallback: string): Promise<string> => {
   if (!userId || (fallback !== "/client/dashboard" && fallback !== "/")) return fallback;
   const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId);
   const roles = data?.map((r) => r.role) ?? [];
-  if (roles.includes("admin") || roles.includes("super_admin")) return "/admin/dashboard";
-  if (roles.includes("consultant")) return "/consultant/dashboard";
-  return fallback;
+  return getRoleHome(roles, fallback);
 };
 
 export default function Login() {
@@ -45,11 +33,11 @@ export default function Login() {
 
   const requestedPath = (location.state as { from?: string } | null)?.from;
   const queryNext = new URLSearchParams(location.search).get("next");
-  const redirectPath = isSafeInternalPath(queryNext)
+  const redirectPath = queryNext && queryNext.startsWith("/")
     ? queryNext
-    : isSafeInternalPath(requestedPath)
+    : requestedPath && requestedPath.startsWith("/")
       ? requestedPath
-      : isSafeInternalPath(pendingGoogleRedirect)
+      : pendingGoogleRedirect && pendingGoogleRedirect.startsWith("/")
         ? pendingGoogleRedirect
       : "/client/dashboard";
 

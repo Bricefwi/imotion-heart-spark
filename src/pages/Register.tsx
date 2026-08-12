@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { Loader2, ShieldCheck, X, Check } from "lucide-react";
 import { z } from "zod";
 import { useAuth } from "@/hooks/useAuth";
+import { getRoleHome } from "@/lib/utils";
 
 const passwordSchema = z
   .string()
@@ -83,13 +84,31 @@ export default function Register() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const update = (key: string, value: string) => {
-    setForm({ ...form, [key]: value });
+    // Forme fonctionnelle : évite la stale closure sur des updates rapprochés.
+    setForm((prev) => ({ ...prev, [key]: value }));
     setErrors((prev) => ({ ...prev, [key]: "" }));
   };
 
+  // Même logique de rôle que Login : un admin/consultant déjà connecté qui
+  // visite /register est renvoyé vers SON espace, pas vers /client/dashboard.
   useEffect(() => {
     if (authLoading || !user) return;
-    navigate("/client/dashboard", { replace: true });
+
+    let cancelled = false;
+
+    void supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .then(({ data }) => {
+        if (cancelled) return;
+        const roles = data?.map((r) => r.role) ?? [];
+        navigate(getRoleHome(roles), { replace: true });
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [authLoading, navigate, user]);
 
   const validateStep1 = () => {
