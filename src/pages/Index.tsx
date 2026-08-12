@@ -9,24 +9,25 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export default function Index() {
   useEffect(() => {
+    // Accessibilité : pas de smooth-scroll forcé si l'utilisateur préfère un mouvement réduit.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+
     let lenis: { raf: (time: number) => void; destroy: () => void } | null = null;
     let rafId: number | null = null;
 
-    try {
-      import("lenis").then((mod) => {
-        const Lenis = mod.default;
-        lenis = new Lenis({ duration: 1.2, easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
-        function raf(time: number) {
-          lenis?.raf(time);
-          rafId = requestAnimationFrame(raf);
-        }
+    import("lenis").then((mod) => {
+      const Lenis = mod.default;
+      lenis = new Lenis({ duration: 0.9, easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+      function raf(time: number) {
+        lenis?.raf(time);
         rafId = requestAnimationFrame(raf);
-      }).catch((err) => {
-        console.warn("Lenis smooth scroll not available:", err);
-      });
-    } catch (err) {
-      console.warn("Lenis init error:", err);
-    }
+      }
+      rafId = requestAnimationFrame(raf);
+    }).catch((err) => {
+      console.warn("Lenis smooth scroll not available:", err);
+    });
 
     return () => {
       if (rafId) cancelAnimationFrame(rafId);

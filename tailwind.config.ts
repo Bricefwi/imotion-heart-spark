@@ -2,20 +2,21 @@ import type { Config } from "tailwindcss";
 
 export default {
   darkMode: ["class"],
-  content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
+  content: ["./src/**/*.{ts,tsx}"],
   prefix: "",
   theme: {
     container: {
       center: true,
       padding: "2rem",
       screens: {
-        "2xl": "1400px",
+        "2xl": "1200px",
       },
     },
     extend: {
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
-        display: ["Inter", "system-ui", "sans-serif"],
+        display: ["'Inter Tight'", "Inter", "system-ui", "sans-serif"],
+        accent: ["Fraunces", "Georgia", "serif"],
         mono: ["'JetBrains Mono'", "'Fira Code'", "ui-monospace", "monospace"],
       },
       backgroundImage: {
@@ -145,20 +146,21 @@ export default {
         },
       },
       borderRadius: {
-        xs: "var(--radius-xs, 4px)",
-        sm: "var(--radius-sm, 6px)",
-        md: "var(--radius-md, 10px)",
-        lg: "var(--radius-lg, 16px)",
-        xl: "var(--radius-xl, 24px)",
+        xs: "var(--imo-radius-xs, 3px)",
+        sm: "var(--imo-radius-sm, 5px)",
+        md: "var(--imo-radius-md, 8px)",
+        lg: "var(--imo-radius-lg, 12px)",
+        xl: "var(--imo-radius-xl, 16px)",
+        "2xl": "var(--imo-radius-2xl, 24px)",
       },
       boxShadow: {
-        xs: "var(--shadow-xs)",
-        sm: "var(--shadow-sm)",
-        md: "var(--shadow-md)",
-        lg: "var(--shadow-lg)",
-        xl: "var(--shadow-xl)",
-        glow: "var(--shadow-glow)",
-        "glow-lg": "var(--shadow-glow-lg)",
+        xs: "var(--imo-shadow-xs, var(--shadow-xs))",
+        sm: "var(--imo-shadow-sm, var(--shadow-sm))",
+        md: "var(--imo-shadow-md, var(--shadow-md))",
+        lg: "var(--imo-shadow-lg, var(--shadow-lg))",
+        xl: "var(--imo-shadow-xl, var(--shadow-xl))",
+        glow: "var(--imo-shadow-glow, var(--shadow-glow))",
+        "glow-lg": "var(--imo-shadow-glow-lg, var(--shadow-glow-lg))",
       },
       keyframes: {
         "accordion-down": {
@@ -190,8 +192,8 @@ export default {
           to: { opacity: "1", transform: "scale(1)" },
         },
         "pulse-glow": {
-          "0%, 100%": { boxShadow: "0 0 0 0 hsl(0 68% 51% / 0.4)" },
-          "50%": { boxShadow: "0 0 0 12px hsl(0 68% 51% / 0)" },
+          "0%, 100%": { boxShadow: "0 0 0 0 hsl(var(--imo-coral-600) / 0.3)" },
+          "50%": { boxShadow: "0 0 0 12px hsl(var(--imo-coral-600) / 0)" },
         },
         "pulse-dot": {
           "0%, 100%": { opacity: "1", transform: "scale(1)" },

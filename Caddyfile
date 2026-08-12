@@ -10,10 +10,13 @@ app.imotion-conseils.fr {
 
     header {
         Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        # CSP : politique compatible Vite/React/Supabase (compensation XSS pour
+        # les jetons de session lisibles en JS — cf. findings H1/H2/B2).
+        Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
         X-Content-Type-Options "nosniff"
         X-Frame-Options "DENY"
         Referrer-Policy "strict-origin-when-cross-origin"
-        Permissions-Policy "camera=(), microphone=(), geolocation=()"
+        Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
         -Server
     }
 

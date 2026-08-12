@@ -18,45 +18,14 @@ import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import { SafeMarkdown } from "@/components/SafeMarkdown";
 import { PhaseProgress } from "@/components/PhaseProgress";
-import { cn } from "@/lib/utils";
+import { cn, getErrorMessage } from "@/lib/utils";
+import {
+  DOC_TYPE_LABELS,
+  PROJECT_STATUS_LABELS,
+  EMAIL_STATUS_BADGES,
+  EMAIL_TEMPLATE_LABELS,
+} from "@/lib/labels";
 import type { Profile } from "@/types/admin";
-
-const DOC_TYPE_LABELS: Record<string, { label: string; icon: typeof FileText; color: string }> = {
-  cdc: { label: "Cahier des Charges", icon: BookOpen, color: "bg-blue-100 text-blue-700" },
-  tech_recommendation: { label: "Reco Technique & Prompt", icon: Cpu, color: "bg-purple-100 text-purple-700" },
-  proposal: { label: "Proposition Commerciale", icon: FileText, color: "bg-indigo-100 text-indigo-700" },
-  pricing: { label: "Devis", icon: FileText, color: "bg-amber-100 text-amber-700" },
-  devis: { label: "Devis", icon: FileText, color: "bg-amber-100 text-amber-700" },
-  contract: { label: "Contrat", icon: Scale, color: "bg-green-100 text-green-700" },
-  contrat: { label: "Contrat", icon: Scale, color: "bg-green-100 text-green-700" },
-  contract_fr: { label: "Contrat (Droit FR)", icon: Scale, color: "bg-green-100 text-green-700" },
-  pv_reception: { label: "PV de Reception", icon: ClipboardCheck, color: "bg-emerald-100 text-emerald-700" },
-};
-
-const statusLabels: Record<string, { label: string; color: string }> = {
-  draft: { label: "Brouillon", color: "bg-muted text-muted-foreground" },
-  discovery_active: { label: "En decouverte", color: "bg-green-100 text-green-700" },
-  discovery_completed: { label: "Decouverte terminee", color: "bg-blue-100 text-blue-700" },
-  cdc_draft: { label: "CDC en cours", color: "bg-secondary/10 text-orange-700" },
-  cdc_ready: { label: "CDC pret", color: "bg-blue-100 text-blue-700" },
-  proposal_sent: { label: "Proposition envoyee", color: "bg-indigo-100 text-indigo-700" },
-  signed: { label: "Signe", color: "bg-green-100 text-green-700" },
-  in_development: { label: "En developpement", color: "bg-yellow-100 text-yellow-700" },
-  delivered: { label: "Livre", color: "bg-emerald-100 text-emerald-700" },
-  lost: { label: "Perdu", color: "bg-primary/10 text-destructive" },
-};
-
-const TOOL_CATEGORIES: Record<string, string> = {
-  frontend: "Frontend",
-  backend: "Backend / BDD",
-  hosting: "Hebergement",
-  cms: "CMS / Contenu",
-  design: "Design / UX",
-  devops: "CI/CD / DevOps",
-  analytics: "Analytics",
-  ai: "IA / Automatisation",
-  other: "Autre",
-};
 
 export default function AdminProjectDetail() {
   const { id } = useParams<{ id: string }>();
@@ -108,9 +77,6 @@ export default function AdminProjectDetail() {
     enabled: !!id,
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const projectTools: any[] = [];
-
   const { data: estimate } = useQuery({
     queryKey: ["admin-project-estimate", id],
     queryFn: async () => {
@@ -133,7 +99,7 @@ export default function AdminProjectDetail() {
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error("Non authentifie");
+      if (!session) throw new Error("Non authentifié");
 
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const response = await fetch(`${supabaseUrl}/functions/v1/generate-document`, {
@@ -148,7 +114,7 @@ export default function AdminProjectDetail() {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || "Erreur lors de la generation");
+        throw new Error(errorData.error || "Erreur lors de la génération");
       }
 
       const reader = response.body!.getReader();
@@ -178,9 +144,9 @@ export default function AdminProjectDetail() {
       }
 
       queryClient.invalidateQueries({ queryKey: ["admin-project-documents", id] });
-      toast.success(`${DOC_TYPE_LABELS[docType]?.label || docType} genere !`);
+      toast.success(`${DOC_TYPE_LABELS[docType]?.label || docType} généré !`);
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Erreur lors de la generation");
+      toast.error(getErrorMessage(err, "Erreur lors de la génération"));
     } finally {
       setIsGenerating(false);
       setGeneratingType(null);
@@ -198,7 +164,7 @@ export default function AdminProjectDetail() {
   if (!project) {
     return (
       <div className="text-center py-12">
-        <p className="text-muted-foreground">Projet non trouve</p>
+        <p className="text-muted-foreground">Projet non trouvé</p>
         <Button asChild className="mt-4" variant="outline">
           <Link to="/admin/crm">Retour au CRM</Link>
         </Button>
@@ -207,7 +173,7 @@ export default function AdminProjectDetail() {
   }
 
   const client = project.client as Profile | undefined;
-  const status = statusLabels[project.status] || statusLabels.draft;
+  const status = PROJECT_STATUS_LABELS[project.status] || PROJECT_STATUS_LABELS.draft;
   const discoveryData = (project.discovery_data || {}) as Record<string, unknown>;
 
   // Group documents by type
@@ -216,14 +182,6 @@ export default function AdminProjectDetail() {
     const type = doc.type || "other";
     if (!docsByType[type]) docsByType[type] = [];
     docsByType[type].push(doc);
-  }
-
-  // Group tools by category
-  const toolsByCategory: Record<string, typeof projectTools> = {};
-  for (const tool of projectTools) {
-    const cat = (tool as Record<string, unknown>).category as string || "other";
-    if (!toolsByCategory[cat]) toolsByCategory[cat] = [];
-    toolsByCategory[cat].push(tool);
   }
 
   // Extract tools from discovery data
@@ -264,7 +222,7 @@ export default function AdminProjectDetail() {
       </Card>
 
       {/* Pipeline overview cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
         {[
           { label: "CDC", count: cdcDocs.length, icon: BookOpen, color: "text-blue-600", type: "cdc" },
           { label: "Conseil Tech", count: conseilDocs.length, icon: BrainCircuit, color: "text-cyan-600", type: "conseil_technique" },
@@ -272,8 +230,7 @@ export default function AdminProjectDetail() {
           { label: "Reco & Prompt", count: techRecoDocs.length, icon: Cpu, color: "text-purple-600", type: "tech_recommendation" },
           { label: "Devis", count: proposalDocs.length, icon: FileText, color: "text-amber-600", type: "pricing" },
           { label: "Contrat", count: contractDocs.length, icon: Scale, color: "text-green-600", type: "contract_fr" },
-          { label: "PV Reception", count: pvDocs.length, icon: ClipboardCheck, color: "text-emerald-600", type: "pv_reception" },
-          { label: "Outils", count: projectTools.length, icon: Wrench, color: "text-secondary", type: null },
+          { label: "PV Réception", count: pvDocs.length, icon: ClipboardCheck, color: "text-emerald-600", type: "pv_reception" },
         ].map((item) => (
           <Card key={item.label} className="border-0 shadow-sm">
             <CardContent className="p-3 text-center">
@@ -291,7 +248,7 @@ export default function AdminProjectDetail() {
                   {isGenerating && generatingType === item.type ? (
                     <Loader2 className="h-3 w-3 animate-spin" />
                   ) : (
-                    "Generer"
+                    "Générer"
                   )}
                 </Button>
               )}
@@ -364,12 +321,12 @@ export default function AdminProjectDetail() {
                 {client?.industry && <p className="text-xs text-muted-foreground">Secteur : {client.industry}</p>}
                 {client?.email && <p className="text-xs text-muted-foreground">{client.email}</p>}
                 {(project.estimated_budget_min || project.estimated_budget_max) && (
-                  <p className="text-xs">Budget : {project.estimated_budget_min ? `${(project.estimated_budget_min / 1000).toFixed(0)}k` : "?"} - {project.estimated_budget_max ? `${(project.estimated_budget_max / 1000).toFixed(0)}k` : "?"}EUR</p>
+                  <p className="text-xs">Budget : {project.estimated_budget_min ? `${(project.estimated_budget_min / 1000).toFixed(0)}k` : "?"} - {project.estimated_budget_max ? `${(project.estimated_budget_max / 1000).toFixed(0)}k` : "?"}€</p>
                 )}
                 {estimate && (
                   <div className="bg-muted/50 rounded-lg p-3 space-y-1">
                     <p className="text-xs font-medium">Estimation actuelle</p>
-                    <p className="text-sm font-bold">{estimate.final_price?.toLocaleString("fr-FR")} EUR HT</p>
+                    <p className="text-sm font-bold">{estimate.final_price?.toLocaleString("fr-FR")} € HT</p>
                     <p className="text-[10px] text-muted-foreground">{estimate.duration_weeks_min}-{estimate.duration_weeks_max} semaines</p>
                   </div>
                 )}
@@ -379,7 +336,7 @@ export default function AdminProjectDetail() {
             {/* Discovery data summary */}
             <Card className="border-0 shadow-sm">
               <CardHeader className="pb-3">
-                <CardTitle className="font-display text-sm">Donnees de decouverte</CardTitle>
+                <CardTitle className="font-display text-sm">Données de découverte</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2 max-h-[300px] overflow-y-auto">
@@ -390,7 +347,7 @@ export default function AdminProjectDetail() {
                     </div>
                   ))}
                   {Object.keys(discoveryData).length === 0 && (
-                    <p className="text-sm text-muted-foreground">Aucune donnee collectee.</p>
+                    <p className="text-sm text-muted-foreground">Aucune donnée collectée.</p>
                   )}
                 </div>
               </CardContent>
@@ -411,7 +368,7 @@ export default function AdminProjectDetail() {
                   <span className="text-sm">Phase {project.current_phase || 1}/7</span>
                 </div>
                 <Progress value={project.overall_progress || 0} className="h-2" />
-                <p className="text-xs text-muted-foreground">{project.overall_progress || 0}% complete</p>
+                <p className="text-xs text-muted-foreground">{project.overall_progress || 0}% complété</p>
                 {project.qualification_score && (
                   <p className="text-xs">Score : {project.qualification_score}/5</p>
                 )}
@@ -431,7 +388,7 @@ export default function AdminProjectDetail() {
                   { label: "Reco Technique", docs: techRecoDocs, type: "tech_recommendation" },
                   { label: "Devis", docs: proposalDocs, type: "pricing" },
                   { label: "Contrat", docs: contractDocs, type: "contract_fr" },
-                  { label: "PV Reception", docs: pvDocs, type: "pv_reception" },
+                  { label: "PV Réception", docs: pvDocs, type: "pv_reception" },
                 ].map((step, i, arr) => (
                   <div key={step.label} className="flex items-center gap-2 shrink-0">
                     <div className={cn(
@@ -454,7 +411,7 @@ export default function AdminProjectDetail() {
                           {isGenerating && generatingType === step.type ? (
                             <Loader2 className="h-3 w-3 animate-spin" />
                           ) : (
-                            "Generer"
+                            "Générer"
                           )}
                         </Button>
                       )}
@@ -478,7 +435,7 @@ export default function AdminProjectDetail() {
             isGenerating={isGenerating}
             generatingType={generatingType}
             onGenerate={generateDocument}
-            emptyMessage="Aucun CDC genere. Le CDC est le document fondateur qui definit le perimetre du projet."
+            emptyMessage="Aucun CDC généré. Le CDC est le document fondateur qui définit le périmètre du projet."
           />
         </TabsContent>
 
@@ -518,61 +475,33 @@ export default function AdminProjectDetail() {
               isGenerating={isGenerating}
               generatingType={generatingType}
               onGenerate={generateDocument}
-              emptyMessage="La recommandation technique inclut le prompt IA associe au besoin et les outils les plus adaptes."
+              emptyMessage="La recommandation technique inclut le prompt IA associé au besoin et les outils les plus adaptés."
             />
 
-            {/* Structured tools */}
+            {/* Outils collectés en découverte (le bloc « outils structurés » vide a été retiré — code mort) */}
             <Card className="border-0 shadow-sm">
               <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="font-display text-base flex items-center gap-2">
-                    <Wrench className="h-4 w-4" />
-                    Outils recommandes ({projectTools.length})
-                  </CardTitle>
-                </div>
+                <CardTitle className="font-display text-base flex items-center gap-2">
+                  <Wrench className="h-4 w-4" />
+                  Outils recommandés
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                {projectTools.length > 0 ? (
-                  <div className="space-y-4">
-                    {Object.entries(toolsByCategory).map(([category, tools]) => (
-                      <div key={category}>
-                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
-                          {TOOL_CATEGORIES[category] || category}
-                        </p>
-                        <div className="space-y-1.5">
-                          {tools.map((tool: Record<string, unknown>) => (
-                            <div key={String(tool.id)} className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2">
-                              <div className="flex items-center gap-2">
-                                <Wrench className="h-3.5 w-3.5 text-muted-foreground" />
-                                <span className="text-sm font-medium">{String(tool.name || '')}</span>
-                                {tool.is_recommended && (
-                                  <Badge variant="secondary" className="text-[10px]">Recommande</Badge>
-                                )}
-                              </div>
-                              {tool.justification && (
-                                <p className="text-[10px] text-muted-foreground max-w-[200px] truncate">{String(tool.justification)}</p>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : hasDiscoveryTools ? (
+                {hasDiscoveryTools ? (
                   <div>
-                    <p className="text-xs text-muted-foreground mb-2">Outils collectes lors de la decouverte :</p>
+                    <p className="text-xs text-muted-foreground mb-2">Outils collectés lors de la découverte :</p>
                     <div className="bg-muted/50 rounded-lg p-3">
                       <pre className="text-xs whitespace-pre-wrap">{typeof discoveryTools === "object" ? JSON.stringify(discoveryTools, null, 2) : String(discoveryTools)}</pre>
                     </div>
                     <p className="text-[10px] text-muted-foreground mt-2">
-                      Generez une recommandation technique pour obtenir des outils structures.
+                      Générez une recommandation technique pour obtenir des outils structurés.
                     </p>
                   </div>
                 ) : (
                   <div className="text-center py-6">
                     <Wrench className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground mb-2">
-                      Aucun outil configure. Generez une recommandation technique pour identifier les outils adaptes.
+                      Aucun outil configuré. Générez une recommandation technique pour identifier les outils adaptés.
                     </p>
                     <Button
                       variant="outline"
@@ -585,7 +514,7 @@ export default function AdminProjectDetail() {
                       ) : (
                         <Cpu className="h-3.5 w-3.5 mr-1" />
                       )}
-                      Generer Reco Technique
+                      Générer Reco Technique
                     </Button>
                   </div>
                 )}
@@ -603,20 +532,20 @@ export default function AdminProjectDetail() {
             isGenerating={isGenerating}
             generatingType={generatingType}
             onGenerate={generateDocument}
-            emptyMessage="Le contrat encadre juridiquement la relation avec le client, conforme au droit francais."
+            emptyMessage="Le contrat encadre juridiquement la relation avec le client, conforme au droit français."
           />
         </TabsContent>
 
         {/* PV RECEPTION TAB */}
         <TabsContent value="pv">
           <DocumentSection
-            title="Proces-Verbal de Reception"
+            title="Procès-Verbal de Réception"
             docs={pvDocs}
             docType="pv_reception"
             isGenerating={isGenerating}
             generatingType={generatingType}
             onGenerate={generateDocument}
-            emptyMessage="Le PV de reception atteste la conformite des livrables au CDC et au contrat. Il est juridiquement opposable une fois signe par les deux parties."
+            emptyMessage="Le PV de réception atteste la conformité des livrables au CDC et au contrat. Il est juridiquement opposable une fois signé par les deux parties."
           />
           {pvDocs.length === 0 && (
             <Card className="border-0 shadow-sm mt-4 border-l-4 border-l-amber-400">
@@ -624,15 +553,15 @@ export default function AdminProjectDetail() {
                 <div className="flex items-start gap-3">
                   <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm font-medium">Pre-requis pour le PV de reception</p>
+                    <p className="text-sm font-medium">Pré-requis pour le PV de réception</p>
                     <ul className="text-xs text-muted-foreground mt-1 space-y-1">
                       <li className="flex items-center gap-1.5">
                         {cdcDocs.length > 0 ? <CheckCircle className="h-3 w-3 text-green-500" /> : <Clock className="h-3 w-3 text-muted-foreground" />}
-                        CDC valide {cdcDocs.length > 0 ? "(OK)" : "(manquant)"}
+                        CDC validé {cdcDocs.length > 0 ? "(OK)" : "(manquant)"}
                       </li>
                       <li className="flex items-center gap-1.5">
                         {contractDocs.length > 0 ? <CheckCircle className="h-3 w-3 text-green-500" /> : <Clock className="h-3 w-3 text-muted-foreground" />}
-                        Contrat signe {contractDocs.length > 0 ? "(OK)" : "(manquant)"}
+                        Contrat signé {contractDocs.length > 0 ? "(OK)" : "(manquant)"}
                       </li>
                       <li className="flex items-center gap-1.5">
                         {techRecoDocs.length > 0 ? <CheckCircle className="h-3 w-3 text-green-500" /> : <Clock className="h-3 w-3 text-muted-foreground" />}
@@ -698,7 +627,7 @@ export default function AdminProjectDetail() {
             <div className="flex items-center justify-between">
               <CardTitle className="font-display text-sm flex items-center gap-2">
                 {isGenerating && <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />}
-                {isGenerating ? "Generation en cours..." : "Document genere"}
+                {isGenerating ? "Génération en cours..." : "Document généré"}
               </CardTitle>
               {!isGenerating && (
                 <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => setStreamingContent("")}>
@@ -765,7 +694,7 @@ function DocumentSection({
             ) : (
               <FileText className="h-3.5 w-3.5 mr-1" />
             )}
-            {docs.length > 0 ? "Regenerer" : "Generer"}
+            {docs.length > 0 ? "Régénérer" : "Générer"}
           </Button>
         </div>
       </CardHeader>
@@ -795,7 +724,7 @@ function DocumentSection({
                       )}
                       {doc.signed_at && (
                         <Badge className="text-[10px] bg-green-600">
-                          <ShieldCheck className="h-2.5 w-2.5 mr-0.5" /> Signe
+                          <ShieldCheck className="h-2.5 w-2.5 mr-0.5" /> Signé
                         </Badge>
                       )}
                     </div>
@@ -874,7 +803,7 @@ function DocumentCard({
               if (error) {
                 toast.error("Erreur");
               } else {
-                toast.success("Signature demandee");
+                toast.success("Signature demandée");
                 queryClient.invalidateQueries({ queryKey: ["admin-project-documents", projectId] });
               }
             }}
@@ -893,26 +822,6 @@ function DocumentCard({
 }
 
 // Email history tab component
-const EMAIL_STATUS_BADGES: Record<string, { label: string; className: string }> = {
-  pending: { label: "En attente", className: "bg-amber-100 text-amber-700" },
-  sent: { label: "Envoyé", className: "bg-green-100 text-green-700" },
-  failed: { label: "Échoué", className: "bg-destructive/10 text-destructive" },
-  dlq: { label: "Échoué", className: "bg-destructive/10 text-destructive" },
-  suppressed: { label: "Supprimé", className: "bg-muted text-muted-foreground" },
-  bounced: { label: "Rebond", className: "bg-secondary/10 text-orange-700" },
-  complained: { label: "Plainte", className: "bg-destructive/10 text-destructive" },
-};
-
-const TEMPLATE_LABELS: Record<string, string> = {
-  cdc_ready: "CDC prêt",
-  discovery_complete: "Découverte terminée",
-  proposal_sent: "Proposition envoyée",
-  contract_signed: "Contrat signé",
-  development_started: "Développement démarré",
-  project_delivered: "Projet livré",
-  auth_emails: "Email d'authentification",
-};
-
 function EmailHistoryTab({ clientEmail, projectCode }: { clientEmail?: string; projectCode?: string | null }) {
   const { data: emailLogs = [], isLoading } = useQuery({
     queryKey: ["admin-email-logs", clientEmail],
@@ -1004,7 +913,7 @@ function EmailHistoryTab({ clientEmail, projectCode }: { clientEmail?: string; p
                     <Mail className="h-4 w-4 text-muted-foreground shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">
-                        {TEMPLATE_LABELS[log.template_name] || log.template_name}
+                        {EMAIL_TEMPLATE_LABELS[log.template_name] || log.template_name}
                       </p>
                       {log.error_message && (
                         <p className="text-xs text-destructive truncate">{log.error_message}</p>

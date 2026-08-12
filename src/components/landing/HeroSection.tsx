@@ -23,21 +23,24 @@ function AuditMockup() {
   const [revealed, setRevealed] = useState(0);
 
   useEffect(() => {
-    if (revealed >= auditFlow.length) {
-      const t = setTimeout(() => setRevealed(0), 2400);
-      return () => clearTimeout(t);
+    // Respecte prefers-reduced-motion : état final immédiat, aucune boucle.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setRevealed(auditFlow.length);
+      return;
     }
+    // Joue la séquence une seule fois puis reste sur l'état final.
+    if (revealed >= auditFlow.length) return;
     const t = setTimeout(() => setRevealed((c) => c + 1), 950);
     return () => clearTimeout(t);
   }, [revealed]);
 
   return (
     <div className="relative">
-      {/* Halo derrière */}
+      {/* Halo derrière — discret */}
       <div
         aria-hidden
-        className="absolute -inset-12 blur-3xl opacity-60 pointer-events-none"
-        style={{ background: "radial-gradient(60% 60% at 50% 40%, hsl(var(--imo-coral-500) / 0.32) 0%, transparent 70%)" }}
+        className="absolute -inset-12 blur-3xl opacity-40 pointer-events-none"
+        style={{ background: "radial-gradient(60% 60% at 50% 40%, hsl(var(--imo-coral-500) / 0.18) 0%, transparent 70%)" }}
       />
 
       <div
@@ -45,7 +48,7 @@ function AuditMockup() {
         style={{
           background: "var(--imo-gradient-dusk)",
           border: "1px solid hsl(var(--imo-ink-700))",
-          boxShadow: "var(--imo-shadow-xl), var(--imo-shadow-glow)",
+          boxShadow: "var(--imo-shadow-xl)",
         }}
       >
         {/* Top bar — meta */}
@@ -167,17 +170,15 @@ const benefits = [
 export function HeroSection() {
   return (
     <section
-      className="relative overflow-hidden pt-24 pb-20"
-      style={{ background: "var(--imo-gradient-dawn)" }}
+      className="relative overflow-hidden pt-32 pb-24"
+      style={{ background: "hsl(var(--imo-ink-900))" }}
     >
-      {/* Glow ambient */}
+      {/* Halo radial coral discret (10 % alpha max) */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
-        style={{ background: "var(--imo-glow-amber)" }}
+        style={{ background: "radial-gradient(70% 55% at 50% 0%, hsl(var(--imo-coral-500) / 0.10) 0%, transparent 70%)" }}
       />
-      {/* Grain texture */}
-      <div className="absolute inset-0 imo-grain pointer-events-none opacity-50" aria-hidden />
 
       <div className="container relative z-10">
 
@@ -208,7 +209,7 @@ export function HeroSection() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.05 }}
-              className="imo-display text-[2.5rem] sm:text-5xl lg:text-[4rem] mb-6"
+              className="font-display imo-display text-[2.5rem] sm:text-5xl lg:text-[4rem] mb-6"
               style={{ color: "hsl(var(--imo-ink-50))" }}
             >
               Cadrez, concevez et déployez vos projets{" "}
@@ -251,7 +252,7 @@ export function HeroSection() {
               ))}
             </motion.ul>
 
-            {/* CTAs */}
+            {/* CTAs — coral 600 plein, glow uniquement au hover */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -261,11 +262,7 @@ export function HeroSection() {
               <Button
                 size="lg"
                 asChild
-                className="gap-2 imo-flame-shimmer text-white border-0 font-semibold text-base h-12 px-7"
-                style={{
-                  backgroundImage: "var(--imo-gradient-flame)",
-                  boxShadow: "var(--imo-shadow-glow-lg)",
-                }}
+                className="gap-2 bg-imo-coral-600 hover:bg-imo-coral-700 hover:shadow-glow text-white border-0 font-semibold text-base h-12 px-7 transition-colors"
               >
                 <Link to="/diagnostic">
                   Démarrer mon diagnostic gratuit

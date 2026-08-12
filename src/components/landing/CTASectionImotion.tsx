@@ -8,29 +8,12 @@ import { FlameText } from "@/components/brand/FlameText";
 import { Stamp } from "@/components/brand/Stamp";
 
 /**
- * CTASection signature imotion — section sombre dawn-gradient avec halo ember
- * et structure éditoriale. Termine la landing en mode "appel à l'action premium".
+ * CTASection signature imotion — section CLAIRE (coral-50) en contrepoint
+ * du hero sombre : titre encre, CTA coral plein, aucun halo empilé.
  */
 export function CTASectionImotion() {
   return (
-    <section
-      className="relative overflow-hidden py-24 md:py-32"
-      style={{ background: "var(--imo-gradient-dawn)" }}
-    >
-      {/* Glow ember diffus */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{ background: "var(--imo-glow-amber)" }}
-      />
-
-      {/* Halo radial central */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] blur-3xl opacity-50"
-        style={{ background: "radial-gradient(circle, hsl(var(--imo-coral-600) / 0.4) 0%, transparent 70%)" }}
-      />
-
+    <section className="relative overflow-hidden py-24 md:py-32 bg-imo-coral-50">
       <div className="container relative">
 
         <div className="max-w-4xl mx-auto text-center">
@@ -40,7 +23,7 @@ export function CTASectionImotion() {
             viewport={{ once: true }}
             className="mb-6 flex justify-center"
           >
-            <SectionIndex number="05" label="Démarrer maintenant" tone="light" />
+            <SectionIndex number="05" label="Démarrer maintenant" />
           </motion.div>
 
           <motion.div
@@ -50,7 +33,7 @@ export function CTASectionImotion() {
             transition={{ delay: 0.1 }}
             className="mb-5 flex justify-center"
           >
-            <Eyebrow tone="light">Sans engagement · Cahier des charges offert · Validation humaine</Eyebrow>
+            <Eyebrow>Sans engagement · Cahier des charges offert · Validation humaine</Eyebrow>
           </motion.div>
 
           <motion.h2
@@ -58,8 +41,7 @@ export function CTASectionImotion() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="imo-display text-[2.5rem] sm:text-5xl lg:text-6xl mb-6"
-            style={{ color: "hsl(var(--imo-ink-50))" }}
+            className="font-display imo-display text-[2.5rem] sm:text-5xl lg:text-6xl mb-6 text-imo-ink-900"
           >
             Prêt à clarifier votre projet ?{" "}
             <FlameText>Commencez par le diagnostic gratuit.</FlameText>
@@ -70,8 +52,7 @@ export function CTASectionImotion() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.15 }}
-            className="text-lg mb-10 max-w-2xl mx-auto leading-relaxed"
-            style={{ color: "hsl(var(--imo-ink-300))" }}
+            className="text-lg mb-10 max-w-2xl mx-auto leading-relaxed text-imo-ink-600"
           >
             En quelques minutes, évaluez votre maturité, structurez votre besoin et repartez avec
             un cahier des charges initial. Vous restez libre à chaque étape.
@@ -85,18 +66,18 @@ export function CTASectionImotion() {
             transition={{ delay: 0.2 }}
             className="flex flex-wrap items-center justify-center gap-3 mb-10"
           >
-            <Stamp tone="dashed" className="!text-[hsl(var(--imo-coral-300))] !border-[hsl(var(--imo-coral-400)/0.5)] !bg-[hsl(var(--imo-ink-900)/0.4)]">
+            <Stamp tone="dashed" className="!text-[hsl(var(--imo-coral-700))] !border-[hsl(var(--imo-coral-300))] !bg-white/60">
               Gratuit
             </Stamp>
-            <Stamp tone="dashed" className="!text-[hsl(var(--imo-amber-300))] !border-[hsl(var(--imo-amber-400)/0.5)] !bg-[hsl(var(--imo-ink-900)/0.4)]">
+            <Stamp tone="dashed" className="!text-[hsl(var(--imo-amber-700))] !border-[hsl(var(--imo-amber-300))] !bg-white/60">
               Sans engagement
             </Stamp>
-            <Stamp tone="dashed" className="!text-[hsl(var(--imo-coral-300))] !border-[hsl(var(--imo-coral-400)/0.5)] !bg-[hsl(var(--imo-ink-900)/0.4)]">
+            <Stamp tone="dashed" className="!text-[hsl(var(--imo-coral-700))] !border-[hsl(var(--imo-coral-300))] !bg-white/60">
               Validation humaine
             </Stamp>
           </motion.div>
 
-          {/* CTAs */}
+          {/* CTAs — coral plein, glow uniquement au hover */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -107,12 +88,7 @@ export function CTASectionImotion() {
             <Button
               size="lg"
               asChild
-              className="gap-2 imo-flame-shimmer text-white border-0 font-semibold text-base h-13 px-8"
-              style={{
-                backgroundImage: "var(--imo-gradient-flame)",
-                boxShadow: "var(--imo-shadow-glow-lg)",
-                height: "52px",
-              }}
+              className="gap-2 bg-imo-coral-600 hover:bg-imo-coral-700 hover:shadow-glow text-white border-0 font-semibold text-base h-[52px] px-8 transition-colors"
             >
               <Link to="/diagnostic">
                 Démarrer mon diagnostic
@@ -123,13 +99,7 @@ export function CTASectionImotion() {
               variant="outline"
               size="lg"
               asChild
-              className="font-medium px-7"
-              style={{
-                borderColor: "hsl(var(--imo-ink-600))",
-                color: "hsl(var(--imo-ink-100))",
-                background: "transparent",
-                height: "52px",
-              }}
+              className="font-medium px-7 h-[52px] border-imo-ink-300 text-imo-ink-700 bg-transparent hover:bg-white/60"
             >
               <Link to="/methode">Découvrir la méthode</Link>
             </Button>
@@ -141,8 +111,7 @@ export function CTASectionImotion() {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.4 }}
-            className="mt-10 text-xs font-mono uppercase tracking-[0.14em]"
-            style={{ color: "hsl(var(--imo-ink-500))" }}
+            className="mt-10 text-xs font-mono uppercase tracking-[0.14em] text-imo-ink-500"
           >
             Hébergé en UE · RGPD · Données prospects chiffrées
           </motion.p>

@@ -1,22 +1,14 @@
 /**
  * Résolution des variables d'environnement Supabase côté frontend.
  *
- * Règles :
- *  - En développement / preview Lovable (`import.meta.env.DEV`), on
- *    autorise un fallback sur les valeurs publiques connues du projet
- *    pour ne jamais casser le mode Lovable.
- *  - En production (build hors Lovable, déploiement VPS, etc.), AUCUN
- *    fallback : si les variables ne sont pas fournies au build, on
- *    log une erreur claire et on jette. Cela évite qu'une clé /
- *    instance par défaut se retrouve servie aux utilisateurs finaux.
+ * Règles (durcies — finding B1) :
+ *  - AUCUNE clé ni URL de projet n'est codée en dur dans le dépôt, y compris
+ *    la clé anon (publique par nature, mais un JWT valide commité banalise
+ *    la pratique et expose le `ref` projet à tout lecteur du dépôt).
+ *  - En développement comme en production : si les variables VITE_SUPABASE_*
+ *    ne sont pas fournies, on log une erreur claire et on jette. En dev,
+ *    utiliser un `.env.local` non commité (cf. `.env.example`).
  */
-
-const FALLBACK_PROJECT_ID = "npmkzqxoxobfqdqpnsgf";
-const FALLBACK_SUPABASE_URL = `https://${FALLBACK_PROJECT_ID}.supabase.co`;
-const FALLBACK_SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wbWt6cXhveG9iZnFkcXBuc2dmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4MzUyNzksImV4cCI6MjA4OTQxMTI3OX0.GgR5IKEBAX5Y4knl1zNmSfUydIISTeksjoObC_P1FNM";
-
-const IS_DEV = Boolean(import.meta.env?.DEV);
 
 function readEnv(name: string): string {
   return (import.meta.env[name] as string | undefined)?.trim() || "";
@@ -25,8 +17,9 @@ function readEnv(name: string): string {
 function missing(name: string): never {
   const msg =
     `[env] Variable ${name} manquante. ` +
-    `En production, toutes les variables VITE_SUPABASE_* doivent être ` +
-    `fournies au build (cf. .env.example). Aucun fallback n'est utilisé en prod.`;
+    `Fournissez les variables VITE_SUPABASE_* au build (prod) ou via un ` +
+    `fichier .env.local non commité (dev) — cf. .env.example. ` +
+    `Aucun fallback codé en dur n'est utilisé.`;
   console.error(msg);
   throw new Error(msg);
 }
@@ -38,10 +31,6 @@ function resolveSupabaseUrl(): string {
   const projectId = readEnv("VITE_SUPABASE_PROJECT_ID");
   if (projectId) return `https://${projectId}.supabase.co`;
 
-  if (IS_DEV) {
-    console.warn("[env] VITE_SUPABASE_URL absente — fallback dev Lovable utilisé.");
-    return FALLBACK_SUPABASE_URL;
-  }
   return missing("VITE_SUPABASE_URL");
 }
 
@@ -49,12 +38,6 @@ function resolveSupabaseAnonKey(): string {
   const explicitKey = readEnv("VITE_SUPABASE_PUBLISHABLE_KEY");
   if (explicitKey) return explicitKey;
 
-  if (IS_DEV) {
-    console.warn(
-      "[env] VITE_SUPABASE_PUBLISHABLE_KEY absente — fallback dev Lovable utilisé.",
-    );
-    return FALLBACK_SUPABASE_ANON_KEY;
-  }
   return missing("VITE_SUPABASE_PUBLISHABLE_KEY");
 }
 
