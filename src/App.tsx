@@ -112,6 +112,21 @@ const AdminMarketingCampaigns = lazy(() => import("@/pages/admin/MarketingCampai
 
 const queryClient = new QueryClient();
 
+/**
+ * Fallback Suspense de navigation : spinner brandé, accessible (role=status)
+ * et posé sur le fond applicatif pour limiter le flash entre routes lazy.
+ */
+const PageFallback = () => (
+  <div
+    role="status"
+    aria-live="polite"
+    className="flex min-h-screen items-center justify-center bg-background"
+  >
+    <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+    <span className="sr-only">Chargement de la page…</span>
+  </div>
+);
+
 const App = () => (
   <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
   <QueryClientProvider client={queryClient}>
@@ -123,7 +138,7 @@ const App = () => (
         <ErrorBoundary>
         <BrowserRouter>
           <CrossAppTransition />
-          <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+          <Suspense fallback={<PageFallback />}>
           <Routes>
             {/* Public pages with shared layout */}
             <Route element={<PublicLayout />}>
