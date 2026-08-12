@@ -23,16 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { motion } from "framer-motion";
-
-const statusConfig: Record<string, { label: string; color: string }> = {
-  draft: { label: "Brouillon", color: "bg-muted text-muted-foreground" },
-  discovery_active: { label: "En découverte", color: "gradient-primary text-primary-foreground border-0" },
-  discovery_paused: { label: "En pause", color: "bg-amber-100 text-amber-700 border-0" },
-  discovery_completed: { label: "Découverte terminée", color: "bg-blue-100 text-blue-700 border-0" },
-  cdc_ready: { label: "CDC prêt", color: "bg-emerald-100 text-emerald-700 border-0" },
-  proposal_sent: { label: "Proposition envoyée", color: "bg-violet-100 text-violet-700 border-0" },
-  signed: { label: "Signé", color: "bg-emerald-100 text-emerald-700 border-0" },
-};
+import { CLIENT_PROJECT_STATUS_LABELS } from "@/lib/labels";
 
 export default function ClientProjects() {
   const { user } = useAuth();
@@ -160,7 +151,7 @@ export default function ClientProjects() {
       ) : (
         <div className="grid gap-4">
           {filtered.map((project, i) => {
-            const status = statusConfig[project.status] || statusConfig.draft;
+            const status = CLIENT_PROJECT_STATUS_LABELS[project.status] || CLIENT_PROJECT_STATUS_LABELS.draft;
             const docs = docCounts[project.id] || 0;
             return (
               <motion.div
